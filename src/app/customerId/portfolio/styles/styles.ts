@@ -1,8 +1,8 @@
 import styled, { css } from 'styled-components'
-import { Grid, Button } from "@radix-ui/themes"
+import { Grid } from "@radix-ui/themes"
 
 const gridStyles = css`
-  border: 1px solid black;
+  // border: 1px solid black;
   border-radius: 15px;
   text-align: center;
   cursor: pointer;
@@ -14,6 +14,7 @@ const TopGrid = styled(Grid)`
   margin: 10px;
   justify-content: center;
   align-items: center;
+  background: linear-gradient(135deg, #1e3a8a 0%, #000000 100%);
 `
 
 const BottomGrid = styled(Grid)`
@@ -21,7 +22,8 @@ const BottomGrid = styled(Grid)`
   display: flex;
   gap: 2rem;
   margin: 0 auto;
-  max-height: 60dvh;
+  max-height: 50dvh;
+  justify-content: center;
 
   @media (max-width: 768px) {
     margin: 10px;
@@ -31,9 +33,22 @@ const BottomGrid = styled(Grid)`
   }
 `
 
+const PortfolioText = styled.div`
+  font-weight: bold;
+  font-size: 1rem;
+
+  @media (max-width: 768px) {
+    margin-left: 50px;
+  }
+
+  @media (min-width: 1024px) {
+    width: 70%;
+  }
+`
+
 const InsideBottomGrid = styled(Grid)`
   display: grid;
-  width: 100%;
+  width: 80%;
   margin: 10px;
   grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
@@ -45,22 +60,4 @@ const InsideBottomGrid = styled(Grid)`
   }
 `
 
-const StyledButton = styled(Button)<{ $bgColor: string }>`
-  width: 100%;
-  height: 100%;
-  aspect-ratio: 1 / 1;
-  border-radius: 0.5rem;
-  background-color: ${({ $bgColor }) => $bgColor};
-  color: white;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-`
-
-const ButtonSpan = styled.span`
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-`
-
-export { TopGrid, BottomGrid, InsideBottomGrid, StyledButton, ButtonSpan, gridStyles }
+export { TopGrid, BottomGrid, InsideBottomGrid, gridStyles, PortfolioText }

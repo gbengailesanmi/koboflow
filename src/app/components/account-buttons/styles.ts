@@ -5,7 +5,7 @@ const StyledButton = styled(Button)<{ $bgColor: string }>`
   width: 100%;
   height: 100%;
   aspect-ratio: 1 / 1;
-  border-radius: 0.5rem;
+  border-radius: 1.5rem;
   background-color: ${({ $bgColor }) => $bgColor};
   color: white;
   display: flex;

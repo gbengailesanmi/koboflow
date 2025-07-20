@@ -1,7 +1,6 @@
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { Theme } from "@radix-ui/themes"
-import header from "@/app/components/header/header"
 import { ThemeProvider } from "next-themes"
 
 import "./globals.css"
@@ -28,7 +27,6 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <Theme>
-            <header />
             {children}
           </Theme>
         </ThemeProvider>

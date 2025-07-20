@@ -2,6 +2,7 @@
 import * as Styled from "./styles/styles"
 import { Section } from "@radix-ui/themes"
 import AccountButtons from "@/app/components/account-buttons/account-buttons"
+import Header from "@/app/components/header/header"
 
 
 export default function PortfolioPage() {
@@ -23,26 +24,28 @@ export default function PortfolioPage() {
     '#10B981', '#EF4444', '#3B82F6', '#F59E0B', '#F87171',
     '#8B5CF6', '#EC4899', '#22D3EE', '#F43F5E', '#6366F1'
   ]
-
   const accountsToDisplay = accounts.slice(0, 10)
 
   return (
     <>
+    {/* header */}
+    <Header />
     {/* start of top */}
-    <Section>
+    <Section style={{ paddingTop: 0, marginTop: 0 }}>
     <Styled.TopGrid
       width='auto'
     >
       what a grid
-            what a grid
       what a grid
       what a grid
       what a grid
       what a grid
       what a grid
-
+      what a grid
     </Styled.TopGrid>
     {/* end of top */}
+    <Styled.PortfolioText> My Portfolio </Styled.PortfolioText>
+    {/* start of bottom */}
     <Styled.BottomGrid 
       overflowY="auto">
     <Styled.InsideBottomGrid columns="2">
