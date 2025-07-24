@@ -3,7 +3,7 @@ import { Avatar, TextField } from '@radix-ui/themes'
 import { MagnifyingGlassIcon, GearIcon } from '@radix-ui/react-icons'
 
 const Header = () => {
-
+  
   return (
     <Styled.HeaderWrapper>
       <Styled.AvatarWrapper>
@@ -21,8 +21,6 @@ const Header = () => {
         </TextField.Slot>
       </TextField.Root>
       <GearIcon height='30' width='26' />
-
-
     </Styled.HeaderWrapper>
   )
 }

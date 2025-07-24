@@ -15,7 +15,15 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 })
 
-export const metadata: Metadata = {}
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+}
+
+
+export const metadata: Metadata = {
+}
 
 export default function RootLayout({
   children,
@@ -27,7 +35,9 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <Theme>
-            {children}
+            <div className="bg-blue-950 min-h-screen w-full">
+              {children}
+            </div>
           </Theme>
         </ThemeProvider>
       </body>

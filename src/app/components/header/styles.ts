@@ -6,7 +6,6 @@ const HeaderWrapper = styled.div`
   width: 100%;
   display: flex;
   padding: 10px;
-
 `
 
 const AvatarWrapper = styled.div`
@@ -19,9 +18,12 @@ const NameWrapper = styled.div`
   align-items: left;
   
   @media (max-width: 640px) {
-    font-size: 1rem;
+    font-size: 0.6rem;
     line-height: 1;
-    padding: 10px;
+    // align-items: center;
+    align-self: center;
+    align-text: center;
+    // padding: 12px;
   }
 
   @media (min-width: 768px) {
