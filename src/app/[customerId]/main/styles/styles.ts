@@ -41,7 +41,7 @@ const BottomGrid = styled(Grid)<{ $height: string }>`
   max-height: 80dvh;
   min-height: 20dvh;
   scroll-behavior: smooth;
-  background: red;
+  background: white;
   position: absolute;
   bottom: 0;
   height: ${({ $height }) => $height};
@@ -49,6 +49,7 @@ const BottomGrid = styled(Grid)<{ $height: string }>`
   touch-action: none;
   user-select: none;
   width: 100%;
+  color: black;
 `
 
 export { TopGrid, BottomGrid, gridStyles, DragHandle }
