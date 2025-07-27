@@ -33,9 +33,11 @@ export default function TransactionsColumn({ transactions }: TransactionsType) {
 											{transaction.dates.booked}
 										</Text>
 									</Box>
-									<Text as="div" size="3" weight="bold" color={amountColor}>
-										{getAmount(transaction.amount)}
-									</Text>
+									<Flex align="center" justify="end" style={{ flex: 1 }}>
+										<Text as="div" size="3" weight="bold" color={amountColor}>
+											{getAmount(transaction.amount)}
+										</Text>
+									</Flex>
 								</Flex>
 							</Card>
 						</Box>

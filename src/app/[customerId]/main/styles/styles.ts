@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components'
-import { Grid } from "@radix-ui/themes"
+import { Grid, ScrollArea } from "@radix-ui/themes"
 
 const gridStyles = css`
   // border: 1px solid black;
@@ -17,6 +17,11 @@ const TopGrid = styled(Grid)`
   width: calc(100% - 1rem);
   margin-left: .5rem;
   margin-right: .5rem;
+  position: fixed;
+`
+
+const StyledScrollArea = styled(ScrollArea)`
+  max-height: 80dvh;
 `
 
 const DragHandle = styled.div<{ $top: string }>`
@@ -42,7 +47,7 @@ const BottomGrid = styled(Grid)<{ $height: string }>`
   min-height: 20dvh;
   scroll-behavior: smooth;
   background: white;
-  position: absolute;
+  position: fixed;
   bottom: 0;
   height: ${({ $height }) => $height};
   transition: height 0.25s ease;
@@ -50,6 +55,19 @@ const BottomGrid = styled(Grid)<{ $height: string }>`
   user-select: none;
   width: 100%;
   color: black;
+  grid-template-rows: 100px 1fr;
 `
 
-export { TopGrid, BottomGrid, gridStyles, DragHandle }
+const SeeAllDiv = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px;
+`
+
+const StyledSection = styled.section`
+  padding-top: 0;
+  margin-top: 0;
+`
+
+export { TopGrid, BottomGrid, gridStyles, DragHandle, StyledSection, SeeAllDiv, StyledScrollArea }

@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Avatar } from '@radix-ui/themes'
 import { PlusIcon } from '@radix-ui/react-icons'
 import type { Accounts } from '@/types/account'
@@ -9,7 +10,9 @@ type AccountsRowProps = {
 
 const AccountsRow = ({ accounts }: AccountsRowProps) => {
   const accountsData = accounts.accounts
-  console.log('Accoundsdsdsd', accounts)
+  useEffect(() => {
+    console.log('Accoundsdsdsd', accounts)
+  }, [accounts])
 
   const getBalance = (account: typeof accountsData[0]) => {
     const balanceObj = account.balances.booked?.amount || account.balances.available?.amount
