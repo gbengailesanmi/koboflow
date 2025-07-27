@@ -2,7 +2,7 @@ import styled, { css } from 'styled-components'
 import { Grid } from "@radix-ui/themes"
 
 const gridStyles = css`
-  border: 1px solid black;
+  // border: 1px solid black;
   border-radius: 15px;
   text-align: center;
   cursor: pointer;

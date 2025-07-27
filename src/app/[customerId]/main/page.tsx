@@ -6,8 +6,9 @@ import Header from '@/app/components/header/Header'
 import Footer from '@/app/components/footer/Footer'
 import { DragHeight } from '@/../src/hooks/dragHeight'
 import AccountsRow from '@/app/components/accounts-row/AccountsRow'
-import { accounts } from '@/..//src/mocks/accounts'
 import TransactionsColumn from '@/app/components/transactions-column/TransactionsColumn'
+import { accountsMock } from '@/mocks/accountsMock'
+import { trxnMock } from '@/mocks/trxnMock'
 
 export default function PortfolioPage() {
   const params = useParams()
@@ -31,22 +32,23 @@ export default function PortfolioPage() {
           Drag to resize
         </Styled.DragHandle>
         <Styled.BottomGrid $height={heightAsStyle} rows='2' style={{ gridTemplateRows: '100px 1fr' }}>
-          <div style={{ border: '1px solid black' }}>
+          {/* <div style={{ border: '1px solid black' }}> */}
+          <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '5px'}}>
               <span>Accounts</span>
               <span>see all</span>
             </div>
             <div style={{ display: 'flex', overflowX: 'auto' }}>
-              <AccountsRow accounts={accounts}/>
-            </div>
+              <AccountsRow accounts={accountsMock} />
           </div>
-          <div className='flex flex-col' style={{ height: '100%', border: '1px solid black' }}>
+          </div>
+          <div className='flex flex-col' style={{ height: '100%' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '5px'}}>
               <span>Transactions</span>
               <span>see all</span>
             </div>
             <div style={{ flexGrow: 1, overflowY: 'auto' }}>
-              <TransactionsColumn />
+              <TransactionsColumn transactions={trxnMock.transactions}/>
             </div>
           </div>
         </Styled.BottomGrid>

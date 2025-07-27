@@ -1,27 +1,47 @@
-import { Box, Card, Flex, Avatar, Text } from '@radix-ui/themes'
+import * as Styled from './styles'
+import type { TransactionsType } from '@/types/transactions'
+import { Box, Card, Flex, Text } from '@radix-ui/themes'
+import { DownloadIcon, UploadIcon } from '@radix-ui/react-icons'
 
-export default function TransactionsColumn(accountDetails: any) {
-  return (
-    <Box maxWidth="240px">
-	<Card>
-		<Flex gap="3" align="center">
-			<Avatar
-				size="3"
-				src="https://images.unsplash.com/photo-1607346256330-dee7af15f7c5?&w=64&h=64&dpr=2&q=70&crop=focalpoint&fp-x=0.67&fp-y=0.5&fp-z=1.4&fit=crop"
-				radius="full"
-				fallback="x"
-			/>
-			<Box>
-        <Text as="div" size="2" color="gray">
-					Receive money
-				</Text>
-				<Text as="div" size="2" weight="bold">
-					Transaction description
-				</Text>
+export default function TransactionsColumn({ transactions }: TransactionsType) {
+	return (
+		<Styled.TransactionsWrapper>
+			{transactions.map(transaction => {
+				const isDebit = Number(transaction.amount.value.unscaledValue) < 0
+				const amountColor = isDebit ? 'red' : 'green'
+				const Icon = isDebit ? UploadIcon : DownloadIcon
 
-			</Box>
-		</Flex>
-	</Card>
-</Box>
-  )
+				function getAmount(amount: { value: { unscaledValue: string; scale: string }; currencyCode: string }): import("react").ReactNode {
+					const { unscaledValue, scale } = amount.value
+					const scaled = Number(unscaledValue) / Math.pow(10, Number(scale))
+					return `${scaled.toLocaleString(undefined, { minimumFractionDigits: Number(scale), maximumFractionDigits: Number(scale) })} ${amount.currencyCode}`
+				}
+				return (
+					<Styled.BoxWrapper key={transaction.id}>
+						<Box width='100%'>
+							<Card>
+								<Flex gap="3" align="center">
+									<Icon />
+									<Box>
+										<Text as="div" size="2" color="gray">
+											{isDebit ? 'Sent money' : 'Receive money'}
+										</Text>
+										<Text as="div" size="2" weight="bold">
+											{transaction.descriptions.display}
+										</Text>
+										<Text as="div" size="1" color="gray">
+											{transaction.dates.booked}
+										</Text>
+									</Box>
+									<Text as="div" size="3" weight="bold" color={amountColor}>
+										{getAmount(transaction.amount)}
+									</Text>
+								</Flex>
+							</Card>
+						</Box>
+					</Styled.BoxWrapper>
+				)
+			})}
+		</Styled.TransactionsWrapper>
+	)
 }
