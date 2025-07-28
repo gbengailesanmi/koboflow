@@ -1,20 +1,36 @@
 'use client'
+
+import { useEffect, useState } from 'react'
 import * as Styled from './styles/styles'
+import type { Accounts } from '@/types/account'
 import { useParams } from 'next/navigation'
-import { Section, ScrollArea } from '@radix-ui/themes'
-import Header from '@/app/components/header/Header'
-import Footer from '@/app/components/footer/Footer'
+import { ScrollArea } from '@radix-ui/themes'
+import Header from '@/app/components/header/header'
+import Footer from '@/app/components/footer/footer'
 import { DragHeight } from '@/../src/hooks/dragHeight'
 import AccountsRow from '@/app/components/accounts-row/AccountsRow'
 import TransactionsColumn from '@/app/components/transactions-column/TransactionsColumn'
-import { accountsMock } from '@/mocks/accountsMock'
-import { trxnMock } from '@/mocks/trxnMock'
 
 export default function PortfolioPage() {
   const params = useParams()
   const customerId = params?.customerId
 
   const { height, heightAsStyle, handleDragStart } = DragHeight()
+
+  const [accounts, setAccounts] = useState<Accounts>({accounts: [], nextPageToken: ''})
+  const [transactions, setTransactions] = useState([])
+
+  useEffect(() => {
+    async function fetchData() {
+      const res = await fetch(`/api/portfolio?customerId=${customerId}`)
+      const data = await res.json()
+      
+      setAccounts(data.accounts)
+      setTransactions(data.transactions)
+    }
+
+    if (customerId) fetchData()
+  }, [customerId])
 
   return (
     <>
@@ -31,7 +47,6 @@ export default function PortfolioPage() {
           Drag to resize
         </Styled.DragHandle>
         <Styled.BottomGrid $height={heightAsStyle} rows='2'>
-          {/* <div style={{ border: '1px solid black' }}> */}
           <div>
             <Styled.SeeAllDiv>
               <span>Accounts</span>
@@ -39,17 +54,18 @@ export default function PortfolioPage() {
             </Styled.SeeAllDiv>
 
             <ScrollArea type="always" scrollbars="horizontal">
-              <AccountsRow accounts={accountsMock} />
-          </ScrollArea>
+              <AccountsRow accounts={accounts} />
+            </ScrollArea>
           </div>
 
-            <div className='flex flex-col h-[100%]'>
+          <div className='flex flex-col h-[100%]'>
             <Styled.SeeAllDiv>
               <span>Transactions</span>
               <span>see all</span>
             </Styled.SeeAllDiv>
+
             <Styled.StyledScrollArea type="always" scrollbars="vertical">
-              <TransactionsColumn transactions={trxnMock.transactions}/>
+              <TransactionsColumn transactions={transactions} />
             </Styled.StyledScrollArea>
           </div>
         </Styled.BottomGrid>

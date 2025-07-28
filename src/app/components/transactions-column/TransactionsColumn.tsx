@@ -23,13 +23,13 @@ export default function TransactionsColumn({ transactions }: TransactionsType) {
 								<Flex gap="3" align="center">
 									<Icon />
 									<Box>
-										<Text as="div" size="2" color="gray">
+										<Text as="div" size="2">
 											{isDebit ? 'Sent money' : 'Receive money'}
 										</Text>
 										<Text as="div" size="2" weight="bold">
 											{transaction.descriptions.display}
 										</Text>
-										<Text as="div" size="1" color="gray">
+										<Text as="div" size="1">
 											{transaction.dates.booked}
 										</Text>
 									</Box>

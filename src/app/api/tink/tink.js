@@ -18,6 +18,8 @@ async function getTinkTokens({ code, credentialsId, uriBase, port }) {
 }
 
 async function getTinkData(accessToken) {
+  console.log('Fetching Tink data >>>>>>')
+  
   const [accountsRes, trxnRes] = await Promise.all([
     fetch(`${tinkUrl}/data/v2/accounts`, {
       headers: { Authorization: `Bearer ${accessToken}` },

@@ -10,9 +10,6 @@ type AccountsRowProps = {
 
 const AccountsRow = ({ accounts }: AccountsRowProps) => {
   const accountsData = accounts.accounts
-  useEffect(() => {
-    console.log('Accoundsdsdsd', accounts)
-  }, [accounts])
 
   const getBalance = (account: typeof accountsData[0]) => {
     const balanceObj = account.balances.booked?.amount || account.balances.available?.amount
@@ -37,9 +34,7 @@ const AccountsRow = ({ accounts }: AccountsRowProps) => {
             <strong>
               {getBalance(account).toLocaleString(undefined, {
                 style: 'currency',
-                currency: account.balances.booked?.amount.currencyCode || 'GBP',
-                // minimumFractionDigits: 2,
-                // maximumFractionDigits: 2,
+                currency: account.balances.booked?.amount.currencyCode || account.balances.available?.amount.currencyCode
               })}
             </strong>
           </span>
