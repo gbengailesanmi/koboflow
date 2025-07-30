@@ -1,16 +1,10 @@
-import { redirect } from 'next/navigation'
-import LoginForm from '../forms/LoginForm'
-import { redirectIfAuth } from '@/lib/redirect-if-auth'
+import SignupForm from '@/app/forms/signupForm'
 
-export default async function Page() {
-  const customerId = await redirectIfAuth()
-  if (customerId) {
-    redirect(`/${customerId}/dashboard`)
-  }
+export default function Page() {
   return (
     <main className="p-4">
-      <h1>Login</h1>
-      <LoginForm />
-  //   </main>
+      <h1>Signup</h1>
+      <SignupForm />
+    </main>
   )
 }
