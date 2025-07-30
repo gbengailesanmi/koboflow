@@ -24,7 +24,6 @@ export async function redirectIfAuth() {
     if (result.length === 0) return null
 
     const user = result[0]
-    console.log('User found:', user)
     return payload.customerId as string
 
   } catch {
