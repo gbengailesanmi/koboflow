@@ -9,7 +9,7 @@ type AccountsRowProps = {
 }
 
 const AccountsRow = ({ accounts }: AccountsRowProps) => {
-  const accountsData = accounts.accounts
+  const accountsData = accounts.accounts ?? []
 
   const getBalance = (account: typeof accountsData[0]) => {
     const balanceObj = account.balances.booked?.amount || account.balances.available?.amount

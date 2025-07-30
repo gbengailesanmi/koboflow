@@ -1,6 +1,6 @@
 const tinkUrl = 'https://api.tink.com'
 
-async function getTinkTokens({ code, credentialsId, uriBase, port }) {
+async function getTinkTokens({ code, uriBase, port }) {
   const tokenResponse = await fetch(`${tinkUrl}/api/v1/oauth/token`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -8,8 +8,8 @@ async function getTinkTokens({ code, credentialsId, uriBase, port }) {
       grant_type: 'authorization_code',
       code,
       redirect_uri: `${uriBase}:${port}/callback`,
-      client_id: 'c2296ba610e54fda8a7769872888a1f6',
-      client_secret: 'a2daae6de157478eb42187b6343400ef',
+      client_id: process.env.TINK_CLIENT_ID,
+      client_secret: process.env.TINK_CLIENT_SECRET
     }),
   })
   const tokenData = await tokenResponse.json()
@@ -17,7 +17,7 @@ async function getTinkTokens({ code, credentialsId, uriBase, port }) {
   return tokenData.access_token
 }
 
-async function getTinkData(accessToken) {
+async function getTinkData(accessToken, customerId) {
   console.log('Fetching Tink data >>>>>>')
   
   const [accountsRes, trxnRes] = await Promise.all([
@@ -28,9 +28,23 @@ async function getTinkData(accessToken) {
       headers: { Authorization: `Bearer ${accessToken}` },
     }),
   ])
+
+  const accountsJson = await accountsRes.json()
+  const transactionsJson = await trxnRes.json()
+
+  const accounts = accountsJson.accounts.map(item => ({
+    ...item,
+    customerId,
+  }))
+
+  const transactions = transactionsJson.transactions.slice(0, 3).map(item => ({
+    ...item,
+    customerId,
+  }))
+
   return {
-    accounts: await accountsRes.json(),
-    transactions: await trxnRes.json(),
+    accounts: accounts,
+    transactions: transactions
   }
 }
 
