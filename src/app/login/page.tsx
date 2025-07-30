@@ -1,6 +1,13 @@
-import LoginForm from '../forms/LoginForm'
+import { redirect } from 'next/navigation'
+import LoginForm from '@/app/forms/LoginForm'
+import { redirectIfAuth } from '@/lib/redirect-if-auth'
 
-export default function Page() {
+export default async function Page() {
+  const customerId = await redirectIfAuth()
+  if (customerId) {
+    redirect(`/${customerId}/dashboard`)
+  }
+
   return (
     <main className="p-4">
       <h1>Login</h1>

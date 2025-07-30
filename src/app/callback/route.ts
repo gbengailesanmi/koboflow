@@ -8,7 +8,7 @@ export async function GET(req: Request) {
   const user = await getCurrentUser()
 
   if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return NextResponse.redirect(`${process.env.BASE_URI}/login`)  
   }
 
   const code = new URL(req.url).searchParams.get('code')
@@ -25,7 +25,7 @@ export async function GET(req: Request) {
 
     const { accounts, transactions } = await getTinkData(accessToken, user.customerId)
 
-    // Bulk insert accounts
+       // Bulk insert accounts
     await db.insert(accountSchema).values(
       accounts.map((account: any) => ({
         id: account.id,
@@ -62,8 +62,8 @@ export async function GET(req: Request) {
         providerMutability: txn.providerMutability,
       }))
     )
-
-    return NextResponse.json({ accounts, transactions })
+    
+    return NextResponse.redirect(`${process.env.BASE_URI}:${process.env.PORT}/${user.customerId}/dashboard`)
   } catch (err) {
     console.error(err)
     return NextResponse.json({ error: 'Failed to fetch data from Tink' }, { status: 500 })

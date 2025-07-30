@@ -64,7 +64,12 @@ export async function login(_: any, formData: FormData) {
   if (!valid) return { message: 'Invalid credentials.' }
 
   // Create JWT token for session
-  const token = await new SignJWT({ userId: user.id, customerId: user.customerId })
+  const token = await new SignJWT({ 
+      userId: user.id, 
+      customerId: user.customerId,
+      name: user.name,
+      email: user.email
+    })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime('7d')
@@ -81,5 +86,5 @@ export async function login(_: any, formData: FormData) {
     maxAge: 60 * 60 * 24 * 7,
   })
 
-  redirect('/dashboard')
+  redirect(`/${user.customerId}/dashboard`)
 }
