@@ -12,7 +12,6 @@ export async function getSession() {
   try {
     const { payload } = await jwtVerify(token, secret)
     return {
-      userId: payload.userId as string,
       customerId: payload.customerId as string,
     }
   } catch {
