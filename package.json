@@ -7,8 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "db:check": "npx drizzle-kit studio",
-    "db:run": "docker run --name consoldb -e POSTGRES_PASSWORD=Goldbag -d -p 5432:5432 postgres"
+    "db:check": "npx drizzle-kit studio"  
   },
   "dependencies": {
     "@fontsource/roboto": "^5.2.6",
