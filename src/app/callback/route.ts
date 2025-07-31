@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/session'
-import { getTinkTokens, getTinkData } from '@/app/api/tink/tink'
-import { bulkInsertTinkData } from '@/helpers/bulkInsertData'
+import { getTinkTokens, getTinkData } from '@/app/api/tink'
+import { bulkInsertTinkData } from '@/helpers/bulk-insert-data'
 
 export async function GET(req: Request) {
   const user = await getCurrentUser()

@@ -6,7 +6,7 @@ export async function bulkInsertTinkData(
   transactions: any[],
   customerId: string
 ) {
-  // Bulk insert accounts
+
   await db.insert(accountSchema).values(
     accounts.map((account: any) => ({
       id: account.id,
@@ -26,7 +26,6 @@ export async function bulkInsertTinkData(
     }))
   )
 
-  // Bulk insert transactions
   await db.insert(trxnSchema).values(
     transactions.map((txn: any) => ({
       id: txn.id,

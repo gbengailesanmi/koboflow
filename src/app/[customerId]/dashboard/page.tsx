@@ -7,7 +7,7 @@ import { useSearchParams } from 'next/navigation'
 import { ScrollArea } from '@radix-ui/themes'
 import Header from '@/app/components/header/header'
 import Footer from '@/app/components/footer/footer'
-import { DragHeight } from '@/../src/hooks/dragHeight'
+import { DragHeight } from '@/hooks/drag-height'
 import AccountsRow from '@/app/components/accounts-row/AccountsRow'
 import TransactionsColumn from '@/app/components/transactions-column/TransactionsColumn'
 
