@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "db:check": "npx drizzle-kit studio"  
+    "db:check": "npx drizzle-kit studio",
+    "db:schema": "npx drizzle-kit push"  
   },
   "dependencies": {
     "@fontsource/roboto": "^5.2.6",
