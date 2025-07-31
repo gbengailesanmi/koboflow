@@ -46,4 +46,3 @@ export const transactions = pgTable('transactions', {
 function integer(name: string) {
   return pgInteger(name)
 }
-
