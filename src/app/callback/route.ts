@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server'
-import { getCurrentUser } from '@/lib/session'
+import { getSession } from '@/lib/session'
 import { getTinkTokens, getTinkData } from '@/app/api/tink'
 import { bulkInsertTinkData } from '@/helpers/bulk-insert-data'
 
 export async function GET(req: Request) {
-  const user = await getCurrentUser()
+  const user = await getSession()
 
   if (!user) {
     return NextResponse.redirect(`${process.env.BASE_URI}/login`)  

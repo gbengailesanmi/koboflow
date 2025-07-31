@@ -3,7 +3,7 @@ import { jwtVerify } from 'jose'
 
 const secret = new TextEncoder().encode(process.env.SESSION_SECRET!)
 
-export async function getCurrentUser() {
+export async function getSession() {
   const cookieStore = await cookies()
   const token = cookieStore.get('jwt_token')?.value
 
