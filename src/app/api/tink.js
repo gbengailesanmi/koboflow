@@ -1,3 +1,4 @@
+import getMoneyValue from '@/helpers/get-money-value'
 const tinkUrl = 'https://api.tink.com'
 
 async function getTinkTokens({ code, uriBase, port }) {
@@ -35,12 +36,21 @@ async function getTinkData(accessToken, customerId) {
   const accounts = accountsJson.accounts.map(item => ({
     ...item,
     customerId,
+    balanceFormatted: getMoneyValue(
+      item?.balances?.booked?.amount?.value?.unscaledValue,
+      item?.balances?.booked?.amount?.value?.scale
+    )
   }))
 
   const transactions = transactionsJson.transactions.slice(0, 3).map(item => ({
     ...item,
     customerId,
+    amountFormatted: getMoneyValue(
+      item?.amount?.value?.unscaledValue, 
+      item?.amount?.value?.scale
+    )
   }))
+
 
   return {
     accounts: accounts,
@@ -48,4 +58,4 @@ async function getTinkData(accessToken, customerId) {
   }
 }
 
-module.exports = { getTinkTokens, getTinkData }
+export { getTinkTokens, getTinkData }

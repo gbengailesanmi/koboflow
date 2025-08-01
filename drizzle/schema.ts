@@ -13,6 +13,7 @@ export const users = pgTable('users', {
 export const accounts = pgTable('accounts', {
   id: varchar('id').primaryKey(),
   customerId: varchar('customer_id').notNull(),
+  balance: varchar('balance').notNull(),
   name: varchar('name').notNull(),
   type: varchar('type').notNull(),
   bookedAmount: integer('booked_amount').notNull(),
@@ -32,6 +33,7 @@ export const transactions = pgTable('transactions', {
   id: varchar('id').primaryKey(),
   accountId: varchar('account_id').notNull().references(() => accounts.id),
   customerId: varchar('customer_id').notNull(),
+  amount: varchar('amount').notNull(),
   unscaledValue: integer('unscaled_value').notNull(),
   scale: integer('scale').notNull(),
   currencyCode: varchar('currency_code').notNull(),
