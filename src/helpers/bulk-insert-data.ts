@@ -13,6 +13,7 @@ export async function bulkInsertTinkData(
       accounts.map((account: any) => ({
         id: account.id,
         customerId,
+        stableId: account.stable_id,
         name: account.name,
         type: account.type,
         bookedAmount: parseInt(account.balances.booked.amount.value.unscaledValue, 10),
@@ -28,26 +29,8 @@ export async function bulkInsertTinkData(
         customerSegment: account.customerSegment,
       }))
     )
-    .onConflictDoUpdate({
-      target: accountSchema.id,
-      set: {
-        customerId: sql`EXCLUDED.customer_id`,
-        name: sql`EXCLUDED.name`,
-        type: sql`EXCLUDED.type`,
-        bookedAmount: sql`EXCLUDED.booked_amount`,
-        bookedScale: sql`EXCLUDED.booked_scale`,
-        bookedCurrency: sql`EXCLUDED.booked_currency`,
-        availableAmount: sql`EXCLUDED.available_amount`,
-        availableScale: sql`EXCLUDED.available_scale`,
-        availableCurrency: sql`EXCLUDED.available_currency`,
-        balance: sql`EXCLUDED.balance`,
-        identifiers: sql`EXCLUDED.identifiers`,
-        lastRefreshed: sql`EXCLUDED.last_refreshed`,
-        financialInstitutionId: sql`EXCLUDED.financial_institution_id`,
-        customerSegment: sql`EXCLUDED.customer_segment`,
-      },
-    })
-
+    .onConflictDoNothing()
+    
   await db
     .insert(trxnSchema)
     .values(

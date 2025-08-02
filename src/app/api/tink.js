@@ -1,4 +1,4 @@
-import getMoneyValue from '@/helpers/get-money-value'
+import { formatAmount, getStableId } from '@/helpers/db-insert-helper'
 const tinkUrl = 'https://api.tink.com'
 
 async function getTinkTokens({ code, uriBase, port }) {
@@ -36,16 +36,17 @@ async function getTinkData(accessToken, customerId) {
   const accounts = accountsJson.accounts.map(item => ({
     ...item,
     customerId,
-    balanceFormatted: getMoneyValue(
+    balanceFormatted: formatAmount(
       item?.balances?.booked?.amount?.value?.unscaledValue,
       item?.balances?.booked?.amount?.value?.scale
-    )
+    ),
+    stable_id: getStableId(item)
   }))
 
   const transactions = transactionsJson.transactions.slice(0, 3).map(item => ({
     ...item,
     customerId,
-    amountFormatted: getMoneyValue(
+    amountFormatted: formatAmount(
       item?.amount?.value?.unscaledValue, 
       item?.amount?.value?.scale
     )

@@ -12,6 +12,7 @@ export const users = pgTable('users', {
 // ----------- ACCOUNTS TABLE -----------
 export const accounts = pgTable('accounts', {
   id: varchar('id').primaryKey(),
+  stableId: varchar('stable_id').notNull().unique(),
   customerId: varchar('customer_id').notNull(),
   balance: varchar('balance').notNull(),
   name: varchar('name').notNull(),
