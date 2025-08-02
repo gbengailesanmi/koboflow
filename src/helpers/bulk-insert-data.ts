@@ -36,6 +36,7 @@ export async function bulkInsertTinkData(
     .values(
       transactions.map((txn: any) => ({
         id: txn.id,
+        accountStableId: txn.accountStableId,
         accountId: txn.accountId,
         customerId,
         amount: txn.amountFormatted,
@@ -54,6 +55,7 @@ export async function bulkInsertTinkData(
       target: trxnSchema.id,
       set: {
         accountId: sql`EXCLUDED.account_id`,
+        accountStableId: sql`EXCLUDED.account_stable_id`,
         customerId: sql`EXCLUDED.customer_id`,
         amount: sql`EXCLUDED.amount`,
         unscaledValue: sql`EXCLUDED.unscaled_value`,

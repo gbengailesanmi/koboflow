@@ -37,21 +37,24 @@ async function getTinkData(accessToken, customerId) {
     ...item,
     customerId,
     balanceFormatted: formatAmount(
-      item?.balances?.booked?.amount?.value?.unscaledValue,
-      item?.balances?.booked?.amount?.value?.scale
+      item?.balances?.available?.amount?.value?.unscaledValue,
+      item?.balances?.available?.amount?.value?.scale
     ),
     stable_id: getStableId(item)
   }))
 
-  const transactions = transactionsJson.transactions.slice(0, 3).map(item => ({
-    ...item,
-    customerId,
-    amountFormatted: formatAmount(
-      item?.amount?.value?.unscaledValue, 
-      item?.amount?.value?.scale
-    )
-  }))
-
+  const transactions = transactionsJson.transactions.map((item) => {
+    const relatedAccount = accounts.find(acc => acc.id === item.accountId)
+    return {
+      ...item,
+      customerId,
+      amountFormatted: formatAmount(
+        item?.amount?.value?.unscaledValue,
+        item?.amount?.value?.scale
+      ),
+      accountStableId: relatedAccount?.stable_id ?? null, // mirror stableId
+    }
+  })
 
   return {
     accounts: accounts,

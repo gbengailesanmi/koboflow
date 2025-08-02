@@ -32,7 +32,8 @@ export const accounts = pgTable('accounts', {
 // ----------- TRANSACTIONS TABLE -----------
 export const transactions = pgTable('transactions', {
   id: varchar('id').primaryKey(),
-  accountId: varchar('account_id').notNull().references(() => accounts.id),
+  accountStableId: varchar('account_stable_id').notNull().references(() => accounts.stableId),
+  accountId: varchar('account_id').notNull(),
   customerId: varchar('customer_id').notNull(),
   amount: varchar('amount').notNull(),
   unscaledValue: integer('unscaled_value').notNull(),
