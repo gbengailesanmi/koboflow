@@ -33,6 +33,7 @@ async function getTinkData(accessToken, customerId) {
   const accountsJson = await accountsRes.json()
   const transactionsJson = await trxnRes.json()
 
+  console.log('Accounts fetched:', accountsJson)
   const accounts = accountsJson.accounts.map(item => ({
     ...item,
     customerId,
@@ -43,7 +44,7 @@ async function getTinkData(accessToken, customerId) {
     unique_id: getUniqueId(item)
   }))
 
-  const transactions = transactionsJson.transactions.slice(0, 3).map((item) => {
+  const transactions = transactionsJson.transactions.map((item) => {
     const relatedAccount = accounts.find(acc => acc.id === item.accountId)
     return {
       ...item,
@@ -58,6 +59,7 @@ async function getTinkData(accessToken, customerId) {
 
   return {
     accounts: accounts ?? [],
+    nextPageToken: accountsJson.nextPageToken ?? '',
     transactions: transactions ?? []
   }
 }

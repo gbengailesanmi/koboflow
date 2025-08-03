@@ -4,22 +4,23 @@ import { accounts as accountSchema, transactions as trxnSchema } from '../../dri
 
 export async function bulkInsertTinkAccounts(
   accounts: any[],
-  customerId: string
+  customerId: string,
+  nextPageToken?: string
 ) {
-  try {
-    await insertAccounts(db, accounts, customerId, accountSchema)
-  } catch (error) {
-    throw new Error('Conflict occurred while inserting accounts.')
-  }
+  // try {
+    await insertAccounts(db, accounts, customerId, accountSchema, nextPageToken)
+  // } catch (error) {
+  //   throw new Error('Error occurred while inserting accounts...')
+  // }
 }
 
 export async function bulkInsertTinkTransactions(
   transactions: any[],
   customerId: string
 ) {
-  try {
+  // try {
     await insertTransactions(db, transactions, customerId, trxnSchema)
-  } catch (error) {
-    throw new Error('Conflict occurred while inserting transactions.')
-  }
+  // } catch (error) {
+  //   throw new Error('Error occurred while inserting transactions...')
+  // }
 }

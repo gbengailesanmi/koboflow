@@ -18,8 +18,14 @@ const getUniqueId = (account: any): string => {
   return `accountUId-${accountNumber}${finIstitutionId}${sortCode}`
 }
 
-async function insertAccounts(dbInstance: any, accounts: any[], customerId: string, accountSchema: any) {
-  if (accounts.length === 0 || !dbInstance || !customerId) return
+async function insertAccounts(dbInstance: any, accounts: any[], customerId: string, accountSchema: any, nextPageToken?: string) {
+  if (accounts.length === 0) {
+    return 'No accounts to insert'
+  }
+
+  if (!customerId) {
+    return 'Customer ID is required'
+  }
 
   await dbInstance
     .insert(accountSchema)
@@ -41,13 +47,20 @@ async function insertAccounts(dbInstance: any, accounts: any[], customerId: stri
         lastRefreshed: new Date(account.dates.lastRefreshed),
         financialInstitutionId: account.financialInstitutionId,
         customerSegment: account.customerSegment,
+        ...(nextPageToken ? { nextPageToken } : {})
       }))
     )
     .onConflictDoNothing({target: accountSchema.uniqueId})
 }
 
 async function insertTransactions(dbInstance: any, transactions: any[], customerId: string, trxnSchema: any) {
-  if (transactions.length === 0 || !dbInstance || !customerId) return
+    if (transactions.length === 0) {
+    return 'No transactions to insert'
+    }
+
+    if (!customerId) {
+      return 'Customer ID is required'
+    }
 
   await dbInstance
     .insert(trxnSchema)
