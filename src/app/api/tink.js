@@ -1,4 +1,4 @@
-import { formatAmount, getStableId } from '@/helpers/db-insert-helper'
+import { formatAmount, getUniqueId } from '@/helpers/db-insert-helper'
 const tinkUrl = 'https://api.tink.com'
 
 async function getTinkTokens({ code, uriBase, port }) {
@@ -40,10 +40,10 @@ async function getTinkData(accessToken, customerId) {
       item?.balances?.available?.amount?.value?.unscaledValue,
       item?.balances?.available?.amount?.value?.scale
     ),
-    stable_id: getStableId(item)
+    unique_id: getUniqueId(item)
   }))
 
-  const transactions = transactionsJson.transactions.map((item) => {
+  const transactions = transactionsJson.transactions.slice(0, 3).map((item) => {
     const relatedAccount = accounts.find(acc => acc.id === item.accountId)
     return {
       ...item,
@@ -52,13 +52,13 @@ async function getTinkData(accessToken, customerId) {
         item?.amount?.value?.unscaledValue,
         item?.amount?.value?.scale
       ),
-      accountStableId: relatedAccount?.stable_id ?? null, // mirror stableId
+      accountUniqueId: relatedAccount?.unique_id ?? null, // mirror uniqueId
     }
   })
 
   return {
-    accounts: accounts,
-    transactions: transactions
+    accounts: accounts ?? [],
+    transactions: transactions ?? []
   }
 }
 

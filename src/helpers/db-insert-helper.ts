@@ -8,14 +8,77 @@ const formatAmount = (unscaledValue?: string, scale?: string): string => {
   return result.toFixed(2)
 }
 
-const getStableId = (account: any): string => {
-  // if (account.identifiers?.iban?.iban) return account.identifiers.iban.iban
+const formatNarration = (n: any) =>
+  (typeof n === 'string' ? n.trim().toLowerCase() : '')
+
+const getUniqueId = (account: any): string => {
   const sortCode = account.identifiers?.sortCode?.code ?? ''
   const accountNumber = account.identifiers?.sortCode?.accountNumber ?? ''
-  return `${sortCode}-${accountNumber}`
+  const finIstitutionId = account.financialInstitutionId ?? ''
+  return `accountUId-${accountNumber}${finIstitutionId}${sortCode}`
 }
 
-export { formatAmount, getStableId }
+async function insertAccounts(dbInstance: any, accounts: any[], customerId: string, accountSchema: any) {
+  if (accounts.length === 0 || !dbInstance || !customerId) return
 
-// {"iban":{"iban":"GB39YGDH90153671247781","bban":"YGDH90153671247781"},"sortCode":{"code":"987106","accountNumber":"07897654"},"financialInstitution":{"accountNumber":"9871067897654","referenceNumbers":{}}}
-//{"sortCode":{"code":"987106","accountNumber":"06527609"},"financialInstitution":{"accountNumber":"9871066527609","referenceNumbers":{}}}
+  await dbInstance
+    .insert(accountSchema)
+    .values(
+      accounts.map((account: any) => ({
+        id: account.id,
+        customerId,
+        uniqueId: account.unique_id,
+        name: account.name,
+        type: account.type,
+        bookedAmount: parseInt(account.balances.booked.amount.value.unscaledValue, 10),
+        bookedScale: parseInt(account.balances.booked.amount.value.scale, 10),
+        bookedCurrency: account.balances.booked.amount.currencyCode,
+        availableAmount: parseInt(account.balances.available.amount.value.unscaledValue, 10),
+        availableScale: parseInt(account.balances.available.amount.value.scale, 10),
+        availableCurrency: account.balances.available.amount.currencyCode,
+        balance: account.balanceFormatted,
+        identifiers: account.identifiers,
+        lastRefreshed: new Date(account.dates.lastRefreshed),
+        financialInstitutionId: account.financialInstitutionId,
+        customerSegment: account.customerSegment,
+      }))
+    )
+    .onConflictDoNothing({target: accountSchema.uniqueId})
+}
+
+async function insertTransactions(dbInstance: any, transactions: any[], customerId: string, trxnSchema: any) {
+  if (transactions.length === 0 || !dbInstance || !customerId) return
+
+  await dbInstance
+    .insert(trxnSchema)
+    .values(
+      transactions.map((txn: any) => ({
+        id: txn.id,
+        accountUniqueId: txn.accountUniqueId,
+        accountId: txn.accountId,
+        customerId,
+        amount: txn.amountFormatted,
+        unscaledValue: parseInt(txn.amount.value.unscaledValue, 10),
+        scale: parseInt(txn.amount.value.scale, 10),
+        narration: formatNarration(txn.descriptions.original),
+        currencyCode: txn.amount.currencyCode,
+        descriptions: txn.descriptions,
+        bookedDate: new Date(txn.dates.booked),
+        identifiers: txn.identifiers,
+        types: txn.types,
+        status: txn.status,
+        providerMutability: txn.providerMutability,
+      }))
+    )
+    .onConflictDoNothing({
+  target: [
+    trxnSchema.customerId,
+    trxnSchema.accountUniqueId,
+    trxnSchema.bookedDate,
+    trxnSchema.amount,
+    trxnSchema.narration
+  ],
+})
+
+}
+export { formatAmount, getUniqueId, insertAccounts, insertTransactions }

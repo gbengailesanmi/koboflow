@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/session'
 import { getTinkTokens, getTinkData } from '@/app/api/tink'
-import { bulkInsertTinkData } from '@/helpers/bulk-insert-data'
+import { bulkInsertTinkAccounts, bulkInsertTinkTransactions } from '@/helpers/db-insert'
 
 export async function GET(req: Request) {
   const user = await getSession()
@@ -24,7 +24,11 @@ export async function GET(req: Request) {
 
     const { accounts, transactions } = await getTinkData(accessToken, user.customerId)
 
-    await bulkInsertTinkData(accounts, transactions, user.customerId)
+    console.log('Accounts:', accounts)
+    console.log('Transactions:', transactions)
+
+    await bulkInsertTinkAccounts(accounts, user.customerId)
+    await bulkInsertTinkTransactions(transactions, user.customerId)
     
     return NextResponse.redirect(`${process.env.BASE_URI}:${process.env.PORT}/${user.customerId}/dashboard`)
   } catch (err) {
