@@ -7,20 +7,12 @@ export async function bulkInsertTinkAccounts(
   customerId: string,
   nextPageToken?: string
 ) {
-  // try {
-    await insertAccounts(db, accounts, customerId, accountSchema, nextPageToken)
-  // } catch (error) {
-  //   throw new Error('Error occurred while inserting accounts...')
-  // }
+    await insertAccounts(db, accounts, customerId, accountSchema)
 }
 
 export async function bulkInsertTinkTransactions(
   transactions: any[],
   customerId: string
 ) {
-  // try {
     await insertTransactions(db, transactions, customerId, trxnSchema)
-  // } catch (error) {
-  //   throw new Error('Error occurred while inserting transactions...')
-  // }
 }

@@ -33,7 +33,6 @@ async function getTinkData(accessToken, customerId) {
   const accountsJson = await accountsRes.json()
   const transactionsJson = await trxnRes.json()
 
-  console.log('Accounts fetched:', accountsJson)
   const accounts = accountsJson.accounts.map(item => ({
     ...item,
     customerId,
