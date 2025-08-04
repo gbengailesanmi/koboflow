@@ -1,4 +1,4 @@
-import { formatAmount, getUniqueId } from '@/helpers/db-insert-helper'
+import { formatAmount, getUniqueId } from '@/helpers/db-insert-helpers'
 
 const tinkUrl = 'https://api.tink.com'
 
@@ -19,22 +19,14 @@ async function getTinkTokens({ code, uriBase, port }) {
   return tokenData.access_token
 }
 
-async function getTinkData(accessToken, customerId) {
-  console.log('Fetching Tink data >>>>>>')
+async function getTinkAccountsData(accessToken, customerId) {
+  console.log('Fetching Tink accounts >>>>>>')
   
-  const [accountsRes, trxnRes] = await Promise.all([
-    fetch(`${tinkUrl}/data/v2/accounts`, {
+  const accountsRes = await fetch(`${tinkUrl}/data/v2/accounts`, {
       headers: { Authorization: `Bearer ${accessToken}` },
-    }),
-    fetch(`${tinkUrl}/data/v2/transactions`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    }),
-  ])
+    })
 
   const accountsJson = await accountsRes.json()
-  const transactionsJson = await trxnRes.json()
-  console.log('fddff', transactionsJson.nextPageToken)
-
   const accounts = accountsJson.accounts.map(item => ({
     ...item,
     customerId,
@@ -45,24 +37,62 @@ async function getTinkData(accessToken, customerId) {
     unique_id: getUniqueId(item)
   }))
 
-  const transactions = transactionsJson.transactions.map((item) => {
-    const relatedAccount = accounts.find(acc => acc.id === item.accountId)
-    return {
-      ...item,
-      customerId,
-      amountFormatted: formatAmount(
-        item?.amount?.value?.unscaledValue,
-        item?.amount?.value?.scale
-      ),
-      accountUniqueId: relatedAccount?.unique_id ?? null, // mirror uniqueId
-    }
-  })
-
   return {
-    accounts: accounts ?? [],
-    nextPageToken: transactionsJson.nextPageToken ?? '',
-    transactions: transactions ?? []
+    accounts: accounts
   }
 }
 
-export { getTinkTokens, getTinkData }
+const getTinkTransactionsData = async (accessToken, accounts, customerId) => {
+  console.log('Fetching Tink transactions with pagination >>>>>>')
+
+  const fetchAllTransactionsForAccount = async (account) => {
+    let allTransactions = []
+    let pageToken = null
+
+    do {
+      const trxnUrl = new URL(`${tinkUrl}/data/v2/transactions`)
+      trxnUrl.searchParams.set('accountIdIn', account.id),
+      trxnUrl.searchParams.set('pageSize', '100')
+      if (pageToken) trxnUrl.searchParams.set('pageToken', pageToken)
+
+      const trxnResponse = await fetch(trxnUrl.toString(), {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      })
+
+      if (!trxnResponse.ok) {
+        console.warn(`Failed to fetch transactions for account ${account.id}`)
+        return []
+      }
+
+      const trxnJson = await trxnResponse.json()
+
+      const transactions = (trxnJson.transactions || []).map((item) => ({
+        ...item,
+        customerId,
+        amountFormatted: formatAmount(
+          item?.amount?.value?.unscaledValue,
+          item?.amount?.value?.scale
+        ),
+        accountUniqueId: account.unique_id ?? null,
+      }))
+
+      allTransactions.push(...transactions)
+      pageToken = trxnJson.nextPageToken || null
+    } while (pageToken)
+
+    console.log('allTransactions', allTransactions.length)
+    return allTransactions
+  }
+
+  const allTransactionsGrouped = await Promise.all(
+    accounts.accounts.map((acc) => fetchAllTransactionsForAccount(acc))
+  )
+  const allTransactions = allTransactionsGrouped.flat()
+
+  return {
+    transactions: allTransactions
+  }
+}
+
+
+export { getTinkTokens, getTinkAccountsData, getTinkTransactionsData }

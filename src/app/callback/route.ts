@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/session'
-import { getTinkTokens, getTinkData } from '@/app/api/tink'
+import { getTinkTokens, getTinkAccountsData, getTinkTransactionsData } from '@/app/api/tink'
 import { bulkInsertTinkAccounts, bulkInsertTinkTransactions } from '@/helpers/db-insert'
 // import fs from 'fs'
 
@@ -23,16 +23,11 @@ export async function GET(req: Request) {
       port: process.env.PORT!
     })
 
-    const { accounts, transactions } = await getTinkData(accessToken, user.customerId)
+    const accounts = await getTinkAccountsData(accessToken, user.customerId)
+    const transactions = await getTinkTransactionsData(accessToken, accounts, user.customerId)
 
-    //   fs.writeFileSync(
-    //   './accounts.json',
-    //   JSON.stringify(nextPageToken, null, 2),
-    //   'utf-8'
-    // )
-
-    await bulkInsertTinkAccounts(accounts, user.customerId)
-    await bulkInsertTinkTransactions(transactions, user.customerId)
+    await bulkInsertTinkAccounts(accounts.accounts, user.customerId)
+    await bulkInsertTinkTransactions(transactions.transactions, user.customerId)
     
     return NextResponse.redirect(`${process.env.BASE_URI}:${process.env.PORT}/${user.customerId}/dashboard`)
   } catch (err) {

@@ -1,5 +1,5 @@
 import { db } from '@/lib/db'
-import { insertAccounts, insertTransactions } from './db-insert-helper' 
+import { insertAccounts, insertTransactions } from './db-insert-helpers' 
 import { accounts as accountSchema, transactions as trxnSchema } from '../../drizzle/schema'
 
 export async function bulkInsertTinkAccounts(
