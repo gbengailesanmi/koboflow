@@ -11,7 +11,8 @@ async function getTinkTokens({ code, uriBase, port }) {
       code,
       redirect_uri: `${uriBase}:${port}/callback`,
       client_id: process.env.TINK_CLIENT_ID,
-      client_secret: process.env.TINK_CLIENT_SECRET
+      client_secret: process.env.TINK_CLIENT_SECRET,
+      // scope: 'balances:read,accounts:read,transactions:read,credentials:refresh'
     }),
   })
   const tokenData = await tokenResponse.json()
