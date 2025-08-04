@@ -2,33 +2,35 @@
 
 import { useEffect, useState } from 'react'
 import * as Styled from './styles'
-import type { Accounts } from '@/types/account'
+import type { Account } from '@/types/account'
 import { useSearchParams } from 'next/navigation'
 import { ScrollArea } from '@radix-ui/themes'
 import Header from '@/app/components/header/Header'
 import Footer from '@/app/components/footer/Footer'
 import { DragHeight } from '@/hooks/drag-height'
 import AccountsRow from '@/app/components/accounts-row/AccountsRow'
+import { getAccountsForCustomer } from '@/app/actions/accounts'
 import TransactionsColumn from '@/app/components/transactions-column/TransactionsColumn'
 
 export default function PortfolioPage() {
-  const searchParams = useSearchParams()
-  const customerId = searchParams.get('customerId')
-
-  const { height, heightAsStyle, handleDragStart } = DragHeight()
-  const [accounts, setAccounts] = useState<Accounts>({ accounts: [], nextPageToken: '' })
-  const [transactions, setTransactions] = useState([])
+  const [user, setUser] = useState(null)
+  const [accounts, setAccounts] = useState<Account[]>([])
 
   useEffect(() => {
-    async function fetchData() {
-      const res = await fetch(`/api/portfolio?customerId=${customerId}`)
-      const data = await res.json()
-      setAccounts(data.accounts)
-      setTransactions(data.transactions)
-    }
+    fetch('/api/session')
+      .then(res => res.json())
+      .then(userData => {
+        setUser(userData)
+        if (userData?.user) {
+          getAccountsForCustomer(userData.user).then(setAccounts)
+        }
+      })
+  }, [])
 
-    if (customerId) fetchData()
-  }, [customerId])
+  console.log('accounts', accounts)
+
+  const { height, heightAsStyle, handleDragStart } = DragHeight()
+
   return (
     <>
       <Header />
@@ -62,7 +64,7 @@ export default function PortfolioPage() {
             </Styled.SeeAllDiv>
 
             <Styled.StyledScrollArea type="always" scrollbars="vertical">
-              <TransactionsColumn transactions={transactions} />
+              {/* <TransactionsColumn transactions={transactions} /> */}
             </Styled.StyledScrollArea>
           </div>
         </Styled.BottomGrid>

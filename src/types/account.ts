@@ -1,49 +1,18 @@
-export type Accounts = {
-  accounts: Account[];
-  nextPageToken: string;
-};
-
 export type Account = {
-  id: string;
-  name: string;
-  type: string;
-  balances: {
-    booked: BalanceDetail;
-    available: BalanceDetail;
-  };
-  identifiers: {
-    sortCode?: SortCodeIdentifier;
-    financialInstitution?: FinancialInstitutionIdentifier;
-    iban?: IbanIdentifier;
-  };
-  dates: {
-    lastRefreshed: string;
-  };
-  financialInstitutionId: string;
-  customerSegment: string;
-};
-
-export type BalanceDetail = {
-  amount: {
-    value: {
-      unscaledValue: string;
-      scale: string;
-    };
-    currencyCode: string;
-  };
-};
-
-export type SortCodeIdentifier = {
-  code: string;
-  accountNumber: string;
-};
-
-export type FinancialInstitutionIdentifier = {
-  accountNumber: string;
-  referenceNumbers: Record<string, unknown>;
-};
-
-export type IbanIdentifier = {
-  iban: string;
-  bban: string;
-};
+  id: string
+  uniqueId: string
+  customerId: string
+  balance: string
+  name: string
+  type: string
+  bookedAmount: number
+  bookedScale: number
+  bookedCurrency: string
+  availableAmount: number
+  availableScale: number
+  availableCurrency: string
+  identifiers: any
+  lastRefreshed: Date
+  financialInstitutionId: string
+  customerSegment: string
+}

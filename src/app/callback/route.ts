@@ -8,7 +8,7 @@ export async function GET(req: Request) {
   const user = await getSession()
 
   if (!user) {
-    return NextResponse.redirect(`${process.env.BASE_URI}/login`)  
+    return NextResponse.redirect(`${process.env.BASE_URI}:${process.env.PORT}/login`)  
   }
 
   const code = new URL(req.url).searchParams.get('code')

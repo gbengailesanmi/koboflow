@@ -1,31 +1,24 @@
-import { useEffect } from 'react'
 import { Avatar } from '@radix-ui/themes'
 import { PlusIcon } from '@radix-ui/react-icons'
-import type { Accounts } from '@/types/account'
+import type { Account } from '@/types/account'
 import { getAccountLogo } from '@/helpers/get-account-logo'
+// import useBaseUrl from '@/hooks/use-base-url'
 
 type AccountsRowProps = {
-  accounts: Accounts
+  accounts: Account[]
 }
 
 const AccountsRow = ({ accounts }: AccountsRowProps) => {
-  const accountsData = accounts.accounts ?? []
-
-  const getBalance = (account: typeof accountsData[0]) => {
-    const balanceObj = account.balances.booked?.amount || account.balances.available?.amount
-    if (!balanceObj) return 0
-    const { unscaledValue, scale } = balanceObj.value
-    return Number(unscaledValue) * Math.pow(10, -Number(scale))
-  }
-
+  // const useBa = useBaseUrl()
   return (
-    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+    <>
+    <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
       <Avatar
         fallback={
           <PlusIcon
             onClick={() =>
               window.open(
-                'https://link.tink.com/1.0/transactions/connect-accounts/?client_id=c2296ba610e54fda8a7769872888a1f6&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fcallback&market=GB&locale=en_US',
+                `https://link.tink.com/1.0/transactions/connect-accounts/?client_id=c2296ba610e54fda8a7769872888a1f6&redirect_uri=${encodeURIComponent(`${process.env.NEXT_PUBLIC_BASE_URL}/callback`)}&market=GB&locale=en_US`,
                 '_blank'
               )
             }
@@ -33,8 +26,11 @@ const AccountsRow = ({ accounts }: AccountsRowProps) => {
           />
         }
       />
-      {accountsData.map((account: any) => (
-        <div key={account.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+      {accounts.map((account) => (
+        <div
+          key={account.id}
+          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}
+        >
           <Avatar
             src={getAccountLogo(account.name)}
             fallback="A"
@@ -44,15 +40,16 @@ const AccountsRow = ({ accounts }: AccountsRowProps) => {
           />
           <span>
             <strong>
-              {getBalance(account).toLocaleString(undefined, {
+              {Number(account.balance).toLocaleString(undefined, {
                 style: 'currency',
-                currency: account.balances.booked?.amount.currencyCode || account.balances.available?.amount.currencyCode
+                currency: account.bookedCurrency || account.availableCurrency,
               })}
             </strong>
           </span>
         </div>
       ))}
     </div>
+    </>
   )
 }
 
