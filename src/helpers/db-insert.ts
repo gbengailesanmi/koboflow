@@ -4,8 +4,7 @@ import { accounts as accountSchema, transactions as trxnSchema } from '../../dri
 
 export async function bulkInsertTinkAccounts(
   accounts: any[],
-  customerId: string,
-  nextPageToken?: string
+  customerId: string
 ) {
     await insertAccounts(db, accounts, customerId, accountSchema)
 }

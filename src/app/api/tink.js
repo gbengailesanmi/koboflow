@@ -1,4 +1,5 @@
 import { formatAmount, getUniqueId } from '@/helpers/db-insert-helper'
+
 const tinkUrl = 'https://api.tink.com'
 
 async function getTinkTokens({ code, uriBase, port }) {
@@ -32,6 +33,7 @@ async function getTinkData(accessToken, customerId) {
 
   const accountsJson = await accountsRes.json()
   const transactionsJson = await trxnRes.json()
+  console.log('fddff', transactionsJson.nextPageToken)
 
   const accounts = accountsJson.accounts.map(item => ({
     ...item,
@@ -58,7 +60,7 @@ async function getTinkData(accessToken, customerId) {
 
   return {
     accounts: accounts ?? [],
-    nextPageToken: accountsJson.nextPageToken ?? '',
+    nextPageToken: transactionsJson.nextPageToken ?? '',
     transactions: transactions ?? []
   }
 }

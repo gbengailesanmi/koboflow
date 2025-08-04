@@ -23,7 +23,7 @@ export async function GET(req: Request) {
       port: process.env.PORT!
     })
 
-    const { accounts, nextPageToken, transactions } = await getTinkData(accessToken, user.customerId)
+    const { accounts, transactions } = await getTinkData(accessToken, user.customerId)
 
     //   fs.writeFileSync(
     //   './accounts.json',
