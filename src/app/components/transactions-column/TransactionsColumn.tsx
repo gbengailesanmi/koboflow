@@ -30,7 +30,7 @@ export default function TransactionsColumn({ transactions }: TrxnRowProps) {
                       {transaction.narration}
                     </Text>
                     <Text as="div" size="1">
-                      {transaction.bookedDate.toLocaleDateString()}
+                      {new Date(transaction.bookedDate).toISOString().slice(0, 10)}
                     </Text>
                   </Box>
                   <Flex align="center" justify="end" style={{ flex: 1 }}>
