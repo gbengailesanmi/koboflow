@@ -6,7 +6,7 @@ import { getSession } from '@/lib/session'
 import { redirect } from 'next/navigation'
 
 
-import DashboardClient from '@/app/components/dashboard/DashboardClient'
+import DashboardClient from '@/app/components/dashboard-client/DashboardClient'
 
 export default async function PortfolioPage() {
   const user = await getSession()
