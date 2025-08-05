@@ -9,7 +9,7 @@ async function getTinkTokens({ code, uriBase, port }) {
     body: new URLSearchParams({
       grant_type: 'authorization_code',
       code,
-      redirect_uri: `${uriBase}:${port}/callback`,
+      redirect_uri: `${uriBase}:${port}/api/callback`,
       client_id: process.env.TINK_CLIENT_ID,
       client_secret: process.env.TINK_CLIENT_SECRET,
       // scope: 'balances:read,accounts:read,transactions:read,credentials:refresh'

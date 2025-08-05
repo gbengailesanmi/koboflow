@@ -9,7 +9,6 @@ type AccountsRowProps = {
 }
 
 const AccountsRow = ({ accounts }: AccountsRowProps) => {
-  // const useBa = useBaseUrl()
   return (
     <>
     <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
@@ -18,7 +17,7 @@ const AccountsRow = ({ accounts }: AccountsRowProps) => {
           <PlusIcon
             onClick={() =>
               window.open(
-                `https://link.tink.com/1.0/transactions/connect-accounts/?client_id=c2296ba610e54fda8a7769872888a1f6&redirect_uri=${encodeURIComponent(`${process.env.NEXT_PUBLIC_BASE_URL}/callback`)}&market=GB&locale=en_US`,
+                `https://link.tink.com/1.0/transactions/connect-accounts/?client_id=c2296ba610e54fda8a7769872888a1f6&redirect_uri=${encodeURIComponent(`${process.env.NEXT_PUBLIC_BASE_URL}/api/callback`)}&market=GB&locale=en_US`,
                 '_blank'
               )
             }

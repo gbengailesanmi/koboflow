@@ -22,7 +22,7 @@ export async function GET(req: Request) {
       uriBase: process.env.BASE_URI!,
       port: process.env.PORT!
     })
-
+    
     const accounts = await getTinkAccountsData(accessToken, user.customerId)
     const transactions = await getTinkTransactionsData(accessToken, accounts, user.customerId)
 

@@ -75,7 +75,7 @@ async function insertTransactions(dbInstance: any, transactions: any[], customer
         narration: formatNarration(txn.descriptions.original),
         currencyCode: txn.amount.currencyCode,
         descriptions: txn.descriptions,
-        bookedDate: new Date(txn.bookedDate),
+        bookedDate: new Date(txn.dates.booked),
         identifiers: txn.identifiers,
         types: txn.types,
         status: txn.status,
