@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import * as Styled from './styles'
 import type { Account } from '@/types/account'
-import { useSearchParams } from 'next/navigation'
+import type { Transaction } from '@/types/transactions'
 import { ScrollArea } from '@radix-ui/themes'
 import Header from '@/app/components/header/Header'
 import Footer from '@/app/components/footer/Footer'
@@ -11,10 +11,12 @@ import { DragHeight } from '@/hooks/drag-height'
 import AccountsRow from '@/app/components/accounts-row/AccountsRow'
 import { getAccountsForCustomer } from '@/app/actions/accounts'
 import TransactionsColumn from '@/app/components/transactions-column/TransactionsColumn'
+import { getTransactionsForCustomer } from '@/app/actions/transactions'
 
 export default function PortfolioPage() {
   const [user, setUser] = useState(null)
   const [accounts, setAccounts] = useState<Account[]>([])
+  const [transactions, setTransactions] = useState<Transaction[]>([])
 
   useEffect(() => {
     fetch('/api/session')
@@ -23,11 +25,10 @@ export default function PortfolioPage() {
         setUser(userData)
         if (userData?.user) {
           getAccountsForCustomer(userData.user).then(setAccounts)
+          getTransactionsForCustomer(userData.user).then(setTransactions)
         }
       })
   }, [])
-
-  console.log('accounts', accounts)
 
   const { height, heightAsStyle, handleDragStart } = DragHeight()
 
@@ -64,7 +65,7 @@ export default function PortfolioPage() {
             </Styled.SeeAllDiv>
 
             <Styled.StyledScrollArea type="always" scrollbars="vertical">
-              {/* <TransactionsColumn transactions={transactions} /> */}
+              <TransactionsColumn transactions={transactions.slice(0,50)} />
             </Styled.StyledScrollArea>
           </div>
         </Styled.BottomGrid>
