@@ -8,10 +8,10 @@ export type Transaction = {
   scale: number
   narration: string
   currencyCode: string
-  descriptions: {original: string, display: string}
+  descriptions: any
   bookedDate: Date
-  identifiers: {providerTransactionId: string}
-  types: {type: string}
+  identifiers: any
+  types: any
   status: string
   providerMutability: string
 }
