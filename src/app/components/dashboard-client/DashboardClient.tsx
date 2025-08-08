@@ -1,8 +1,8 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { DragHeight } from '@/hooks/drag-height'
-import * as Styled from '../../[customerId]/dashboard/styles'
+import * as Styled from './styles'
 import { ScrollArea } from '@radix-ui/themes'
 import AccountsRow from '@/app/components/accounts-row/AccountsRow'
 import TransactionsColumn from '@/app/components/transactions-column/TransactionsColumn'
@@ -17,6 +17,12 @@ type DashboardClientProps = {
 }
 
 export default function DashboardClient({ accounts, transactions }: DashboardClientProps) {
+  const [selectedAccount, setSelectedAccount] = useState<string | null>(null)
+
+  const filteredTransactions = selectedAccount
+    ? transactions.filter((txn) => txn.accountUniqueId === selectedAccount)
+    : transactions
+
   const { height, heightAsStyle, handleDragStart } = DragHeight()
 
   return (
@@ -41,7 +47,7 @@ export default function DashboardClient({ accounts, transactions }: DashboardCli
           </Styled.SeeAllDiv>
 
           <ScrollArea type="always" scrollbars="horizontal">
-            <AccountsRow accounts={accounts} />
+            <AccountsRow accounts={accounts} onAccountSelect={setSelectedAccount}/>
           </ScrollArea>
         </div>
 
@@ -52,7 +58,7 @@ export default function DashboardClient({ accounts, transactions }: DashboardCli
           </Styled.SeeAllDiv>
 
           <Styled.StyledScrollArea type="always" scrollbars="vertical">
-            <TransactionsColumn transactions={transactions.slice(0, 100)} />
+            <TransactionsColumn transactions={filteredTransactions.slice(0, 100)} />
           </Styled.StyledScrollArea>
         </div>
       </Styled.BottomGrid>

@@ -46,6 +46,7 @@ const BottomGrid = styled(Grid)<{ $height: string }>`
   max-height: 80dvh;
   min-height: 20dvh;
   scroll-behavior: smooth;
+  padding: 0.3rem;
   background: white;
   position: fixed;
   bottom: 0;
@@ -55,7 +56,7 @@ const BottomGrid = styled(Grid)<{ $height: string }>`
   user-select: none;
   width: 100%;
   color: black;
-  grid-template-rows: 100px 1fr;
+  grid-template-rows: 7rem 1fr;
 `
 
 const SeeAllDiv = styled.div`
@@ -70,4 +71,11 @@ const StyledSection = styled.section`
   margin-top: 0;
 `
 
-export { TopGrid, BottomGrid, gridStyles, DragHandle, StyledSection, SeeAllDiv, StyledScrollArea }
+export { TopGrid, 
+         BottomGrid, 
+         gridStyles, 
+         DragHandle, 
+         StyledSection, 
+         SeeAllDiv, 
+         StyledScrollArea 
+        }

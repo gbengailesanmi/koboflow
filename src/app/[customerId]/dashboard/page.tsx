@@ -5,7 +5,6 @@ import { eq, desc } from 'drizzle-orm'
 import { getSession } from '@/lib/session'
 import { redirect } from 'next/navigation'
 
-
 import DashboardClient from '@/app/components/dashboard-client/DashboardClient'
 
 export default async function PortfolioPage() {
