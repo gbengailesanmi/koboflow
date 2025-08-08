@@ -41,25 +41,26 @@ export default function DashboardClient({ accounts, transactions }: DashboardCli
 
       <Styled.BottomGrid $height={heightAsStyle} rows="2">
         <div>
-          <Styled.SeeAllDiv>
-            <span>Accounts</span>
-            <span>see all</span>
-          </Styled.SeeAllDiv>
-
-          <ScrollArea type="always" scrollbars="horizontal">
+          <Styled.AccountScrollArea type="always" scrollbars="horizontal">
             <AccountsRow accounts={accounts} onAccountSelect={setSelectedAccount}/>
-          </ScrollArea>
+          </Styled.AccountScrollArea>
         </div>
 
         <div className="flex flex-col h-[100%]">
-          <Styled.SeeAllDiv>
-            <span>Transactions</span>
-            <span>see all</span>
-          </Styled.SeeAllDiv>
+          <Styled.SeeAll>
+            <span>My transactions</span>
+            {selectedAccount && <span
+              role='button'
+              tabIndex={0}
+              onClick={() => setSelectedAccount(null)}
+              >
+                see all
+              </span>}
+          </Styled.SeeAll>
 
-          <Styled.StyledScrollArea type="always" scrollbars="vertical">
+          <Styled.TrxnScrollArea type="always" scrollbars="vertical">
             <TransactionsColumn transactions={filteredTransactions.slice(0, 100)} />
-          </Styled.StyledScrollArea>
+          </Styled.TrxnScrollArea>
         </div>
       </Styled.BottomGrid>
     </Styled.StyledSection>

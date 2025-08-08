@@ -20,8 +20,12 @@ const TopGrid = styled(Grid)`
   position: fixed;
 `
 
-const StyledScrollArea = styled(ScrollArea)`
+const TransactionScrollArea = styled(ScrollArea)`
   max-height: 80dvh;
+`
+
+const AccountScrollArea = styled(ScrollArea)`
+  margin-top: 1rem;
 `
 
 const DragHandle = styled.div<{ $top: string }>`
@@ -56,7 +60,7 @@ const BottomGrid = styled(Grid)<{ $height: string }>`
   user-select: none;
   width: 100%;
   color: black;
-  grid-template-rows: 7rem 1fr;
+  grid-template-rows: 6.5rem 1fr;
 `
 
 const SeeAllDiv = styled.div`
@@ -73,9 +77,9 @@ const StyledSection = styled.section`
 
 export { TopGrid, 
          BottomGrid, 
-         gridStyles, 
          DragHandle, 
          StyledSection, 
-         SeeAllDiv, 
-         StyledScrollArea 
+         SeeAllDiv as SeeAll, 
+         TransactionScrollArea as TrxnScrollArea,
+         AccountScrollArea
         }
