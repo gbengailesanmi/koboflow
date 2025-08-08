@@ -1,7 +1,7 @@
 import * as Styled from './styles'
 import type { Transaction } from '@/types/transactions'
 import { Box, Card, Flex, Text, Dialog, Button } from '@radix-ui/themes'
-import { DownloadIcon, UploadIcon } from '@radix-ui/react-icons'
+import { Cross1Icon, DownloadIcon, UploadIcon } from '@radix-ui/react-icons'
 import { useState } from 'react'
 
 type TrxnRowProps = {
@@ -58,21 +58,20 @@ export default function TransactionsColumn({ transactions }: TrxnRowProps) {
       </Styled.TransactionsWrapper>
 
       {selectedTransaction && (
-        <Dialog.Content maxWidth="450px">
-          <Dialog.Title>Transaction Details</Dialog.Title>
-          <Box>
-            <Text><strong>ID:</strong> {selectedTransaction.id}</Text>
-            <Text><strong>Amount:</strong> {selectedTransaction.amount}</Text>
-            <Text><strong>Narration:</strong> {selectedTransaction.narration}</Text>
-            <Text><strong>Booked Date:</strong> {new Date(selectedTransaction.bookedDate).toLocaleString()}</Text>
-            {/* Add more fields here */}
-          </Box>
+        <Dialog.Content>         
+          <Flex gap="3" justify="between">
+            <Dialog.Title>Transaction Details</Dialog.Title>
 
-          <Flex gap="3" mt="4" justify="end">
             <Dialog.Close>
-              <Button variant="soft" color="gray">Close</Button>
+              <Cross1Icon />
             </Dialog.Close>
           </Flex>
+          <Box>
+            <Text><strong>ID:</strong> {selectedTransaction.id}<br /></Text>
+            <Text><strong>Amount:</strong> {selectedTransaction.amount} </Text>
+            <Text><strong>Narration:</strong> {selectedTransaction.narration}<br /></Text>
+            <Text><strong>Booked Date:</strong> {new Date(selectedTransaction.bookedDate).toLocaleString()}</Text>
+          </Box>
         </Dialog.Content>
       )}
     </Dialog.Root>
