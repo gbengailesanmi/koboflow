@@ -34,7 +34,7 @@ export default function TransactionsColumn({ transactions }: TrxnRowProps) {
                       <Icon />
                       <Box>
                         <Text as="div" size="2">
-                          {isDebit ? 'Sent money' : 'Received money'}
+                          {isDebit ? 'Debit' : 'Credit'}
                         </Text>
                         <Text as="div" size="2" weight="bold">
                           {transaction.narration}

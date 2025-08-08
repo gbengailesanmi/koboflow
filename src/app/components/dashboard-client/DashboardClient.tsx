@@ -10,6 +10,7 @@ import type { Account } from '@/types/account'
 import type { Transaction } from '@/types/transactions'
 import Header from '@/app/components/header/Header'
 import Footer from '@/app/components/footer/Footer'
+import LinePlotChart from '@/app/components/line-plot-chart/LinePlotChart'
 
 type DashboardClientProps = {
   accounts: Account[]
@@ -29,7 +30,7 @@ export default function DashboardClient({ accounts, transactions }: DashboardCli
     <>
     <Header />
     <Styled.StyledSection>
-      <Styled.TopGrid width="auto">what a grid</Styled.TopGrid>
+      <Styled.TopGrid width="auto"><LinePlotChart transactions={transactions} accounts={accounts} /></Styled.TopGrid>
 
       <Styled.DragHandle
         $top={`${100 - height}dvh`}

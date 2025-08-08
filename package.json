@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "db:check": "npx drizzle-kit studio",
-    "db:schema": "npx drizzle-kit push"  
+    "db:schema": "npx drizzle-kit push"
   },
   "dependencies": {
     "@fontsource/roboto": "^5.2.6",
@@ -27,6 +27,8 @@
     "pg": "^8.16.3",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "react-is": "^19.1.1",
+    "recharts": "^3.1.2",
     "styled-components": "^6.1.19",
     "tailwindcss-animate": "^1.0.7",
     "uuid": "^11.1.0",
