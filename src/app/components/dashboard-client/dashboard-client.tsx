@@ -8,7 +8,7 @@ import Footer from '@/app/components/footer/Footer'
 import { Grid } from '@radix-ui/themes'
 import styles from '@/app/components/dashboard-client/dashboard-client.module.css'
 import { useBaseColor } from '@/providers/base-colour-provider'
-import AccountsCarousel from '@/app/components/carousel/accounts-carousel'
+import AccountsCarousel from '@/app/components/accounts-carousel/accounts-carousel'
 
 type DashboardClientProps = {
   accounts: Account[]
@@ -18,17 +18,13 @@ type DashboardClientProps = {
 export default function DashboardClient({ accounts, transactions }: DashboardClientProps) {
   const [selectedAccount, setSelectedAccount] = useState<string | null>(null)
   const [hasNavigated, setHasNavigated] = useState(false)
-  const { baseColor, setBaseColor } = useBaseColor()
+  const { baseColor } = useBaseColor()
 
   useEffect(() => {
-  // if (selectedAccount) {
-  setBaseColor('green')
-  // }
-  }, [])
-
-  const filteredTransactions = selectedAccount
-    ? transactions.filter((txn) => txn.accountUniqueId === selectedAccount)
-    : transactions
+    if (selectedAccount) {
+      console.log('Selected Account:', selectedAccount)
+    }
+  }, [selectedAccount])
 
   return (
     <>
@@ -38,7 +34,6 @@ export default function DashboardClient({ accounts, transactions }: DashboardCli
 
           <AccountsCarousel
             accounts={accounts}
-            selectedAccount={selectedAccount}
             setSelectedAccount={setSelectedAccount}
             onNavigate={() => setHasNavigated(true)}
           />

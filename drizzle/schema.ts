@@ -25,7 +25,7 @@ export const accounts = pgTable('accounts', {
   identifiers: json('identifiers').notNull(),
   lastRefreshed: timestamp('last_refreshed').notNull(),
   financialInstitutionId: varchar('financial_institution_id').notNull(),
-  customerSegment: varchar('customer_segment').notNull(),
+  customerSegment: varchar('customer_segment').notNull()
 })
 
 // ----------- TRANSACTIONS TABLE -----------

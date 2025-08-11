@@ -8,7 +8,8 @@ type ColorContextType = {
   bottomColor: string
   viaStop: string
   bottomStop: string
-  setBaseColor: (color: string) => void
+  setBaseColor: (color: string, userSet?: boolean) => void
+  isUserSet: boolean
 }
 
 const ColorContext = createContext<ColorContextType>({
@@ -18,11 +19,13 @@ const ColorContext = createContext<ColorContextType>({
   viaStop: '',
   bottomStop: '',
   setBaseColor: () => {},
+  isUserSet: false,
 })
 
 export function useBaseColor() {
   return useContext(ColorContext)
 }
+
 // Helper to darken and add alpha
 function shadeAndAlpha(color: string, percent: number, alpha: number) {
   const f = parseInt(color.slice(1), 16)
@@ -38,16 +41,31 @@ function shadeAndAlpha(color: string, percent: number, alpha: number) {
 }
 
 export default function BaseColorProvider({ children }: { children: React.ReactNode }) {
-  const [baseColor, setBaseColor] = useState('#245cd4')
+  const [baseColor, _setBaseColor] = useState('#245cd4')
+  const [isUserSet, setIsUserSet] = useState(false)
 
   const viaColor = shadeAndAlpha(baseColor, 0.5, 0.2)
   const bottomColor = '#040914'
-
   const viaStop = '40%'
   const bottomStop = '90%'
 
+  const setBaseColor = (color: string, userSet = false) => {
+    _setBaseColor(color)
+    if (userSet) setIsUserSet(true)
+  }
+
   return (
-    <ColorContext.Provider value={{ baseColor, viaColor, bottomColor, viaStop, bottomStop, setBaseColor }}>
+    <ColorContext.Provider
+      value={{
+        baseColor,
+        viaColor,
+        bottomColor,
+        viaStop,
+        bottomStop,
+        setBaseColor,
+        isUserSet,
+      }}
+    >
       {children}
     </ColorContext.Provider>
   )

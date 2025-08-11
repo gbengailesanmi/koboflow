@@ -46,7 +46,7 @@ async function insertAccounts(dbInstance: any, accounts: any[], customerId: stri
         identifiers: account.identifiers,
         lastRefreshed: new Date(account.dates.lastRefreshed),
         financialInstitutionId: account.financialInstitutionId,
-        customerSegment: account.customerSegment,
+        customerSegment: account.customerSegment
       }))
     )
     .onConflictDoNothing({target: accountSchema.uniqueId})
