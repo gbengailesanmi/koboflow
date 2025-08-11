@@ -8,6 +8,10 @@
   padding: 0;
 } */
  
+html, body {
+  overflow-x: hidden;
+}
+
 .radix-themes {
 	--default-font-family: var(--font-open-sans);
 }
@@ -17,6 +21,7 @@
 }
 .embla__container {
   display: flex;
+  max-width: 100vw;
 }
 .embla__slide
 {  
@@ -30,7 +35,7 @@
 }
 
 .embla {
-  padding-top: 6.5rem;
+  padding-top: 5rem;
   height: auto;
   width: full;
 }

@@ -6,7 +6,7 @@ import { useBaseColor } from '@/providers/base-colour-provider'
 import useEmblaCarousel from 'embla-carousel-react'
 import { Box, IconButton } from '@radix-ui/themes'
 import { DoubleArrowLeftIcon, DoubleArrowRightIcon } from '@radix-ui/react-icons'
-import FormatCarouselContent from './format-carousel-content'
+import FormatCarouselContent from '@/helpers/format-carousel-content'
 
 type AccountsCarouselProps = {
   accounts: Account[]
