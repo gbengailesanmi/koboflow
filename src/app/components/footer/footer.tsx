@@ -5,7 +5,7 @@ import { HomeIcon, Pencil2Icon, MixerHorizontalIcon, BackpackIcon } from '@radix
 
 const Footer: React.FC = () => {
   return (
-    <Styled.FooterDiv className='bg-blue-950 flex justify-between items-center gap-8'>
+    <Styled.FooterDiv className='bg-040914 flex justify-between items-center gap-8'>
       <IconButton variant='outline' size='3' onClick={() => (console.log('fvfggd'))}><HomeIcon width='25' height='25'/></IconButton>
       <IconButton variant='outline' size='3'><Pencil2Icon width='25' height='25'/></IconButton>
       <IconButton variant='outline' size='3'><MixerHorizontalIcon width='25' height='25'/></IconButton>

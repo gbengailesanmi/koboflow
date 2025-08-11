@@ -1,0 +1,46 @@
+@reference "../../globals.css";
+
+.main {
+  @apply flex flex-col gap-4 p-4 min-h-screen overflow-y-visible;
+  --viaColor: color-mix(in srgb, var(--baseColor) 10%, #040914 90%);
+  --viaStop: 40%;
+  --bottomColor: #040914;
+  --bottomStop: 90%;
+
+  background:
+    linear-gradient(
+      to bottom,
+      var(--baseColor) 0%,
+      var(--viaColor) var(--viaStop),
+      var(--bottomColor) var(--bottomStop)
+    ) no-repeat,
+    var(--bottomColor);
+  background-size: 100% 100vh;
+  background-repeat: no-repeat;
+}
+
+.Grid1 {
+  @apply h-[45dvh] rounded-lg grid border-2 border-solid border-amber-600
+  items-center justify-items-center;
+  
+}
+
+.Grid2 {
+  @apply h-40 border-2 border-solid border-amber-600 rounded-lg grid;
+}
+
+.Grid3 {
+  @apply h-[50dvh] border-2 border-solid border-amber-600 rounded-lg grid;
+}
+
+.Grid4 {
+  @apply h-[50dvh] border-2 border-solid border-amber-600 rounded-lg grid;
+}
+
+.Grid5 {
+  @apply h-[50dvh] border-2 border-solid border-amber-600 rounded-lg grid;
+}
+
+.Grid6 {
+  @apply h-[50dvh] border-2 border-solid border-amber-600 rounded-lg grid;
+}

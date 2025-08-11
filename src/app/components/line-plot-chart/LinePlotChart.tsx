@@ -1,60 +1,12 @@
 import { LineChart, Line, XAxis, YAxis, Legend, CartesianGrid, ResponsiveContainer } from 'recharts'
+import { aggregateDates } from '@/helpers/aggregate-dates'
+import { getAccountLabel } from '@/helpers/get-account-label'
 import type { Transaction } from '@/types/transactions'
 import type { Account } from '@/types/account'
 
 type Props = {
   transactions: Transaction[]
   accounts: Account[]
-}
-
-function aggregateDatesIntoBuckets(
-  data: Record<string, Record<string, number>>,
-  allDates: string[],
-  allAccountIds: string[],
-  bucketCount = 10
-) {
-  if (allDates.length <= bucketCount) {
-    return allDates.map(date => ({
-      date,
-      ...allAccountIds.reduce((acc, id) => {
-        acc[id] = data[date][id] || 0
-        return acc
-      }, {} as Record<string, number>)
-    }))
-  }
-
-  const bucketSize = Math.ceil(allDates.length / bucketCount)
-  const aggregated: { date: string; [key: string]: number | string }[] = []
-
-  for (let i = 0; i < allDates.length; i += bucketSize) {
-    const bucketDates = allDates.slice(i, i + bucketSize)
-    const bucketLabel = `${bucketDates[0]} → ${bucketDates[bucketDates.length - 1]}`
-
-    const bucketTotals: Record<string, number> = {}
-    allAccountIds.forEach(id => {
-      bucketTotals[id] = bucketDates.reduce((sum, date) => sum + (data[date][id] || 0), 0)
-    })
-
-    aggregated.push({ date: bucketLabel, ...bucketTotals })
-  }
-
-  return aggregated
-}
-
-function getAccountLabel(account: Account) {
-  // Defensive parsing of account number and sort code from identifiers
-  try {
-    // identifiers might be JSON or object; if string, parse it
-    const ids = typeof account.identifiers === 'string' ? JSON.parse(account.identifiers) : account.identifiers
-
-    const accountNumber = ids?.sortCode?.accountNumber ?? 'UnknownAccNum'
-    const accountBal = account.balance
-    const formattedBal = Number(accountBal).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-
-    return `${accountNumber} (${formattedBal})`
-  } catch {
-    return 'Unknown Account'
-  }
 }
 
 export default function LinePlotChart({ transactions, accounts }: Props) {
@@ -98,7 +50,7 @@ export default function LinePlotChart({ transactions, accounts }: Props) {
     dataByDate[date][accountId] += amount
   })
 
-  const chartData = aggregateDatesIntoBuckets(dataByDate, allDates, allAccountIds, 10)
+  const chartData = aggregateDates(dataByDate, allDates, allAccountIds, 10)
 
   const colors = ['#8884d8', '#82ca9d', '#ff7300', '#ff0000', '#00aaff', '#aa00ff', '#00ffaa']
 

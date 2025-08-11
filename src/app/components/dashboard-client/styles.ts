@@ -8,7 +8,7 @@ const gridStyles = css`
   cursor: pointer;
 `
 
-const TopGrid = styled(Grid)`
+const Grid1 = styled(Grid)`
   ${gridStyles}
   height: 40dvh;
   justify-content: center;
@@ -70,15 +70,15 @@ const SeeAllDiv = styled.div`
   padding: 5px;
 `
 
-const StyledSection = styled.section`
-  padding-top: 0;
-  margin-top: 0;
+const MainSection = styled.section`
+  // padding-top: 0;
+  // margin-top: 0;
 `
 
-export { TopGrid, 
+export { Grid1, 
          BottomGrid, 
          DragHandle, 
-         StyledSection, 
+         MainSection, 
          SeeAllDiv as SeeAll, 
          TransactionScrollArea as TrxnScrollArea,
          AccountScrollArea

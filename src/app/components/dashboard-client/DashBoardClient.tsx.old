@@ -29,8 +29,10 @@ export default function DashboardClient({ accounts, transactions }: DashboardCli
   return (
     <>
     <Header />
-    <Styled.StyledSection>
-      <Styled.TopGrid width="auto"><LinePlotChart transactions={transactions} accounts={accounts} /></Styled.TopGrid>
+    <main>
+      <Styled.TopGrid width="auto">
+        <LinePlotChart transactions={filteredTransactions} accounts={accounts} />
+      </Styled.TopGrid>
 
       <Styled.DragHandle
         $top={`${100 - height}dvh`}
@@ -64,7 +66,7 @@ export default function DashboardClient({ accounts, transactions }: DashboardCli
           </Styled.TrxnScrollArea>
         </div>
       </Styled.BottomGrid>
-    </Styled.StyledSection>
+    </main>
     <Footer />
     </>
   )
