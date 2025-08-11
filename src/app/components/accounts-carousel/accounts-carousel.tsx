@@ -5,9 +5,11 @@ import type { Account } from '@/types/account'
 import { useBaseColor } from '@/providers/base-colour-provider'
 import useEmblaCarousel from 'embla-carousel-react'
 import { Box } from '@radix-ui/themes'
-import { DoubleArrowLeftIcon, DoubleArrowRightIcon } from '@radix-ui/react-icons'
+import { PlusIcon, ListBulletIcon, BarChartIcon } from '@radix-ui/react-icons'
+import { DoubleArrowLeftIcon, DoubleArrowRightIcon, ZoomInIcon } from '@radix-ui/react-icons'
 import FormatCarouselContent from '@/helpers/format-carousel-content'
 import generateHues from '@/helpers/generate-hues'
+import AccountsPills from '@/app/components/account-pills/accounts-pills'
 
 const HUE_LOCAL_STORAGE_KEY = 'accounts-carousel-slide-hue'
 
@@ -135,7 +137,7 @@ export default function AccountsCarousel({
       </Box>
 
       {/* Hue selection buttons */}
-      <div className="flex space-x-2 mt-4">
+      {/* <div className="flex space-x-2 mt-4">
         {hues.map((hue) => (
           <button
             key={hue}
@@ -144,9 +146,9 @@ export default function AccountsCarousel({
             onClick={() => handleSetHue(hue)}
           />
         ))}
-      </div>
+      </div> */}
 
-      <div className="flex w-20 justify-between mt-4">
+      <div className="flex w-20 justify-between">
         <button onClick={scrollPrev} aria-label="Previous account">
           <DoubleArrowLeftIcon width="18" height="18" />
         </button>
@@ -154,6 +156,36 @@ export default function AccountsCarousel({
           <DoubleArrowRightIcon width="18" height="18" />
         </button>
       </div>
+
+
+      <AccountsPills
+        buttons={[
+          {
+            key: 'add',
+            icon: <PlusIcon width="35" height="35" />,
+            label: 'Add Account',
+            onClick: () => console.log('Add account clicked'),
+          },
+          {
+            key: 'details',
+            icon: <ZoomInIcon width="35" height="35" />,
+            label: 'Details',
+            onClick: () => console.log('Details clicked'),
+          },
+          {
+            key: 'analytics',
+            icon: <BarChartIcon width="35" height="35" />,
+            label: 'Analytics',
+            onClick: () => console.log('Analytics clicked'),
+          },
+          {
+            key: 'more',
+            icon: <ListBulletIcon width="35" height="35" />,
+            label: 'More',
+            onClick: () => console.log('More clicked'),
+          },
+        ]}
+      />
     </>
   )
 }
