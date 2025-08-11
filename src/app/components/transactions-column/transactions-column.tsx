@@ -1,7 +1,7 @@
-import * as Styled from './styles'
 import type { Transaction } from '@/types/transactions'
-import { Box, Card, Flex, Text, Dialog, Button } from '@radix-ui/themes'
+import { Box, Card, Flex, Text, Dialog } from '@radix-ui/themes'
 import { Cross1Icon, DownloadIcon, UploadIcon } from '@radix-ui/react-icons'
+import styles from './transactions-column.module.css'
 import { useState } from 'react'
 
 type TrxnRowProps = {
@@ -17,22 +17,22 @@ export default function TransactionsColumn({ transactions }: TrxnRowProps) {
         if (!open) setSelectedTransaction(null)
       }}
     >
-      <Styled.TransactionsWrapper>
+      <div className={styles.TransactionsWrapper}>
         {transactions.map(transaction => {
           const isDebit = Number(transaction.amount) < 0
-          const amountColor = isDebit ? 'red' : 'green'
+          const amountClass = isDebit ? styles.DebitText : styles.CreditText
           const Icon = isDebit ? UploadIcon : DownloadIcon
 
           return (
-            <Styled.BoxWrapper key={transaction.id}>
-              <Dialog.Trigger
-                onClick={() => setSelectedTransaction(transaction)}
-              >
-                <Box width="100%" style={{ cursor: 'pointer' }}>
+            <div key={transaction.id} className={styles.BoxWrapper}>
+              <Dialog.Trigger onClick={() => setSelectedTransaction(transaction)}>
+                <Box className={styles.CardWrapper} style={{ cursor: 'pointer' }}>
                   <Card>
                     <Flex gap="3" align="center">
-                      <Icon />
-                      <Box>
+                      <div className={styles.IconWrapper}>
+                        <Icon />
+                      </div>
+                      <div className={styles.TextWrapper}>
                         <Text as="div" size="2">
                           {isDebit ? 'Debit' : 'Credit'}
                         </Text>
@@ -42,33 +42,32 @@ export default function TransactionsColumn({ transactions }: TrxnRowProps) {
                         <Text as="div" size="1">
                           {new Date(transaction.bookedDate).toISOString().slice(0, 10)}
                         </Text>
-                      </Box>
-                      <Flex align="center" justify="end" style={{ flex: 1 }}>
-                        <Text as="div" size="3" weight="bold" color={amountColor}>
+                      </div>
+                      <div className={styles.AmountWrapper}>
+                        <Text as="div" size="3" weight="bold" className={amountClass}>
                           {transaction.amount}
                         </Text>
-                      </Flex>
+                      </div>
                     </Flex>
                   </Card>
                 </Box>
               </Dialog.Trigger>
-            </Styled.BoxWrapper>
+            </div>
           )
         })}
-      </Styled.TransactionsWrapper>
+      </div>
 
       {selectedTransaction && (
-        <Dialog.Content>         
-          <Flex gap="3" justify="between">
+        <Dialog.Content>
+          <Flex gap="3" justify="between" style={{ marginBottom: '1rem' }}>
             <Dialog.Title>Transaction Details</Dialog.Title>
-
             <Dialog.Close>
               <Cross1Icon />
             </Dialog.Close>
           </Flex>
           <Box>
             <Text><strong>ID:</strong> {selectedTransaction.id}<br /></Text>
-            <Text><strong>Amount:</strong> {selectedTransaction.amount} </Text>
+            <Text><strong>Amount:</strong> {selectedTransaction.amount}</Text>
             <Text><strong>Narration:</strong> {selectedTransaction.narration}<br /></Text>
             <Text><strong>Booked Date:</strong> {new Date(selectedTransaction.bookedDate).toLocaleString()}</Text>
           </Box>

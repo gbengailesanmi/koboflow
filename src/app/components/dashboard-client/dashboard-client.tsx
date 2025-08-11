@@ -9,6 +9,7 @@ import { Grid } from '@radix-ui/themes'
 import styles from '@/app/components/dashboard-client/dashboard-client.module.css'
 import { useBaseColor } from '@/providers/base-colour-provider'
 import AccountsCarousel from '@/app/components/accounts-carousel/accounts-carousel'
+import TransactionsColumn from '@/app/components/transactions-column/transactions-column'
 
 type DashboardClientProps = {
   accounts: Account[]
@@ -20,6 +21,10 @@ export default function DashboardClient({ accounts, transactions }: DashboardCli
   const [hasNavigated, setHasNavigated] = useState(false)
   const { baseColor } = useBaseColor()
 
+    const filteredTransactions = selectedAccount
+  ? transactions.filter(txn => txn.accountUniqueId === selectedAccount)
+  : transactions
+
   useEffect(() => {
     if (selectedAccount) {
       console.log('Selected Account:', selectedAccount)
@@ -30,7 +35,7 @@ export default function DashboardClient({ accounts, transactions }: DashboardCli
     <>
       <Header />
       <main className={styles.main} style={{ '--baseColor': baseColor } as React.CSSProperties}>
-        <Grid className={styles.Grid1}>
+        <Grid className={styles.AccountsGrid}>
 
           <AccountsCarousel
             accounts={accounts}
@@ -39,19 +44,35 @@ export default function DashboardClient({ accounts, transactions }: DashboardCli
           />
         </Grid>
 
-        {/* Other grids */}
         <Grid className={styles.Grid2}>
           <h2 className="text-xl font-semibold mb-2">Ads</h2>
         </Grid>
-        <Grid className={styles.Grid3}>
-          <h2 className="text-xl font-semibold mb-2">Transactions</h2>
+
+        <Grid className={styles.Grid2}>
+          <h2 className="text-xl font-semibold mb-2">Upcoming bills</h2>
         </Grid>
+        <Grid
+          rows='3'
+          className={styles.TransactionsGrid}
+          style={{ gridTemplateRows: '2.5rem 1fr 2.5rem' }}
+        >
+          <div style={{ display: 'flex', height: '100%', padding: '.3rem' }}>
+            <span><h2 className="text-xl font-semibold mb-2">Transactions</h2></span>
+          </div>
+          <div className={styles.TransactionsListWrapper}>
+          <TransactionsColumn transactions={filteredTransactions.slice(0, 5)} />
+          </div>
+          <div className='justify-center items-center flex'>
+            See all
+          </div>
+        </Grid>
+
         <Grid className={styles.Grid4}>
           <h2 className="text-xl font-semibold mb-2">Spent this month</h2>
         </Grid>
-        <Grid className={styles.Grid5}>
+        {/* <Grid className={styles.Grid5}>
           <h2 className="text-xl font-semibold mb-2">Insights</h2>
-        </Grid>
+        </Grid> */}
         <Grid className={styles.Grid6}>
           <h2 className="text-xl font-semibold mb-2">My top receivers</h2>
         </Grid>

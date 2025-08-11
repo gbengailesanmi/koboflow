@@ -164,7 +164,7 @@ export default function AccountsCarousel({
             key: 'add',
             icon: <PlusIcon width="35" height="35" />,
             label: 'Add Account',
-            onClick: () => console.log('Add account clicked'),
+            onClick: () => window.open(process.env.NEXT_PUBLIC_ADD_ACCOUNT_URL, '_blank'),
           },
           {
             key: 'details',
