@@ -10,6 +10,8 @@ import styles from '@/app/components/dashboard-client/dashboard-client.module.cs
 import { useBaseColor } from '@/providers/base-colour-provider'
 import AccountsCarousel from '@/app/components/accounts-carousel/accounts-carousel'
 import TransactionsColumn from '@/app/components/transactions-column/transactions-column'
+import { redirect } from 'next/navigation'
+
 
 type DashboardClientProps = {
   accounts: Account[]
@@ -62,7 +64,11 @@ export default function DashboardClient({ accounts, transactions }: DashboardCli
           <div className={styles.TransactionsListWrapper}>
           <TransactionsColumn transactions={filteredTransactions.slice(0, 5)} />
           </div>
-          <div className='justify-center items-center flex'>
+          <div
+            className='justify-center items-center flex'
+            role='button'
+            onClick={() => redirect(`/[customerId]/transactions`)}
+          >
             See all
           </div>
         </Grid>

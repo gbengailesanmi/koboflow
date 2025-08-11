@@ -1,15 +1,31 @@
+'use client'
+
 import type { Transaction } from '@/types/transactions'
+import type { Account } from '@/types/account'
 import { Box, Card, Flex, Text, Dialog } from '@radix-ui/themes'
 import { Cross1Icon, DownloadIcon, UploadIcon } from '@radix-ui/react-icons'
-import styles from './transactions-column.module.css'
-import { useState } from 'react'
+import styles from './transactions-page-client.module.css'
+import { useState, useMemo } from 'react'
+import Footer from '../footer/Footer'
 
-type TrxnRowProps = {
+type TransactionsPageClientProps = {
   transactions: Transaction[]
+  accounts: Account[]
 }
 
-export default function TransactionsColumn({ transactions }: TrxnRowProps) {
+export default function TransactionsPageClient({ transactions, accounts }: TransactionsPageClientProps) {
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null)
+  const [filterAccountId, setFilterAccountId] = useState<string>('')
+  const [searchTerm, setSearchTerm] = useState<string>('')
+
+  // Filter transactions by selected account and search term
+  const filteredTransactions = useMemo(() => {
+    return transactions.filter(txn => {
+      const matchesAccount = !filterAccountId || txn.accountUniqueId === filterAccountId
+      const matchesSearch = txn.narration.toLowerCase().includes(searchTerm.toLowerCase())
+      return matchesAccount && matchesSearch
+    })
+  }, [filterAccountId, searchTerm, transactions])
 
   return (
     <Dialog.Root
@@ -17,8 +33,34 @@ export default function TransactionsColumn({ transactions }: TrxnRowProps) {
         if (!open) setSelectedTransaction(null)
       }}
     >
+      <div className={styles.Header}>
+        <h2>Transactions</h2>
+        <div className={styles.Filters}>
+          <select
+            value={filterAccountId}
+            onChange={e => setFilterAccountId(e.target.value)}
+            className={styles.AccountsFilter}
+          >
+            <option value="">All Accounts</option>
+            {accounts.map(account => (
+              <option key={account.id} value={account.uniqueId}>
+                {account.name} — £{Number(account.balance).toFixed(2)}
+              </option>
+            ))}
+          </select>
+
+          <input
+            type="search"
+            placeholder="Search..."
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+            className={styles.SearchInput}
+          />
+        </div>
+      </div>
+
       <div className={styles.TransactionsWrapper}>
-        {transactions.map(transaction => {
+        {filteredTransactions.map(transaction => {
           const isDebit = Number(transaction.amount) < 0
           const amountClass = isDebit ? styles.DebitText : styles.CreditText
           const Icon = isDebit ? UploadIcon : DownloadIcon
@@ -34,7 +76,7 @@ export default function TransactionsColumn({ transactions }: TrxnRowProps) {
                       </div>
                       <div className={styles.TextWrapper}>
                         <Text as="div" size="2">
-                          {isDebit ? styles.DebitText : styles.CreditText}
+                          {isDebit ? 'Debit' : 'Credit'}
                         </Text>
                         <Text as="div" size="2" weight="bold">
                           {transaction.narration}
@@ -55,6 +97,7 @@ export default function TransactionsColumn({ transactions }: TrxnRowProps) {
             </div>
           )
         })}
+        <Footer />
       </div>
 
       {selectedTransaction && (
