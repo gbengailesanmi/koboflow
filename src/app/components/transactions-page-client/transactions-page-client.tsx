@@ -2,11 +2,15 @@
 
 import type { Transaction } from '@/types/transactions'
 import type { Account } from '@/types/account'
-import { Box, Card, Flex, Text, Dialog } from '@radix-ui/themes'
-import { Cross1Icon, DownloadIcon, UploadIcon } from '@radix-ui/react-icons'
+import { Dialog } from '@radix-ui/themes'
+import { DownloadIcon, UploadIcon } from '@radix-ui/react-icons'
 import styles from './transactions-page-client.module.css'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef, useEffect } from 'react'
 import Footer from '../footer/Footer'
+import MonthsScrollBar from '@/app/components/months-scrollbar/months-scrollbar'
+import TransactionDetailsDialog from '@/app/components/transaction-details-dialog/transaction-details-dialog'
+import TransactionCard from '@/app/components/transaction-card/transaction-card'
+import TransactionsFilters from '@/app/components/transactions-filters/transactions-filters'
 
 type TransactionsPageClientProps = {
   transactions: Transaction[]
@@ -17,8 +21,19 @@ export default function TransactionsPageClient({ transactions, accounts }: Trans
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null)
   const [filterAccountId, setFilterAccountId] = useState<string>('')
   const [searchTerm, setSearchTerm] = useState<string>('')
+  const [selectedMonth, setSelectedMonth] = useState<string | null>(null)
 
-  // Filter transactions by selected account and search term
+  const months = useMemo(() => {
+    const monthSet = new Set<string>()
+    transactions.forEach(txn => {
+      const newDate = new Date(txn.bookedDate)
+      const newMonth = newDate.toISOString().slice(0, 7)
+      monthSet.add(newMonth)
+    })
+    return Array.from(monthSet).sort((a, b) => b.localeCompare(a))
+  }, [transactions])
+
+  // Filter by account and search
   const filteredTransactions = useMemo(() => {
     return transactions.filter(txn => {
       const matchesAccount = !filterAccountId || txn.accountUniqueId === filterAccountId
@@ -27,94 +42,95 @@ export default function TransactionsPageClient({ transactions, accounts }: Trans
     })
   }, [filterAccountId, searchTerm, transactions])
 
-  return (
-    <Dialog.Root
-      onOpenChange={open => {
-        if (!open) setSelectedTransaction(null)
-      }}
-    >
-      <div className={styles.Header}>
-        <h2>Transactions</h2>
-        <div className={styles.Filters}>
-          <select
-            value={filterAccountId}
-            onChange={e => setFilterAccountId(e.target.value)}
-            className={styles.AccountsFilter}
-          >
-            <option value="">All Accounts</option>
-            {accounts.map(account => (
-              <option key={account.id} value={account.uniqueId}>
-                {account.name} — £{Number(account.balance).toFixed(2)}
-              </option>
-            ))}
-          </select>
+  // Map month -> transactions
+  const transactionsByMonth = useMemo(() => {
+    const map = new Map<string, string[]>()
+    filteredTransactions.forEach(txn => {
+      const month = new Date(txn.bookedDate).toISOString().slice(0, 7)
+      if (!map.has(month)) map.set(month, [])
+      map.get(month)!.push(txn.id)
+    })
+    return map
+  }, [filteredTransactions])
 
-          <input
-            type="search"
-            placeholder="Search..."
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-            className={styles.SearchInput}
-          />
+  const transactionRefs = useRef<Record<string, HTMLDivElement | null>>({})
+  const transactionsWrapperRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!selectedMonth || !transactionsWrapperRef.current) return
+    const txnsInMonth = transactionsByMonth.get(selectedMonth)
+
+    if (!txnsInMonth || txnsInMonth.length === 0) return
+    const lastTxnId = txnsInMonth[txnsInMonth.length - 1]
+    const lastTxnEl = transactionRefs.current[lastTxnId]
+
+    if (lastTxnEl && transactionsWrapperRef.current) {
+      const containerTop = transactionsWrapperRef.current.getBoundingClientRect().top
+      const elementTop = lastTxnEl.getBoundingClientRect().top
+      const scrollTop = transactionsWrapperRef.current.scrollTop
+      const offset = elementTop - containerTop + scrollTop
+
+      transactionsWrapperRef.current.scrollTo({ top: offset, behavior: 'smooth' })
+    }
+  }, [selectedMonth, transactionsByMonth])
+
+  return (
+    <Dialog.Root onOpenChange={open => { if (!open) setSelectedTransaction(null) }}>
+      <div className={styles.Header}>
+        <h1 className='text-xl font-semibold mb-2'>Transactions</h1>
+        <div className={styles.Filters}>
+            <TransactionsFilters
+              accounts={accounts}
+              filterAccountId={filterAccountId}
+              setFilterAccountId={setFilterAccountId}
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+            />
         </div>
       </div>
 
-      <div className={styles.TransactionsWrapper}>
+      <MonthsScrollBar
+        months={months}
+        selectedMonth={selectedMonth}
+        setSelectedMonth={setSelectedMonth}
+        styles={{
+          MonthSelected: styles.MonthSelected,
+          MonthButton: styles.MonthButton,
+          MonthsScrollArea: styles.MonthsScrollArea,
+        }}
+      />
+
+      {/* Transactions list with vertical scroll */}
+      <div
+        ref={transactionsWrapperRef}
+        className={styles.TransactionsWrapper}
+        style={{ overflowY: 'auto', maxHeight: '75dvh' }}
+      >
         {filteredTransactions.map(transaction => {
           const isDebit = Number(transaction.amount) < 0
           const amountClass = isDebit ? styles.DebitText : styles.CreditText
           const Icon = isDebit ? UploadIcon : DownloadIcon
 
           return (
-            <div key={transaction.id} className={styles.BoxWrapper}>
-              <Dialog.Trigger onClick={() => setSelectedTransaction(transaction)}>
-                <Box className={styles.CardWrapper} style={{ cursor: 'pointer' }}>
-                  <Card>
-                    <Flex gap="3" align="center">
-                      <div className={styles.IconWrapper}>
-                        <Icon />
-                      </div>
-                      <div className={styles.TextWrapper}>
-                        <Text as="div" size="2">
-                          {isDebit ? 'Debit' : 'Credit'}
-                        </Text>
-                        <Text as="div" size="2" weight="bold">
-                          {transaction.narration}
-                        </Text>
-                        <Text as="div" size="1">
-                          {new Date(transaction.bookedDate).toISOString().slice(0, 10)}
-                        </Text>
-                      </div>
-                      <div className={styles.AmountWrapper}>
-                        <Text as="div" size="3" weight="bold" className={amountClass}>
-                          {transaction.amount}
-                        </Text>
-                      </div>
-                    </Flex>
-                  </Card>
-                </Box>
-              </Dialog.Trigger>
-            </div>
+            <TransactionCard
+              key={transaction.id}
+              transaction={transaction}
+              isDebit={isDebit}
+              amountClass={amountClass}
+              Icon={Icon}
+              onClick={() => setSelectedTransaction(transaction)}
+              cardRef={el => { transactionRefs.current[transaction.id] = el }}
+            />
           )
         })}
         <Footer />
       </div>
 
       {selectedTransaction && (
-        <Dialog.Content>
-          <Flex gap="3" justify="between" style={{ marginBottom: '1rem' }}>
-            <Dialog.Title>Transaction Details</Dialog.Title>
-            <Dialog.Close>
-              <Cross1Icon />
-            </Dialog.Close>
-          </Flex>
-          <Box>
-            <Text><strong>ID:</strong> {selectedTransaction.id}<br /></Text>
-            <Text><strong>Amount:</strong> {selectedTransaction.amount}</Text>
-            <Text><strong>Narration:</strong> {selectedTransaction.narration}<br /></Text>
-            <Text><strong>Booked Date:</strong> {new Date(selectedTransaction.bookedDate).toLocaleString()}</Text>
-          </Box>
-        </Dialog.Content>
+        <TransactionDetailsDialog
+          transaction={selectedTransaction}
+          onClose={() => setSelectedTransaction(null)}
+        />
       )}
     </Dialog.Root>
   )

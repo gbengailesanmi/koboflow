@@ -7,7 +7,7 @@ import useEmblaCarousel from 'embla-carousel-react'
 import { Box } from '@radix-ui/themes'
 import { PlusIcon, ListBulletIcon, BarChartIcon } from '@radix-ui/react-icons'
 import { DoubleArrowLeftIcon, DoubleArrowRightIcon, ZoomInIcon } from '@radix-ui/react-icons'
-import FormatCarouselContent from '@/helpers/format-carousel-content'
+import FormatCarouselContent from '@/app/components/format-carousel-content/format-carousel-content'
 import generateHues from '@/helpers/generate-hues'
 import AccountsPills from '@/app/components/account-pills/accounts-pills'
 

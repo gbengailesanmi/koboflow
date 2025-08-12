@@ -34,7 +34,7 @@ export default function TransactionsColumn({ transactions }: TrxnRowProps) {
                       </div>
                       <div className={styles.TextWrapper}>
                         <Text as="div" size="2">
-                          {isDebit ? styles.DebitText : styles.CreditText}
+                          {isDebit ? 'Debit' : 'Credit'}
                         </Text>
                         <Text as="div" size="2" weight="bold">
                           {transaction.narration}
