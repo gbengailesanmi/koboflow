@@ -2,6 +2,7 @@
 
 import { IconButton } from '@radix-ui/themes'
 import React from 'react'
+import styles from './account-pills.module.css'
 
 type ActionButton = {
   key: string
@@ -16,19 +17,24 @@ type AccountsPillsProps = {
 
 export default function AccountsPills({ buttons }: AccountsPillsProps) {
   return (
-    <div className="h-auto w-full mt-2 flex flex-row">
+    <div className={styles.PillsWrapper}>
       {buttons.map(({ key, icon, label, onClick }) => (
-        <div key={key} role='button' className="flex flex-col justify-between w-full items-center"
-          onClick={onClick} aria-label={label}>
+        <div 
+          key={key} 
+          role='button' 
+          className={styles.ButtonWrapper}
+          onClick={onClick} 
+          aria-label={label}
+        >
           <IconButton
-            size="3"
-            radius="full"
-            variant="ghost"
-            color="gray"
+            size='3'
+            radius='full'
+            variant='ghost'
+            color='gray'
           >
             {icon}
           </IconButton>
-          <span className="text-[10px] font-medium">{label}</span>
+          <span className={styles.LabelSpan}>{label}</span>
         </div>
       ))}
     </div>

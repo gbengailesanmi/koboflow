@@ -7,7 +7,7 @@ import { DownloadIcon, UploadIcon } from '@radix-ui/react-icons'
 import styles from './transactions-page-client.module.css'
 import { useState, useMemo, useRef, useEffect } from 'react'
 import Footer from '../footer/Footer'
-import MonthsScrollBar from '@/app/components/months-scrollbar/months-scrollbar'
+import TransactionMonthPills from '@/app/components/transaction-month-pills/transaction-month-pills'
 import TransactionDetailsDialog from '@/app/components/transaction-details-dialog/transaction-details-dialog'
 import TransactionCard from '@/app/components/transaction-card/transaction-card'
 import TransactionsFilters from '@/app/components/transactions-filters/transactions-filters'
@@ -89,15 +89,10 @@ export default function TransactionsPageClient({ transactions, accounts }: Trans
         </div>
       </div>
 
-      <MonthsScrollBar
+      <TransactionMonthPills
         months={months}
         selectedMonth={selectedMonth}
         setSelectedMonth={setSelectedMonth}
-        styles={{
-          MonthSelected: styles.MonthSelected,
-          MonthButton: styles.MonthButton,
-          MonthsScrollArea: styles.MonthsScrollArea,
-        }}
       />
 
       {/* Transactions list with vertical scroll */}

@@ -1,0 +1,17 @@
+@reference "../../globals.css";
+
+.MonthsScrollArea {
+  @apply mt-2 sticky overflow-x-auto whitespace-nowrap mb-4;
+}
+
+.MonthButtonSelected {
+  @apply inline-block cursor-pointer select-none rounded-2xl ml-4 mr-4 px-6 py-1 bg-[rgba(74,85,101,1)];
+}
+
+.MonthButtonUnselected {
+  @apply inline-block cursor-pointer select-none rounded-2xl ml-1 mr-1 px-2 py-1 bg-[rgba(33,34,37,1)];
+}
+
+.MonthButtonUnselected:hover {
+  @apply bg-[#562828];
+}
