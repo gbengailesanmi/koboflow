@@ -18,3 +18,7 @@
 .MagnifyIconWrapper {
   @apply flex-shrink-0;
 }
+
+.DropdownIconWrapper {
+  @apply flex-shrink-0;
+}

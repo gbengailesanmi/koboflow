@@ -2,7 +2,7 @@ import type { Account } from '@/types/account'
 import React from 'react'
 import styles from '@/app/components/transactions-filters/transactions-filters.module.css'
 import { DropdownMenu, Button, Grid } from '@radix-ui/themes'
-import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
+import { MagnifyingGlassIcon, ChevronDownIcon } from '@radix-ui/react-icons'
 
 type TransactionsFiltersProps = {
   accounts: Account[]
@@ -26,7 +26,9 @@ export default function TransactionsFilters({
           <DropdownMenu.Trigger>
             <Button variant="soft" color='gray' radius='full'>
                   Filter by account
-              <DropdownMenu.TriggerIcon />
+              <div className={styles.DropdownIconWrapper}>
+              <ChevronDownIcon width='24' height='24' />
+              </div>
             </Button>
           </DropdownMenu.Trigger>
           <DropdownMenu.Content>
