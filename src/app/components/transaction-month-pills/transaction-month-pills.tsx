@@ -1,17 +1,21 @@
 import { ScrollArea } from '@radix-ui/themes'
+import { RefObject } from 'react'
 import styles from './transaction-month-pills.module.css'
 
 type TransactionMonthPillsProps = {
   months: string[]
   selectedMonth: string | null
-  setSelectedMonth: (month: string | null) => void
+  setSelectedMonth: (month: string | null) => void,
+  // transactionScrollRef: RefObject<HTMLDivElement> | null
 }
 
 export default function TransactionMonthPills({
   months,
   selectedMonth,
-  setSelectedMonth
+  setSelectedMonth,
+  // transactionScrollRef
 }: TransactionMonthPillsProps) {
+  // console.log('efef', transactionScrollRef?.current)
   return (
     <ScrollArea
       type="auto"
@@ -21,7 +25,7 @@ export default function TransactionMonthPills({
         const isSelected = month === selectedMonth
         const displayMonth = new Date(month + '-01').toLocaleDateString(undefined, {
           month: 'short',
-          year: 'numeric',
+          year: '2-digit',
         })
         return (
           <button

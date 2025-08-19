@@ -1,0 +1,640 @@
+[
+  {
+    "id": "08af01de00624ccc94bdbc735c1aae18",
+    "accountId": "238f89b92c5e4bf09e5ff5aff4f0d224",
+    "amount": {
+      "value": {
+        "unscaledValue": "-279",
+        "scale": "1"
+      },
+      "currencyCode": "GBP"
+    },
+    "descriptions": {
+      "original": "TFL Rail",
+      "display": "Tfl Rail"
+    },
+    "dates": {
+      "booked": "2020-06-15"
+    },
+    "identifiers": {
+      "providerTransactionId": "3703"
+    },
+    "types": {
+      "type": "DEFAULT"
+    },
+    "status": "BOOKED",
+    "providerMutability": "MUTABILITY_UNDEFINED",
+    "customerId": "b09a6009-7999-49ed-8ab6-c269a1f6e2cf",
+    "amountFormatted": "-27.90",
+    "accountUniqueId": "accountUId-0789765485fda619bbdc40369502ec3f792ae644987106"
+  },
+  {
+    "id": "84ac386a22594eee939d545c6f01ce88",
+    "accountId": "238f89b92c5e4bf09e5ff5aff4f0d224",
+    "amount": {
+      "value": {
+        "unscaledValue": "-2999",
+        "scale": "2"
+      },
+      "currencyCode": "GBP"
+    },
+    "descriptions": {
+      "original": "Hello Fresh",
+      "display": "Hello Fresh"
+    },
+    "dates": {
+      "booked": "2020-06-15"
+    },
+    "identifiers": {
+      "providerTransactionId": "3702"
+    },
+    "types": {
+      "type": "DEFAULT"
+    },
+    "status": "BOOKED",
+    "providerMutability": "MUTABILITY_UNDEFINED",
+    "customerId": "b09a6009-7999-49ed-8ab6-c269a1f6e2cf",
+    "amountFormatted": "-29.99",
+    "accountUniqueId": "accountUId-0789765485fda619bbdc40369502ec3f792ae644987106"
+  },
+  {
+    "id": "bf095e071af0417e86b524c154f1ea64",
+    "accountId": "238f89b92c5e4bf09e5ff5aff4f0d224",
+    "amount": {
+      "value": {
+        "unscaledValue": "-1733",
+        "scale": "2"
+      },
+      "currencyCode": "GBP"
+    },
+    "descriptions": {
+      "original": "Sainsburys",
+      "display": "Sainsburys"
+    },
+    "dates": {
+      "booked": "2020-06-15"
+    },
+    "identifiers": {
+      "providerTransactionId": "3704"
+    },
+    "types": {
+      "type": "DEFAULT"
+    },
+    "status": "BOOKED",
+    "providerMutability": "MUTABILITY_UNDEFINED",
+    "customerId": "b09a6009-7999-49ed-8ab6-c269a1f6e2cf",
+    "amountFormatted": "-17.33",
+    "accountUniqueId": "accountUId-0789765485fda619bbdc40369502ec3f792ae644987106"
+  },
+  {
+    "id": "d67959784a1c419d9d8dd2740ea6cb6f",
+    "accountId": "238f89b92c5e4bf09e5ff5aff4f0d224",
+    "amount": {
+      "value": {
+        "unscaledValue": "-400",
+        "scale": "1"
+      },
+      "currencyCode": "GBP"
+    },
+    "descriptions": {
+      "original": "Texaco",
+      "display": "Texaco"
+    },
+    "dates": {
+      "booked": "2020-06-15"
+    },
+    "identifiers": {
+      "providerTransactionId": "3701"
+    },
+    "types": {
+      "type": "DEFAULT"
+    },
+    "status": "BOOKED",
+    "providerMutability": "MUTABILITY_UNDEFINED",
+    "customerId": "b09a6009-7999-49ed-8ab6-c269a1f6e2cf",
+    "amountFormatted": "-40.00",
+    "accountUniqueId": "accountUId-0789765485fda619bbdc40369502ec3f792ae644987106"
+  },
+  {
+    "id": "3ee4713050c845298f376ad74b579dd6",
+    "accountId": "238f89b92c5e4bf09e5ff5aff4f0d224",
+    "amount": {
+      "value": {
+        "unscaledValue": "-2299",
+        "scale": "2"
+      },
+      "currencyCode": "GBP"
+    },
+    "descriptions": {
+      "original": "Vodafone",
+      "display": "Vodafone"
+    },
+    "dates": {
+      "booked": "2020-06-12"
+    },
+    "identifiers": {
+      "providerTransactionId": "3705"
+    },
+    "types": {
+      "type": "DEFAULT"
+    },
+    "status": "BOOKED",
+    "providerMutability": "MUTABILITY_UNDEFINED",
+    "customerId": "b09a6009-7999-49ed-8ab6-c269a1f6e2cf",
+    "amountFormatted": "-22.99",
+    "accountUniqueId": "accountUId-0789765485fda619bbdc40369502ec3f792ae644987106"
+  },
+  {
+    "id": "624b2c1baf0347da99fd1782072d5faf",
+    "accountId": "238f89b92c5e4bf09e5ff5aff4f0d224",
+    "amount": {
+      "value": {
+        "unscaledValue": "-497",
+        "scale": "2"
+      },
+      "currencyCode": "GBP"
+    },
+    "descriptions": {
+      "original": "Bridge Cafe",
+      "display": "Bridge Cafe"
+    },
+    "dates": {
+      "booked": "2020-06-12"
+    },
+    "identifiers": {
+      "providerTransactionId": "3708"
+    },
+    "types": {
+      "type": "DEFAULT"
+    },
+    "status": "BOOKED",
+    "providerMutability": "MUTABILITY_UNDEFINED",
+    "customerId": "b09a6009-7999-49ed-8ab6-c269a1f6e2cf",
+    "amountFormatted": "-4.97",
+    "accountUniqueId": "accountUId-0789765485fda619bbdc40369502ec3f792ae644987106"
+  },
+  {
+    "id": "86e421dc0f9d461ba34dc2ab8333bae8",
+    "accountId": "238f89b92c5e4bf09e5ff5aff4f0d224",
+    "amount": {
+      "value": {
+        "unscaledValue": "-200",
+        "scale": "1"
+      },
+      "currencyCode": "GBP"
+    },
+    "descriptions": {
+      "original": "ATM Withdrawal",
+      "display": "Atm Withdrawal"
+    },
+    "dates": {
+      "booked": "2020-06-12"
+    },
+    "identifiers": {
+      "providerTransactionId": "3706"
+    },
+    "types": {
+      "type": "DEFAULT"
+    },
+    "status": "BOOKED",
+    "providerMutability": "MUTABILITY_UNDEFINED",
+    "customerId": "b09a6009-7999-49ed-8ab6-c269a1f6e2cf",
+    "amountFormatted": "-20.00",
+    "accountUniqueId": "accountUId-0789765485fda619bbdc40369502ec3f792ae644987106"
+  },
+  {
+    "id": "cbdfa6e92ee2422a999116fe8729bf59",
+    "accountId": "238f89b92c5e4bf09e5ff5aff4f0d224",
+    "amount": {
+      "value": {
+        "unscaledValue": "-1799",
+        "scale": "2"
+      },
+      "currencyCode": "GBP"
+    },
+    "descriptions": {
+      "original": "iTunes",
+      "display": "iTunes"
+    },
+    "dates": {
+      "booked": "2020-06-12"
+    },
+    "identifiers": {
+      "providerTransactionId": "3707"
+    },
+    "types": {
+      "type": "DEFAULT"
+    },
+    "status": "BOOKED",
+    "providerMutability": "MUTABILITY_UNDEFINED",
+    "customerId": "b09a6009-7999-49ed-8ab6-c269a1f6e2cf",
+    "amountFormatted": "-17.99",
+    "accountUniqueId": "accountUId-0789765485fda619bbdc40369502ec3f792ae644987106"
+  },
+  {
+    "id": "b70e54f785354cf3b7d03b23f1c472e4",
+    "accountId": "238f89b92c5e4bf09e5ff5aff4f0d224",
+    "amount": {
+      "value": {
+        "unscaledValue": "-149",
+        "scale": "2"
+      },
+      "currencyCode": "GBP"
+    },
+    "descriptions": {
+      "original": "Pret",
+      "display": "Pret"
+    },
+    "dates": {
+      "booked": "2020-06-11"
+    },
+    "identifiers": {
+      "providerTransactionId": "3709"
+    },
+    "types": {
+      "type": "DEFAULT"
+    },
+    "status": "BOOKED",
+    "providerMutability": "MUTABILITY_UNDEFINED",
+    "customerId": "b09a6009-7999-49ed-8ab6-c269a1f6e2cf",
+    "amountFormatted": "-1.49",
+    "accountUniqueId": "accountUId-0789765485fda619bbdc40369502ec3f792ae644987106"
+  },
+  {
+    "id": "fbfb40c9081d4d849cc6d49860e6555b",
+    "accountId": "238f89b92c5e4bf09e5ff5aff4f0d224",
+    "amount": {
+      "value": {
+        "unscaledValue": "-2000",
+        "scale": "1"
+      },
+      "currencyCode": "GBP"
+    },
+    "descriptions": {
+      "original": "Savings Transfer",
+      "display": "Savings Transfer"
+    },
+    "dates": {
+      "booked": "2020-06-10"
+    },
+    "identifiers": {
+      "providerTransactionId": "3710"
+    },
+    "types": {
+      "type": "DEFAULT"
+    },
+    "status": "BOOKED",
+    "providerMutability": "MUTABILITY_UNDEFINED",
+    "customerId": "b09a6009-7999-49ed-8ab6-c269a1f6e2cf",
+    "amountFormatted": "-200.00",
+    "accountUniqueId": "accountUId-0789765485fda619bbdc40369502ec3f792ae644987106"
+  },
+  {
+    "id": "7c113bff8961402da24b0c1bb3dc23d3",
+    "accountId": "238f89b92c5e4bf09e5ff5aff4f0d224",
+    "amount": {
+      "value": {
+        "unscaledValue": "-5698",
+        "scale": "2"
+      },
+      "currencyCode": "GBP"
+    },
+    "descriptions": {
+      "original": "Amazon",
+      "display": "Amazon"
+    },
+    "dates": {
+      "booked": "2020-06-09"
+    },
+    "identifiers": {
+      "providerTransactionId": "3711"
+    },
+    "types": {
+      "type": "DEFAULT"
+    },
+    "status": "BOOKED",
+    "providerMutability": "MUTABILITY_UNDEFINED",
+    "customerId": "b09a6009-7999-49ed-8ab6-c269a1f6e2cf",
+    "amountFormatted": "-56.98",
+    "accountUniqueId": "accountUId-0789765485fda619bbdc40369502ec3f792ae644987106"
+  },
+  {
+    "id": "1a4e2a99f44640309617b747a4a3f592",
+    "accountId": "238f89b92c5e4bf09e5ff5aff4f0d224",
+    "amount": {
+      "value": {
+        "unscaledValue": "-279",
+        "scale": "1"
+      },
+      "currencyCode": "GBP"
+    },
+    "descriptions": {
+      "original": "TFL Rail",
+      "display": "Tfl Rail"
+    },
+    "dates": {
+      "booked": "2020-06-08"
+    },
+    "identifiers": {
+      "providerTransactionId": "3713"
+    },
+    "types": {
+      "type": "DEFAULT"
+    },
+    "status": "BOOKED",
+    "providerMutability": "MUTABILITY_UNDEFINED",
+    "customerId": "b09a6009-7999-49ed-8ab6-c269a1f6e2cf",
+    "amountFormatted": "-27.90",
+    "accountUniqueId": "accountUId-0789765485fda619bbdc40369502ec3f792ae644987106"
+  },
+  {
+    "id": "dcabe8e9964f4deba4eac7804862ec6a",
+    "accountId": "238f89b92c5e4bf09e5ff5aff4f0d224",
+    "amount": {
+      "value": {
+        "unscaledValue": "-2999",
+        "scale": "2"
+      },
+      "currencyCode": "GBP"
+    },
+    "descriptions": {
+      "original": "Hello Fresh",
+      "display": "Hello Fresh"
+    },
+    "dates": {
+      "booked": "2020-06-08"
+    },
+    "identifiers": {
+      "providerTransactionId": "3712"
+    },
+    "types": {
+      "type": "DEFAULT"
+    },
+    "status": "BOOKED",
+    "providerMutability": "MUTABILITY_UNDEFINED",
+    "customerId": "b09a6009-7999-49ed-8ab6-c269a1f6e2cf",
+    "amountFormatted": "-29.99",
+    "accountUniqueId": "accountUId-0789765485fda619bbdc40369502ec3f792ae644987106"
+  },
+  {
+    "id": "5d2a9c92e8924399a43027ebe10dd101",
+    "accountId": "238f89b92c5e4bf09e5ff5aff4f0d224",
+    "amount": {
+      "value": {
+        "unscaledValue": "-3485",
+        "scale": "2"
+      },
+      "currencyCode": "GBP"
+    },
+    "descriptions": {
+      "original": "Admiral Insurance",
+      "display": "Admiral Insurance"
+    },
+    "dates": {
+      "booked": "2020-06-05"
+    },
+    "identifiers": {
+      "providerTransactionId": "3714"
+    },
+    "types": {
+      "type": "DEFAULT"
+    },
+    "status": "BOOKED",
+    "providerMutability": "MUTABILITY_UNDEFINED",
+    "customerId": "b09a6009-7999-49ed-8ab6-c269a1f6e2cf",
+    "amountFormatted": "-34.85",
+    "accountUniqueId": "accountUId-0789765485fda619bbdc40369502ec3f792ae644987106"
+  },
+  {
+    "id": "8af661583fb148a4bb86499b4f701359",
+    "accountId": "238f89b92c5e4bf09e5ff5aff4f0d224",
+    "amount": {
+      "value": {
+        "unscaledValue": "-868",
+        "scale": "2"
+      },
+      "currencyCode": "GBP"
+    },
+    "descriptions": {
+      "original": "Red Lion Pub",
+      "display": "Red Lion Pub"
+    },
+    "dates": {
+      "booked": "2020-06-04"
+    },
+    "identifiers": {
+      "providerTransactionId": "3715"
+    },
+    "types": {
+      "type": "DEFAULT"
+    },
+    "status": "BOOKED",
+    "providerMutability": "MUTABILITY_UNDEFINED",
+    "customerId": "b09a6009-7999-49ed-8ab6-c269a1f6e2cf",
+    "amountFormatted": "-8.68",
+    "accountUniqueId": "accountUId-0789765485fda619bbdc40369502ec3f792ae644987106"
+  },
+  {
+    "id": "c32652fc6ed54aae8b019fa742c15a43",
+    "accountId": "238f89b92c5e4bf09e5ff5aff4f0d224",
+    "amount": {
+      "value": {
+        "unscaledValue": "-6500",
+        "scale": "1"
+      },
+      "currencyCode": "GBP"
+    },
+    "descriptions": {
+      "original": "Rent",
+      "display": "Rent"
+    },
+    "dates": {
+      "booked": "2020-06-03"
+    },
+    "identifiers": {
+      "providerTransactionId": "3716"
+    },
+    "types": {
+      "type": "DEFAULT"
+    },
+    "status": "BOOKED",
+    "providerMutability": "MUTABILITY_UNDEFINED",
+    "customerId": "b09a6009-7999-49ed-8ab6-c269a1f6e2cf",
+    "amountFormatted": "-650.00",
+    "accountUniqueId": "accountUId-0789765485fda619bbdc40369502ec3f792ae644987106"
+  },
+  {
+    "id": "dda1020f9b984cbb8217e16024fed317",
+    "accountId": "238f89b92c5e4bf09e5ff5aff4f0d224",
+    "amount": {
+      "value": {
+        "unscaledValue": "-2766",
+        "scale": "2"
+      },
+      "currencyCode": "GBP"
+    },
+    "descriptions": {
+      "original": "Tesco Store",
+      "display": "Tesco Store"
+    },
+    "dates": {
+      "booked": "2020-06-03"
+    },
+    "identifiers": {
+      "providerTransactionId": "3717"
+    },
+    "types": {
+      "type": "DEFAULT"
+    },
+    "status": "BOOKED",
+    "providerMutability": "MUTABILITY_UNDEFINED",
+    "customerId": "b09a6009-7999-49ed-8ab6-c269a1f6e2cf",
+    "amountFormatted": "-27.66",
+    "accountUniqueId": "accountUId-0789765485fda619bbdc40369502ec3f792ae644987106"
+  },
+  {
+    "id": "2aea0dfbc55e41a592248f2bf423c27c",
+    "accountId": "238f89b92c5e4bf09e5ff5aff4f0d224",
+    "amount": {
+      "value": {
+        "unscaledValue": "188703",
+        "scale": "2"
+      },
+      "currencyCode": "GBP"
+    },
+    "descriptions": {
+      "original": "Salary",
+      "display": "Salary"
+    },
+    "dates": {
+      "booked": "2020-06-02"
+    },
+    "identifiers": {
+      "providerTransactionId": "3719"
+    },
+    "types": {
+      "type": "DEFAULT"
+    },
+    "status": "BOOKED",
+    "providerMutability": "MUTABILITY_UNDEFINED",
+    "customerId": "b09a6009-7999-49ed-8ab6-c269a1f6e2cf",
+    "amountFormatted": "1887.03",
+    "accountUniqueId": "accountUId-0789765485fda619bbdc40369502ec3f792ae644987106"
+  },
+  {
+    "id": "b0732a3dbb0448889e7f06ee65789826",
+    "accountId": "238f89b92c5e4bf09e5ff5aff4f0d224",
+    "amount": {
+      "value": {
+        "unscaledValue": "-2999",
+        "scale": "2"
+      },
+      "currencyCode": "GBP"
+    },
+    "descriptions": {
+      "original": "Specsavers",
+      "display": "Specsavers"
+    },
+    "dates": {
+      "booked": "2020-06-02"
+    },
+    "identifiers": {
+      "providerTransactionId": "3718"
+    },
+    "types": {
+      "type": "DEFAULT"
+    },
+    "status": "BOOKED",
+    "providerMutability": "MUTABILITY_UNDEFINED",
+    "customerId": "b09a6009-7999-49ed-8ab6-c269a1f6e2cf",
+    "amountFormatted": "-29.99",
+    "accountUniqueId": "accountUId-0789765485fda619bbdc40369502ec3f792ae644987106"
+  },
+  {
+    "id": "32c4a64c5d3549b7bc8c4a9fed203575",
+    "accountId": "238f89b92c5e4bf09e5ff5aff4f0d224",
+    "amount": {
+      "value": {
+        "unscaledValue": "372",
+        "scale": "2"
+      },
+      "currencyCode": "GBP"
+    },
+    "descriptions": {
+      "original": "Interest Earned",
+      "display": "Interest Earned"
+    },
+    "dates": {
+      "booked": "2020-06-01"
+    },
+    "identifiers": {
+      "providerTransactionId": "3721"
+    },
+    "types": {
+      "type": "DEFAULT"
+    },
+    "status": "BOOKED",
+    "providerMutability": "MUTABILITY_UNDEFINED",
+    "customerId": "b09a6009-7999-49ed-8ab6-c269a1f6e2cf",
+    "amountFormatted": "3.72",
+    "accountUniqueId": "accountUId-0789765485fda619bbdc40369502ec3f792ae644987106"
+  },
+  {
+    "id": "937925c552664f98a55773ac5545ec00",
+    "accountId": "238f89b92c5e4bf09e5ff5aff4f0d224",
+    "amount": {
+      "value": {
+        "unscaledValue": "-1799",
+        "scale": "2"
+      },
+      "currencyCode": "GBP"
+    },
+    "descriptions": {
+      "original": "Dominos Pizza",
+      "display": "Dominos Pizza"
+    },
+    "dates": {
+      "booked": "2020-06-01"
+    },
+    "identifiers": {
+      "providerTransactionId": "3720"
+    },
+    "types": {
+      "type": "DEFAULT"
+    },
+    "status": "BOOKED",
+    "providerMutability": "MUTABILITY_UNDEFINED",
+    "customerId": "b09a6009-7999-49ed-8ab6-c269a1f6e2cf",
+    "amountFormatted": "-17.99",
+    "accountUniqueId": "accountUId-0789765485fda619bbdc40369502ec3f792ae644987106"
+  },
+  {
+    "id": "a75aa4999a754377a1d00f9b552d5575",
+    "accountId": "238f89b92c5e4bf09e5ff5aff4f0d224",
+    "amount": {
+      "value": {
+        "unscaledValue": "-7500",
+        "scale": "1"
+      },
+      "currencyCode": "GBP"
+    },
+    "descriptions": {
+      "original": "Tuition",
+      "display": "Tuition"
+    },
+    "dates": {
+      "booked": "2020-02-11"
+    },
+    "identifiers": {
+      "providerTransactionId": "3722"
+    },
+    "types": {
+      "type": "DEFAULT"
+    },
+    "status": "BOOKED",
+    "providerMutability": "MUTABILITY_UNDEFINED",
+    "customerId": "b09a6009-7999-49ed-8ab6-c269a1f6e2cf",
+    "amountFormatted": "-750.00",
+    "accountUniqueId": "accountUId-0789765485fda619bbdc40369502ec3f792ae644987106"
+  }
+]
