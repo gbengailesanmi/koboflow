@@ -1,7 +1,7 @@
 @reference "../../globals.css";
 
 .main {
-  @apply flex flex-col gap-4 p-4 min-h-screen rounded-2xl overflow-y-visible w-[100%];
+  @apply flex flex-col gap-4 p-4 min-h-screen overflow-y-visible w-[100%];
   --viaColor: color-mix(in srgb, var(--baseColor) 10%, #040914 90%);
   --viaStop: 40%;
   --bottomColor: #040914;
