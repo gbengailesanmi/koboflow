@@ -10,30 +10,30 @@ export default function Header() {
 
   
   const handleProfileClick = () => {
-    redirect(`/${customerId}/profileSettings`)
+    redirect(`/${customerId}/profile`)
   }
 
-  // const handlePencilClick = () => {
-
-
+  const handleSettingsClick = () => {
+    redirect(`/${customerId}/settings`)
+  }
 
   return (
     <div className={styles.HeaderWrapper}>
       <HeaderIconButton className={styles.SettingsButton} onClick={handleProfileClick}>
         <PersonIcon width='25' height='25' />
       </HeaderIconButton>
-      <HeaderIconButton className={styles.SettingsButton} onClick={handleProfileClick}>
+      <HeaderIconButton className={styles.SettingsButton} onClick={handleSettingsClick}>
         <GearIcon width='25' height='25' />
       </HeaderIconButton>
     </div>
   )
 }
 
-type FooterIconButtonProps = React.ComponentProps<typeof IconButton> & {
+type HeaderIconButtonProps = React.ComponentProps<typeof IconButton> & {
   children: React.ReactNode
 }
 
-export function HeaderIconButton({ children, ...props }: FooterIconButtonProps) {
+export function HeaderIconButton({ children, ...props }: HeaderIconButtonProps) {
   return (
     <IconButton
       variant="ghost"

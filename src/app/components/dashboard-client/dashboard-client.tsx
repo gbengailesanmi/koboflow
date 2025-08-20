@@ -62,7 +62,7 @@ export default function DashboardClient({ accounts, transactions }: DashboardCli
             <span><h2 className="text-xl font-semibold mb-2">Transactions</h2></span>
           </div>
           <div className={styles.TransactionsListWrapper}>
-          <TransactionsColumn transactions={filteredTransactions.slice(0, 5)} />
+          <TransactionsColumn transactions={filteredTransactions.slice(0, 10)} />
           </div>
           <div
             className='justify-center items-center flex'
@@ -74,7 +74,7 @@ export default function DashboardClient({ accounts, transactions }: DashboardCli
         </Grid>
 
         <Grid className={styles.Grid4}>
-          <h2 className="text-xl font-semibold mb-2">Spent this month</h2>
+            <h2 className="text-xl font-semibold mb-2">{`{This Month}`} vs {`{Last Month}`}</h2>
         </Grid>
         {/* <Grid className={styles.Grid5}>
           <h2 className="text-xl font-semibold mb-2">Insights</h2>
