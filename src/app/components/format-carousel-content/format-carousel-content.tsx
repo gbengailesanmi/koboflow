@@ -1,3 +1,5 @@
+import { DotIcon } from '@radix-ui/react-icons'
+
 function FormatCarouselContent({
   accountType,
   accountName,
@@ -14,7 +16,9 @@ function FormatCarouselContent({
   return (
     <>
       <h3 className="text-normal font-normal">
-        {accountType} - {accountName}
+        <span className="inline-flex items-center gap-1">
+          {accountType} <DotIcon /> {accountName}
+        </span>
       </h3>
       <span className="text-6xl font-bold mt-2">
         £{whole}
