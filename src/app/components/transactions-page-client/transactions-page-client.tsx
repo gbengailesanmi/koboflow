@@ -3,14 +3,15 @@
 import type { Transaction } from '@/types/transactions'
 import type { Account } from '@/types/account'
 import { Dialog } from '@radix-ui/themes'
-import { DownloadIcon, UploadIcon } from '@radix-ui/react-icons'
+import { DownloadIcon, UploadIcon, ArrowLeftIcon } from '@radix-ui/react-icons'
 import styles from './transactions-page-client.module.css'
 import { useState, useMemo, useRef, useEffect } from 'react'
-import Footer from '../footer/Footer'
+import Footer from '@/app/components/footer/Footer'
 import TransactionMonthPills from '@/app/components/transaction-month-pills/transaction-month-pills'
 import TransactionDetailsDialog from '@/app/components/transaction-details-dialog/transaction-details-dialog'
 import TransactionCard from '@/app/components/transaction-card/transaction-card'
 import TransactionsFilters from '@/app/components/transactions-filters/transactions-filters'
+import { redirect, useParams } from 'next/navigation'
 
 type TransactionsPageClientProps = {
   transactions: Transaction[]
@@ -22,6 +23,9 @@ export default function TransactionsPageClient({ transactions, accounts }: Trans
   const [filterAccountId, setFilterAccountId] = useState<string>('')
   const [searchTerm, setSearchTerm] = useState<string>('')
   const [selectedMonth, setSelectedMonth] = useState<string | null>(null)
+
+  const params = useParams()
+  const customerId = params.customerId as string
 
   const months = useMemo(() => {
     const monthSet = new Set<string>()
@@ -76,9 +80,11 @@ export default function TransactionsPageClient({ transactions, accounts }: Trans
 
   return (
     <Dialog.Root onOpenChange={open => { if (!open) setSelectedTransaction(null) }}>
-      <div className={styles.Header}>
-        <h1 className='text-xl font-semibold mb-2'>Transactions</h1>
-        <div className={styles.Filters}>
+      <div className={styles.PageGrid}>
+        <div className={styles.Header}>
+          <ArrowLeftIcon className="w-5 h-5" onClick={() => redirect(`/${customerId}/dashboard`)}/>
+          <h1 className="text-xl font-semibold mb-2">Transactions</h1>
+          <div className={styles.Filters}>
             <TransactionsFilters
               accounts={accounts}
               filterAccountId={filterAccountId}
@@ -86,38 +92,34 @@ export default function TransactionsPageClient({ transactions, accounts }: Trans
               searchTerm={searchTerm}
               setSearchTerm={setSearchTerm}
             />
+          </div>
         </div>
-      </div>
 
-      <TransactionMonthPills
-        months={months}
-        selectedMonth={selectedMonth}
-        setSelectedMonth={setSelectedMonth}
-      />
+        <TransactionMonthPills
+          months={months}
+          selectedMonth={selectedMonth}
+          setSelectedMonth={setSelectedMonth}
+        />
 
-      {/* Transactions list with vertical scroll */}
-      <div
-        ref={transactionsWrapperRef}
-        className={styles.TransactionsWrapper}
-        style={{ overflowY: 'auto', maxHeight: '75dvh' }}
-      >
-        {filteredTransactions.map(transaction => {
-          const isDebit = Number(transaction.amount) < 0
-          const amountClass = isDebit ? styles.DebitText : styles.CreditText
-          const Icon = isDebit ? UploadIcon : DownloadIcon
+        <div ref={transactionsWrapperRef} className={styles.TransactionsWrapper}>
+          {filteredTransactions.map(transaction => {
+            const isDebit = Number(transaction.amount) < 0
+            const amountClass = isDebit ? styles.DebitText : styles.CreditText
+            const Icon = isDebit ? UploadIcon : DownloadIcon
 
-          return (
-            <TransactionCard
-              key={transaction.id}
-              transaction={transaction}
-              isDebit={isDebit}
-              amountClass={amountClass}
-              Icon={Icon}
-              onClick={() => setSelectedTransaction(transaction)}
-              cardRef={el => { transactionRefs.current[transaction.id] = el }}
-            />
-          )
-        })}
+            return (
+              <TransactionCard
+                key={transaction.id}
+                transaction={transaction}
+                isDebit={isDebit}
+                amountClass={amountClass}
+                Icon={Icon}
+                onClick={() => setSelectedTransaction(transaction)}
+                cardRef={el => { transactionRefs.current[transaction.id] = el }}
+              />
+            )
+          })}
+        </div>
         <Footer />
       </div>
 

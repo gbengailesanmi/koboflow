@@ -1,15 +1,19 @@
 /* @reference "../../globals.css";
  */
 
-
 .Header {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: .5rem;
   position: sticky;
   top: 0;
   z-index: 10;
-  padding: 1rem;
+  padding: .5rem;
+}
+
+.PageGrid {
+  display: grid;  grid-template-rows: auto auto 1fr 5rem;
+  height: 100vh;
 }
 
 .Filters {
@@ -17,66 +21,18 @@
   gap: 0.5rem;
 }
 
-.AccountsFilter {
-  padding: 0.25rem;
-}
-
-.SearchInput {
-  padding: 0.25rem;
-}
-
-.MonthScroll {
-  margin-top: 0.5rem;
-  position: sticky;
-
-}
-
-.MonthList {
-  display: flex;
-  gap: 0.5rem;
-  padding: 0.5rem;
-}
-
-.MonthButton {
-  border: none;
-  background: #7e3737;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.MonthButton:hover {
-  background: #0a0a0a;
-}
-
-.ActiveMonth {
-  background: #333;
-  color: rgb(11, 8, 8);
-}
-
 .TransactionsWrapper {
   margin-top: 1rem;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  padding-bottom: 5rem;
+  overflow-y: auto;
+  min-height: 0;
+  /* max-height: 72dvh;  */
 }
-
-
-.CardWrapper {
-  width: 100%;
-}
-
-.IconWrapper {
-  background: #050404;
-  padding: 0.5rem;
-  border-radius: 50%;
-}
-
-.TextWrapper {
-  flex-grow: 1;
-}
-
-
 
 .DebitText {
   color: rgb(244, 121, 121);

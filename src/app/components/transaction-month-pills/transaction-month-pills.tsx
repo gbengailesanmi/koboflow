@@ -35,7 +35,7 @@ export default function TransactionMonthPills({
             className={isSelected ? styles.MonthButtonSelected : styles.MonthButtonUnselected}
             type="button"
           >
-            {displayMonth}
+            <span className='text-xs md:text-sm'>{displayMonth}</span>
           </button>
         )
       })}

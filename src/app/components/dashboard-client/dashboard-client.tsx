@@ -10,7 +10,7 @@ import styles from '@/app/components/dashboard-client/dashboard-client.module.cs
 import { useBaseColor } from '@/providers/base-colour-provider'
 import AccountsCarousel from '@/app/components/accounts-carousel/accounts-carousel'
 import TransactionsColumn from '@/app/components/transactions-column/transactions-column'
-import { redirect } from 'next/navigation'
+import { redirect, useParams } from 'next/navigation'
 
 
 type DashboardClientProps = {
@@ -22,6 +22,9 @@ export default function DashboardClient({ accounts, transactions }: DashboardCli
   const [selectedAccount, setSelectedAccount] = useState<string | null>(null)
   const [hasNavigated, setHasNavigated] = useState(false)
   const { baseColor } = useBaseColor()
+
+  const params = useParams()
+  const customerId = params.customerId as string
 
     const filteredTransactions = selectedAccount
   ? transactions.filter(txn => txn.accountUniqueId === selectedAccount)
@@ -67,7 +70,7 @@ export default function DashboardClient({ accounts, transactions }: DashboardCli
           <div
             className='justify-center items-center flex'
             role='button'
-            onClick={() => redirect(`/[customerId]/transactions`)}
+            onClick={() => redirect(`/${customerId}/transactions`)}
           >
             See all
           </div>
