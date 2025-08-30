@@ -9,5 +9,5 @@
 }
 
 .LabelSpan {
-  @apply text-[10px] font-medium;
+  @apply text-[10px] font-medium cursor-pointer;
 }

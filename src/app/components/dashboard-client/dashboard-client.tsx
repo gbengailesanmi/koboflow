@@ -68,7 +68,7 @@ export default function DashboardClient({ accounts, transactions }: DashboardCli
           <TransactionsColumn transactions={filteredTransactions.slice(0, 10)} />
           </div>
           <div
-            className='justify-center items-center flex'
+            className='justify-center items-center flex cursor-pointer'
             role='button'
             onClick={() => redirect(`/${customerId}/transactions`)}
           >
