@@ -5,8 +5,8 @@ import { users } from '@/../drizzle/schema'
 import { eq } from 'drizzle-orm'
 
 export async function redirectIfAuth() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('jwt_token')?.value;
+  const cookieStore = await cookies()
+  const token = cookieStore.get('jwt_token')?.value
   if (!token) return null
 
   try {
@@ -24,6 +24,9 @@ export async function redirectIfAuth() {
     if (result.length === 0) return null
 
     const user = result[0]
+
+    if (!user) return null
+    
     return payload.customerId as string
 
   } catch {
