@@ -1,0 +1,33 @@
+@reference "../../globals.css";
+
+.TransactionsWrapper {
+  @apply w-full flex flex-col gap-1;
+}
+
+.BoxWrapper {
+  @apply flex flex-row gap-2 p-2 cursor-pointer;
+}
+
+.CardWrapper {
+  @apply w-full;
+}
+
+.IconWrapper {
+  @apply flex items-center;
+}
+
+.TextWrapper {
+  @apply flex flex-col;
+}
+
+.AmountWrapper {
+  @apply flex items-center justify-end flex-1;
+}
+
+.DebitText {
+  @apply text-red-300 font-bold text-lg;
+}
+
+.CreditText {
+  @apply text-green-600 font-bold text-lg;
+}

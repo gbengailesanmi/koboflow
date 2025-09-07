@@ -6,10 +6,9 @@ import { transactions } from '@/../drizzle/schema'
 import { eq, desc } from 'drizzle-orm'
 import { getSession } from '@/lib/session'
 import { redirect } from 'next/navigation'
+import TransactionsPageClient from '@/app/components/transactions-page-client/transactions-page-client'
 
-import DashboardClient from '@/app/components/dashboard-client/dashboard-client'
-
-export default async function Dashboard() {
+export default async function TransactionsPage() {
   const user = await getSession()
 
   if (!user?.customerId) {
@@ -27,5 +26,5 @@ export default async function Dashboard() {
     .where(eq(transactions.customerId, user.customerId))
     .orderBy(desc(transactions.bookedDate))
 
-  return <DashboardClient accounts={accountsData} transactions={transactionsData} />
+  return <TransactionsPageClient accounts={accountsData} transactions={transactionsData} />
 }

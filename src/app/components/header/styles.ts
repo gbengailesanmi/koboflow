@@ -2,7 +2,7 @@ import { Grid } from "@radix-ui/themes"
 import styled from 'styled-components'
 
 const HeaderWrapper = styled.div`
-  height: 10vh;
+  height: 7vh;
   width: 100%;
   display: flex;
   padding: 10px;

@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/session'
-import { getTinkTokens, getTinkData } from '@/app/api/tink'
-import { bulkInsertTinkData } from '@/helpers/bulk-insert-data'
+import { getTinkTokens, getTinkAccountsData, getTinkTransactionsData } from '@/app/api/tink'
+import { bulkInsertTinkAccounts, bulkInsertTinkTransactions } from '@/helpers/db-insert'
+// import fs from 'fs'
 
 export async function GET(req: Request) {
   const user = await getSession()
 
   if (!user) {
-    return NextResponse.redirect(`${process.env.BASE_URI}/login`)  
+    return NextResponse.redirect(`${process.env.BASE_URI}:${process.env.PORT}/login`)  
   }
 
   const code = new URL(req.url).searchParams.get('code')
@@ -21,10 +22,12 @@ export async function GET(req: Request) {
       uriBase: process.env.BASE_URI!,
       port: process.env.PORT!
     })
+    
+    const accounts = await getTinkAccountsData(accessToken, user.customerId)
+    const transactions = await getTinkTransactionsData(accessToken, accounts, user.customerId)
 
-    const { accounts, transactions } = await getTinkData(accessToken, user.customerId)
-
-    await bulkInsertTinkData(accounts, transactions, user.customerId)
+    await bulkInsertTinkAccounts(accounts.accounts, user.customerId)
+    await bulkInsertTinkTransactions(transactions.transactions, user.customerId)
     
     return NextResponse.redirect(`${process.env.BASE_URI}:${process.env.PORT}/${user.customerId}/dashboard`)
   } catch (err) {

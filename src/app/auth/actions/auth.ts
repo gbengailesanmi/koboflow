@@ -72,7 +72,7 @@ export async function login(_: any, formData: FormData) {
     })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
-    .setExpirationTime('7d')
+    .setExpirationTime('3d')
     .sign(secret)
 
   // Set cookie for session

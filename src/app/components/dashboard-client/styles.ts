@@ -8,7 +8,7 @@ const gridStyles = css`
   cursor: pointer;
 `
 
-const TopGrid = styled(Grid)`
+const Grid1 = styled(Grid)`
   ${gridStyles}
   height: 40dvh;
   justify-content: center;
@@ -20,8 +20,12 @@ const TopGrid = styled(Grid)`
   position: fixed;
 `
 
-const StyledScrollArea = styled(ScrollArea)`
+const TransactionScrollArea = styled(ScrollArea)`
   max-height: 80dvh;
+`
+
+const AccountScrollArea = styled(ScrollArea)`
+  margin-top: 1rem;
 `
 
 const DragHandle = styled.div<{ $top: string }>`
@@ -46,6 +50,7 @@ const BottomGrid = styled(Grid)<{ $height: string }>`
   max-height: 80dvh;
   min-height: 20dvh;
   scroll-behavior: smooth;
+  padding: 0.3rem;
   background: white;
   position: fixed;
   bottom: 0;
@@ -55,7 +60,7 @@ const BottomGrid = styled(Grid)<{ $height: string }>`
   user-select: none;
   width: 100%;
   color: black;
-  grid-template-rows: 100px 1fr;
+  grid-template-rows: 6.5rem 1fr;
 `
 
 const SeeAllDiv = styled.div`
@@ -65,9 +70,16 @@ const SeeAllDiv = styled.div`
   padding: 5px;
 `
 
-const StyledSection = styled.section`
-  padding-top: 0;
-  margin-top: 0;
+const MainSection = styled.section`
+  // padding-top: 0;
+  // margin-top: 0;
 `
 
-export { TopGrid, BottomGrid, gridStyles, DragHandle, StyledSection, SeeAllDiv, StyledScrollArea }
+export { Grid1, 
+         BottomGrid, 
+         DragHandle, 
+         MainSection, 
+         SeeAllDiv as SeeAll, 
+         TransactionScrollArea as TrxnScrollArea,
+         AccountScrollArea
+        }

@@ -7,4 +7,35 @@
   margin: 0;
   padding: 0;
 } */
+ 
+html, body {
+  overflow-x: hidden;
+}
 
+.radix-themes {
+	--default-font-family: var(--font-open-sans);
+}
+
+.embla__viewport {
+  overflow: hidden;
+}
+.embla__container {
+  display: flex;
+  max-width: 100vw;
+}
+.embla__slide
+{  
+  flex: 0 0 100%;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem;
+}
+
+.embla {
+  padding-top: 5rem;
+  height: auto;
+  width: full;
+}

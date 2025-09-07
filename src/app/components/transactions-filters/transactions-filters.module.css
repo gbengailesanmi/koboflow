@@ -1,0 +1,24 @@
+@reference "../../globals.css";
+
+.GridWrapper {
+  @apply w-full gap-1 justify-between flex items-center;
+}
+.AccountsFilter {
+  @apply p-1 flex-shrink-0 max-w-[16rem] w-full;
+}
+
+.SearchInput {
+  @apply border-0 outline-0 bg-transparent text-white flex-grow min-w-0;
+}
+
+.SearchInputWrapper {
+  @apply p-1 flex flex-row items-center gap-3 bg-gray-600 rounded-2xl flex-grow min-w-0;
+}
+
+.MagnifyIconWrapper {
+  @apply flex-shrink-0;
+}
+
+.DropdownIconWrapper {
+  @apply flex-shrink-0;
+}
