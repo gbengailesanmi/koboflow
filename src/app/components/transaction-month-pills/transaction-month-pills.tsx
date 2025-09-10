@@ -6,16 +6,15 @@ type TransactionMonthPillsProps = {
   months: string[]
   selectedMonth: string | null
   setSelectedMonth: (month: string | null) => void,
-  // transactionScrollRef: RefObject<HTMLDivElement> | null
 }
 
 export default function TransactionMonthPills({
   months,
   selectedMonth,
   setSelectedMonth,
-  // transactionScrollRef
 }: TransactionMonthPillsProps) {
-  // console.log('efef', transactionScrollRef?.current)
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+
   return (
     <ScrollArea
       type="auto"
@@ -23,10 +22,16 @@ export default function TransactionMonthPills({
     >
       {months.map(month => {
         const isSelected = month === selectedMonth
-        const displayMonth = new Date(month + '-01').toLocaleDateString(undefined, {
-          month: 'short',
-          year: '2-digit',
-        })
+        let displayMonth = month
+        try {
+          const [y, m] = month.split('-')
+          const mi = Math.max(0, Math.min(11, Number(m) - 1))
+          const yy = String(y).slice(-2)
+          displayMonth = `${monthNames[mi]} ${yy}`
+        } catch (e) {
+          displayMonth = month
+        }
+
         return (
           <button
             key={month}

@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers'
 import { jwtVerify } from 'jose'
-import { getDb } from './db'
+import { connectDB } from '@/db/mongo'
 
 export async function redirectIfAuth() {
   const cookieStore = await cookies()
@@ -13,7 +13,7 @@ export async function redirectIfAuth() {
       new TextEncoder().encode(process.env.SESSION_SECRET!)
     )
 
-    const db = await getDb()
+    const db = await connectDB()
     const result = await db.collection('users').findOne({ customerId: payload.customerId as string })
 
     if (!result) return null

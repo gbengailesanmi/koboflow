@@ -1,22 +1,22 @@
-import { getDb } from './db'
+import { connectDB } from '@/db/mongo'
 
 export async function getUserById(id: number) {
-  const db = await getDb()
+  const db = await connectDB()
   return db.collection('users').findOne({ id })
 }
 
 export async function getUserByEmail(email: string) {
-  const db = await getDb()
+  const db = await connectDB()
   return db.collection('users').findOne({ email })
 }
 
 export async function getAccountsByBank(customerId: string, financialInstitutionId: string) {
-  const db = await getDb()
+  const db = await connectDB()
   return db.collection('accounts').find({ customerId, financialInstitutionId }).toArray()
 }
 
 export async function getAllUserTransactions(customerId: string) {
-  const db = await getDb()
+  const db = await connectDB()
 
   const userAccounts = await db
     .collection('accounts')
@@ -34,7 +34,7 @@ export async function getAllUserTransactions(customerId: string) {
 }
 
 export async function getTransactionsForAccount(accountId: string) {
-  const db = await getDb()
+  const db = await connectDB()
   return db
     .collection('transactions')
     .find({ accountId })
@@ -43,7 +43,7 @@ export async function getTransactionsForAccount(accountId: string) {
 }
 
 export async function getTransactionsInDateRange(accountId: string, startDate: Date, endDate: Date) {
-  const db = await getDb()
+  const db = await connectDB()
   return db
     .collection('transactions')
     .find({
@@ -55,7 +55,7 @@ export async function getTransactionsInDateRange(accountId: string, startDate: D
 }
 
 export async function getUserTotalBalance(customerId: string) {
-  const db = await getDb()
+  const db = await connectDB()
 
   const result = await db
     .collection('accounts')

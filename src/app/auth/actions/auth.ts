@@ -1,13 +1,15 @@
 'use server'
 
 import { SignupFormSchema, FormState } from '@/lib/definitions'
-import { getDb } from '@/lib/db'
+import { connectDB } from '@/db/mongo'
 import bcrypt from 'bcrypt'
 import { redirect } from 'next/navigation'
 import { v4 as uuidv4 } from 'uuid'
 import { SignJWT } from 'jose'
 import { cookies } from 'next/headers'
 
+// Move secret near top so both signup and login can use it
+const secret = new TextEncoder().encode(process.env.SESSION_SECRET!)
 
 export async function signup(_: FormState, formData: FormData): Promise<FormState> {
   const name = formData.get('name')?.toString().trim() || ''
@@ -22,7 +24,7 @@ export async function signup(_: FormState, formData: FormData): Promise<FormStat
     return { errors: parsed.error.flatten().fieldErrors }
   }
 
-  const db = await getDb()
+  const db = await connectDB()
   const existing = await db.collection('users').findOne({ email })
   if (existing) {
     return { message: 'Email is already registered.' }
@@ -43,13 +45,35 @@ export async function signup(_: FormState, formData: FormData): Promise<FormStat
       return { message: 'Failed to create user.' }
     }
 
+    // Issue JWT and set cookie so the user is auto-logged-in after signup
+    const token = await new SignJWT({
+      userId: insertResult.insertedId.toString(),
+      customerId,
+      name,
+      email,
+    })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuedAt()
+      .setExpirationTime('3d')
+      .sign(secret)
+
+    const cookieStore = await cookies()
+    cookieStore.set({
+      name: 'jwt_token',
+      value: token,
+      httpOnly: true,
+      sameSite: 'none',
+      secure: process.env.NODE_ENV === 'production',
+      path: '/',
+      maxAge: 60 * 60 * 24 * 7,
+    })
+
+    // In case redirect does not terminate execution, return a success message
     return { message: 'signup successful' }
   } catch (err) {
     return { message: 'An unexpected error occurred. Please try again.' }
   }
 }
-
-const secret = new TextEncoder().encode(process.env.SESSION_SECRET!)
 
 export async function login(_: any, formData: FormData) {
   const email = formData.get('email')?.toString().toLowerCase() || ''
@@ -57,7 +81,7 @@ export async function login(_: any, formData: FormData) {
 
   if (!email || !password) return { message: 'All fields are required.' }
 
-  const db = await getDb()
+  const db = await connectDB()
   const user = await db.collection('users').findOne({ email })
   if (!user) return { message: 'Invalid credentials.' }
 
@@ -77,12 +101,12 @@ export async function login(_: any, formData: FormData) {
     .sign(secret)
 
   // Set cookie for session
-  const cookieStore = await cookies();
+  const cookieStore = await cookies()
   cookieStore.set({
     name: 'jwt_token',
     value: token,
     httpOnly: true,
-    sameSite: 'none',
+    // sameSite: 'none',
     secure: process.env.NODE_ENV === 'production',
     path: '/',
     maxAge: 60 * 60 * 24 * 7,

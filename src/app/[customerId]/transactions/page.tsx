@@ -1,6 +1,6 @@
 'use server'
 
-import { getDb } from '@/lib/db'
+import { connectDB } from '@/db/mongo'
 import { getSession } from '@/lib/session'
 import { redirect } from 'next/navigation'
 import { sanitizeArray } from '@/lib/sanitize'
@@ -13,7 +13,11 @@ export default async function TransactionsPage() {
     redirect(`/login`)
   }
 
-  const db = await getDb()
+  const db = await connectDB()
+
+  if (!db.collection('users').findOne({ customerId: user.customerId })) {
+    redirect(`/login`)
+  }
 
   const accountsDataRaw = await db
     .collection('accounts')

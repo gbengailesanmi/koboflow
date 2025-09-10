@@ -1,14 +1,34 @@
 import { MongoClient } from 'mongodb'
 
-let db = null
-let client = null
+const uri = process.env.MONGODB_URI
+const dbName = process.env.MONGO_DB_NAME
+
+if (!uri) {
+  throw new Error('Missing MONGODB_URI')
+}
+
+// Use globalThis to cache the MongoClient across module reloads / serverless invocations
+// This makes connection reuse safe in serverless environments (Vercel, AWS Lambda, etc.).
+let cachedClient = globalThis.__mongoClient
+let cachedClientPromise = globalThis.__mongoClientPromise
 
 export async function connectDB() {
-  if (!db) {
-    client = new MongoClient(process.env.MONGODB_URI)
-    await client.connect()
-    db = client.db(process.env.MONGO_DB_NAME || 'moneymapper_db')
-    console.log('✅ Connected to MongoDB')
+  if (cachedClient) {
+    return cachedClient.db(dbName)
   }
-  return db
+
+  if (!cachedClientPromise) {
+    const client = new MongoClient(uri)
+    cachedClientPromise = client.connect().then(() => {
+      globalThis.__mongoClient = client
+      console.log('MongoDB online ✅')
+      return client
+    })
+    globalThis.__mongoClientPromise = cachedClientPromise
+  }
+
+  const client = await cachedClientPromise
+  // update local cachedClient in case it wasn't set yet
+  cachedClient = client
+  return client.db(dbName)
 }
