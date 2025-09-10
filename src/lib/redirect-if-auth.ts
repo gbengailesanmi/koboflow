@@ -1,8 +1,6 @@
 import { cookies } from 'next/headers'
 import { jwtVerify } from 'jose'
-import { db } from './db'
-import { users } from '@/../drizzle/schema'
-import { eq } from 'drizzle-orm'
+import { connectDB } from '@/db/mongo'
 
 export async function redirectIfAuth() {
   const cookieStore = await cookies()
@@ -15,18 +13,11 @@ export async function redirectIfAuth() {
       new TextEncoder().encode(process.env.SESSION_SECRET!)
     )
 
-    const result = await db
-      .select()
-      .from(users)
-      .where(eq(users.customerId, payload.customerId as string))
-      .limit(1)
+    const db = await connectDB()
+    const result = await db.collection('users').findOne({ customerId: payload.customerId as string })
 
-    if (result.length === 0) return null
+    if (!result) return null
 
-    const user = result[0]
-
-    if (!user) return null
-    
     return payload.customerId as string
 
   } catch {

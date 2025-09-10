@@ -1,11 +1,9 @@
 'use server'
 
-import { db } from '@/lib/db'
-import { accounts } from '@/../drizzle/schema'
-import { transactions } from '@/../drizzle/schema'
-import { eq, desc } from 'drizzle-orm'
+import { connectDB } from '@/db/mongo'
 import { getSession } from '@/lib/session'
 import { redirect } from 'next/navigation'
+import { sanitizeArray } from '@/lib/sanitize'
 import TransactionsPageClient from '@/app/components/transactions-page-client/transactions-page-client'
 
 export default async function TransactionsPage() {
@@ -15,16 +13,25 @@ export default async function TransactionsPage() {
     redirect(`/login`)
   }
 
-  const accountsData = await db
-    .select()
-    .from(accounts)
-    .where(eq(accounts.customerId, user.customerId))
+  const db = await connectDB()
 
-  const transactionsData = await db
-    .select()
-    .from(transactions)
-    .where(eq(transactions.customerId, user.customerId))
-    .orderBy(desc(transactions.bookedDate))
+  if (!db.collection('users').findOne({ customerId: user.customerId })) {
+    redirect(`/login`)
+  }
+
+  const accountsDataRaw = await db
+    .collection('accounts')
+    .find({ customerId: user.customerId })
+    .toArray()
+
+  const transactionsDataRaw = await db
+    .collection('transactions')
+    .find({ customerId: user.customerId })
+    .sort({ bookedDate: -1 })
+    .toArray()
+
+  const accountsData = sanitizeArray(accountsDataRaw)
+  const transactionsData = sanitizeArray(transactionsDataRaw)
 
   return <TransactionsPageClient accounts={accountsData} transactions={transactionsData} />
 }

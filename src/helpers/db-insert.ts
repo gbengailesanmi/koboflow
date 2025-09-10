@@ -1,17 +1,15 @@
-import { db } from '@/lib/db'
-import { insertAccounts, insertTransactions } from './db-insert-helpers' 
-import { accounts as accountSchema, transactions as trxnSchema } from '../../drizzle/schema'
+import { insertAccounts, insertTransactions } from './db-insert-helpers'
 
 export async function bulkInsertTinkAccounts(
   accounts: any[],
   customerId: string
 ) {
-    await insertAccounts(db, accounts, customerId, accountSchema)
+  await insertAccounts(accounts, customerId)
 }
 
 export async function bulkInsertTinkTransactions(
   transactions: any[],
   customerId: string
 ) {
-    await insertTransactions(db, transactions, customerId, trxnSchema)
+  await insertTransactions(transactions, customerId)
 }
