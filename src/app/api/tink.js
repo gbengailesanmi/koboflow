@@ -78,11 +78,7 @@ const getTinkTransactionsData = async (accessToken, accounts, customerId) => {
         accountUniqueId: account.unique_id ?? null,
       }))
 
-      // Write the first 50 transactions to a file for debugging
-      // fs.writeFileSync(
-      //   './tink_transactions_sample.json',
-      //   JSON.stringify(transactions, null, 2)
-      // )
+
       allTransactions.push(...transactions)
       pageToken = trxnJson.nextPageToken || null
     } while (pageToken)

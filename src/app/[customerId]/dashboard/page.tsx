@@ -3,6 +3,7 @@
 import { getDb } from '@/lib/db'
 import { getSession } from '@/lib/session'
 import { redirect } from 'next/navigation'
+import { sanitizeArray } from '@/lib/sanitize'
 
 import DashboardClient from '@/app/components/dashboard-client/dashboard-client'
 
@@ -15,16 +16,19 @@ export default async function Dashboard() {
 
   const db = await getDb()
 
-  const accountsData = await db
+  const accountsDataRaw = await db
     .collection('accounts')
     .find({ customerId: user.customerId })
     .toArray()
 
-  const transactionsData = await db
+  const transactionsDataRaw = await db
     .collection('transactions')
     .find({ customerId: user.customerId })
     .sort({ bookedDate: -1 })
     .toArray()
+
+  const accountsData = sanitizeArray(accountsDataRaw)
+  const transactionsData = sanitizeArray(transactionsDataRaw)
 
   return <DashboardClient accounts={accountsData} transactions={transactionsData} />
 }
