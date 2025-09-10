@@ -13,5 +13,6 @@ export async function bulkInsertTinkTransactions(
   transactions: any[],
   customerId: string
 ) {
+  
     await insertTransactions(db, transactions, customerId, trxnSchema)
 }
