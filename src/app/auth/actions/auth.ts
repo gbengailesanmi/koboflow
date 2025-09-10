@@ -81,8 +81,8 @@ export async function login(_: any, formData: FormData) {
     name: 'jwt_token',
     value: token,
     httpOnly: true,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'development',
+    sameSite: 'none',
+    secure: process.env.NODE_ENV === 'production',
     path: '/',
     maxAge: 60 * 60 * 24 * 7,
   })
