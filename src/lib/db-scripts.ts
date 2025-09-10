@@ -1,64 +1,69 @@
-import { db } from './db'
-import { users, accounts, transactions } from '@/../drizzle/schema'
-import { eq, and, gte, lte, desc, asc, inArray, sql } from 'drizzle-orm'
-
+import { getDb } from './db'
 
 export async function getUserById(id: number) {
-  return db.select().from(users).where(eq(users.id, id)).then(rows => rows[0] ?? null)
+  const db = await getDb()
+  return db.collection('users').findOne({ id })
 }
 
 export async function getUserByEmail(email: string) {
-  return db.select().from(users).where(eq(users.email, email)).then(rows => rows[0] ?? null)
+  const db = await getDb()
+  return db.collection('users').findOne({ email })
 }
 
 export async function getAccountsByBank(customerId: string, financialInstitutionId: string) {
-  return db.select().from(accounts).where(
-    and(eq(accounts.customerId, customerId), eq(accounts.financialInstitutionId, financialInstitutionId))
-  )
+  const db = await getDb()
+  return db.collection('accounts').find({ customerId, financialInstitutionId }).toArray()
 }
 
 export async function getAllUserTransactions(customerId: string) {
-  const userAccounts = await db
-    .select({ id: accounts.id })
-    .from(accounts)
-    .where(eq(accounts.customerId, customerId))
+  const db = await getDb()
 
-  const accountIds = userAccounts.map(a => a.id)
+  const userAccounts = await db
+    .collection('accounts')
+    .find({ customerId })
+    .project({ id: 1 })
+    .toArray()
+
+  const accountIds = userAccounts.map((a: any) => a.id)
 
   return db
-    .select()
-    .from(transactions)
-    .where(inArray(transactions.accountId, accountIds))
-    .orderBy(desc(transactions.bookedDate))
+    .collection('transactions')
+    .find({ accountId: { $in: accountIds } })
+    .sort({ bookedDate: -1 })
+    .toArray()
 }
 
 export async function getTransactionsForAccount(accountId: string) {
+  const db = await getDb()
   return db
-    .select()
-    .from(transactions)
-    .where(eq(transactions.accountId, accountId))
-    .orderBy(desc(transactions.bookedDate))
+    .collection('transactions')
+    .find({ accountId })
+    .sort({ bookedDate: -1 })
+    .toArray()
 }
 
 export async function getTransactionsInDateRange(accountId: string, startDate: Date, endDate: Date) {
+  const db = await getDb()
   return db
-    .select()
-    .from(transactions)
-    .where(
-      and(
-        eq(transactions.accountId, accountId),
-        gte(transactions.bookedDate, startDate),
-        lte(transactions.bookedDate, endDate)
-      )
-    )
-    .orderBy(desc(transactions.bookedDate))
+    .collection('transactions')
+    .find({
+      accountId,
+      bookedDate: { $gte: startDate, $lte: endDate },
+    })
+    .sort({ bookedDate: -1 })
+    .toArray()
 }
 
 export async function getUserTotalBalance(customerId: string) {
+  const db = await getDb()
+
   const result = await db
-    .select({ total: sql<number>`SUM(${accounts.availableAmount})` })
-    .from(accounts)
-    .where(eq(accounts.customerId, customerId))
+    .collection('accounts')
+    .aggregate([
+      { $match: { customerId } },
+      { $group: { _id: null, total: { $sum: '$availableAmount' } } },
+    ])
+    .toArray()
 
   return result[0]?.total ?? 0
 }

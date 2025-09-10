@@ -1,10 +1,8 @@
 'use server'
 
 import { SignupFormSchema, FormState } from '@/lib/definitions'
-import { db } from '@/lib/db'
-import { users } from '../../../../drizzle/schema'
+import { getDb } from '@/lib/db'
 import bcrypt from 'bcrypt'
-import { eq } from 'drizzle-orm'
 import { redirect } from 'next/navigation'
 import { v4 as uuidv4 } from 'uuid'
 import { SignJWT } from 'jose'
@@ -23,7 +21,9 @@ export async function signup(_: FormState, formData: FormData): Promise<FormStat
   if (!parsed.success) {
     return { errors: parsed.error.flatten().fieldErrors }
   }
-  const [existing] = await db.select().from(users).where(eq(users.email, email)).limit(1)
+
+  const db = await getDb()
+  const existing = await db.collection('users').findOne({ email })
   if (existing) {
     return { message: 'Email is already registered.' }
   }
@@ -32,18 +32,18 @@ export async function signup(_: FormState, formData: FormData): Promise<FormStat
     const hashedPassword = await bcrypt.hash(password, 10)
     const customerId = uuidv4()
 
-    const [user] = await db.insert(users).values({
+    const insertResult = await db.collection('users').insertOne({
       email,
       password: hashedPassword,
-      ...(users.name && { name }),
-      ...(users.customerId && { customerId }),
-    }).returning({ id: users.id, ...(users.customerId && { customerId: users.customerId }) })
+      name,
+      customerId,
+    })
 
-    console.log('New user created', user)
-    if (!user) {
+    if (!insertResult.insertedId) {
       return { message: 'Failed to create user.' }
     }
-    return { message: 'signup successful' }    
+
+    return { message: 'signup successful' }
   } catch (err) {
     return { message: 'An unexpected error occurred. Please try again.' }
   }
@@ -57,7 +57,8 @@ export async function login(_: any, formData: FormData) {
 
   if (!email || !password) return { message: 'All fields are required.' }
 
-  const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1)
+  const db = await getDb()
+  const user = await db.collection('users').findOne({ email })
   if (!user) return { message: 'Invalid credentials.' }
 
   const valid = await bcrypt.compare(password, user.password)
@@ -65,7 +66,7 @@ export async function login(_: any, formData: FormData) {
 
   // Create JWT token for session
   const token = await new SignJWT({ 
-      userId: user.id, 
+      userId: user._id, 
       customerId: user.customerId,
       name: user.name,
       email: user.email

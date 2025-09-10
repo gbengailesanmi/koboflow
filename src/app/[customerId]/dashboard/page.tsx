@@ -1,9 +1,6 @@
 'use server'
 
-import { db } from '@/lib/db'
-import { accounts } from '@/../drizzle/schema'
-import { transactions } from '@/../drizzle/schema'
-import { eq, desc } from 'drizzle-orm'
+import { getDb } from '@/lib/db'
 import { getSession } from '@/lib/session'
 import { redirect } from 'next/navigation'
 
@@ -16,16 +13,18 @@ export default async function Dashboard() {
     redirect(`/login`)
   }
 
+  const db = await getDb()
+
   const accountsData = await db
-    .select()
-    .from(accounts)
-    .where(eq(accounts.customerId, user.customerId))
+    .collection('accounts')
+    .find({ customerId: user.customerId })
+    .toArray()
 
   const transactionsData = await db
-    .select()
-    .from(transactions)
-    .where(eq(transactions.customerId, user.customerId))
-    .orderBy(desc(transactions.bookedDate))
+    .collection('transactions')
+    .find({ customerId: user.customerId })
+    .sort({ bookedDate: -1 })
+    .toArray()
 
   return <DashboardClient accounts={accountsData} transactions={transactionsData} />
 }
