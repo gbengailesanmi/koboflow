@@ -15,11 +15,12 @@ export async function signup(_: FormState, formData: FormData): Promise<FormStat
   const name = formData.get('name')?.toString().trim() || ''
   const email = formData.get('email')?.toString().trim().toLowerCase() || ''
   const password = formData.get('password')?.toString() || ''
+  const passwordConfirm = formData.get('passwordConfirm')?.toString() || ''
 
-  if (!name || !email || !password) {
+  if (!name || !email || !password || !passwordConfirm) {
     return { message: 'All fields are required.' }
   }
-  const parsed = SignupFormSchema.safeParse({ name, email, password })
+  const parsed = SignupFormSchema.safeParse({ name, email, password, passwordConfirm: formData.get('passwordConfirm')?.toString() || '' })
   if (!parsed.success) {
     return { errors: parsed.error.flatten().fieldErrors }
   }

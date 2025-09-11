@@ -33,6 +33,12 @@ export default function SignupForm() {
         )}
       </div>
 
+      <div>
+        <label htmlFor="passwordConfirm">Confirm Password</label>
+        <input id="passwordConfirm" name="passwordConfirm" type="password" placeholder="Confirm Password" required autoComplete="new-password" />
+        {state?.errors?.passwordConfirm && <p>{state.errors.passwordConfirm.join(', ')}</p>}
+      </div>
+
       {state?.message && <p>{state.message}</p>}
 
       <button type="submit" disabled={pending}>

@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/session'
 import { getTinkTokens, getTinkAccountsData, getTinkTransactionsData } from '@/app/api/tink'
-import { bulkInsertTinkAccounts, bulkInsertTinkTransactions } from '@/helpers/db-insert'
+import { bulkInsertTinkTransactions } from '@/db/helpers/insert-transactions'
+import { bulkInsertTinkAccounts } from '@/db/helpers/insert-accounts'
 // import fs from 'fs'
 
 export async function GET(req: Request) {

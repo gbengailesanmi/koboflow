@@ -1,4 +1,5 @@
-import { formatAmount, getUniqueId } from '@/helpers/db-insert-helpers'
+import { formatAmount } from '@/db/helpers/format-amount'
+import { getUniqueId } from '@/db/helpers/unique-id'
 // import fs from 'fs'
 
 const tinkUrl = 'https://api.tink.com'
@@ -22,7 +23,6 @@ async function getTinkTokens({ code, uriBase, port }) {
 }
 
 async function getTinkAccountsData(accessToken, customerId) {
-  console.log('Fetching Tink accounts >>>>>>')
   
   const accountsRes = await fetch(`${tinkUrl}/data/v2/accounts`, {
       headers: { Authorization: `Bearer ${accessToken}` },
@@ -45,7 +45,6 @@ async function getTinkAccountsData(accessToken, customerId) {
 }
 
 const getTinkTransactionsData = async (accessToken, accounts, customerId) => {
-  console.log('Fetching Tink transactions with pagination >>>>>>')
 
   const fetchAllTransactionsForAccount = async (account) => {
     let allTransactions = []
@@ -83,7 +82,6 @@ const getTinkTransactionsData = async (accessToken, accounts, customerId) => {
       pageToken = trxnJson.nextPageToken || null
     } while (pageToken)
 
-    console.log('allTransactions', allTransactions.length)
     return allTransactions
   }
 
