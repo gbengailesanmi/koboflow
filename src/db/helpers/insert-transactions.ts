@@ -1,56 +1,45 @@
-import { connectDB } from '@/db/mongo'
-import { formatAmount } from './format-amount'
 import { formatNarration } from './format-narration'
+import { transactionIndexer, getHash } from '@/db/helpers/init/transaction-indexer'
 
-async function insertTransactions(transactions: any[], customerId: string) {
-  if (!Array.isArray(transactions) || transactions.length === 0) {
-    return { message: 'No transactions to insert', insertedCount: 0 }
-  }
+async function insertTransactions(transactions: any[], customerId: string, connectDB: any) {
+  if (!Array.isArray(transactions) || transactions.length === 0) return
 
-  if (!customerId) {
-    throw new Error('Customer ID is required')
-  }
+  if (!customerId) throw new Error('Customer ID is required')
 
   const db = await connectDB()
-  const col = db.collection('transactions')
+  const txnCollection = db.collection('transactions')
+  await transactionIndexer(txnCollection) // Set up unique indexes on (customerId, accountUniqueId, Trxnid)
 
-  const ops = transactions.map((txn: any) => {
-    const doc = {
-      id: txn.id,
-      accountUniqueId: txn.accountUniqueId ?? null,
-      accountId: txn.accountId ?? null,
-      customerId,
-      amount: txn.amountFormatted ?? formatAmount(txn.amount?.value?.unscaledValue, txn.amount?.value?.scale),
-      unscaledValue: txn.amount?.value?.unscaledValue ? parseInt(txn.amount.value.unscaledValue, 10) : null,
-      scale: txn.amount?.value?.scale ? parseInt(txn.amount.value.scale, 10) : null,
-      narration: formatNarration(txn.descriptions?.original ?? txn.narration ?? ''),
-      currencyCode: txn.amount?.currencyCode ?? null,
-      descriptions: txn.descriptions ?? {},
-      bookedDate: txn.dates?.booked ? new Date(txn.dates.booked) : null,
-      identifiers: txn.identifiers ?? {},
-      types: txn.types ?? {},
-      status: txn.status ?? null,
-      providerMutability: txn.providerMutability ?? null,
-    }
+  const records = transactions.map((txn: any) => ({
+    id: txn.id,
+    transactionUniqueId: getHash(txn),
+    accountUniqueId: txn.accountUniqueId,
+    accountId: txn.accountId,
+    customerId,
+    amount: txn.amountFormatted,
+    unscaledValue: parseInt(txn.amount.value.unscaledValue, 10),
+    scale: parseInt(txn.amount.value.scale, 10),
+    narration: formatNarration(txn.descriptions?.original),
+    currencyCode: txn.amount?.currencyCode,
+    descriptions: txn.descriptions,
+    bookedDate: new Date(
+      new Date(txn.dates.booked).toLocaleString('en-GB', { timeZone: 'Europe/London' })
+    ),
+    identifiers: txn.identifiers,
+    types: txn.types,
+    status: txn.status,
+    providerMutability: txn.providerMutability,
+  }))
 
-    return {
-      updateOne: {
-        filter: { id: txn.id },
-        update: { $set: doc },
-        upsert: true,
-      },
-    }
-  })
-
-  const result = await col.bulkWrite(ops, { ordered: false })
-  return result
+  try {
+    await txnCollection.insertMany(records, { ordered: false })
+  } catch (err: any) {
+    if (err.code !== 11000) throw err
+  }
 }
 
-async function bulkInsertTinkTransactions(
-  transactions: any[],
-  customerId: string
-) {
-  await insertTransactions(transactions, customerId)
+async function bulkInsertTinkTransactions(transactions: any[], customerId: string, connectDB: any) {
+  return insertTransactions(transactions, customerId, connectDB)
 }
 
 export { bulkInsertTinkTransactions }

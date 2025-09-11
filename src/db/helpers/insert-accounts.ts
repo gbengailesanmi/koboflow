@@ -1,57 +1,44 @@
-import { connectDB } from '@/db/mongo'
-import { formatAmount } from './format-amount'
-import { getUniqueId } from './unique-id'
+import { accountIndexer } from '@/db/helpers/init/account-indexer'
 
-async function insertAccounts(accounts: any[], customerId: string) {
-  if (!Array.isArray(accounts) || accounts.length === 0) {
-    return { message: 'No accounts to insert', insertedCount: 0 }
-  }
+async function insertAccounts(accounts: any[], customerId: string, connectDB: any) {
+  if (!Array.isArray(accounts) || accounts.length === 0) return
 
-  if (!customerId) {
-    throw new Error('Customer ID is required')
-  }
+  if (!customerId) throw new Error('Customer ID is required')
 
   const db = await connectDB()
-  const col = db.collection('accounts')
+  const accountCollection = db.collection('accounts')
+  await accountIndexer(accountCollection) // Set up unique indexes on uniqueId and customerId
 
-  const ops = accounts.map((account: any) => {
-    const doc = {
-      id: account.id,
-      customerId,
-      uniqueId: account.unique_id ?? getUniqueId(account),
-      name: account.name,
-      type: account.type,
-      bookedAmount: parseInt(account.balances?.booked?.amount?.value?.unscaledValue ?? '0', 10),
-      bookedScale: parseInt(account.balances?.booked?.amount?.value?.scale ?? '0', 10),
-      bookedCurrency: account.balances?.booked?.amount?.currencyCode ?? null,
-      availableAmount: parseInt(account.balances?.available?.amount?.value?.unscaledValue ?? '0', 10),
-      availableScale: parseInt(account.balances?.available?.amount?.value?.scale ?? '0', 10),
-      availableCurrency: account.balances?.available?.amount?.currencyCode ?? null,
-      balance: account.balanceFormatted ?? formatAmount(account.balances?.booked?.amount?.value?.unscaledValue, account.balances?.booked?.amount?.value?.scale),
-      identifiers: account.identifiers ?? {},
-      lastRefreshed: account.dates?.lastRefreshed ? new Date(account.dates.lastRefreshed) : new Date(),
-      financialInstitutionId: account.financialInstitutionId ?? null,
-      customerSegment: account.customerSegment ?? null,
-    }
+  const records = accounts.map((account: any) => ({
+    id: account.id,
+    customerId,
+    uniqueId: account.unique_id,
+    name: account.name,
+    type: account.type,
+    bookedAmount: parseInt(account.balances.booked.amount.value.unscaledValue, 10),
+    bookedScale: parseInt(account.balances?.booked?.amount?.value?.scale, 10),
+    bookedCurrency: account.balances?.booked?.amount?.currencyCode,
+    availableAmount: parseInt(account.balances?.available?.amount?.value?.unscaledValue, 10),
+    availableScale: parseInt(account.balances?.available?.amount?.value?.scale, 10),
+    availableCurrency: account.balances?.available?.amount?.currencyCode,
+    balance: account.balanceFormatted,
+    identifiers: account.identifiers,
+    lastRefreshed: new Date(
+      new Date(account.dates.lastRefreshed).toLocaleString('en-GB', { timeZone: 'Europe/London' })
+    ),
+    financialInstitutionId: account.financialInstitutionId,
+    customerSegment: account.customerSegment,
+  }))
 
-    return {
-      updateOne: {
-        filter: { id: account.id },
-        update: { $set: doc },
-        upsert: true,
-      },
-    }
-  })
-
-  const result = await col.bulkWrite(ops, { ordered: false })
-  return result
+  try {
+    await accountCollection.insertMany(records, { ordered: false })
+  } catch (err: any) {
+    if (err.code !== 11000) throw err
+  }
 }
 
-async function bulkInsertTinkAccounts(
-  accounts: any[],
-  customerId: string
-) {
-  await insertAccounts(accounts, customerId)
+async function bulkInsertTinkAccounts(accounts: any[], customerId: string, connectDB: any) {
+  return insertAccounts(accounts, customerId, connectDB)
 }
 
 export { bulkInsertTinkAccounts }
