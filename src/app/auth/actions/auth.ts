@@ -69,7 +69,6 @@ export async function signup(_: FormState, formData: FormData): Promise<FormStat
       maxAge: 60 * 60 * 24 * 7,
     })
 
-    // In case redirect does not terminate execution, return a success message
     return { message: 'signup successful' }
   } catch (err) {
     return { message: 'An unexpected error occurred. Please try again.' }

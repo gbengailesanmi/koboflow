@@ -20,7 +20,7 @@ async function transactionIndexer(txnCollection: any) {
   transactionsIndexed = true
 }
 
-function getHash(txn: any) {
+function idHash(txn: any) {
   const str = [
     txn.accountUniqueId,
     txn.amount?.value?.unscaledValue ?? '',
@@ -32,4 +32,4 @@ function getHash(txn: any) {
   return crypto.createHash('sha256').update(str).digest('hex')
 }
 
-export { transactionIndexer, getHash }
+export { transactionIndexer, idHash }

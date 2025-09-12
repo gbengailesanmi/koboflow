@@ -1,4 +1,4 @@
-import { accountIndexer } from '@/db/helpers/init/account-indexer'
+import { accountIndexer } from '@/db/helpers/indexes/account-indexer'
 
 async function insertAccounts(accounts: any[], customerId: string, connectDB: any) {
   if (!Array.isArray(accounts) || accounts.length === 0) return
