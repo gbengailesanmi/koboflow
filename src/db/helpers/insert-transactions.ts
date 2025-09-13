@@ -1,5 +1,5 @@
 import { formatNarration } from './format-narration'
-import { transactionIndexer, getHash } from '@/db/helpers/init/transaction-indexer'
+import { transactionIndexer, idHash } from '@/db/helpers/indexes/transaction-indexer'
 
 async function insertTransactions(transactions: any[], customerId: string, connectDB: any) {
   if (!Array.isArray(transactions) || transactions.length === 0) return
@@ -12,7 +12,7 @@ async function insertTransactions(transactions: any[], customerId: string, conne
 
   const records = transactions.map((txn: any) => ({
     id: txn.id,
-    transactionUniqueId: getHash(txn),
+    transactionUniqueId: idHash(txn),
     accountUniqueId: txn.accountUniqueId,
     accountId: txn.accountId,
     customerId,
