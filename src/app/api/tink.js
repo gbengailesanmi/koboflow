@@ -1,5 +1,5 @@
 import { formatAmount } from '@/db/helpers/format-amount'
-import { getUniqueId } from '@/db/helpers/unique-id'
+import { getAccountUniqueId } from '@/db/helpers/account-unique-id'
 // import fs from 'fs'
 
 const tinkUrl = 'https://api.tink.com'
@@ -36,7 +36,7 @@ async function getTinkAccountsData(accessToken, customerId) {
       item?.balances?.available?.amount?.value?.unscaledValue,
       item?.balances?.available?.amount?.value?.scale
     ),
-    unique_id: getUniqueId(item)
+    unique_id: getAccountUniqueId(item)
   }))
 
   return {

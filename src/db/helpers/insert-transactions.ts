@@ -38,8 +38,8 @@ async function insertTransactions(transactions: any[], customerId: string, conne
   }
 }
 
-async function bulkInsertTinkTransactions(transactions: any[], customerId: string, connectDB: any) {
+async function bulkInsertTransactions(transactions: any[], customerId: string, connectDB: any) {
   return insertTransactions(transactions, customerId, connectDB)
 }
 
-export { bulkInsertTinkTransactions }
+export { bulkInsertTransactions }

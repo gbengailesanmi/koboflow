@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/session'
 import { getTinkTokens, getTinkAccountsData, getTinkTransactionsData } from '@/app/api/tink'
-import { bulkInsertTinkTransactions } from '@/db/helpers/insert-transactions'
-import { bulkInsertTinkAccounts } from '@/db/helpers/insert-accounts'
+import { bulkInsertTransactions } from '@/db/helpers/insert-transactions'
+import { bulkInsertAccounts } from '@/db/helpers/insert-accounts'
 import { connectDB } from '@/db/mongo'
 // import fs from 'fs'
 
@@ -28,8 +28,8 @@ export async function GET(req: Request) {
     const accounts = await getTinkAccountsData(accessToken, user.customerId)
     const transactions = await getTinkTransactionsData(accessToken, accounts, user.customerId)
 
-    await bulkInsertTinkAccounts(accounts.accounts, user.customerId, connectDB)
-    await bulkInsertTinkTransactions(transactions.transactions, user.customerId, connectDB)
+    await bulkInsertAccounts(accounts.accounts, user.customerId, connectDB)
+    await bulkInsertTransactions(transactions.transactions, user.customerId, connectDB)
     
     return NextResponse.redirect(`${process.env.BASE_URI}:${process.env.PORT}/${user.customerId}/dashboard`)
   } catch (err) {

@@ -37,8 +37,8 @@ async function insertAccounts(accounts: any[], customerId: string, connectDB: an
   }
 }
 
-async function bulkInsertTinkAccounts(accounts: any[], customerId: string, connectDB: any) {
+async function bulkInsertAccounts(accounts: any[], customerId: string, connectDB: any) {
   return insertAccounts(accounts, customerId, connectDB)
 }
 
-export { bulkInsertTinkAccounts }
+export { bulkInsertAccounts }
