@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Pencil1Icon, CheckIcon, Cross2Icon, PersonIcon, EnvelopeClosedIcon, ArrowLeftIcon } from '@radix-ui/react-icons'
 import Footer from '@/app/components/footer/footer'
-import { redirect, useParams } from 'next/navigation'
+import { redirect, useParams, useRouter } from 'next/navigation'
+import { updateProfile } from '@/app/actions/profile'
 
 type User = {
   customerId: string
@@ -26,7 +27,16 @@ export default function ProfilePageClient({ user }: ProfilePageClientProps) {
   const [success, setSuccess] = useState('')
 
   const params = useParams()
+  const router = useRouter()
   const customerId = params.customerId as string
+
+  // Sync form data when user prop changes (after successful update)
+  useEffect(() => {
+    setFormData({
+      name: user.name,
+      email: user.email
+    })
+  }, [user.name, user.email])
 
   const handleSave = async () => {
     if (!formData.name.trim() || !formData.email.trim()) {
@@ -39,26 +49,21 @@ export default function ProfilePageClient({ user }: ProfilePageClientProps) {
     setSuccess('')
 
     try {
-      const response = await fetch('/api/profile', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: formData.name.trim(),
-          email: formData.email.trim()
-        })
+      const result = await updateProfile({
+        name: formData.name.trim(),
+        email: formData.email.trim()
       })
 
-      const result = await response.json()
-
-      if (!response.ok) {
-        setError(result.error || 'Failed to update profile')
+      if (result.error) {
+        setError(result.error)
         return
       }
 
-      setSuccess('Profile updated successfully!')
+      setSuccess(result.success || 'Profile updated successfully!')
       setIsEditing(false)
+      
+      // Refresh the page to get updated data from server
+      router.refresh()
       
       // Clear success message after 3 seconds
       setTimeout(() => setSuccess(''), 3000)
@@ -144,7 +149,7 @@ export default function ProfilePageClient({ user }: ProfilePageClientProps) {
                 />
               ) : (
                 <div className='px-4 py-3 bg-gray-50 rounded-lg border'>
-                  <span className='text-gray-900'>{user.name}</span>
+                  <span className='text-gray-900'>{formData.name}</span>
                 </div>
               )}
             </div>
@@ -165,7 +170,7 @@ export default function ProfilePageClient({ user }: ProfilePageClientProps) {
                 />
               ) : (
                 <div className='px-4 py-3 bg-gray-50 rounded-lg border'>
-                  <span className='text-gray-900'>{user.email}</span>
+                  <span className='text-gray-900'>{formData.email}</span>
                 </div>
               )}
             </div>

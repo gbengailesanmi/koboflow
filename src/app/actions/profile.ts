@@ -5,15 +5,19 @@ import { getSession } from '@/lib/session'
 import { revalidatePath } from 'next/cache'
 
 export async function updateProfile(
-  prevState: { error?: string; success?: string } | null,
-  formData: FormData
-) {
-  const name = formData.get('name') as string
-  const email = formData.get('email') as string
+  data: { name: string; email: string }
+): Promise<{ error?: string; success?: string }> {
+  const { name, email } = data
 
   // Validate input
   if (!name?.trim() || !email?.trim()) {
     return { error: 'Name and email are required' }
+  }
+
+  // Basic email validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRegex.test(email)) {
+    return { error: 'Invalid email format' }
   }
 
   try {
@@ -26,13 +30,23 @@ export async function updateProfile(
     // Connect to database
     const db = await connectDB()
 
+    // Check if email is already taken by another user
+    const existingUser = await db.collection('users').findOne({ 
+      email: email.toLowerCase().trim(), 
+      customerId: { $ne: user.customerId } 
+    })
+
+    if (existingUser) {
+      return { error: 'Email is already taken' }
+    }
+
     // Update user profile
     const result = await db.collection('users').updateOne(
       { customerId: user.customerId },
       { 
         $set: { 
           name: name.trim(), 
-          email: email.trim(),
+          email: email.toLowerCase().trim(),
           updatedAt: new Date()
         } 
       }
