@@ -82,7 +82,7 @@ export default function TransactionsPageClient({ transactions, accounts }: Trans
     <Dialog.Root onOpenChange={open => { if (!open) setSelectedTransaction(null) }}>
       <div className={styles.PageGrid}>
         <div className={styles.Header}>
-          <ArrowLeftIcon className="w-5 h-5" onClick={() => redirect(`/${customerId}/dashboard`)}/>
+          <ArrowLeftIcon className="w-6 h-6" onClick={() => redirect(`/${customerId}/dashboard`)}/>
           <h1 className="text-xl font-semibold mb-2">Transactions</h1>
           <div className={styles.Filters}>
             <TransactionsFilters

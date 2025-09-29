@@ -82,14 +82,14 @@ export default function ProfilePageClient({ user }: ProfilePageClientProps) {
 
   return (
     <div className='min-h-screen bg-gray-300'>
-      <div>
+      <div className='px-6 py-6'>
         <div>
           
           {/* Header */}
             <div className="flex items-center mb-2 relative">
             <div className="absolute left-0">
               <ArrowLeftIcon
-              className="w-7 h-7 cursor-pointer"
+              className="w-6 h-6 cursor-pointer"
               onClick={() => redirect(`/${customerId}/dashboard`)}
               style={{ color: '#222222' }}
               />
@@ -103,10 +103,10 @@ export default function ProfilePageClient({ user }: ProfilePageClientProps) {
             </div>
 
           {/* Profile Card */}
-          <div className='bg-white rounded-xl shadow-lg'>
+          <div className='bg-white rounded-xl shadow-lg' style={{ padding: '24px', margin: '0 16px' }}>
             
             {/* Customer ID Section */}
-            <div className='mb-6 p-4 bg-gray-50 rounded-lg'>
+            <div className='bg-gray-50 rounded-lg' style={{ marginBottom: '24px', padding: '16px' }}>
               <label className='block text-sm font-medium text-gray-700 mb-1'>
                 Customer ID
               </label>
@@ -117,19 +117,19 @@ export default function ProfilePageClient({ user }: ProfilePageClientProps) {
 
             {/* Alerts */}
             {error && (
-              <div className='mb-4 p-4 bg-red-50 border border-red-200 rounded-lg'>
+              <div className='bg-red-50 border border-red-200 rounded-lg' style={{ marginBottom: '16px', padding: '16px' }}>
                 <p className='text-red-700 text-sm'>{error}</p>
               </div>
             )}
 
             {success && (
-              <div className='mb-4 p-4 bg-green-50 border border-green-200 rounded-lg'>
+              <div className='bg-green-50 border border-green-200 rounded-lg' style={{ marginBottom: '16px', padding: '16px' }}>
                 <p className='text-green-700 text-sm'>{success}</p>
               </div>
             )}
 
             {/* Name Field */}
-            <div className='mb-6'>
+            <div style={{ marginBottom: '24px' }}>
               <label className='block text-sm font-medium text-gray-700 mb-2'>
                 <PersonIcon className='inline w-4 h-4 mr-1' />
                 Full Name
