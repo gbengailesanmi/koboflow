@@ -10,6 +10,7 @@ import { DoubleArrowLeftIcon, DoubleArrowRightIcon, ZoomInIcon } from '@radix-ui
 import FormatCarouselContent from '@/app/components/format-carousel-content/format-carousel-content'
 import generateHues from '@/helpers/generate-hues'
 import AccountsPills from '@/app/components/account-pills/accounts-pills'
+import styles from './accounts-carousel.module.css'
 
 const HUE_LOCAL_STORAGE_KEY = 'accounts-carousel-slide-hue'
 
@@ -108,12 +109,12 @@ export default function AccountsCarousel({
 
   return (
     <>
-      <Box className="embla">
-        <div className="embla__viewport" ref={emblaRef}>
-          <div className="embla__container">
+      <Box className={styles.embla}>
+        <div className={styles.embla__viewport} ref={emblaRef}>
+          <div className={styles.embla__container}>
 
             {/* Total Slide */}
-            <div className="embla__slide">
+            <div className={styles.embla__slide}>
               <FormatCarouselContent
                 accountType="Total Balance"
                 accountName="All Accounts"
@@ -123,7 +124,7 @@ export default function AccountsCarousel({
 
             {/* Account Slides */}
             {accounts.map((account) => (
-              <div key={account.id} className="embla__slide">
+              <div key={account.id} className={styles.embla__slide}>
                 <FormatCarouselContent
                   accountType={account.type}
                   accountName={account.name}

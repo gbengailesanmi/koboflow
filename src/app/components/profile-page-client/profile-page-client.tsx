@@ -5,6 +5,7 @@ import { Pencil1Icon, CheckIcon, Cross2Icon, PersonIcon, EnvelopeClosedIcon, Arr
 import Footer from '@/app/components/footer/footer'
 import { redirect, useParams, useRouter } from 'next/navigation'
 import { updateProfile } from '@/app/actions/profile'
+import styles from './profile-page-client.module.css'
 
 type User = {
   customerId: string
@@ -86,57 +87,57 @@ export default function ProfilePageClient({ user }: ProfilePageClientProps) {
   }
 
   return (
-    <div className='min-h-screen bg-gray-300'>
-      <div className='px-6 py-6'>
+    <div className={styles.container}>
+      <div className={styles.wrapper}>
         <div>
           
           {/* Header */}
-            <div className="flex items-center mb-2 relative">
-            <div className="absolute left-0">
+            <div className={styles.header}>
+            <div className={styles.backButton}>
               <ArrowLeftIcon
-              className="w-6 h-6 cursor-pointer"
+              className={styles.backIcon}
               onClick={() => redirect(`/${customerId}/dashboard`)}
               style={{ color: '#222222' }}
               />
             </div>
-            <div className="flex-1 flex justify-center">
-              <h1 className="text-3xl font-bold text-gray-900 text-center">Profile Settings</h1>
+            <div className={styles.headerCenter}>
+              <h1 className={styles.title}>Profile Settings</h1>
             </div>
             </div>
-            <div className="text-center mb-4">
-            <p className="text-gray-500">Your account information</p>
+            <div className={styles.subtitle}>
+            <p className={styles.subtitleText}>Your account information</p>
             </div>
 
           {/* Profile Card */}
-          <div className='bg-white rounded-xl shadow-lg' style={{ padding: '24px', margin: '0 16px' }}>
+          <div className={styles.profileCard}>
             
             {/* Customer ID Section */}
-            <div className='bg-gray-50 rounded-lg' style={{ marginBottom: '24px', padding: '16px' }}>
-              <label className='block text-sm font-medium text-gray-700 mb-1'>
+            <div className={styles.customerIdSection}>
+              <label className={styles.label}>
                 Customer ID
               </label>
-              <div className='text-sm text-gray-500 font-mono'>
+              <div className={styles.customerIdText}>
                 {user.customerId}
               </div>
             </div>
 
             {/* Alerts */}
             {error && (
-              <div className='bg-red-50 border border-red-200 rounded-lg' style={{ marginBottom: '16px', padding: '16px' }}>
-                <p className='text-red-700 text-sm'>{error}</p>
+              <div className={styles.alertError}>
+                <p className={`${styles.alertText} ${styles.alertTextError}`}>{error}</p>
               </div>
             )}
 
             {success && (
-              <div className='bg-green-50 border border-green-200 rounded-lg' style={{ marginBottom: '16px', padding: '16px' }}>
-                <p className='text-green-700 text-sm'>{success}</p>
+              <div className={styles.alertSuccess}>
+                <p className={`${styles.alertText} ${styles.alertTextSuccess}`}>{success}</p>
               </div>
             )}
 
             {/* Name Field */}
-            <div style={{ marginBottom: '24px' }}>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>
-                <PersonIcon className='inline w-4 h-4 mr-1' />
+            <div className={styles.fieldContainer}>
+              <label className={styles.labelWithIcon}>
+                <PersonIcon className={styles.iconWithMargin} />
                 Full Name
               </label>
               {isEditing ? (
@@ -144,20 +145,20 @@ export default function ProfilePageClient({ user }: ProfilePageClientProps) {
                   type='text'
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200'
+                  className={styles.input}
                   placeholder='Enter your full name'
                 />
               ) : (
-                <div className='px-4 py-3 bg-gray-50 rounded-lg border'>
-                  <span className='text-gray-900'>{formData.name}</span>
+                <div className={styles.displayField}>
+                  <span className={styles.displayText}>{formData.name}</span>
                 </div>
               )}
             </div>
 
             {/* Email Field */}
-            <div className='mb-8'>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>
-                <EnvelopeClosedIcon className='inline w-4 h-4 mr-1' />
+            <div className={styles.emailFieldContainer}>
+              <label className={styles.labelWithIcon}>
+                <EnvelopeClosedIcon className={styles.iconWithMargin} />
                 Email Address
               </label>
               {isEditing ? (
@@ -165,43 +166,43 @@ export default function ProfilePageClient({ user }: ProfilePageClientProps) {
                   type='email'
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200'
+                  className={styles.input}
                   placeholder='Enter your email address'
                 />
               ) : (
-                <div className='px-4 py-3 bg-gray-50 rounded-lg border'>
-                  <span className='text-gray-900'>{formData.email}</span>
+                <div className={styles.displayField}>
+                  <span className={styles.displayText}>{formData.email}</span>
                 </div>
               )}
             </div>
 
             {/* Action Buttons */}
-            <div className='flex gap-4'>
+            <div className={styles.buttonContainer}>
               {isEditing ? (
                 <>
                   <button
                     onClick={handleSave}
                     disabled={loading}
-                    className='flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed'
+                    className={`${styles.button} ${styles.buttonPrimary} ${loading ? styles.buttonDisabled : ''}`}
                   >
-                    <CheckIcon className='w-4 h-4' />
+                    <CheckIcon className={styles.icon} />
                     {loading ? 'Saving...' : 'Save Changes'}
                   </button>
                   <button
                     onClick={handleCancel}
                     disabled={loading}
-                    className='flex items-center gap-2 px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed'
+                    className={`${styles.button} ${styles.buttonSecondary} ${loading ? styles.buttonDisabled : ''}`}
                   >
-                    <Cross2Icon className='w-4 h-4' />
+                    <Cross2Icon className={styles.icon} />
                     Cancel
                   </button>
                 </>
               ) : (
                 <button
                   onClick={() => setIsEditing(true)}
-                  className='flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200'
+                  className={`${styles.button} ${styles.buttonPrimary}`}
                 >
-                  <Pencil1Icon className='w-4 h-4' />
+                  <Pencil1Icon className={styles.icon} />
                   Edit Profile
                 </button>
               )}
