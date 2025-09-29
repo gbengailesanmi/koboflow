@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { Pencil1Icon, CheckIcon, Cross2Icon, PersonIcon, EnvelopeClosedIcon } from '@radix-ui/react-icons'
+import { Pencil1Icon, CheckIcon, Cross2Icon, PersonIcon, EnvelopeClosedIcon, ArrowLeftIcon } from '@radix-ui/react-icons'
 import Footer from '@/app/components/footer/footer'
+import { redirect, useParams } from 'next/navigation'
 
 type User = {
   customerId: string
@@ -23,6 +24,9 @@ export default function ProfilePageClient({ user }: ProfilePageClientProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+
+  const params = useParams()
+  const customerId = params.customerId as string
 
   const handleSave = async () => {
     if (!formData.name.trim() || !formData.email.trim()) {
@@ -82,10 +86,21 @@ export default function ProfilePageClient({ user }: ProfilePageClientProps) {
         <div>
           
           {/* Header */}
-          <div className='text-center'>
-            <h1 className='text-3xl font-bold text-gray-900 text-center mb-2'>Profile Settings</h1>
-            <p className='text-gray-500'>Your account information</p>
-          </div>
+            <div className="flex items-center mb-2 relative">
+            <div className="absolute left-0">
+              <ArrowLeftIcon
+              className="w-7 h-7 cursor-pointer"
+              onClick={() => redirect(`/${customerId}/dashboard`)}
+              style={{ color: '#222222' }}
+              />
+            </div>
+            <div className="flex-1 flex justify-center">
+              <h1 className="text-3xl font-bold text-gray-900 text-center">Profile Settings</h1>
+            </div>
+            </div>
+            <div className="text-center mb-4">
+            <p className="text-gray-500">Your account information</p>
+            </div>
 
           {/* Profile Card */}
           <div className='bg-white rounded-xl shadow-lg'>
