@@ -1,4 +1,4 @@
-import crypto from 'crypto'
+import { hasher } from '@/db/helpers/hasher'
 import { formatNarration } from '@/db/helpers/format-narration'
 
 let transactionsIndexed = false
@@ -29,7 +29,7 @@ function idHash(txn: any) {
     formatNarration(txn.descriptions?.original) ?? '',
   ].join('|')
 
-  return crypto.createHash('sha256').update(str).digest('hex')
+  return hasher(str)
 }
 
 export { transactionIndexer, idHash }

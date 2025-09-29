@@ -82,7 +82,7 @@ const getTinkTransactionsData = async (accessToken, accounts, customerId) => {
       pageToken = trxnJson.nextPageToken || null
     } while (pageToken)
 
-    return allTransactions.slice(0, 5)
+    return allTransactions
   }
 
   const allTransactionsGrouped = await Promise.all(

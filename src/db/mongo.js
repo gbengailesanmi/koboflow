@@ -32,3 +32,5 @@ export async function connectDB() {
   cachedClient = client
   return client.db(dbName)
 }
+
+// redo cache logic for db instance
