@@ -1,6 +1,6 @@
-// import type { Accounts } from '@/types/account'
+import type { Accounts } from '@/types/account'
 
-/* export const accountsMock: Accounts = {
+export const accountsMock: Accounts = {
   "accounts": [
     {
       "id": "986ef4a5f8464a5db2c9db23c131adc7",
@@ -88,4 +88,4 @@
     }
   ],
   "nextPageToken": ""
-}*/
+}
