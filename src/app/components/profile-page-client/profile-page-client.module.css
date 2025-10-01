@@ -132,4 +132,5 @@
 
 .backIcon {
   @apply w-6 h-6 cursor-pointer;
+  color: #222222;
 }

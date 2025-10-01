@@ -26,7 +26,7 @@ export default function TransactionsColumn({ transactions }: TrxnRowProps) {
           return (
             <div key={transaction.id} className={styles.BoxWrapper}>
               <Dialog.Trigger onClick={() => setSelectedTransaction(transaction)}>
-                <Box className={styles.CardWrapper} style={{ cursor: 'pointer' }}>
+                <Box className={styles.CardWrapper}>
                   <Card>
                     <Flex gap="3" align="center">
                       <div className={styles.IconWrapper}>
@@ -59,7 +59,7 @@ export default function TransactionsColumn({ transactions }: TrxnRowProps) {
 
       {selectedTransaction && (
         <Dialog.Content>
-          <Flex gap="3" justify="between" style={{ marginBottom: '1rem' }}>
+          <Flex gap="3" justify="between" className={styles.dialogHeader}>
             <Dialog.Title>Transaction Details</Dialog.Title>
             <Dialog.Close>
               <Cross1Icon />

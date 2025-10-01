@@ -59,9 +59,8 @@ export default function DashboardClient({ accounts, transactions }: DashboardCli
         <Grid
           rows='3'
           className={styles.TransactionsGrid}
-          style={{ gridTemplateRows: '2.5rem 1fr 2.5rem' }}
         >
-          <div style={{ display: 'flex', height: '100%', padding: '.3rem' }}>
+          <div className={styles.transactionsHeader}>
             <span><h2 className="text-xl font-semibold mb-2">Transactions</h2></span>
           </div>
           <div className={styles.TransactionsListWrapper}>

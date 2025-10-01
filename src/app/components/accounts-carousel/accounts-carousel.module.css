@@ -1,3 +1,5 @@
+@reference "../../globals.css";
+
 .embla__viewport {
   overflow: hidden;
 }
@@ -20,4 +22,8 @@
   padding-top: 5rem;
   height: auto;
   width: full;
+}
+
+.hueButton {
+  @apply w-6 h-6 rounded-full;
 }

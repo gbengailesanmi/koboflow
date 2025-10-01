@@ -1,0 +1,13 @@
+@reference "../../globals.css";
+
+.accountsContainer {
+  @apply flex gap-[5px];
+}
+
+.accountItem {
+  @apply flex flex-col items-center gap-1;
+}
+
+.balanceText {
+  @apply text-[0.8rem];
+}

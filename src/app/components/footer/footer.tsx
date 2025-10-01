@@ -51,7 +51,7 @@ type FooterIconButtonProps = React.ComponentProps<typeof IconButton> & {
 
 export function FooterIconButton({ text = '', children, textColor, ...props }: FooterIconButtonProps) {
   return (
-    <div className="flex flex-col items-center">
+    <div className={styles.iconButtonContainer}>
       <IconButton
         variant="ghost"
         size="4"
@@ -64,7 +64,7 @@ export function FooterIconButton({ text = '', children, textColor, ...props }: F
       </IconButton>
       {text && (
         <div 
-          className="text-xs text-center" 
+          className={styles.iconButtonText} 
           style={textColor ? { color: textColor } : {}}
         >
           {text}

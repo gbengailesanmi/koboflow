@@ -3,6 +3,7 @@ import { Avatar, Separator } from '@radix-ui/themes'
 import { PlusIcon } from '@radix-ui/react-icons'
 import type { Account } from '@/types/account'
 import * as Styled from './styles'
+import styles from './accounts-row.module.css'
 // import { getAccountLogo } from '@/helpers/get-account-logo'
 
 type AccountsRowProps = {
@@ -12,7 +13,7 @@ type AccountsRowProps = {
 
 const AccountsRow = ({ accounts, onAccountSelect }: AccountsRowProps) => {
   return (
-    <div style={{ display: 'flex', gap: 5}}>
+    <div className={styles.accountsContainer}>
       <Styled.Button
         size="4"
         variant="soft"
@@ -25,13 +26,13 @@ const AccountsRow = ({ accounts, onAccountSelect }: AccountsRowProps) => {
       {accounts.map((account) => (
         <Fragment key={account.uniqueId}>
         <Separator orientation="vertical" color="indigo" size="3" />
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+        <div className={styles.accountItem}>
           <Styled.Button size="4" variant="soft" color="gray" onClick={() => {onAccountSelect && onAccountSelect(account.uniqueId)}}>
             <Avatar fallback='A' 
                 src='https://media.licdn.com/dms/image/v2/D4E03AQGKackdOrVWWA/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1693591947730?e=1755734400&v=beta&t=-61IzpZRRGgQ1LSxu1LtkUXnwRZLrbPmBhVpTy6RhzY' 
         />
             </Styled.Button>
-          <span style={{ fontSize: '0.8rem' }}>
+          <span className={styles.balanceText}>
             <strong>
               {Number(account.balance).toLocaleString(undefined, {
                 style: 'currency',
