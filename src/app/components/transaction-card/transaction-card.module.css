@@ -11,6 +11,7 @@
 
 .CardWrapper {
   width: 100%;
+  cursor: pointer;
 }
 
 .IconWrapper {

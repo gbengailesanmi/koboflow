@@ -1,19 +1,20 @@
 import AppProviders from '@/providers/app-providers'
-import { Open_Sans } from 'next/font/google'
+// import { Open_Sans } from 'next/font/google'
 
 import './globals.css'
+import styles from './layout.module.css'
 
-const openSans = Open_Sans({
-  variable: '--font-open-sans',
-  subsets: ['latin']
-})
+// const openSans = Open_Sans({
+//   variable: '--font-open-sans',
+//   subsets: ['latin']
+// })
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning className={openSans.variable}>
+    <html lang="en" suppressHydrationWarning>
       <body>
         <AppProviders>
-          <div style={{ minHeight: '100vh', width: '100%' }}>
+          <div className={styles.container}>
             {children}
           </div>
         </AppProviders>

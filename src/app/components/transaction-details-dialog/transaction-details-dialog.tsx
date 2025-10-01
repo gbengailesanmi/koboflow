@@ -1,6 +1,7 @@
 import { Dialog, Flex, Box, Text } from '@radix-ui/themes'
 import { Cross1Icon } from '@radix-ui/react-icons'
 import type { Transaction } from '@/types/transactions'
+import styles from './transaction-details-dialog.module.css'
 
 type Props = {
   transaction: Transaction
@@ -12,7 +13,7 @@ export default function TransactionDetailsDialog({ transaction, onClose }: Props
 
   return (
     <Dialog.Content>
-      <Flex gap="3" justify="between" style={{ marginBottom: '1rem' }}>
+      <Flex gap="3" justify="between" className={styles.headerFlex}>
         <Dialog.Title>Transaction Details</Dialog.Title>
         <Dialog.Close onClick={onClose}>
           <Cross1Icon />

@@ -30,10 +30,15 @@
 
 .TransactionsGrid {
   @apply h-[40dvh] border-2 border-solid border-amber-600 rounded-2xl grid;
+  grid-template-rows: 2.5rem 1fr 2.5rem;
 }
 
 .TransactionsListWrapper {
   @apply overflow-auto max-h-[100%]
+}
+
+.transactionsHeader {
+  @apply flex h-full p-[0.3rem];
 }
 
 .Grid4 {

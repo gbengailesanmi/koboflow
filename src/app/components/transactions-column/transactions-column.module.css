@@ -10,6 +10,11 @@
 
 .CardWrapper {
   @apply w-full;
+  cursor: pointer;
+}
+
+.dialogHeader {
+  @apply mb-4;
 }
 
 .IconWrapper {

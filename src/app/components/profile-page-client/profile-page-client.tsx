@@ -97,7 +97,6 @@ export default function ProfilePageClient({ user }: ProfilePageClientProps) {
               <ArrowLeftIcon
               className={styles.backIcon}
               onClick={() => redirect(`/${customerId}/dashboard`)}
-              style={{ color: '#222222' }}
               />
             </div>
             <div className={styles.headerCenter}>

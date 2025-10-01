@@ -25,7 +25,7 @@ export default function TransactionCard({
       ref={cardRef}
     >
       <Dialog.Trigger onClick={onClick}>
-        <Box className={styles.CardWrapper} style={{ cursor: 'pointer' }}>
+        <Box className={styles.CardWrapper}>
           <Card>
             <Flex gap="3" align="center">
               <div className={styles.IconWrapper}>
