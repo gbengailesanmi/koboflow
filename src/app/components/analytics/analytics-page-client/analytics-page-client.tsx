@@ -6,9 +6,10 @@ import { redirect, useParams } from 'next/navigation'
 import type { Account } from '@/types/account'
 import type { Transaction } from '@/types/transactions'
 import Footer from '@/app/components/footer/footer'
-import { UserProfile, CategoryData, RecurringPayment } from '../types/analytics-types'
+import { UserProfile, CategoryData } from '../types/analytics-types'
 import { categorizeTransaction } from '../utils/categorize-transaction'
 import { formatCurrency } from '../utils/format-currency'
+import { detectRecurringPayments } from '../utils/detect-recurring-payments'
 import { categoryConfig } from '../config/category-config'
 import { PieChart } from '../pie-chart/pie-chart'
 import { MonthOnMonthChart } from '../month-on-month-chart/month-on-month-chart'
@@ -28,18 +29,15 @@ export default function AnalyticsPageClient({ accounts, transactions, profile }:
   const params = useParams()
   const customerId = params.customerId as string
 
-  // Handle hydration and localStorage loading
   useEffect(() => {
     setIsHydrated(true)
     
-    // Load saved time period from localStorage after hydration
     const savedPeriod = localStorage.getItem('analytics-time-period') as 'day' | 'month' | 'year'
     if (savedPeriod && ['day', 'month', 'year'].includes(savedPeriod)) {
       setTimePeriod(savedPeriod)
     }
   }, [])
 
-  // Save time period to localStorage when it changes
   useEffect(() => {
     if (isHydrated) {
       localStorage.setItem('analytics-time-period', timePeriod)
@@ -67,7 +65,6 @@ export default function AnalyticsPageClient({ accounts, transactions, profile }:
     })
   }, [transactions, selectedAccountId])
 
-  // Filter by time period
   const filteredTransactions = useMemo(() => {
     const now = new Date()
     
@@ -136,31 +133,26 @@ export default function AnalyticsPageClient({ accounts, transactions, profile }:
     return currentMonthTransactions.reduce((sum, t) => sum + t.numericAmount, 0)
   }, [processedTransactions])
 
-  // Month-on-month comparison data
   const monthOnMonthData = useMemo(() => {
     const now = new Date()
     const currentMonth = now.getMonth()
     const currentYear = now.getFullYear()
     
-    // Calculate previous month
     const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1
     const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear
     
-    // Get current month transactions
     const currentMonthTransactions = processedTransactions.filter(transaction => {
       const transactionDate = transaction.date
       return transactionDate.getMonth() === currentMonth &&
              transactionDate.getFullYear() === currentYear
     })
     
-    // Get previous month transactions
     const prevMonthTransactions = processedTransactions.filter(transaction => {
       const transactionDate = transaction.date
       return transactionDate.getMonth() === prevMonth &&
              transactionDate.getFullYear() === prevYear
     })
     
-    // Calculate totals
     const currentIncome = currentMonthTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.numericAmount, 0)
     const currentExpense = currentMonthTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.numericAmount, 0)
     const prevIncome = prevMonthTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.numericAmount, 0)
@@ -182,73 +174,8 @@ export default function AnalyticsPageClient({ accounts, transactions, profile }:
     }
   }, [processedTransactions])
 
-  // Detect recurring payments
   const recurringPayments = useMemo(() => {
-    const expenseTransactions = processedTransactions.filter(t => t.type === 'expense')
-    const patternMap = new Map<string, RecurringPayment['transactions']>()
-    
-    // Group transactions by similar narration patterns
-    expenseTransactions.forEach(transaction => {
-      const normalizedNarration = transaction.narration
-        .toLowerCase()
-        .replace(/\d+/g, '') // Remove numbers
-        .replace(/[^\w\s]/g, '') // Remove special characters
-        .trim()
-      
-      if (normalizedNarration.length > 3) { // Only consider meaningful patterns
-        if (!patternMap.has(normalizedNarration)) {
-          patternMap.set(normalizedNarration, [])
-        }
-        patternMap.get(normalizedNarration)!.push({
-          date: transaction.date,
-          amount: transaction.numericAmount,
-          narration: transaction.narration
-        })
-      }
-    })
-    
-    const recurring: RecurringPayment[] = []
-    
-    // Analyze patterns for recurring behavior
-    patternMap.forEach((transactions, pattern) => {
-      if (transactions.length >= 2) { // Need at least 2 occurrences
-        transactions.sort((a, b) => a.date.getTime() - b.date.getTime())
-        
-        // Calculate intervals between transactions
-        const intervals: number[] = []
-        for (let i = 1; i < transactions.length; i++) {
-          const daysDiff = Math.round((transactions[i].date.getTime() - transactions[i-1].date.getTime()) / (1000 * 60 * 60 * 24))
-          intervals.push(daysDiff)
-        }
-        
-        // Check if intervals are somewhat consistent (within 7 days variance)
-        const avgInterval = intervals.reduce((sum, interval) => sum + interval, 0) / intervals.length
-        const isRecurring = intervals.every(interval => Math.abs(interval - avgInterval) <= 7)
-        
-        if (isRecurring && avgInterval >= 7 && avgInterval <= 365) { // Between weekly and yearly
-          const lastTransaction = transactions[transactions.length - 1]
-          const averageAmount = transactions.reduce((sum, t) => sum + t.amount, 0) / transactions.length
-          const category = categorizeTransaction(lastTransaction.narration)
-          
-          // Predict next payment
-          const nextPaymentDate = new Date(lastTransaction.date.getTime() + (avgInterval * 24 * 60 * 60 * 1000))
-          
-          recurring.push({
-            pattern: pattern.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
-            category,
-            averageAmount,
-            count: transactions.length,
-            intervalDays: Math.round(avgInterval),
-            lastPayment: lastTransaction.date,
-            nextPayment: nextPaymentDate,
-            transactions
-          })
-        }
-      }
-    })
-    
-    // Sort by next payment date (soonest first)
-    return recurring.sort((a, b) => a.nextPayment.getTime() - b.nextPayment.getTime())
+    return detectRecurringPayments(processedTransactions)
   }, [processedTransactions])
 
   return (
@@ -496,7 +423,7 @@ export default function AnalyticsPageClient({ accounts, transactions, profile }:
                     </div>
                   ) : (
                     <div className={styles.recurringList}>
-                      {recurringPayments.slice(0, 10).map((recurring, index) => (
+                      {recurringPayments.slice(0, 5).map((recurring, index) => (
                         <div key={`${recurring.pattern}-${index}`} className={styles.recurringItem}>
                           <div className={styles.recurringItemLeft}>
                             <div className={styles.recurringIcon}>
