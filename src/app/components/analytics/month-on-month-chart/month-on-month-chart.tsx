@@ -100,7 +100,7 @@ export const MonthOnMonthChart: React.FC<MonthOnMonthChartProps> = ({ data, curr
             axisLine={false}
             tickLine={false}
             tick={{ fontSize: 12, fill: '#6b7280' }}
-            interval={Math.floor(daysInCurrentMonth / 8)} // Show fewer labels for better readability
+            interval={Math.floor(daysInCurrentMonth / 8)}
           />
           <YAxis 
             axisLine={false}
@@ -116,8 +116,8 @@ export const MonthOnMonthChart: React.FC<MonthOnMonthChartProps> = ({ data, curr
           <Line 
             type="monotone" 
             dataKey="currentMonth" 
-            stroke="#ef4444" 
-            strokeWidth={2}
+            stroke="#856624" 
+            strokeWidth={1}
             dot={false}
             name={`${data.currentMonth.name} ${currentYear}`}
           />
@@ -125,9 +125,9 @@ export const MonthOnMonthChart: React.FC<MonthOnMonthChartProps> = ({ data, curr
             type="monotone" 
             dataKey="previousMonth" 
             stroke="#f97316" 
-            strokeWidth={2}
+            strokeWidth={1}
             dot={false}
-            strokeDasharray="5 5"
+            strokeDasharray="2 5"
             name={`${data.prevMonth.name} ${prevYear}`}
           />
         </LineChart>
