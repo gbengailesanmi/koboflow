@@ -5,9 +5,9 @@ import { getSession } from '@/lib/session'
 import { revalidatePath } from 'next/cache'
 
 export async function updateProfile(
-  data: { name: string; email: string }
+  data: { name: string; email: string; currency?: string; monthlyBudget?: number }
 ): Promise<{ error?: string; success?: string }> {
-  const { name, email } = data
+  const { name, email, currency, monthlyBudget } = data
 
   // Validate input
   if (!name?.trim() || !email?.trim()) {
@@ -38,18 +38,24 @@ export async function updateProfile(
 
     if (existingUser) {
       return { error: 'Email is already taken' }
+    }    // Update user profile
+    const updateData: any = {
+      name: name.trim(), 
+      email: email.toLowerCase().trim(),
+      updatedAt: new Date()
     }
 
-    // Update user profile
+    // Add optional fields if provided
+    if (currency) {
+      updateData.currency = currency
+    }
+    if (monthlyBudget !== undefined && monthlyBudget >= 0) {
+      updateData.monthlyBudget = monthlyBudget
+    }
+
     const result = await db.collection('users').updateOne(
       { customerId: user.customerId },
-      { 
-        $set: { 
-          name: name.trim(), 
-          email: email.toLowerCase().trim(),
-          updatedAt: new Date()
-        } 
-      }
+      { $set: updateData }
     )
 
     if (result.matchedCount === 0) {

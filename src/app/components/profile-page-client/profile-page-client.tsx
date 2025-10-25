@@ -11,17 +11,34 @@ type User = {
   customerId: string
   name: string
   email: string
+  currency?: string
+  monthlyBudget?: number
 }
 
 type ProfilePageClientProps = {
   user: User
 }
 
+const currencies = [
+  { code: 'USD', name: 'US Dollar', symbol: '$' },
+  { code: 'EUR', name: 'Euro', symbol: '€' },
+  { code: 'GBP', name: 'British Pound', symbol: '£' },
+  { code: 'JPY', name: 'Japanese Yen', symbol: '¥' },
+  { code: 'AUD', name: 'Australian Dollar', symbol: 'A$' },
+  { code: 'CAD', name: 'Canadian Dollar', symbol: 'C$' },
+  { code: 'CHF', name: 'Swiss Franc', symbol: 'Fr' },
+  { code: 'CNY', name: 'Chinese Yuan', symbol: '¥' },
+  { code: 'INR', name: 'Indian Rupee', symbol: '₹' },
+  { code: 'NGN', name: 'Nigerian Naira', symbol: '₦' },
+]
+
 export default function ProfilePageClient({ user }: ProfilePageClientProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [formData, setFormData] = useState({
     name: user.name,
-    email: user.email
+    email: user.email,
+    currency: user.currency || 'USD',
+    monthlyBudget: user.monthlyBudget?.toString() || '5000'
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -33,15 +50,33 @@ export default function ProfilePageClient({ user }: ProfilePageClientProps) {
 
   // Sync form data when user prop changes (after successful update)
   useEffect(() => {
-    setFormData({
-      name: user.name,
-      email: user.email
-    })
-  }, [user.name, user.email])
+    // Only sync if we're not currently editing to avoid overwriting user changes
+    if (!isEditing) {
+      setFormData({
+        name: user.name,
+        email: user.email,
+        currency: user.currency || 'USD',
+        monthlyBudget: user.monthlyBudget?.toString() || '5000'
+      })
+    }
+  }, [user.name, user.email, user.currency, user.monthlyBudget, isEditing])
 
   const handleSave = async () => {
     if (!formData.name.trim() || !formData.email.trim()) {
       setError('Name and email are required')
+      return
+    }
+
+    // Validate email format
+    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      setError('Please enter a valid email address')
+      return
+    }
+
+    // Validate monthly budget
+    const budgetValue = parseFloat(formData.monthlyBudget)
+    if (isNaN(budgetValue) || budgetValue < 0) {
+      setError('Please enter a valid monthly budget')
       return
     }
 
@@ -52,7 +87,9 @@ export default function ProfilePageClient({ user }: ProfilePageClientProps) {
     try {
       const result = await updateProfile({
         name: formData.name.trim(),
-        email: formData.email.trim()
+        email: formData.email.trim(),
+        currency: formData.currency,
+        monthlyBudget: budgetValue
       })
 
       if (result.error) {
@@ -63,8 +100,11 @@ export default function ProfilePageClient({ user }: ProfilePageClientProps) {
       setSuccess(result.success || 'Profile updated successfully!')
       setIsEditing(false)
       
-      // Refresh the page to get updated data from server
-      router.refresh()
+      // Don't immediately refresh - let the success state show first
+      // Refresh after a short delay to ensure server has processed the update
+      setTimeout(() => {
+        router.refresh()
+      }, 1000)
       
       // Clear success message after 3 seconds
       setTimeout(() => setSuccess(''), 3000)
@@ -77,9 +117,12 @@ export default function ProfilePageClient({ user }: ProfilePageClientProps) {
   }
 
   const handleCancel = () => {
+    // Reset to current user data, but preserve any valid currency selection
     setFormData({
       name: user.name,
-      email: user.email
+      email: user.email,
+      currency: user.currency || formData.currency || 'USD',
+      monthlyBudget: user.monthlyBudget?.toString() || '5000'
     })
     setIsEditing(false)
     setError('')
@@ -101,11 +144,11 @@ export default function ProfilePageClient({ user }: ProfilePageClientProps) {
               />
             </div>
             <div className={styles.headerCenter}>
-              <h1 className={styles.title}>Profile Settings</h1>
+              <h1 className={styles.title}>Profile</h1>
             </div>
             </div>
             <div className={styles.subtitle}>
-            <p className={styles.subtitleText}>Your account information</p>
+            <p className={styles.subtitleText}>Manage your account settings and preferences</p>
             </div>
 
           {/* Profile Card */}
@@ -156,7 +199,7 @@ export default function ProfilePageClient({ user }: ProfilePageClientProps) {
             </div>
 
             {/* Email Field */}
-            <div className={styles.emailFieldContainer}>
+            <div className={styles.fieldContainer}>
               <label className={styles.labelWithIcon}>
                 <EnvelopeClosedIcon className={styles.iconWithMargin} />
                 Email Address
@@ -174,6 +217,59 @@ export default function ProfilePageClient({ user }: ProfilePageClientProps) {
                   <span className={styles.displayText}>{formData.email}</span>
                 </div>
               )}
+            </div>
+
+            {/* Currency Field */}
+            <div className={styles.fieldContainer}>
+              <label className={styles.labelWithIcon}>
+                💰 Preferred Currency
+              </label>
+              {isEditing ? (
+                <select
+                  value={formData.currency}
+                  onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
+                  className={styles.input}
+                >
+                  {currencies.map((currency) => (
+                    <option key={currency.code} value={currency.code}>
+                      {currency.symbol} {currency.name} ({currency.code})
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <div className={styles.displayField}>
+                  <span className={styles.displayText}>
+                    {currencies.find(c => c.code === formData.currency)?.symbol} {currencies.find(c => c.code === formData.currency)?.name} ({formData.currency})
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Monthly Budget Field */}
+            <div className={styles.emailFieldContainer}>
+              <label className={styles.labelWithIcon}>
+                📊 Monthly Budget
+              </label>
+              {isEditing ? (
+                <input
+                  type='number'
+                  step='0.01'
+                  min='0'
+                  value={formData.monthlyBudget}
+                  onChange={(e) => setFormData({ ...formData, monthlyBudget: e.target.value })}
+                  className={styles.input}
+                  placeholder='Enter your monthly budget'
+                />
+              ) : (
+                <div className={styles.displayField}>
+                  <span className={styles.displayText}>
+                    {currencies.find(c => c.code === formData.currency)?.symbol}{parseFloat(formData.monthlyBudget).toLocaleString()}
+                  </span>
+                </div>
+              )}
+              <p className={styles.helpText}>
+                Set a monthly spending limit to track your budget
+              </p>
             </div>
 
             {/* Action Buttons */}
@@ -206,6 +302,21 @@ export default function ProfilePageClient({ user }: ProfilePageClientProps) {
                   Edit Profile
                 </button>
               )}
+            </div>
+          </div>
+
+          {/* About Section */}
+          <div className={styles.profileCard}>
+            <h2 className={styles.aboutTitle}>About Money Mapper</h2>
+            <p className={styles.aboutSubtitle}>Personal finance tracking made simple</p>
+            <div className={styles.aboutContent}>
+              <p className={styles.aboutText}>
+                Money Mapper helps you track your income and expenses, visualize spending patterns,
+                and make informed financial decisions.
+              </p>
+              <p className={styles.aboutText}>
+                All your data is stored securely and privately, ensuring complete control over your financial information.
+              </p>
             </div>
           </div>
         </div>

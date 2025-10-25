@@ -16,6 +16,10 @@ export default function Footer({ buttonColor }: FooterProps) {
     redirect(`/${customerId}/dashboard`)
   }
 
+  const handleSpendingClick = () => {
+    redirect(`/${customerId}/analytics`)
+  }
+
   const buttonStyle = buttonColor 
     ? { color: buttonColor }
     : {}
@@ -30,7 +34,7 @@ export default function Footer({ buttonColor }: FooterProps) {
       >
         <HomeIcon width='25' height='25' />
       </FooterIconButton>
-      <FooterIconButton onClick={handleHomeClick} text='Spending' style={buttonStyle} textColor={buttonColor}>
+      <FooterIconButton onClick={handleSpendingClick} text='Spending' style={buttonStyle} textColor={buttonColor}>
         <Pencil2Icon width='25' height='25' />
       </FooterIconButton>
       <FooterIconButton onClick={handleHomeClick} text='Budget' style={buttonStyle} textColor={buttonColor}>

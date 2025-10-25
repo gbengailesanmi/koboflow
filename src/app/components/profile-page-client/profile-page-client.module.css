@@ -34,7 +34,7 @@
 
 .profileCard {
   @apply bg-white rounded-xl shadow-lg;
-  padding: 24px;
+  padding: 5px;
   margin: 0 16px;
 }
 
@@ -132,4 +132,24 @@
 
 .backIcon {
   @apply w-6 h-6 cursor-pointer;
+}
+
+.helpText {
+  @apply text-xs text-gray-500 mt-1;
+}
+
+.aboutTitle {
+  @apply text-lg font-semibold text-gray-900 mb-1;
+}
+
+.aboutSubtitle {
+  @apply text-sm text-gray-500 mb-4;
+}
+
+.aboutContent {
+  @apply space-y-3;
+}
+
+.aboutText {
+  @apply text-sm text-gray-600 leading-relaxed;
 }

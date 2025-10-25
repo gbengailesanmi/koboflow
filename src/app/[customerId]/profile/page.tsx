@@ -8,13 +8,10 @@ import ProfilePageClient from '@/app/components/profile-page-client/profile-page
 export default async function ProfilePage() {
   const user = await getSession()
 
-  if (!user?.customerId) {
-    redirect(`/login`)
-  }
 
   const db = await connectDB()
 
-  const userData = await db.collection('users').findOne({ customerId: user.customerId })
+  const userData = await db.collection('users').findOne({ customerId: user?.customerId })
 
   if (!userData) {
     redirect(`/login`)
