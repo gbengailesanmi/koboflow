@@ -119,7 +119,7 @@ export const MonthOnMonthChart: React.FC<MonthOnMonthChartProps> = ({ data, curr
             stroke="#856624" 
             strokeWidth={1}
             dot={false}
-            name={`${data.currentMonth.name} ${currentYear}`}
+            name={`${data.currentMonth.name}`}
           />
           <Line 
             type="monotone" 
@@ -128,7 +128,7 @@ export const MonthOnMonthChart: React.FC<MonthOnMonthChartProps> = ({ data, curr
             strokeWidth={1}
             dot={false}
             strokeDasharray="2 5"
-            name={`${data.prevMonth.name} ${prevYear}`}
+            name={`${data.prevMonth.name}`}
           />
         </LineChart>
       </ResponsiveContainer>
