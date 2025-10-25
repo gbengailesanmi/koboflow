@@ -1,6 +1,6 @@
 import type { Account } from '@/types/account'
 import React from 'react'
-import styles from '@/app/components/transactions-filters/transactions-filters.module.css'
+import styles from '@/app/components/transactions/transactions-filters/transactions-filters.module.css'
 import { DropdownMenu, Button, Grid } from '@radix-ui/themes'
 import { MagnifyingGlassIcon, ChevronDownIcon } from '@radix-ui/react-icons'
 

@@ -4,7 +4,7 @@ import { connectDB } from '@/db/mongo'
 import { getSession } from '@/lib/session'
 import { redirect } from 'next/navigation'
 import { sanitizeArray } from '@/lib/sanitize'
-import AnalyticsPageClient from '@/app/components/analytics-page-client/analytics-page-client'
+import AnalyticsPageClient from '@/app/components/analytics/analytics-page-client/analytics-page-client'
 
 export default async function AnalyticsPage() {
   const user = await getSession()

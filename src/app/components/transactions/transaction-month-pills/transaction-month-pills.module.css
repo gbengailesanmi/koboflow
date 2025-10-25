@@ -1,4 +1,4 @@
-@reference "../../globals.css";
+@reference "../../../globals.css";
 
 .MonthsScrollArea {
   @apply mt-2 sticky overflow-x-auto whitespace-nowrap mb-4;

@@ -9,7 +9,7 @@ import { Grid } from '@radix-ui/themes'
 import styles from '@/app/components/dashboard-client/dashboard-client.module.css'
 import { useBaseColor } from '@/providers/base-colour-provider'
 import AccountsCarousel from '@/app/components/accounts-carousel/accounts-carousel'
-import TransactionsColumn from '@/app/components/transactions-column/transactions-column'
+import TransactionsColumn from '@/app/components/transactions/transactions-column/transactions-column'
 import { redirect, useParams } from 'next/navigation'
 
 

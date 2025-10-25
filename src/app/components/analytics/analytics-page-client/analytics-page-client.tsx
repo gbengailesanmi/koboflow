@@ -871,7 +871,7 @@ export default function AnalyticsPageClient({ accounts, transactions, profile }:
                               {formatCurrency(recurring.averageAmount, profile.currency)}
                             </span>
                             <span className={styles.recurringNext}>
-                              Next: {recurring.nextPayment.toLocaleDateString()}
+                              Next: {recurring.nextPayment.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                             </span>
                           </div>
                         </div>

@@ -1,4 +1,4 @@
-@reference "../../globals.css";
+@reference "../../../globals.css";
 
 .GridWrapper {
   @apply w-full gap-1 justify-between flex items-center;

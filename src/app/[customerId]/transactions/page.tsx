@@ -4,7 +4,7 @@ import { connectDB } from '@/db/mongo'
 import { getSession } from '@/lib/session'
 import { redirect } from 'next/navigation'
 import { sanitizeArray } from '@/lib/sanitize'
-import TransactionsPageClient from '@/app/components/transactions-page-client/transactions-page-client'
+import TransactionsPageClient from '@/app/components/transactions/transactions-page-client/transactions-page-client'
 
 export default async function TransactionsPage() {
   const user = await getSession()

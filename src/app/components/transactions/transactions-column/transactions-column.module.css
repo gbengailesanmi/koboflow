@@ -1,4 +1,4 @@
-@reference "../../globals.css";
+@reference "../../../globals.css";
 
 .TransactionsWrapper {
   @apply w-full flex flex-col gap-1;
