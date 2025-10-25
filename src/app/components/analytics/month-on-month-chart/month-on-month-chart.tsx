@@ -95,13 +95,13 @@ export const MonthOnMonthChart: React.FC<MonthOnMonthChartProps> = ({ data, curr
           }}
         >
           {/* <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" /> */}
-          <XAxis 
+          {/* <XAxis 
             dataKey="day" 
             axisLine={false}
             tickLine={false}
             tick={{ fontSize: 12, fill: '#6b7280' }}
             interval={Math.floor(daysInCurrentMonth / 8)}
-          />
+          /> */}
           <YAxis 
             axisLine={false}
             tickLine={false}
