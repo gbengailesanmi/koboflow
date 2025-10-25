@@ -516,3 +516,69 @@
 .recurringNext {
   @apply text-gray-600 text-sm mt-1;
 }
+
+/* Month-on-Month Chart Styles */
+.chartTypeToggle {
+  @apply flex rounded-lg p-1 gap-1 mt-4;
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.chartToggleBtn {
+  @apply px-4 py-2 rounded-lg text-sm font-medium cursor-pointer border-0 flex-1 text-center;
+  background: transparent;
+  color: #6b7280;
+  transition: all 0.2s ease-in-out;
+}
+
+.chartToggleBtn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #374151;
+}
+
+.chartToggleBtnActive {
+  background: white;
+  color: #1f2937;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.comparisonStats {
+  @apply mt-6 space-y-3;
+}
+
+.comparisonStat {
+  @apply flex justify-between items-center p-3 rounded-lg;
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.comparisonLabel {
+  @apply text-gray-600 font-medium text-sm;
+}
+
+.comparisonValue {
+  @apply font-bold text-base;
+}
+
+/* Recharts Tooltip Styles */
+.rechartTooltip {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  padding: 12px 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.rechartTooltipLabel {
+  font-weight: 600;
+  color: #374151;
+  font-size: 14px;
+  margin: 0 0 8px 0;
+}
+
+.rechartTooltipValue {
+  font-weight: 500;
+  font-size: 13px;
+  margin: 4px 0;
+}

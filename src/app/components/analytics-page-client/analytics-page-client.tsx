@@ -3,6 +3,7 @@
 import React, { useMemo, useState, useRef, useEffect } from 'react'
 import { ArrowLeftIcon } from '@radix-ui/react-icons'
 import { redirect, useParams } from 'next/navigation'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import type { Account } from '@/types/account'
 import type { Transaction } from '@/types/transactions'
 import Footer from '@/app/components/footer/footer'
@@ -241,6 +242,101 @@ const PieChart: React.FC<PieChartProps> = ({ data, categoryConfig, currency }) =
   )
 }
 
+// MonthOnMonthChart Component
+type MonthOnMonthChartProps = {
+  data: {
+    currentMonth: { name: string; income: number; expense: number }
+    prevMonth: { name: string; income: number; expense: number }
+  }
+  currency: string
+}
+
+const MonthOnMonthChart: React.FC<MonthOnMonthChartProps> = ({ data, currency }) => {
+  // Format data for Recharts
+  const chartData = [
+    {
+      month: data.prevMonth.name,
+      income: data.prevMonth.income,
+      expense: data.prevMonth.expense,
+    },
+    {
+      month: data.currentMonth.name,
+      income: data.currentMonth.income,
+      expense: data.currentMonth.expense,
+    },
+  ]
+
+  // Custom tooltip formatter
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className={styles.rechartTooltip}>
+          <p className={styles.rechartTooltipLabel}>{`${label}`}</p>
+          {payload.map((entry: any, index: number) => (
+            <p key={index} style={{ color: entry.color }} className={styles.rechartTooltipValue}>
+              {entry.dataKey === 'income' ? '💰' : '💸'} {entry.dataKey.charAt(0).toUpperCase() + entry.dataKey.slice(1)}: {formatCurrency(entry.value, currency)}
+            </p>
+          ))}
+        </div>
+      )
+    }
+    return null
+  }
+
+  return (
+    <div style={{ width: '100%', height: '300px' }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart
+          data={chartData}
+          margin={{
+            top: 20,
+            right: 30,
+            left: 20,
+            bottom: 5,
+          }}
+        >
+          <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+          <XAxis 
+            dataKey="month" 
+            axisLine={false}
+            tickLine={false}
+            tick={{ fontSize: 14, fill: '#6b7280' }}
+          />
+          <YAxis 
+            axisLine={false}
+            tickLine={false}
+            tick={{ fontSize: 12, fill: '#6b7280' }}
+            tickFormatter={(value) => formatCurrency(value, currency)}
+          />
+          <Tooltip content={<CustomTooltip />} />
+          <Legend 
+            wrapperStyle={{ paddingTop: '20px' }}
+            iconType="line"
+          />
+          <Line 
+            type="monotone" 
+            dataKey="income" 
+            stroke="#10b981" 
+            strokeWidth={3}
+            dot={{ fill: '#10b981', strokeWidth: 2, r: 6 }}
+            activeDot={{ r: 8, stroke: '#10b981', strokeWidth: 2 }}
+            name="Income"
+          />
+          <Line 
+            type="monotone" 
+            dataKey="expense" 
+            stroke="#ef4444" 
+            strokeWidth={3}
+            dot={{ fill: '#ef4444', strokeWidth: 2, r: 6 }}
+            activeDot={{ r: 8, stroke: '#ef4444', strokeWidth: 2 }}
+            name="Expense"
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  )
+}
+
 export default function AnalyticsPageClient({ accounts, transactions, profile }: AnalyticsPageClientProps) {
   const [selectedAccountId, setSelectedAccountId] = useState<string>('all')
   const [timePeriod, setTimePeriod] = useState<'day' | 'month' | 'year'>('month')
@@ -355,6 +451,52 @@ export default function AnalyticsPageClient({ accounts, transactions, profile }:
              transaction.type === 'expense'
     })
     return currentMonthTransactions.reduce((sum, t) => sum + t.numericAmount, 0)
+  }, [processedTransactions])
+
+  // Month-on-month comparison data
+  const monthOnMonthData = useMemo(() => {
+    const now = new Date()
+    const currentMonth = now.getMonth()
+    const currentYear = now.getFullYear()
+    
+    // Calculate previous month
+    const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1
+    const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear
+    
+    // Get current month transactions
+    const currentMonthTransactions = processedTransactions.filter(transaction => {
+      const transactionDate = transaction.date
+      return transactionDate.getMonth() === currentMonth &&
+             transactionDate.getFullYear() === currentYear
+    })
+    
+    // Get previous month transactions
+    const prevMonthTransactions = processedTransactions.filter(transaction => {
+      const transactionDate = transaction.date
+      return transactionDate.getMonth() === prevMonth &&
+             transactionDate.getFullYear() === prevYear
+    })
+    
+    // Calculate totals
+    const currentIncome = currentMonthTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.numericAmount, 0)
+    const currentExpense = currentMonthTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.numericAmount, 0)
+    const prevIncome = prevMonthTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.numericAmount, 0)
+    const prevExpense = prevMonthTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.numericAmount, 0)
+    
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    
+    return {
+      currentMonth: {
+        name: monthNames[currentMonth],
+        income: currentIncome,
+        expense: currentExpense
+      },
+      prevMonth: {
+        name: monthNames[prevMonth],
+        income: prevIncome,
+        expense: prevExpense
+      }
+    }
   }, [processedTransactions])
 
   // Detect recurring payments
@@ -567,6 +709,83 @@ export default function AnalyticsPageClient({ accounts, transactions, profile }:
                         categoryConfig={categoryConfig}
                         currency={profile.currency}
                       />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Month-on-Month Comparison */}
+              <div className={styles.card} style={{ margin: '0 16px 32px 16px' }}>
+                <div className={styles.cardHeader}>
+                  <h2 className={styles.cardTitle}>📈 Month-on-Month Comparison</h2>
+                  <p className={styles.cardDescription}>
+                    Compare your income and expenses between this month and last month
+                  </p>
+                </div>
+                <div className={styles.cardContent}>
+                  {(monthOnMonthData.currentMonth.income === 0 && monthOnMonthData.prevMonth.income === 0 &&
+                    monthOnMonthData.currentMonth.expense === 0 && monthOnMonthData.prevMonth.expense === 0) ? (
+                    <div className={styles.noData}>
+                      <div style={{ fontSize: '48px', marginBottom: '16px' }}>📈</div>
+                      No data for comparison
+                    </div>
+                  ) : (
+                    <div className={styles.chartContainer}>
+                      <MonthOnMonthChart 
+                        data={monthOnMonthData}
+                        currency={profile.currency}
+                      />
+                      <div className={styles.comparisonStats}>
+                        <div className={styles.comparisonStat}>
+                          <span className={styles.comparisonLabel}>Previous Month Income ({monthOnMonthData.prevMonth.name}):</span>
+                          <span className={`${styles.comparisonValue} ${styles.incomeColor}`}>
+                            {formatCurrency(monthOnMonthData.prevMonth.income, profile.currency)}
+                          </span>
+                        </div>
+                        <div className={styles.comparisonStat}>
+                          <span className={styles.comparisonLabel}>Current Month Income ({monthOnMonthData.currentMonth.name}):</span>
+                          <span className={`${styles.comparisonValue} ${styles.incomeColor}`}>
+                            {formatCurrency(monthOnMonthData.currentMonth.income, profile.currency)}
+                          </span>
+                        </div>
+                        <div className={styles.comparisonStat}>
+                          <span className={styles.comparisonLabel}>Previous Month Expense ({monthOnMonthData.prevMonth.name}):</span>
+                          <span className={`${styles.comparisonValue} ${styles.expenseColor}`}>
+                            {formatCurrency(monthOnMonthData.prevMonth.expense, profile.currency)}
+                          </span>
+                        </div>
+                        <div className={styles.comparisonStat}>
+                          <span className={styles.comparisonLabel}>Current Month Expense ({monthOnMonthData.currentMonth.name}):</span>
+                          <span className={`${styles.comparisonValue} ${styles.expenseColor}`}>
+                            {formatCurrency(monthOnMonthData.currentMonth.expense, profile.currency)}
+                          </span>
+                        </div>
+                        {(() => {
+                          const incomeChange = monthOnMonthData.currentMonth.income - monthOnMonthData.prevMonth.income
+                          const expenseChange = monthOnMonthData.currentMonth.expense - monthOnMonthData.prevMonth.expense
+                          const incomePercentChange = monthOnMonthData.prevMonth.income > 0 ? ((incomeChange / monthOnMonthData.prevMonth.income) * 100) : 0
+                          const expensePercentChange = monthOnMonthData.prevMonth.expense > 0 ? ((expenseChange / monthOnMonthData.prevMonth.expense) * 100) : 0
+                          
+                          return (
+                            <>
+                              <div className={styles.comparisonStat}>
+                                <span className={styles.comparisonLabel}>Income Change:</span>
+                                <span className={`${styles.comparisonValue} ${incomeChange >= 0 ? styles.incomeColor : styles.expenseColor}`}>
+                                  {incomeChange >= 0 ? '+' : ''}{formatCurrency(incomeChange, profile.currency)} 
+                                  ({incomePercentChange >= 0 ? '+' : ''}{incomePercentChange.toFixed(1)}%)
+                                </span>
+                              </div>
+                              <div className={styles.comparisonStat}>
+                                <span className={styles.comparisonLabel}>Expense Change:</span>
+                                <span className={`${styles.comparisonValue} ${expenseChange >= 0 ? styles.expenseColor : styles.incomeColor}`}>
+                                  {expenseChange >= 0 ? '+' : ''}{formatCurrency(expenseChange, profile.currency)} 
+                                  ({expensePercentChange >= 0 ? '+' : ''}{expensePercentChange.toFixed(1)}%)
+                                </span>
+                              </div>
+                            </>
+                          )
+                        })()}
+                      </div>
                     </div>
                   )}
                 </div>
