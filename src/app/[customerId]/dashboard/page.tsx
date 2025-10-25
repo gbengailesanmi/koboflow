@@ -16,7 +16,9 @@ export default async function Dashboard() {
 
   const db = await connectDB()
 
-  if (!db.collection('users').findOne({ customerId: user.customerId })) {
+  const userProfile = await db.collection('users').findOne({ customerId: user.customerId })
+  
+  if (!userProfile) {
     redirect(`/login`)
   }
 
@@ -33,6 +35,13 @@ export default async function Dashboard() {
 
   const accountsData = sanitizeArray(accountsDataRaw)
   const transactionsData = sanitizeArray(transactionsDataRaw)
+  
+  const profile = {
+    name: userProfile.name || '',
+    email: userProfile.email || '',
+    currency: userProfile.currency || 'GBP',
+    monthlyBudget: userProfile.monthlyBudget || 0
+  }
 
-  return <DashboardClient accounts={accountsData} transactions={transactionsData} />
+  return <DashboardClient accounts={accountsData} transactions={transactionsData} profile={profile} />
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import type { Account } from '@/types/account'
 import type { Transaction } from '@/types/transactions'
 import Header from '@/app/components/header/header'
@@ -10,15 +10,24 @@ import styles from '@/app/components/dashboard-client/dashboard-client.module.cs
 import { useBaseColor } from '@/providers/base-colour-provider'
 import AccountsCarousel from '@/app/components/accounts-carousel/accounts-carousel'
 import TransactionsColumn from '@/app/components/transactions/transactions-column/transactions-column'
+import { MonthOnMonthChart } from '@/app/components/analytics/month-on-month-chart/month-on-month-chart'
+import { categorizeTransaction } from '@/app/components/analytics/utils/categorize-transaction'
 import { redirect, useParams } from 'next/navigation'
 
+type UserProfile = {
+  name: string
+  email: string
+  currency: string
+  monthlyBudget: number
+}
 
 type DashboardClientProps = {
   accounts: Account[]
   transactions: Transaction[]
+  profile: UserProfile
 }
 
-export default function DashboardClient({ accounts, transactions }: DashboardClientProps) {
+export default function DashboardClient({ accounts, transactions, profile }: DashboardClientProps) {
   const [selectedAccount, setSelectedAccount] = useState<string | null>(null)
   const [hasNavigated, setHasNavigated] = useState(false)
   const { baseColor } = useBaseColor()
@@ -29,6 +38,62 @@ export default function DashboardClient({ accounts, transactions }: DashboardCli
     const filteredTransactions = selectedAccount
   ? transactions.filter(txn => txn.accountUniqueId === selectedAccount)
   : transactions
+
+  // Process transactions for month-on-month chart
+  const processedTransactions = useMemo(() => {
+    return filteredTransactions.map(transaction => {
+      const amount = parseFloat(transaction.amount)
+      return {
+        ...transaction,
+        numericAmount: Math.abs(amount),
+        type: amount < 0 ? 'expense' : 'income',
+        category: amount < 0 ? categorizeTransaction(transaction.narration) : 'income',
+        date: new Date(transaction.bookedDate)
+      }
+    })
+  }, [filteredTransactions])
+
+  // Calculate month-on-month data
+  const monthOnMonthData = useMemo(() => {
+    const now = new Date()
+    const currentMonth = now.getMonth()
+    const currentYear = now.getFullYear()
+    
+    const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1
+    const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear
+    
+    const currentMonthTransactions = processedTransactions.filter(transaction => {
+      const transactionDate = transaction.date
+      return transactionDate.getMonth() === currentMonth &&
+             transactionDate.getFullYear() === currentYear
+    })
+    
+    const prevMonthTransactions = processedTransactions.filter(transaction => {
+      const transactionDate = transaction.date
+      return transactionDate.getMonth() === prevMonth &&
+             transactionDate.getFullYear() === prevYear
+    })
+    
+    const currentIncome = currentMonthTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.numericAmount, 0)
+    const currentExpense = currentMonthTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.numericAmount, 0)
+    const prevIncome = prevMonthTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.numericAmount, 0)
+    const prevExpense = prevMonthTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.numericAmount, 0)
+    
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    
+    return {
+      currentMonth: {
+        name: monthNames[currentMonth],
+        income: currentIncome,
+        expense: currentExpense
+      },
+      prevMonth: {
+        name: monthNames[prevMonth],
+        income: prevIncome,
+        expense: prevExpense
+      }
+    }
+  }, [processedTransactions])
 
   useEffect(() => {
     if (selectedAccount) {
@@ -74,10 +139,27 @@ export default function DashboardClient({ accounts, transactions }: DashboardCli
           >
             See all
           </div>
-        </Grid>
-
-        <Grid className={styles.Grid4}>
-            <h2 className="text-xl font-semibold mb-2">{`{This Month}`} vs {`{Last Month}`}</h2>
+        </Grid>        <Grid className={styles.Grid4}>
+          <h2 className="text-xl font-semibold mb-2">This Month vs Last Month</h2>
+          {processedTransactions.length > 0 && 
+           (monthOnMonthData.currentMonth.expense > 0 || monthOnMonthData.prevMonth.expense > 0) ? (
+            <MonthOnMonthChart 
+              data={monthOnMonthData}
+              currency={profile.currency}
+              transactions={processedTransactions}
+            />
+          ) : (
+            <div style={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              color: '#6b7280'
+            }}>
+              <div style={{ fontSize: '48px', marginBottom: '6px' }}>📈</div>
+              <p>No expense data for comparison</p>
+            </div>
+          )}
         </Grid>
         {/* <Grid className={styles.Grid5}>
           <h2 className="text-xl font-semibold mb-2">Insights</h2>

@@ -94,7 +94,7 @@ export const MonthOnMonthChart: React.FC<MonthOnMonthChartProps> = ({ data, curr
             bottom: 5,
           }}
         >
-          <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+          {/* <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" /> */}
           <XAxis 
             dataKey="day" 
             axisLine={false}
