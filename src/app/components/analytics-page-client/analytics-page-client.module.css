@@ -557,7 +557,7 @@
 }
 
 .comparisonValue {
-  @apply font-bold text-base;
+  @apply font-bold text-xs;
 }
 
 /* Recharts Tooltip Styles */

@@ -22,9 +22,7 @@ async function insertTransactions(transactions: any[], customerId: string, conne
     narration: formatNarration(txn.descriptions?.original),
     currencyCode: txn.amount?.currencyCode,
     descriptions: txn.descriptions,
-    bookedDate: new Date(
-      new Date(txn.dates.booked).toLocaleString('en-GB', { timeZone: 'Europe/London' })
-    ),
+    bookedDate: new Date(txn.dates.booked),
     identifiers: txn.identifiers,
     types: txn.types,
     status: txn.status,

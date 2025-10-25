@@ -263,11 +263,14 @@ const MonthOnMonthChart: React.FC<MonthOnMonthChartProps> = ({ data, currency, t
   const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1
   const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear
 
-  // Generate daily expense data for comparison
+  // Get days in current month
+  const daysInCurrentMonth = new Date(currentYear, currentMonth + 1, 0).getDate()
+
+  // Generate daily expense data for comparison - span entire month
   const chartData = useMemo(() => {
     const dailyData = []
     
-    for (let day = 1; day <= currentDay; day++) {
+    for (let day = 1; day <= daysInCurrentMonth; day++) {
       // Current month transactions for this day
       const currentDayExpenses = transactions
         .filter((t: any) => {
@@ -298,7 +301,7 @@ const MonthOnMonthChart: React.FC<MonthOnMonthChartProps> = ({ data, currency, t
     }
     
     return dailyData
-  }, [currentDay, currentMonth, currentYear, prevMonth, prevYear, transactions])
+  }, [currentMonth, currentYear, prevMonth, prevYear, transactions])
 
   // Custom tooltip formatter
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -335,7 +338,7 @@ const MonthOnMonthChart: React.FC<MonthOnMonthChartProps> = ({ data, currency, t
             axisLine={false}
             tickLine={false}
             tick={{ fontSize: 12, fill: '#6b7280' }}
-            interval={Math.floor(currentDay / 8)} // Show fewer labels for better readability
+            interval={Math.floor(daysInCurrentMonth / 8)} // Show fewer labels for better readability
           />
           <YAxis 
             axisLine={false}
@@ -753,7 +756,7 @@ export default function AnalyticsPageClient({ accounts, transactions, profile }:
                 <div className={styles.cardHeader}>
                   <h2 className={styles.cardTitle}>📈 Daily Expense Comparison</h2>
                   <p className={styles.cardDescription}>
-                    Compare daily expenses between this month (1st-{new Date().getDate()}th) and the same period last month
+                    Compare daily expenses for the entire month between current and previous month
                   </p>
                 </div>
                 <div className={styles.cardContent}>
@@ -770,28 +773,14 @@ export default function AnalyticsPageClient({ accounts, transactions, profile }:
                         transactions={processedTransactions}
                       />
                       <div className={styles.comparisonStats}>
-                        <div className={styles.comparisonStat}>
-                          <span className={styles.comparisonLabel}>Total Expenses - {monthOnMonthData.prevMonth.name}:</span>
-                          <span className={`${styles.comparisonValue} ${styles.expenseColor}`}>
-                            {formatCurrency(monthOnMonthData.prevMonth.expense, profile.currency)}
-                          </span>
-                        </div>
-                        <div className={styles.comparisonStat}>
-                          <span className={styles.comparisonLabel}>Total Expenses - {monthOnMonthData.currentMonth.name}:</span>
-                          <span className={`${styles.comparisonValue} ${styles.expenseColor}`}>
-                            {formatCurrency(monthOnMonthData.currentMonth.expense, profile.currency)}
-                          </span>
-                        </div>
                         {(() => {
                           const expenseChange = monthOnMonthData.currentMonth.expense - monthOnMonthData.prevMonth.expense
                           const expensePercentChange = monthOnMonthData.prevMonth.expense > 0 ? ((expenseChange / monthOnMonthData.prevMonth.expense) * 100) : 0
                           
                           return (
                             <div className={styles.comparisonStat}>
-                              <span className={styles.comparisonLabel}>Expense Change:</span>
                               <span className={`${styles.comparisonValue} ${expenseChange >= 0 ? styles.expenseColor : styles.incomeColor}`}>
-                                {expenseChange >= 0 ? '+' : ''}{formatCurrency(expenseChange, profile.currency)} 
-                                ({expensePercentChange >= 0 ? '+' : ''}{expensePercentChange.toFixed(1)}%)
+                                {expenseChange >= 0 ? '+' : ''}{formatCurrency(expenseChange, profile.currency)} ({expensePercentChange >= 0 ? '+' : ''}{expensePercentChange.toFixed(1)}%)
                               </span>
                             </div>
                           )
