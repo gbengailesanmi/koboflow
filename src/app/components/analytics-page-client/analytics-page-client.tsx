@@ -850,7 +850,7 @@ export default function AnalyticsPageClient({ accounts, transactions, profile }:
                     </div>
                   ) : (
                     <div className={styles.recurringList}>
-                      {recurringPayments.slice(0, 5).map((recurring, index) => (
+                      {recurringPayments.slice(0, 10).map((recurring, index) => (
                         <div key={`${recurring.pattern}-${index}`} className={styles.recurringItem}>
                           <div className={styles.recurringItemLeft}>
                             <div className={styles.recurringIcon}>
