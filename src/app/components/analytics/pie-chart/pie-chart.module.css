@@ -7,20 +7,7 @@
 
 .pieChartContainer {
   position: relative;
-}
-
-.pieCanvas {
-  cursor: pointer;
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
-}
-
-.pieCanvas:hover {
-  transform: scale(1.02);
-}
-
-.pieTooltip {
-  pointer-events: none;
-  z-index: 50;
+  width: 100%;
 }
 
 .pieTooltipContent {

@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useRef, useEffect, useState } from 'react'
+import React, { useState } from 'react'
+import { PieChart as RechartsPie, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts'
 import { CategoryData } from '../types/analytics-types'
 import { formatCurrency } from '../utils/format-currency'
 import styles from './pie-chart.module.css'
@@ -12,145 +13,47 @@ type PieChartProps = {
 }
 
 export const PieChart: React.FC<PieChartProps> = ({ data, categoryConfig, currency }) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const [hoveredSlice, setHoveredSlice] = useState<number | null>(null)
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+  const [activeIndex, setActiveIndex] = useState<number | null>(null)
 
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
+  // Transform data for Recharts
+  const chartData = data.map((item) => ({
+    name: categoryConfig[item.category]?.label || 'Other',
+    value: item.amount,
+    percentage: item.percentage,
+    category: item.category
+  }))
 
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    const size = 240
-    const centerX = size / 2
-    const centerY = size / 2
-    const radius = 80
-
-    // Clear canvas
-    ctx.clearRect(0, 0, size, size)
-
-    if (data.length === 0) return
-
-    let startAngle = -Math.PI / 2 // Start from top
-
-    data.forEach((item, index) => {
-      const sliceAngle = (item.percentage / 100) * 2 * Math.PI
-      const config = categoryConfig[item.category] || categoryConfig.other
-
-      // Draw slice
-      ctx.beginPath()
-      ctx.moveTo(centerX, centerY)
-      ctx.arc(centerX, centerY, radius, startAngle, startAngle + sliceAngle)
-      ctx.closePath()
-
-      // Apply hover effect
-      if (hoveredSlice === index) {
-        ctx.fillStyle = config.color + 'CC' // Add transparency for hover
-        ctx.shadowColor = config.color
-        ctx.shadowBlur = 10
-      } else {
-        ctx.fillStyle = config.color
-        ctx.shadowBlur = 0
-      }
-
-      ctx.fill()
-
-      startAngle += sliceAngle
-    })
-  }, [data, categoryConfig, hoveredSlice])
-
-  const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-
-    const rect = canvas.getBoundingClientRect()
-    const x = event.clientX - rect.left
-    const y = event.clientY - rect.top
-    
-    setMousePosition({ x: event.clientX, y: event.clientY })
-
-    const centerX = canvas.width / 2
-    const centerY = canvas.height / 2
-    const radius = 80
-
-    // Calculate distance from center
-    const distance = Math.sqrt((x - centerX) ** 2 + (y - centerY) ** 2)
-    
-    if (distance <= radius) {
-      // Calculate angle
-      let angle = Math.atan2(y - centerY, x - centerX)
-      angle = (angle + Math.PI / 2 + 2 * Math.PI) % (2 * Math.PI) // Normalize to start from top
-
-      // Find which slice this angle belongs to
-      let cumulativeAngle = 0
-      for (let i = 0; i < data.length; i++) {
-        const sliceAngle = (data[i].percentage / 100) * 2 * Math.PI
-        if (angle >= cumulativeAngle && angle < cumulativeAngle + sliceAngle) {
-          setHoveredSlice(i)
-          return
-        }
-        cumulativeAngle += sliceAngle
-      }
-    }
-    
-    setHoveredSlice(null)
-  }
-
-  const handleMouseLeave = () => {
-    setHoveredSlice(null)
-  }
-
-  return (
-    <div className={styles.pieChartWrapper}>
-      <div className={styles.pieChartContainer}>
-        <canvas
-          ref={canvasRef}
-          width={240}
-          height={240}
-          className={styles.pieCanvas}
-          onMouseMove={handleMouseMove}
-          onMouseLeave={handleMouseLeave}
-        />
-        
-        {/* Tooltip */}
-        {hoveredSlice !== null && (
-          <div 
-            className={styles.pieTooltip}
-            style={{
-              position: 'fixed',
-              left: mousePosition.x + 10,
-              top: mousePosition.y - 10,
-              pointerEvents: 'none',
-              zIndex: 1000
-            }}
-          >
-            <div className={styles.pieTooltipContent}>
-              <div className={styles.pieTooltipTitle}>
-                {categoryConfig[data[hoveredSlice].category]?.label || 'Other'}
-              </div>
-              <div className={styles.pieTooltipValue}>
-                {formatCurrency(data[hoveredSlice].amount, currency)}
-              </div>
-              <div className={styles.pieTooltipPercentage}>
-                {data[hoveredSlice].percentage.toFixed(1)}%
-              </div>
-            </div>
+  // Custom tooltip
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload
+      return (
+        <div className={styles.pieTooltipContent}>
+          <div className={styles.pieTooltipTitle}>{data.name}</div>
+          <div className={styles.pieTooltipValue}>
+            {formatCurrency(data.value, currency)}
           </div>
-        )}
-      </div>
+          <div className={styles.pieTooltipPercentage}>
+            {data.percentage.toFixed(1)}%
+          </div>
+        </div>
+      )
+    }
+    return null
+  }
 
-      {/* Legend */}
+  // Custom legend
+  const renderLegend = () => {
+    return (
       <div className={styles.pieLegend}>
-        {data.map((item, index) => {
+        {chartData.map((item, index) => {
           const config = categoryConfig[item.category] || categoryConfig.other
           return (
             <div
               key={item.category}
-              className={`${styles.pieLegendItem} ${hoveredSlice === index ? styles.pieLegendItemHover : ''}`}
-              onMouseEnter={() => setHoveredSlice(index)}
-              onMouseLeave={() => setHoveredSlice(null)}
+              className={`${styles.pieLegendItem} ${activeIndex === index ? styles.pieLegendItemHover : ''}`}
+              onMouseEnter={() => setActiveIndex(index)}
+              onMouseLeave={() => setActiveIndex(null)}
             >
               <div
                 className={styles.pieLegendColor}
@@ -164,6 +67,45 @@ export const PieChart: React.FC<PieChartProps> = ({ data, categoryConfig, curren
           )
         })}
       </div>
+    )
+  }
+
+  return (
+    <div className={styles.pieChartWrapper}>
+      <div className={styles.pieChartContainer}>
+        <ResponsiveContainer width="100%" height={300}>
+          <RechartsPie>
+            <Pie
+              data={chartData}
+              cx="50%"
+              cy="50%"
+              labelLine={false}
+              outerRadius={100}
+              fill="#8884d8"
+              dataKey="value"
+              onMouseEnter={(_, index) => setActiveIndex(index)}
+              onMouseLeave={() => setActiveIndex(null)}
+            >
+              {chartData.map((entry, index) => {
+                const config = categoryConfig[entry.category] || categoryConfig.other
+                return (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={config.color}
+                    opacity={activeIndex === null || activeIndex === index ? 1 : 0.6}
+                    stroke={activeIndex === index ? config.color : 'none'}
+                    strokeWidth={activeIndex === index ? 3 : 0}
+                  />
+                )
+              })}
+            </Pie>
+            <Tooltip content={<CustomTooltip />} />
+          </RechartsPie>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Legend */}
+      {renderLegend()}
     </div>
   )
 }
