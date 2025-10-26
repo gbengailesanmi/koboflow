@@ -28,7 +28,7 @@ export const detectRecurringPayments = (transactions: any[]): RecurringPayment[]
   const recurring: RecurringPayment[] = []
   
   patternMap.forEach((transactions, pattern) => {
-    if (transactions.length >= 2) { // Need at least 2 occurrences
+    if (transactions.length >= 2) {
       transactions.sort((a, b) => a.date.getTime() - b.date.getTime())
       
       const intervals = calculateIntervals(transactions)
@@ -36,7 +36,7 @@ export const detectRecurringPayments = (transactions: any[]): RecurringPayment[]
       
       const isRecurring = intervals.every(interval => Math.abs(interval - avgInterval) <= 7)
       
-      if (isRecurring && avgInterval >= 7 && avgInterval <= 365) { // Between weekly and yearly
+      if (isRecurring && avgInterval >= 7 && avgInterval <= 365) {
         const lastTransaction = transactions[transactions.length - 1]
         const averageAmount = transactions.reduce((sum, t) => sum + t.amount, 0) / transactions.length
         const category = categorizeTransaction(lastTransaction.narration)
@@ -57,7 +57,6 @@ export const detectRecurringPayments = (transactions: any[]): RecurringPayment[]
     }
   })
   
-  // Sort by next payment date (soonest first)
   return recurring.sort((a, b) => a.nextPayment.getTime() - b.nextPayment.getTime())
 }
 
@@ -68,8 +67,8 @@ export const detectRecurringPayments = (transactions: any[]): RecurringPayment[]
 const normalizeNarration = (narration: string): string => {
   return narration
     .toLowerCase()
-    .replace(/\d+/g, '') // Remove numbers
-    .replace(/[^\w\s]/g, '') // Remove special characters
+    .replace(/\d+/g, '')
+    .replace(/[^\w\s]/g, '')
     .trim()
 }
 

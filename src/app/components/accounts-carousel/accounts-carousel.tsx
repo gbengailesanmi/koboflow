@@ -10,6 +10,7 @@ import { DoubleArrowLeftIcon, DoubleArrowRightIcon, ZoomInIcon } from '@radix-ui
 import FormatCarouselContent from '@/app/components/format-carousel-content/format-carousel-content'
 import generateHues from '@/helpers/generate-hues'
 import AccountsPills from '@/app/components/account-pills/accounts-pills'
+import { redirect, useParams } from 'next/navigation'
 import styles from './accounts-carousel.module.css'
 
 const HUE_LOCAL_STORAGE_KEY = 'accounts-carousel-slide-hue'
@@ -35,6 +36,9 @@ export default function AccountsCarousel({
   const { setBaseColor } = useBaseColor()
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [slideHue, setSlideHue] = useState<Record<number, string>>({ 0: hues[0] })
+  
+  const params = useParams()
+  const customerId = params.customerId as string
 
   // Load saved hues from localStorage on mount
   useEffect(() => {
@@ -177,7 +181,7 @@ export default function AccountsCarousel({
             key: 'analytics',
             icon: <BarChartIcon width="35" height="35" />,
             label: 'Analytics',
-            onClick: () => console.log('Analytics clicked'),
+            onClick: () => redirect(`/${customerId}/analytics`),
           },
           {
             key: 'more',

@@ -11,6 +11,7 @@ import { useBaseColor } from '@/providers/base-colour-provider'
 import AccountsCarousel from '@/app/components/accounts-carousel/accounts-carousel'
 import TransactionsColumn from '@/app/components/transactions/transactions-column/transactions-column'
 import { MonthOnMonthChart } from '@/app/components/analytics/month-on-month-chart/month-on-month-chart'
+import { RecurringPayments } from '@/app/components/analytics/recurring-payments/recurring-payments'
 import { categorizeTransaction } from '@/app/components/analytics/utils/categorize-transaction'
 import { redirect, useParams } from 'next/navigation'
 
@@ -120,6 +121,12 @@ export default function DashboardClient({ accounts, transactions, profile }: Das
 
         <Grid className={styles.Grid2}>
           <h2 className="text-xl font-semibold mb-2">Upcoming bills</h2>
+          <RecurringPayments 
+            transactions={processedTransactions}
+            currency={profile.currency}
+            maxItems={5}
+            showSeeMore={true}
+          />
         </Grid>
         <Grid
           rows='3'

@@ -9,10 +9,10 @@ import Footer from '@/app/components/footer/footer'
 import { UserProfile, CategoryData } from '../types/analytics-types'
 import { categorizeTransaction } from '../utils/categorize-transaction'
 import { formatCurrency } from '../utils/format-currency'
-import { detectRecurringPayments } from '../utils/detect-recurring-payments'
 import { categoryConfig } from '../config/category-config'
 import { PieChart } from '../pie-chart/pie-chart'
 import { MonthOnMonthChart } from '../month-on-month-chart/month-on-month-chart'
+import { RecurringPayments } from '../recurring-payments/recurring-payments'
 import styles from './analytics-page-client.module.css'
 
 type AnalyticsPageClientProps = {
@@ -172,10 +172,6 @@ export default function AnalyticsPageClient({ accounts, transactions, profile }:
         expense: prevExpense
       }
     }
-  }, [processedTransactions])
-
-  const recurringPayments = useMemo(() => {
-    return detectRecurringPayments(processedTransactions)
   }, [processedTransactions])
 
   return (
@@ -416,41 +412,12 @@ export default function AnalyticsPageClient({ accounts, transactions, profile }:
                   </p>
                 </div>
                 <div className={styles.cardContent}>
-                  {recurringPayments.length === 0 ? (
-                    <div className={styles.noData}>
-                      <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔄</div>
-                      No recurring payments detected
-                    </div>
-                  ) : (
-                    <div className={styles.recurringList}>
-                      {recurringPayments.slice(0, 5).map((recurring, index) => (
-                        <div key={`${recurring.pattern}-${index}`} className={styles.recurringItem}>
-                          <div className={styles.recurringItemLeft}>
-                            <div className={styles.recurringIcon}>
-                              {recurring.category === 'utilities' ? '⚡' :
-                               recurring.category === 'housing' ? '🏠' :
-                               recurring.category === 'transport' ? '🚗' :
-                               recurring.category === 'entertainment' ? '🎮' : '💳'}
-                            </div>
-                            <div className={styles.recurringDetails}>
-                              <span className={styles.recurringName}>{recurring.pattern}</span>
-                              <span className={styles.recurringFrequency}>
-                                Every {recurring.intervalDays} days • {recurring.count} payments
-                              </span>
-                            </div>
-                          </div>
-                          <div className={styles.recurringItemRight}>
-                            <span className={styles.recurringAmount}>
-                              {formatCurrency(recurring.averageAmount, profile.currency)}
-                            </span>
-                            <span className={styles.recurringNext}>
-                              Next: {recurring.nextPayment.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                  <RecurringPayments 
+                    transactions={processedTransactions}
+                    currency={profile.currency}
+                    maxItems={5}
+                    showSeeMore={false}
+                  />
                 </div>
               </div>
 
