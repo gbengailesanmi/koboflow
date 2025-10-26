@@ -3,7 +3,7 @@
 import { connectDB } from '@/db/mongo'
 import { getSession } from '@/lib/session'
 import { redirect } from 'next/navigation'
-import ProfilePageClient from '@/app/components/profile-page-client/profile-page-client'
+import ProfilePageClient from '@/app/components/profile/profile-page-client/profile-page-client'
 
 export default async function ProfilePage() {
   const user = await getSession()

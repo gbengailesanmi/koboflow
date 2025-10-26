@@ -1,4 +1,4 @@
-@reference "../../globals.css";
+@reference "../../../../globals.css";
 
 .PillsWrapper {
   @apply h-auto w-full mt-2 flex flex-row;

@@ -1,4 +1,4 @@
-@reference "../../globals.css";
+@reference "../../../globals.css";
 
 .container {
   @apply min-h-screen bg-gray-300;
