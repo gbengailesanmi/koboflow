@@ -25,15 +25,27 @@ export const RecurringPayments: React.FC<RecurringPaymentsProps> = ({
   const recurringPayments = useMemo(() => {
     const allRecurring = detectRecurringPayments(transactions)
     
-    // Filter out overdue payments - only show today and future
+    // Separate overdue and current/future payments
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     
-    return allRecurring.filter(payment => {
+    const overdue: typeof allRecurring = []
+    const currentAndFuture: typeof allRecurring = []
+    
+    allRecurring.forEach(payment => {
       const nextDate = new Date(payment.nextPayment)
       nextDate.setHours(0, 0, 0, 0)
-      return nextDate.getTime() >= today.getTime()
+      
+      if (nextDate.getTime() < today.getTime()) {
+        overdue.push(payment)
+      } else {
+        currentAndFuture.push(payment)
+      }
     })
+    
+    // Take only 1 overdue payment (the most recent one) and combine with current/future
+    const limitedOverdue = overdue.slice(0, 1)
+    return [...limitedOverdue, ...currentAndFuture]
   }, [transactions])
 
   if (recurringPayments.length === 0) {
@@ -55,6 +67,7 @@ export const RecurringPayments: React.FC<RecurringPaymentsProps> = ({
     
     if (diffDays === 0) return 'Today'
     if (diffDays === 1) return 'in 1 day'
+    if (diffDays < 0) return 'Overdue'
     return `in ${diffDays} days`
   }
 
