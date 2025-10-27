@@ -5,6 +5,7 @@
   background: rgba(255, 255, 255, 0.5);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.3);
+  width: 100%;
 }
 
 .comparisonValue {
@@ -17,4 +18,10 @@
 
 .expenseColor {
   @apply text-red-600;
+}
+
+@media (max-width: 768px) {
+  .comparisonStat {
+    @apply mt-4 p-4 rounded-lg;
+  }
 }

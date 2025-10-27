@@ -87,14 +87,14 @@ export const MonthOnMonthChart: React.FC<MonthOnMonthChartProps> = ({ data, curr
   }
 
   return (
-    <div style={{ width: '100%', height: '300px' }}>
+    <div style={{ width: '100%', height: '350px', minHeight: '350px', marginBottom: '16px' }}>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
           data={chartData}
           margin={{
             top: 20,
-            right: 30,
-            left: 20,
+            right: 10,
+            left: 0,
             bottom: 5,
           }}
         >

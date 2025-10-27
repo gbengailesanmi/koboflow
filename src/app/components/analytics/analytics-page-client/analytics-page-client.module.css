@@ -156,11 +156,13 @@
 }
 
 .chartContainer {
-  @apply flex justify-center;
+  @apply flex flex-col;
+  width: 100%;
 }
 
 .comparisonStats {
   @apply mt-6;
+  width: 100%;
 }
 
 /* Recharts Tooltip Styles */
