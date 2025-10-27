@@ -7,7 +7,7 @@ import type { Transaction } from '@/types/transactions'
 import Footer from '@/app/components/footer/footer'
 import { categorizeTransaction } from '@/app/components/analytics/utils/categorize-transaction'
 import { formatCurrency } from '@/app/components/analytics/utils/format-currency'
-import { categoryConfig } from '@/app/components/analytics/config/category-config'
+import { categoryConfig } from '@/app/components/analytics/utils/category-config'
 import styles from './budget-page-client.module.css'
 
 type UserProfile = {

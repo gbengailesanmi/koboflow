@@ -1,6 +1,6 @@
 import React from 'react'
 import { formatCurrency } from '../utils/format-currency'
-import { categoryConfig } from '../config/category-config'
+import { categoryConfig } from '../utils/category-config'
 import { CategoryData } from '../types/analytics-types'
 import styles from './category-breakdown.module.css'
 

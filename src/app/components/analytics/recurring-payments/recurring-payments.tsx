@@ -35,42 +35,61 @@ export const RecurringPayments: React.FC<RecurringPaymentsProps> = ({
     )
   }
 
+  const getDaysUntilPayment = (nextPaymentDate: Date) => {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const next = new Date(nextPaymentDate)
+    next.setHours(0, 0, 0, 0)
+    const diffTime = next.getTime() - today.getTime()
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    
+    if (diffDays === 0) return 'Today'
+    if (diffDays === 1) return 'in 1 day'
+    if (diffDays < 0) return 'Overdue'
+    return `in ${diffDays} days`
+  }
+
   return (
     <div className={styles.container}>
-      {recurringPayments.slice(0, maxItems).map((recurring, index) => (
-        <div 
-          key={`${recurring.pattern}-${index}`}
-          className={styles.recurringItem}
-        >
-          <div className={styles.recurringItemLeft}>
-            <div className={styles.categoryIcon}>
-              {recurring.category === 'utilities' ? '⚡' :
-               recurring.category === 'housing' ? '🏠' :
-               recurring.category === 'transport' ? '🚗' :
-               recurring.category === 'entertainment' ? '🎮' : '💳'}
+      {recurringPayments.slice(0, maxItems).map((recurring, index) => {
+        const daysUntil = getDaysUntilPayment(recurring.nextPayment)
+        const nextPaymentFormatted = recurring.nextPayment.toLocaleDateString('en-GB', { 
+          day: 'numeric', 
+          month: 'long' 
+        })
+        
+        return (
+          <div 
+            key={`${recurring.pattern}-${index}`}
+            className={styles.recurringItem}
+          >
+            <div className={styles.recurringItemLeft}>
+              <div className={styles.categoryIcon}>
+                {recurring.category === 'utilities' ? '⚡' :
+                 recurring.category === 'housing' ? '🏠' :
+                 recurring.category === 'transport' ? '🚗' :
+                 recurring.category === 'entertainment' ? '🎮' : '💳'}
+              </div>
+              <div className={styles.itemDetails}>
+                <span className={styles.itemName}>
+                  {recurring.pattern}
+                </span>
+                <span className={styles.itemFrequency}>
+                  Every {recurring.intervalDays} days
+                </span>
+              </div>
             </div>
-            <div className={styles.itemDetails}>
-              <span className={styles.itemName}>
-                {recurring.pattern}
+            <div className={styles.recurringItemRight}>
+              <span className={styles.itemAmount}>
+                {formatCurrency(recurring.averageAmount, currency)}
               </span>
-              <span className={styles.itemFrequency}>
-                Every {recurring.intervalDays} days
+              <span className={styles.itemDate}>
+                {nextPaymentFormatted}, {daysUntil}
               </span>
             </div>
           </div>
-          <div className={styles.recurringItemRight}>
-            <span className={styles.itemAmount}>
-              {formatCurrency(recurring.averageAmount, currency)}
-            </span>
-            <span className={styles.itemDate}>
-              {recurring.nextPayment.toLocaleDateString('en-GB', { 
-                day: '2-digit', 
-                month: 'short' 
-              })}
-            </span>
-          </div>
-        </div>
-      ))}
+        )
+      })}
       {showSeeMore && recurringPayments.length > maxItems && (
         <div
           className={styles.seeMore}
