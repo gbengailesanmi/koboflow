@@ -1,20 +1,20 @@
 import React from 'react'
 import styles from './Header.module.css'
-import { redirect, useParams } from 'next/navigation'
-import { IconButton } from '@radix-ui/themes'
+import { useParams, useRouter } from 'next/navigation'
 import { PersonIcon, GearIcon } from '@radix-ui/react-icons'
 
 export default function Header() {
   const params = useParams()
+  const router = useRouter()
   const customerId = params.customerId as string
 
   
   const handleProfileClick = () => {
-    redirect(`/${customerId}/profile`)
+    router.push(`/${customerId}/profile`)
   }
 
   const handleSettingsClick = () => {
-    redirect(`/${customerId}/settings`)
+    router.push(`/${customerId}/settings`)
   }
 
   return (
@@ -29,21 +29,19 @@ export default function Header() {
   )
 }
 
-type HeaderIconButtonProps = React.ComponentProps<typeof IconButton> & {
+type HeaderIconButtonProps = {
   children: React.ReactNode
+  className?: string
+  onClick?: () => void
 }
 
-export function HeaderIconButton({ children, ...props }: HeaderIconButtonProps) {
+export function HeaderIconButton({ children, className, onClick }: HeaderIconButtonProps) {
   return (
-    <IconButton
-      variant="ghost"
-      size="3"
-      color="gray"
-      radius="full"
-      highContrast
-      {...props}
+    <button
+      onClick={onClick}
+      className={`p-3 rounded-full bg-transparent hover:bg-gray-100/10 transition-colors cursor-pointer border-none ${className || ''}`}
     >
       {children}
-    </IconButton>
+    </button>
   )
 }

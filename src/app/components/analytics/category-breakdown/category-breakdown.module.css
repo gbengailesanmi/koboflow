@@ -1,0 +1,45 @@
+@reference "../../../globals.css";
+
+.categoryList {
+  @apply space-y-3;
+}
+
+.categoryItem {
+  @apply flex items-center justify-between p-4 rounded-xl;
+  background: rgba(249, 250, 251, 0.5);
+  transition: all 0.2s ease;
+}
+
+.categoryItem:hover {
+  background: rgba(249, 250, 251, 0.8);
+  transform: translateX(4px);
+}
+
+.categoryItemLeft {
+  @apply flex items-center gap-3;
+}
+
+.categoryColor {
+  @apply w-3 h-3 rounded-full;
+}
+
+.categoryLabel {
+  @apply text-sm font-medium text-gray-700;
+}
+
+.categoryItemRight {
+  @apply flex items-center gap-4;
+}
+
+.categoryPercentage {
+  @apply text-sm font-semibold text-gray-600;
+}
+
+.categoryAmount {
+  @apply text-base font-bold text-gray-800;
+}
+
+.noData {
+  @apply flex flex-col items-center justify-center py-12 text-gray-400;
+  font-size: 16px;
+}

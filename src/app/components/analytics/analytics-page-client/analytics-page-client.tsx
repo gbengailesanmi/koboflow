@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState, useEffect } from 'react'
 import { ArrowLeftIcon } from '@radix-ui/react-icons'
-import { redirect, useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import type { Account } from '@/types/account'
 import type { Transaction } from '@/types/transactions'
 import Footer from '@/app/components/footer/footer'
@@ -13,6 +13,11 @@ import { categoryConfig } from '../config/category-config'
 import { PieChart } from '../pie-chart/pie-chart'
 import { MonthOnMonthChart } from '../month-on-month-chart/month-on-month-chart'
 import { RecurringPayments } from '../recurring-payments/recurring-payments'
+import { StatsCards } from '../stats-cards/stats-cards'
+import { CategoryBreakdown } from '../category-breakdown/category-breakdown'
+import { BudgetOverview } from '../budget-overview/budget-overview'
+import { DailySpendingComparison } from '../daily-spending-comparison/daily-spending-comparison'
+import { AnalyticsCard } from '../analytics-card/analytics-card'
 import styles from './analytics-page-client.module.css'
 
 type AnalyticsPageClientProps = {
@@ -27,6 +32,7 @@ export default function AnalyticsPageClient({ accounts, transactions, profile }:
   const [isHydrated, setIsHydrated] = useState(false)
   
   const params = useParams()
+  const router = useRouter()
   const customerId = params.customerId as string
 
   useEffect(() => {
@@ -160,16 +166,28 @@ export default function AnalyticsPageClient({ accounts, transactions, profile }:
     
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
     
+    // Calculate days in each month for fair comparison
+    const currentDayOfMonth = now.getDate() // How many days have passed in current month
+    const daysInPrevMonth = new Date(prevYear, prevMonth + 1, 0).getDate() // Total days in previous month
+    
+    // Calculate average daily spending
+    const currentDailyAvg = currentDayOfMonth > 0 ? currentExpense / currentDayOfMonth : 0
+    const prevDailyAvg = daysInPrevMonth > 0 ? prevExpense / daysInPrevMonth : 0
+    
     return {
       currentMonth: {
         name: monthNames[currentMonth],
         income: currentIncome,
-        expense: currentExpense
+        expense: currentExpense,
+        daysElapsed: currentDayOfMonth,
+        dailyAverage: currentDailyAvg
       },
       prevMonth: {
         name: monthNames[prevMonth],
         income: prevIncome,
-        expense: prevExpense
+        expense: prevExpense,
+        totalDays: daysInPrevMonth,
+        dailyAverage: prevDailyAvg
       }
     }
   }, [processedTransactions])
@@ -184,7 +202,7 @@ export default function AnalyticsPageClient({ accounts, transactions, profile }:
             <div className={styles.backButton}>
               <ArrowLeftIcon
                 className={styles.backIcon}
-                onClick={() => redirect(`/${customerId}/dashboard`)}
+                onClick={() => router.push(`/${customerId}/dashboard`)}
                 style={{ color: '#222222' }}
               />
             </div>
@@ -244,221 +262,101 @@ export default function AnalyticsPageClient({ accounts, transactions, profile }:
           ) : (
             <>
               {/* Stats Cards */}
-              <div className={styles.statsGrid}>
-                <div className={styles.statsCard}>
-                  <div className={styles.statsCardHeader}>
-                    <div className={styles.statsCardTitle}>
-                      💰 Total Income
-                    </div>
-                  </div>
-                  <div className={styles.statsCardContent}>
-                    <div className={`${styles.statsValue} ${styles.incomeColor}`}>
-                      {formatCurrency(totalIncome, profile.currency)}
-                    </div>
-                    <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
-                      {filteredTransactions.filter(t => t.type === 'income').length} transactions
-                    </div>
-                  </div>
-                </div>
-
-                <div className={styles.statsCard}>
-                  <div className={styles.statsCardHeader}>
-                    <div className={styles.statsCardTitle}>
-                      💸 Total Expenses
-                    </div>
-                  </div>
-                  <div className={styles.statsCardContent}>
-                    <div className={`${styles.statsValue} ${styles.expenseColor}`}>
-                      {formatCurrency(totalExpense, profile.currency)}
-                    </div>
-                    <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
-                      {filteredTransactions.filter(t => t.type === 'expense').length} transactions
-                    </div>
-                  </div>
-                </div>
-
-                <div className={styles.statsCard}>
-                  <div className={styles.statsCardHeader}>
-                    <div className={styles.statsCardTitle}>
-                      📊 Net Balance
-                    </div>
-                  </div>
-                  <div className={styles.statsCardContent}>
-                    <div className={`${styles.statsValue} ${netBalance >= 0 ? styles.incomeColor : styles.expenseColor}`}>
-                      {formatCurrency(netBalance, profile.currency)}
-                    </div>
-                    <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
-                      {netBalance >= 0 ? 'Positive cash flow' : 'Negative cash flow'}
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <StatsCards 
+                totalIncome={totalIncome}
+                totalExpense={totalExpense}
+                netBalance={netBalance}
+                incomeTransactionCount={filteredTransactions.filter(t => t.type === 'income').length}
+                expenseTransactionCount={filteredTransactions.filter(t => t.type === 'expense').length}
+                currency={profile.currency}
+              />
 
               {/* Expense Pie Chart */}
-              <div className={styles.card} style={{ margin: '0 16px 32px 16px' }}>
-                <div className={styles.cardHeader}>
-                  <h2 className={styles.cardTitle}>📊 Expense Breakdown</h2>
-                  <p className={styles.cardDescription}>
-                    Visual breakdown of your spending by category
-                  </p>
-                </div>
-                <div className={styles.cardContent}>
-                  {categoryData.length === 0 ? (
-                    <div className={styles.noData}>
-                      <div style={{ fontSize: '48px', marginBottom: '16px' }}>📈</div>
-                      No expense data for this period
-                    </div>
-                  ) : (
-                    <div className={styles.chartContainer}>
-                      <PieChart 
-                        data={categoryData.slice(0, 6)} 
-                        categoryConfig={categoryConfig}
-                        currency={profile.currency}
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
+              <AnalyticsCard
+                title="📊 Expense Breakdown"
+                description="Visual breakdown of your spending by category"
+              >
+                {categoryData.length === 0 ? (
+                  <div className={styles.noData}>
+                    <div style={{ fontSize: '48px', marginBottom: '16px' }}>📈</div>
+                    No expense data for this period
+                  </div>
+                ) : (
+                  <div className={styles.chartContainer}>
+                    <PieChart 
+                      data={categoryData.slice(0, 6)} 
+                      categoryConfig={categoryConfig}
+                      currency={profile.currency}
+                    />
+                  </div>
+                )}
+              </AnalyticsCard>
 
               {/* Month-on-Month Comparison */}
-              <div className={styles.card} style={{ margin: '0 16px 32px 16px' }}>
-                <div className={styles.cardHeader}>
-                  <h2 className={styles.cardTitle}>📈 Daily Expense Comparison</h2>
-                  <p className={styles.cardDescription}>
-                    Compare daily expenses for the entire month between current and previous month
-                  </p>
-                </div>
-                <div className={styles.cardContent}>
-                  {(monthOnMonthData.currentMonth.expense === 0 && monthOnMonthData.prevMonth.expense === 0) ? (
-                    <div className={styles.noData}>
-                      <div style={{ fontSize: '48px', marginBottom: '16px' }}>📈</div>
-                      No expense data for comparison
-                    </div>
-                  ) : (
-                    <div className={styles.chartContainer}>
-                      <MonthOnMonthChart 
-                        data={monthOnMonthData}
+              <AnalyticsCard
+                title="📈 Daily Expense Comparison"
+                description="Compare daily expenses for the entire month between current and previous month"
+              >
+                {(monthOnMonthData.currentMonth.expense === 0 && monthOnMonthData.prevMonth.expense === 0) ? (
+                  <div className={styles.noData}>
+                    <div style={{ fontSize: '48px', marginBottom: '16px' }}>📈</div>
+                    No expense data for comparison
+                  </div>
+                ) : (
+                  <div className={styles.chartContainer}>
+                    <MonthOnMonthChart 
+                      data={monthOnMonthData}
+                      currency={profile.currency}
+                      transactions={processedTransactions}
+                    />
+                    <div className={styles.comparisonStats}>
+                      <DailySpendingComparison
+                        currentMonthAverage={monthOnMonthData.currentMonth.dailyAverage}
+                        prevMonthAverage={monthOnMonthData.prevMonth.dailyAverage}
+                        currentMonthName={monthOnMonthData.currentMonth.name}
+                        prevMonthName={monthOnMonthData.prevMonth.name}
                         currency={profile.currency}
-                        transactions={processedTransactions}
                       />
-                      <div className={styles.comparisonStats}>
-                        {(() => {
-                          const expenseChange = monthOnMonthData.currentMonth.expense - monthOnMonthData.prevMonth.expense
-                          const expensePercentChange = monthOnMonthData.prevMonth.expense > 0 ? ((expenseChange / monthOnMonthData.prevMonth.expense) * 100) : 0
-                          
-                          return (
-                            <div className={styles.comparisonStat}>
-                              <span className={`${styles.comparisonValue} ${expenseChange >= 0 ? styles.expenseColor : styles.incomeColor}`}>
-                                {expenseChange >= 0 ? '+' : ''}{formatCurrency(expenseChange, profile.currency)} ({expensePercentChange >= 0 ? '+' : ''}{expensePercentChange.toFixed(1)}%)
-                              </span>
-                            </div>
-                          )
-                        })()}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Category Breakdown */}
-              <div className={styles.card} style={{ margin: '0 16px 32px 16px' }}>
-                <div className={styles.cardHeader}>
-                  <h2 className={styles.cardTitle}>🏷️ Spending by Category</h2>
-                  <p className={styles.cardDescription}>
-                    Detailed breakdown of your expenses across different categories
-                  </p>
-                </div>
-                <div className={styles.cardContent}>
-                  {categoryData.length === 0 ? (
-                    <div className={styles.noData}>
-                      <div style={{ fontSize: '48px', marginBottom: '16px' }}>📈</div>
-                      No expense data for this period
-                    </div>
-                  ) : (
-                    <div className={styles.categoryList}>
-                      {categoryData.slice(0, 6).map((cat, index) => {
-                        const config = categoryConfig[cat.category] || categoryConfig.other
-                        return (
-                          <div key={cat.category} className={styles.categoryItem}>
-                            <div className={styles.categoryItemLeft}>
-                              <div 
-                                className={styles.categoryColor}
-                                style={{ backgroundColor: config.color }}
-                              />
-                              <span className={styles.categoryLabel}>{config.label}</span>
-                            </div>
-                            <div className={styles.categoryItemRight}>
-                              <span className={styles.categoryPercentage}>
-                                {cat.percentage.toFixed(1)}%
-                              </span>
-                              <span className={styles.categoryAmount}>
-                                {formatCurrency(cat.amount, profile.currency)}
-                              </span>
-                            </div>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Recurring Payments */}
-              <div className={styles.card} style={{ margin: '0 16px 32px 16px' }}>
-                <div className={styles.cardHeader}>
-                  <h2 className={styles.cardTitle}>🔄 Recurring Payments</h2>
-                  <p className={styles.cardDescription}>
-                    Track your recurring expenses and upcoming payment predictions
-                  </p>
-                </div>
-                <div className={styles.cardContent}>
-                  <RecurringPayments 
-                    transactions={processedTransactions}
-                    currency={profile.currency}
-                    maxItems={5}
-                    showSeeMore={false}
-                  />
-                </div>
-              </div>
-
-              {/* Budget Progress */}
-              <div className={styles.card} style={{ margin: '0 16px 32px 16px' }}>
-                <div className={styles.cardHeader}>
-                  <h2 className={styles.cardTitle}>💰 Monthly Budget Overview</h2>
-                  <p className={styles.cardDescription}>
-                    Track your progress against your monthly spending budget (current month)
-                  </p>
-                </div>
-                <div className={styles.cardContent}>
-                  <div className={styles.budgetOverview}>
-                    <div className={styles.budgetProgress}>
-                      <div className={styles.budgetProgressBar}>
-                        <div 
-                          className={styles.budgetProgressFill}
-                          style={{ 
-                            width: `${Math.min((monthlyExpense / profile.monthlyBudget) * 100, 100)}%`,
-                            background: monthlyExpense > profile.monthlyBudget 
-                              ? 'linear-gradient(90deg, #ef4444, #dc2626)' 
-                              : 'linear-gradient(90deg, #10b981, #059669)'
-                          }}
-                        />
-                      </div>
-                      <div className={styles.budgetLabels}>
-                        <span>💸 Spent: {formatCurrency(monthlyExpense, profile.currency)}</span>
-                        <span>🎯 Budget: {formatCurrency(profile.monthlyBudget, profile.currency)}</span>
-                      </div>
-                      <div className={styles.budgetRemaining}>
-                        <span className={monthlyExpense <= profile.monthlyBudget ? styles.incomeColor : styles.expenseColor}>
-                          {monthlyExpense <= profile.monthlyBudget 
-                            ? `🎉 ${formatCurrency(profile.monthlyBudget - monthlyExpense, profile.currency)} remaining`
-                            : `⚠️ ${formatCurrency(monthlyExpense - profile.monthlyBudget, profile.currency)} over budget`
-                          }
-                        </span>
-                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
+                )}
+              </AnalyticsCard>
+
+              {/* Category Breakdown */}
+              <AnalyticsCard
+                title="🏷️ Spending by Category"
+                description="Detailed breakdown of your expenses across different categories"
+              >
+                <CategoryBreakdown 
+                  categoryData={categoryData}
+                  currency={profile.currency}
+                />
+              </AnalyticsCard>
+
+              {/* Recurring Payments */}
+              <AnalyticsCard
+                title="🔄 Recurring Payments"
+                description="Track your recurring expenses and upcoming payment predictions"
+              >
+                <RecurringPayments 
+                  transactions={processedTransactions}
+                  currency={profile.currency}
+                  maxItems={5}
+                  showSeeMore={false}
+                />
+              </AnalyticsCard>
+
+              {/* Budget Progress */}
+              <AnalyticsCard
+                title="💰 Monthly Budget Overview"
+                description="Track your progress against your monthly spending budget (current month)"
+              >
+                <BudgetOverview
+                  monthlyExpense={monthlyExpense}
+                  monthlyBudget={profile.monthlyBudget}
+                  currency={profile.currency}
+                />
+              </AnalyticsCard>
             </>
           )}
         </div>

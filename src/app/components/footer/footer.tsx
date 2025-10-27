@@ -1,7 +1,6 @@
 import React from 'react'
 import styles from './Footer.module.css'
-import { redirect, useParams } from 'next/navigation'
-import { IconButton } from '@radix-ui/themes'
+import { useParams, useRouter } from 'next/navigation'
 import { HomeIcon, Pencil2Icon, MixerHorizontalIcon, BackpackIcon } from '@radix-ui/react-icons'
 
 interface FooterProps {
@@ -10,14 +9,19 @@ interface FooterProps {
 
 export default function Footer({ buttonColor }: FooterProps) {
   const params = useParams()
+  const router = useRouter()
   const customerId = params.customerId as string
 
   const handleHomeClick = () => {
-    redirect(`/${customerId}/dashboard`)
+    router.push(`/${customerId}/dashboard`)
   }
 
   const handleSpendingClick = () => {
-    redirect(`/${customerId}/analytics`)
+    router.push(`/${customerId}/analytics`)
+  }
+
+  const handleBudgetClick = () => {
+    router.push(`/${customerId}/budget`)
   }
 
   const buttonStyle = buttonColor 
@@ -37,7 +41,7 @@ export default function Footer({ buttonColor }: FooterProps) {
       <FooterIconButton onClick={handleSpendingClick} text='Spending' style={buttonStyle} textColor={buttonColor}>
         <Pencil2Icon width='25' height='25' />
       </FooterIconButton>
-      <FooterIconButton onClick={handleHomeClick} text='Budget' style={buttonStyle} textColor={buttonColor}>
+      <FooterIconButton onClick={handleBudgetClick} text='Budget' style={buttonStyle} textColor={buttonColor}>
         <MixerHorizontalIcon width='25' height='25' />
       </FooterIconButton>
       <FooterIconButton onClick={handleHomeClick} text='Deals' style={buttonStyle} textColor={buttonColor}>
@@ -47,25 +51,24 @@ export default function Footer({ buttonColor }: FooterProps) {
   )
 }
 
-type FooterIconButtonProps = React.ComponentProps<typeof IconButton> & {
+type FooterIconButtonProps = {
   text?: string
   children: React.ReactNode
   textColor?: string
+  onClick?: () => void
+  style?: React.CSSProperties
 }
 
-export function FooterIconButton({ text = '', children, textColor, ...props }: FooterIconButtonProps) {
+export function FooterIconButton({ text = '', children, textColor, onClick, style }: FooterIconButtonProps) {
   return (
     <div className="flex flex-col items-center">
-      <IconButton
-        variant="ghost"
-        size="4"
-        radius="full"
-        highContrast
-        color="gray"
-        {...props}
+      <button
+        onClick={onClick}
+        style={style}
+        className="p-3 rounded-full bg-transparent hover:bg-gray-100/10 transition-colors cursor-pointer border-none"
       >
         {children}
-      </IconButton>
+      </button>
       {text && (
         <div 
           className="text-xs text-center" 
