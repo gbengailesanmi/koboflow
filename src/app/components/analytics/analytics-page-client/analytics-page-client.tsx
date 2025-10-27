@@ -203,7 +203,7 @@ export default function AnalyticsPageClient({ accounts, transactions, profile }:
               <ArrowLeftIcon
                 className={styles.backIcon}
                 onClick={() => router.push(`/${customerId}/dashboard`)}
-                style={{ color: '#222222' }}
+                style={{ color: '#fff' }}
               />
             </div>
             <div className={styles.headerCenter}>
