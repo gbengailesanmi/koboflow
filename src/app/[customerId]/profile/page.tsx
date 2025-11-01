@@ -17,11 +17,19 @@ export default async function ProfilePage() {
     redirect(`/login`)
   }
 
+  // Fetch budget from budget collection (takes precedence over profile)
+  const budgetData = await db.collection('budgets').findOne({ customerId: user?.customerId })
+  
+  // Use budget collection value if it exists, otherwise fallback to profile, or 0 if neither exists
+  const monthlyBudget = budgetData?.monthly ?? userData.monthlyBudget ?? 0
+
   // Remove sensitive data before passing to client
   const sanitizedUser = {
     customerId: userData.customerId,
     name: userData.name,
     email: userData.email,
+    currency: userData.currency,
+    monthlyBudget: monthlyBudget
   }
 
   return <ProfilePageClient user={sanitizedUser} />

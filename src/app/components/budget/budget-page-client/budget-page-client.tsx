@@ -4,10 +4,11 @@ import React, { useMemo, useState } from 'react'
 import { ArrowLeftIcon } from '@radix-ui/react-icons'
 import { useParams, useRouter } from 'next/navigation'
 import type { Transaction } from '@/types/transactions'
+import type { CustomCategory } from '@/types/custom-category'
 import Footer from '@/app/components/footer/footer'
 import { categorizeTransaction } from '@/app/components/analytics/utils/categorize-transaction'
 import { formatCurrency } from '@/app/components/analytics/utils/format-currency'
-import { categoryConfig } from '@/app/components/analytics/utils/category-config'
+import { getCategoryConfig } from '@/app/components/analytics/utils/category-config'
 import styles from './budget-page-client.module.css'
 
 type UserProfile = {
@@ -20,6 +21,7 @@ type UserProfile = {
 type CategoryBudget = {
   category: string
   limit: number
+  customName?: string // Custom name for categories (max 30 chars)
 }
 
 type BudgetData = {
@@ -30,22 +32,28 @@ type BudgetData = {
 type BudgetClientProps = {
   transactions: Transaction[]
   profile: UserProfile
+  customCategories: CustomCategory[]
 }
 
-export default function BudgetClient({ transactions, profile }: BudgetClientProps) {
+export default function BudgetClient({ transactions, profile, customCategories }: BudgetClientProps) {
   const params = useParams()
   const router = useRouter()
   const customerId = params.customerId as string
 
+  // Get category config including custom categories
+  const categoryConfig = useMemo(() => getCategoryConfig(customCategories), [customCategories])
+
   // Load budget data from database
   const [budgetData, setBudgetData] = useState<BudgetData>({
-    monthly: profile.monthlyBudget || 5000,
+    monthly: profile.monthlyBudget || 0,
     categories: []
   })
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [isEditing, setIsEditing] = useState<string | null>(null)
   const [editValue, setEditValue] = useState('')
+  const [isRenamingCategory, setIsRenamingCategory] = useState<string | null>(null)
+  const [renameValue, setRenameValue] = useState('')
 
   // Fetch budget data from database
   React.useEffect(() => {
@@ -56,7 +64,7 @@ export default function BudgetClient({ transactions, profile }: BudgetClientProp
         if (response.ok) {
           const data = await response.json()
           setBudgetData({
-            monthly: data.monthly || profile.monthlyBudget || 5000,
+            monthly: data.monthly || profile.monthlyBudget || 0,
             categories: data.categories || []
           })
         }
@@ -98,11 +106,11 @@ export default function BudgetClient({ transactions, profile }: BudgetClientProp
         ...transaction,
         numericAmount: Math.abs(amount),
         type: amount < 0 ? 'expense' : 'income',
-        category: amount < 0 ? categorizeTransaction(transaction.narration) : 'income',
+        category: amount < 0 ? categorizeTransaction(transaction.narration, customCategories) : 'income',
         date: new Date(transaction.bookedDate)
       }
     })
-  }, [transactions])
+  }, [transactions, customCategories])
 
   // Calculate current month expenses
   const monthlyExpenses = useMemo(() => {
@@ -139,13 +147,18 @@ export default function BudgetClient({ transactions, profile }: BudgetClientProp
         })
         .reduce((sum, t) => sum + t.numericAmount, 0)
 
-      const budget = budgetData.categories.find(b => b.category === category)
+      // For "other" category, only count it as having a limit if there's NO customName
+      // (customName ones are treated as separate custom categories)
+      const budget = budgetData.categories.find(b => 
+        b.category === category && !b.customName
+      )
       
       return {
         category,
         spent,
         limit: budget?.limit || 0,
-        hasLimit: !!budget
+        hasLimit: !!budget,
+        customName: undefined as string | undefined
       }
     }).sort((a, b) => b.spent - a.spent)
   }, [processedTransactions, budgetData.categories])
@@ -164,21 +177,56 @@ export default function BudgetClient({ transactions, profile }: BudgetClientProp
     setEditValue('')
   }
 
-  const handleSetCategoryBudget = (category: string, limit: number) => {
+  const handleSetCategoryBudget = (category: string, limit: number, customName?: string) => {
+    // Calculate total of all other categories
+    const otherCategoriesTotal = budgetData.categories
+      .filter(b => {
+        // Exclude the category being updated (if it exists)
+        if (customName) {
+          // For custom categories, exclude by both category and customName
+          return !(b.category === category && b.customName === customName)
+        } else {
+          // For standard categories, exclude by category without customName
+          return !(b.category === category && !b.customName)
+        }
+      })
+      .reduce((sum, b) => sum + b.limit, 0)
+    
+    // Check if new total would exceed monthly budget
+    const newTotal = otherCategoriesTotal + limit
+    if (newTotal > budgetData.monthly) {
+      const available = budgetData.monthly - otherCategoriesTotal
+      alert(
+        `Category budget exceeds monthly limit!\n\n` +
+        `Monthly Budget: ${formatCurrency(budgetData.monthly, profile.currency)}\n` +
+        `Other Categories Total: ${formatCurrency(otherCategoriesTotal, profile.currency)}\n` +
+        `Available for this category: ${formatCurrency(available, profile.currency)}\n\n` +
+        `You tried to set: ${formatCurrency(limit, profile.currency)}`
+      )
+      return
+    }
+
     const newBudget = {
       ...budgetData,
       categories: (() => {
-        const existing = budgetData.categories.find(b => b.category === category)
+        const existing = budgetData.categories.find(b => b.category === category && !b.customName)
         if (existing) {
           return budgetData.categories.map(b => 
-            b.category === category ? { ...b, limit } : b
+            b.category === category && !b.customName ? { ...b, limit, ...(customName ? { customName } : {}) } : b
           )
         }
-        return [...budgetData.categories, { category, limit }]
+        return [...budgetData.categories, { 
+          category, 
+          limit,
+          ...(customName ? { customName } : {})
+        }]
       })()
     }
     setBudgetData(newBudget)
     saveBudget(newBudget)
+    setIsEditing(null)
+    setEditValue('')
+    setRenameValue('')
   }
 
   const handleRemoveCategoryBudget = (category: string) => {
@@ -190,13 +238,78 @@ export default function BudgetClient({ transactions, profile }: BudgetClientProp
     saveBudget(newBudget)
   }
 
+  const handleRenameCategory = (category: string, customName: string) => {
+    // Validate custom name (max 30 characters)
+    const trimmedName = customName.trim()
+    if (trimmedName.length === 0 || trimmedName.length > 30) {
+      alert('Category name must be between 1 and 30 characters')
+      return
+    }
+
+    const newBudget = {
+      ...budgetData,
+      categories: budgetData.categories.map(b =>
+        b.category === category ? { ...b, customName: trimmedName } : b
+      )
+    }
+    setBudgetData(newBudget)
+    saveBudget(newBudget)
+    setIsRenamingCategory(null)
+    setRenameValue('')
+  }
+
+  const startRename = (category: string, currentName?: string) => {
+    setIsRenamingCategory(category)
+    setRenameValue(currentName || '')
+  }
+
   const startEdit = (type: string, currentValue?: number) => {
     setIsEditing(type)
     setEditValue(currentValue ? currentValue.toString() : '')
   }
 
+  // Get display name for a category (custom name or default label)
+  const getCategoryDisplayName = (category: string) => {
+    const budget = budgetData.categories.find(b => b.category === category)
+    if (budget?.customName) {
+      return budget.customName
+    }
+    const config = categoryConfig[category] || categoryConfig.other
+    return config.label
+  }
+
   const categoriesWithBudget = categoryExpenses.filter(c => c.hasLimit)
   const categoriesWithoutBudget = categoryExpenses.filter(c => !c.hasLimit)
+  
+  // Add custom budget categories (those with customName) to the budgets list
+  const customBudgetCategories = budgetData.categories
+    .filter(b => b.customName)
+    .map(b => {
+      const now = new Date()
+      const currentMonth = now.getMonth()
+      const currentYear = now.getFullYear()
+      
+      // Calculate spent for this custom category (uses "other" transactions)
+      const spent = processedTransactions
+        .filter(t => {
+          const date = t.date
+          return t.type === 'expense' &&
+                 t.category === b.category &&
+                 date.getMonth() === currentMonth &&
+                 date.getFullYear() === currentYear
+        })
+        .reduce((sum, t) => sum + t.numericAmount, 0)
+      
+      return {
+        category: b.category,
+        customName: b.customName,
+        spent,
+        limit: b.limit,
+        hasLimit: true
+      }
+    })
+  
+  const allCategoriesWithBudget = [...categoriesWithBudget, ...customBudgetCategories]
 
   return (
     <div className={styles.container}>
@@ -295,7 +408,7 @@ export default function BudgetClient({ transactions, profile }: BudgetClientProp
 
               <div className={styles.progressSection}>
                 <div className={styles.progressLabel}>
-                  <span className={styles.progressLabelText}>Progress</span>
+                  <span className={styles.progressLabelText}>Spending Progress</span>
                   <span className={`${styles.progressPercentage} ${isOverBudget ? styles.budgetValueOver : ''}`}>
                     {monthlyProgress.toFixed(1)}%
                   </span>
@@ -312,6 +425,57 @@ export default function BudgetClient({ transactions, profile }: BudgetClientProp
                   />
                 </div>
               </div>
+
+              {/* Budget Allocation Progress */}
+              {(() => {
+                const totalAllocated = budgetData.categories.reduce((sum, b) => sum + b.limit, 0)
+                const remaining = budgetData.monthly - totalAllocated
+                const allocationPercentage = (totalAllocated / budgetData.monthly) * 100
+                const isOverAllocated = totalAllocated > budgetData.monthly
+
+                return totalAllocated > 0 ? (
+                  <div style={{ marginTop: '16px' }}>
+                    <div className={styles.budgetOverview}>
+                      <div className={styles.budgetSection}>
+                        <div className={styles.budgetLabel}>Allocated to categories</div>
+                        <div className={`${styles.budgetValue} ${isOverAllocated ? styles.budgetValueOver : styles.budgetValueNormal}`}>
+                          {formatCurrency(totalAllocated, profile.currency)}
+                        </div>
+                      </div>
+                      <div className={styles.budgetSection} style={{ alignItems: 'flex-end' }}>
+                        <div className={styles.budgetLabel}>
+                          {isOverAllocated ? 'Over-allocated' : 'Unallocated'}
+                        </div>
+                        <div className={`${styles.budgetValue} ${isOverAllocated ? styles.budgetValueOver : styles.budgetValueNormal}`}>
+                          {formatCurrency(Math.abs(remaining), profile.currency)}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className={styles.progressSection}>
+                      <div className={styles.progressLabel}>
+                        <span className={styles.progressLabelText}>Budget Allocation</span>
+                        <span className={`${styles.progressPercentage} ${isOverAllocated ? styles.budgetValueOver : ''}`}>
+                          {allocationPercentage.toFixed(1)}%
+                        </span>
+                      </div>
+                      <div className={styles.progressBar}>
+                        <div 
+                          className={styles.progressFill}
+                          style={{ 
+                            width: `${Math.min(allocationPercentage, 100)}%`,
+                            background: isOverAllocated 
+                              ? 'linear-gradient(90deg, #ef4444, #dc2626)' 
+                              : allocationPercentage >= 90
+                              ? 'linear-gradient(90deg, #f59e0b, #d97706)'
+                              : 'linear-gradient(90deg, #10b981, #059669)'
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ) : null
+              })()}
 
               <div className={styles.statusAlert}>
                 <div className={styles.statusIcon}>
@@ -335,7 +499,7 @@ export default function BudgetClient({ transactions, profile }: BudgetClientProp
           </div>
 
           {/* Categories with Budget */}
-          {categoriesWithBudget.length > 0 && (
+          {allCategoriesWithBudget.length > 0 && (
             <div className={styles.card} style={{ margin: '0 16px 32px 16px' }}>
               <div className={styles.cardHeader}>
                 <h2 className={styles.cardTitle}>Category Budgets</h2>
@@ -344,14 +508,17 @@ export default function BudgetClient({ transactions, profile }: BudgetClientProp
                 </p>
               </div>
               <div className={styles.categoryGrid}>
-                {categoriesWithBudget.map(({ category, spent, limit }) => {
+                {allCategoriesWithBudget.map(({ category, spent, limit, customName }) => {
                   const config = categoryConfig[category] || categoryConfig.other
                   const progress = (spent / limit) * 100
                   const isOver = spent > limit
                   const isNearLimit = progress >= 80 && !isOver
+                  
+                  // Create a unique key for custom categories
+                  const itemKey = customName ? `${category}-${customName}` : category
 
                   return (
-                    <div key={category} className={styles.categoryItem}>
+                    <div key={itemKey} className={styles.categoryItem}>
                       <div className={styles.categoryHeader}>
                         <div className={styles.categoryLeft}>
                           <div 
@@ -370,7 +537,29 @@ export default function BudgetClient({ transactions, profile }: BudgetClientProp
                             </span>
                           </div>
                           <div className={styles.categoryDetails}>
-                            <div className={styles.categoryName}>{config.label}</div>
+                            <div className={styles.categoryName}>
+                              {customName || getCategoryDisplayName(category)}
+                              {category === 'other' && customName && (
+                                <button
+                                  className={styles.renameButton}
+                                  onClick={() => {
+                                    startRename(itemKey, customName)
+                                  }}
+                                  title="Rename category"
+                                  style={{
+                                    marginLeft: '8px',
+                                    padding: '2px 6px',
+                                    fontSize: '12px',
+                                    background: 'transparent',
+                                    border: '1px solid #e5e7eb',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  ✏️
+                                </button>
+                              )}
+                            </div>
                             <div className={styles.categorySpent}>
                               {formatCurrency(spent, profile.currency)} of {formatCurrency(limit, profile.currency)}
                             </div>
@@ -386,13 +575,27 @@ export default function BudgetClient({ transactions, profile }: BudgetClientProp
                           </span>
                           <button 
                             className={styles.iconButton}
-                            onClick={() => startEdit(category, limit)}
+                            onClick={() => startEdit(itemKey, limit)}
                           >
                             ✏️
                           </button>
                           <button 
                             className={styles.iconButton}
-                            onClick={() => handleRemoveCategoryBudget(category)}
+                            onClick={() => {
+                              if (customName) {
+                                // Remove custom category
+                                const newBudget = {
+                                  ...budgetData,
+                                  categories: budgetData.categories.filter(b => 
+                                    !(b.category === category && b.customName === customName)
+                                  )
+                                }
+                                setBudgetData(newBudget)
+                                saveBudget(newBudget)
+                              } else {
+                                handleRemoveCategoryBudget(category)
+                              }
+                            }}
                           >
                             ✕
                           </button>
@@ -411,7 +614,7 @@ export default function BudgetClient({ transactions, profile }: BudgetClientProp
                           }}
                         />
                       </div>
-                      {isEditing === category && (
+                      {isEditing === itemKey && (
                         <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
                           <input
                             type="number"
@@ -429,7 +632,52 @@ export default function BudgetClient({ transactions, profile }: BudgetClientProp
                             className={styles.editButton}
                             onClick={() => {
                               const amount = parseFloat(editValue)
-                              if (amount > 0) handleSetCategoryBudget(category, amount)
+                              if (amount > 0) {
+                                // Calculate total of all other categories
+                                const otherCategoriesTotal = budgetData.categories
+                                  .filter(b => {
+                                    if (customName) {
+                                      // Exclude current custom category being edited
+                                      return !(b.category === category && b.customName === customName)
+                                    } else {
+                                      // Exclude current standard category being edited
+                                      return !(b.category === category && !b.customName)
+                                    }
+                                  })
+                                  .reduce((sum, b) => sum + b.limit, 0)
+                                
+                                // Check if new total would exceed monthly budget
+                                const newTotal = otherCategoriesTotal + amount
+                                if (newTotal > budgetData.monthly) {
+                                  const available = budgetData.monthly - otherCategoriesTotal
+                                  alert(
+                                    `Category budget exceeds monthly limit!\n\n` +
+                                    `Monthly Budget: ${formatCurrency(budgetData.monthly, profile.currency)}\n` +
+                                    `Other Categories Total: ${formatCurrency(otherCategoriesTotal, profile.currency)}\n` +
+                                    `Available for this category: ${formatCurrency(available, profile.currency)}\n\n` +
+                                    `You tried to set: ${formatCurrency(amount, profile.currency)}`
+                                  )
+                                  return
+                                }
+
+                                if (customName) {
+                                  // Update custom category
+                                  const newBudget = {
+                                    ...budgetData,
+                                    categories: budgetData.categories.map(b =>
+                                      b.category === category && b.customName === customName
+                                        ? { ...b, limit: amount }
+                                        : b
+                                    )
+                                  }
+                                  setBudgetData(newBudget)
+                                  saveBudget(newBudget)
+                                  setIsEditing(null)
+                                  setEditValue('')
+                                } else {
+                                  handleSetCategoryBudget(category, amount)
+                                }
+                              }
                             }}
                           >
                             Save
@@ -439,6 +687,67 @@ export default function BudgetClient({ transactions, profile }: BudgetClientProp
                             onClick={() => {
                               setIsEditing(null)
                               setEditValue('')
+                            }}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      )}
+                      {isRenamingCategory === itemKey && (
+                        <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                          <input
+                            type="text"
+                            value={renameValue}
+                            onChange={(e) => setRenameValue(e.target.value)}
+                            placeholder="Enter category name (max 30 chars)"
+                            maxLength={30}
+                            style={{
+                              padding: '8px 12px',
+                              borderRadius: '8px',
+                              border: '1px solid #e5e7eb',
+                              flex: 1
+                            }}
+                          />
+                          <span style={{ 
+                            padding: '8px 12px',
+                            color: renameValue.length > 30 ? '#ef4444' : '#6b7280',
+                            fontSize: '12px',
+                            display: 'flex',
+                            alignItems: 'center'
+                          }}>
+                            {renameValue.length}/30
+                          </span>
+                          <button 
+                            className={styles.editButton}
+                            onClick={() => {
+                              const trimmedName = renameValue.trim()
+                              if (trimmedName.length > 0 && trimmedName.length <= 30) {
+                                // Update custom category name
+                                const newBudget = {
+                                  ...budgetData,
+                                  categories: budgetData.categories.map(b =>
+                                    b.category === category && b.customName === customName
+                                      ? { ...b, customName: trimmedName }
+                                      : b
+                                  )
+                                }
+                                setBudgetData(newBudget)
+                                saveBudget(newBudget)
+                                setIsRenamingCategory(null)
+                                setRenameValue('')
+                              } else {
+                                alert('Category name must be between 1 and 30 characters')
+                              }
+                            }}
+                            disabled={renameValue.trim().length === 0 || renameValue.length > 30}
+                          >
+                            Save
+                          </button>
+                          <button 
+                            className={styles.editButton}
+                            onClick={() => {
+                              setIsRenamingCategory(null)
+                              setRenameValue('')
                             }}
                           >
                             Cancel
@@ -493,7 +802,9 @@ export default function BudgetClient({ transactions, profile }: BudgetClientProp
                             </span>
                           </div>
                           <div className={styles.categoryDetails}>
-                            <div className={styles.categoryName}>{config.label}</div>
+                            <div className={styles.categoryName}>
+                              {category === 'other' ? 'Other' : getCategoryDisplayName(category)}
+                            </div>
                             <div className={styles.categorySpent}>
                               {spent > 0 ? `Spent ${formatCurrency(spent, profile.currency)} this month` : 'No spending this month'}
                             </div>
@@ -508,37 +819,75 @@ export default function BudgetClient({ transactions, profile }: BudgetClientProp
                         </button>
                       </div>
                       {isEditing === category && (
-                        <div style={{ display: 'flex', gap: '8px', marginTop: '8px', padding: '0 12px' }}>
-                          <input
-                            type="number"
-                            value={editValue}
-                            onChange={(e) => setEditValue(e.target.value)}
-                            placeholder="Enter budget limit"
-                            style={{
-                              padding: '8px 12px',
-                              borderRadius: '8px',
-                              border: '1px solid #e5e7eb',
-                              flex: 1
-                            }}
-                          />
-                          <button 
-                            className={styles.editButton}
-                            onClick={() => {
-                              const amount = parseFloat(editValue)
-                              if (amount > 0) handleSetCategoryBudget(category, amount)
-                            }}
-                          >
-                            Save
-                          </button>
-                          <button 
-                            className={styles.editButton}
-                            onClick={() => {
-                              setIsEditing(null)
-                              setEditValue('')
-                            }}
-                          >
-                            Cancel
-                          </button>
+                        <div style={{ padding: '0 12px' }}>
+                          {category === 'other' && (
+                            <div style={{ display: 'flex', gap: '8px', marginTop: '8px', marginBottom: '8px' }}>
+                              <input
+                                type="text"
+                                value={renameValue}
+                                onChange={(e) => setRenameValue(e.target.value)}
+                                placeholder="Custom name (optional, max 30 chars)"
+                                maxLength={30}
+                                style={{
+                                  padding: '8px 12px',
+                                  borderRadius: '8px',
+                                  border: '1px solid #e5e7eb',
+                                  flex: 1
+                                }}
+                              />
+                              <span style={{ 
+                                padding: '8px 12px',
+                                color: renameValue.length > 30 ? '#ef4444' : '#6b7280',
+                                fontSize: '12px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                minWidth: '50px'
+                              }}>
+                                {renameValue.length}/30
+                              </span>
+                            </div>
+                          )}
+                          <div style={{ display: 'flex', gap: '8px', marginTop: category === 'other' ? '0' : '8px' }}>
+                            <input
+                              type="number"
+                              value={editValue}
+                              onChange={(e) => setEditValue(e.target.value)}
+                              placeholder="Enter budget limit"
+                              style={{
+                                padding: '8px 12px',
+                                borderRadius: '8px',
+                                border: '1px solid #e5e7eb',
+                                flex: 1
+                              }}
+                            />
+                            <button 
+                              className={styles.editButton}
+                              onClick={() => {
+                                const amount = parseFloat(editValue)
+                                if (amount > 0) {
+                                  // For "other" category, include custom name if provided
+                                  if (category === 'other' && renameValue.trim().length > 0 && renameValue.length <= 30) {
+                                    handleSetCategoryBudget(category, amount, renameValue.trim())
+                                  } else {
+                                    handleSetCategoryBudget(category, amount)
+                                  }
+                                }
+                              }}
+                              disabled={category === 'other' && renameValue.length > 30}
+                            >
+                              Save
+                            </button>
+                            <button 
+                              className={styles.editButton}
+                              onClick={() => {
+                                setIsEditing(null)
+                                setEditValue('')
+                                setRenameValue('')
+                              }}
+                            >
+                              Cancel
+                            </button>
+                          </div>
                         </div>
                       )}
                     </div>

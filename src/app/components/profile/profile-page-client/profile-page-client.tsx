@@ -34,11 +34,12 @@ const currencies = [
 
 export default function ProfilePageClient({ user }: ProfilePageClientProps) {
   const [isEditing, setIsEditing] = useState(false)
+  const [budgetSetInBudgetPage, setBudgetSetInBudgetPage] = useState(false)
   const [formData, setFormData] = useState({
     name: user.name,
     email: user.email,
     currency: user.currency || 'USD',
-    monthlyBudget: user.monthlyBudget?.toString() || '5000'
+    monthlyBudget: user.monthlyBudget?.toString() || '0'
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -48,6 +49,23 @@ export default function ProfilePageClient({ user }: ProfilePageClientProps) {
   const router = useRouter()
   const customerId = params.customerId as string
 
+  // Check if budget was set from budget page
+  useEffect(() => {
+    async function checkBudgetSource() {
+      try {
+        const response = await fetch('/api/budget')
+        if (response.ok) {
+          const data = await response.json()
+          // If budget exists in budget collection and has a monthly value, it was set from budget page
+          setBudgetSetInBudgetPage(data.monthly > 0 && data.categories?.length >= 0)
+        }
+      } catch (error) {
+        console.error('Failed to check budget source:', error)
+      }
+    }
+    checkBudgetSource()
+  }, [])
+
   // Sync form data when user prop changes (after successful update)
   useEffect(() => {
     // Only sync if we're not currently editing to avoid overwriting user changes
@@ -56,7 +74,7 @@ export default function ProfilePageClient({ user }: ProfilePageClientProps) {
         name: user.name,
         email: user.email,
         currency: user.currency || 'USD',
-        monthlyBudget: user.monthlyBudget?.toString() || '5000'
+        monthlyBudget: user.monthlyBudget?.toString() || '0'
       })
     }
   }, [user.name, user.email, user.currency, user.monthlyBudget, isEditing])
@@ -122,7 +140,7 @@ export default function ProfilePageClient({ user }: ProfilePageClientProps) {
       name: user.name,
       email: user.email,
       currency: user.currency || formData.currency || 'USD',
-      monthlyBudget: user.monthlyBudget?.toString() || '5000'
+      monthlyBudget: user.monthlyBudget?.toString() || '0'
     })
     setIsEditing(false)
     setError('')

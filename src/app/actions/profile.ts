@@ -62,6 +62,33 @@ export async function updateProfile(
       return { error: 'User not found' }
     }
 
+    // If monthly budget was updated, sync it to the budget collection
+    // (but only if no budget exists yet - Budget page takes precedence)
+    if (monthlyBudget !== undefined && monthlyBudget >= 0) {
+      const budgetCollection = db.collection('budgets')
+      const existingBudget = await budgetCollection.findOne({ customerId: user.customerId })
+      
+      // Only create/update budget if it doesn't exist or if it hasn't been set via budget page
+      if (!existingBudget) {
+        await budgetCollection.updateOne(
+          { customerId: user.customerId },
+          { 
+            $set: { 
+              monthly: monthlyBudget,
+              updatedAt: new Date()
+            },
+            $setOnInsert: {
+              categories: [],
+              createdAt: new Date()
+            }
+          },
+          { upsert: true }
+        )
+      }
+      // If budget exists, only update if the profile monthly budget was higher
+      // This ensures budget page always takes precedence
+    }
+
     // Revalidate the profile page to show updated data
     revalidatePath(`/${user.customerId}/profile`)
 

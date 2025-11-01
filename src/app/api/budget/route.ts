@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/session'
 import { getBudget, upsertBudget, getBudgetWithSpending } from '@/db/helpers/budget-helpers'
 import type { CategoryBudget } from '@/types/budget'
+import { connectDB } from '@/db/mongo'
 
 /**
  * GET /api/budget
@@ -25,7 +26,7 @@ export async function GET(request: NextRequest) {
       // Return default budget if none exists
       return NextResponse.json({
         customerId: session.customerId,
-        monthly: 5000,
+        monthly: 0,
         categories: [],
         createdAt: new Date(),
         updatedAt: new Date()
@@ -81,7 +82,20 @@ export async function POST(request: NextRequest) {
       cat.limit >= 0
     )
 
+    // Update budget in budget collection
     await upsertBudget(session.customerId, monthly, validCategories)
+
+    // Sync monthly budget to user profile (Budget page takes precedence)
+    const db = await connectDB()
+    await db.collection('users').updateOne(
+      { customerId: session.customerId },
+      { 
+        $set: { 
+          monthlyBudget: monthly,
+          updatedAt: new Date()
+        } 
+      }
+    )
 
     return NextResponse.json({ 
       success: true,
@@ -126,7 +140,20 @@ export async function PATCH(request: NextRequest) {
       categories: body.categories ?? currentBudget.categories
     }
 
+    // Update budget in budget collection
     await upsertBudget(session.customerId, updatedBudget.monthly, updatedBudget.categories)
+
+    // Sync monthly budget to user profile (Budget page takes precedence)
+    const db = await connectDB()
+    await db.collection('users').updateOne(
+      { customerId: session.customerId },
+      { 
+        $set: { 
+          monthlyBudget: updatedBudget.monthly,
+          updatedAt: new Date()
+        } 
+      }
+    )
 
     return NextResponse.json({ 
       success: true,

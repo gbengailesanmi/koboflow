@@ -27,12 +27,27 @@ export default async function BudgetPage() {
 
   const transactionsData = sanitizeArray(transactionsDataRaw)
   
+  // Fetch budget from budget collection (takes precedence over profile)
+  const budgetData = await db.collection('budgets').findOne({ customerId: user.customerId })
+  
+  // Get custom categories
+  const customCategoriesRaw = await db
+    .collection('spending_categories')
+    .find({ customerId: user.customerId })
+    .sort({ createdAt: -1 })
+    .toArray()
+  
+  const customCategories = sanitizeArray(customCategoriesRaw)
+  
+  // Use budget collection value if it exists, otherwise fallback to profile, or 0 if neither exists
+  const monthlyBudget = budgetData?.monthly ?? userProfile.monthlyBudget ?? 0
+  
   const profile = {
     name: userProfile.name || '',
     email: userProfile.email || '',
     currency: userProfile.currency || 'GBP',
-    monthlyBudget: userProfile.monthlyBudget || 0
+    monthlyBudget: monthlyBudget
   }
 
-  return <BudgetClient transactions={transactionsData} profile={profile} />
+  return <BudgetClient transactions={transactionsData} profile={profile} customCategories={customCategories} />
 }

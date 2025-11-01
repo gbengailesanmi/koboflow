@@ -37,6 +37,15 @@ export default async function AnalyticsPage() {
 
   const accountsData = sanitizeArray(accountsDataRaw)
   const transactionsData = sanitizeArray(transactionsDataRaw)
+  
+  // Get custom categories
+  const customCategoriesRaw = await db
+    .collection('spending_categories')
+    .find({ customerId: user.customerId })
+    .sort({ createdAt: -1 })
+    .toArray()
+  
+  const customCategories = sanitizeArray(customCategoriesRaw)
 
   const profile = {
     name: userProfile?.name || 'User',
@@ -49,6 +58,7 @@ export default async function AnalyticsPage() {
     <AnalyticsPageClient 
       accounts={accountsData} 
       transactions={transactionsData}
+      customCategories={customCategories}
       profile={profile}
     />
   )

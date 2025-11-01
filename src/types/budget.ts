@@ -2,6 +2,7 @@
 export type CategoryBudget = {
   category: string
   limit: number
+  customName?: string // Custom name for categories (e.g., "Other" → "Miscellaneous")
   spent?: number // Current month spending in this category
   percentage?: number // Percentage of limit used
 }

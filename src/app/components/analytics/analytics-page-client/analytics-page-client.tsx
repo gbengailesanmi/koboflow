@@ -5,11 +5,12 @@ import { ArrowLeftIcon } from '@radix-ui/react-icons'
 import { useParams, useRouter } from 'next/navigation'
 import type { Account } from '@/types/account'
 import type { Transaction } from '@/types/transactions'
+import type { CustomCategory } from '@/types/custom-category'
 import Footer from '@/app/components/footer/footer'
 import { UserProfile, CategoryData } from '../types/analytics-types'
 import { categorizeTransaction } from '../utils/categorize-transaction'
 import { formatCurrency } from '../utils/format-currency'
-import { categoryConfig } from '../utils/category-config'
+import { getCategoryConfig } from '../utils/category-config'
 import { PieChart } from '../pie-chart/pie-chart'
 import { MonthOnMonthChart } from '../month-on-month-chart/month-on-month-chart'
 import { RecurringPayments } from '../recurring-payments/recurring-payments'
@@ -23,17 +24,21 @@ import styles from './analytics-page-client.module.css'
 type AnalyticsPageClientProps = {
   accounts: Account[]
   transactions: Transaction[]
+  customCategories: CustomCategory[]
   profile: UserProfile
 }
 
-export default function AnalyticsPageClient({ accounts, transactions, profile }: AnalyticsPageClientProps) {
+export default function AnalyticsPageClient({ accounts, transactions, customCategories: initialCategories, profile }: AnalyticsPageClientProps) {
   const [selectedAccountId, setSelectedAccountId] = useState<string>('all')
   const [timePeriod, setTimePeriod] = useState<'day' | 'month' | 'year'>('month')
   const [isHydrated, setIsHydrated] = useState(false)
+  const [customCategories, setCustomCategories] = useState<CustomCategory[]>(initialCategories)
   
   const params = useParams()
   const router = useRouter()
   const customerId = params.customerId as string
+  
+  const categoryConfig = useMemo(() => getCategoryConfig(customCategories), [customCategories])
 
   useEffect(() => {
     setIsHydrated(true)
@@ -49,6 +54,40 @@ export default function AnalyticsPageClient({ accounts, transactions, profile }:
       localStorage.setItem('analytics-time-period', timePeriod)
     }
   }, [timePeriod, isHydrated])
+  
+  // Custom categories handlers
+  const handleAddCategory = async (name: string, keywords: string[], color: string) => {
+    try {
+      const response = await fetch('/api/custom-categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, keywords, color })
+      })
+      
+      if (response.ok) {
+        const newCategory = await response.json()
+        setCustomCategories([...customCategories, newCategory])
+        router.refresh()
+      }
+    } catch (error) {
+      console.error('Failed to add category:', error)
+    }
+  }
+  
+  const handleDeleteCategory = async (id: string) => {
+    try {
+      const response = await fetch(`/api/custom-categories?id=${id}`, {
+        method: 'DELETE'
+      })
+      
+      if (response.ok) {
+        setCustomCategories(customCategories.filter(cat => cat.id !== id))
+        router.refresh()
+      }
+    } catch (error) {
+      console.error('Failed to delete category:', error)
+    }
+  }
 
   const processedTransactions = useMemo(() => {
     let filteredByAccount = transactions
@@ -65,11 +104,11 @@ export default function AnalyticsPageClient({ accounts, transactions, profile }:
         ...transaction,
         numericAmount: Math.abs(amount),
         type: amount < 0 ? 'expense' : 'income',
-        category: amount < 0 ? categorizeTransaction(transaction.narration) : 'income',
+        category: amount < 0 ? categorizeTransaction(transaction.narration, customCategories) : 'income',
         date: new Date(transaction.bookedDate)
       }
     })
-  }, [transactions, selectedAccountId])
+  }, [transactions, selectedAccountId, customCategories])
 
   const filteredTransactions = useMemo(() => {
     const now = new Date()
@@ -330,6 +369,14 @@ export default function AnalyticsPageClient({ accounts, transactions, profile }:
                 <CategoryBreakdown 
                   categoryData={categoryData}
                   currency={profile.currency}
+                  customCategories={customCategories}
+                  onAddCategory={async (name, keywords) => {
+                    // Generate a random color for the new category
+                    const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316']
+                    const randomColor = colors[Math.floor(Math.random() * colors.length)]
+                    await handleAddCategory(name, keywords, randomColor)
+                  }}
+                  onDeleteCategory={handleDeleteCategory}
                 />
               </AnalyticsCard>
 

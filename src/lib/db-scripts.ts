@@ -117,3 +117,12 @@ export {
   getBudgetWithSpending
 } from '@/db/helpers/budget-helpers'
 
+// Export custom category helper functions
+export {
+  getCustomCategories,
+  getCustomCategory,
+  createCustomCategory,
+  updateCustomCategory,
+  deleteCustomCategory
+} from '@/db/helpers/custom-category-helpers'
+
