@@ -2,7 +2,7 @@
 import { connectDB } from '@/db/mongo'
 
 /**
- * Create indexes for budgets and budget_spending collections
+ * Create indexes for budgets collection
  */
 export async function createBudgetIndexes() {
   const db = await connectDB()
@@ -28,17 +28,6 @@ export async function createBudgetIndexes() {
   await db.collection('budgets').createIndex(
     { 'period.startDate': 1 },
     { name: 'period_startDate', sparse: true }
-  )
-  
-  // Budget spending collection indexes
-  await db.collection('budget_spending').createIndex(
-    { customerId: 1, month: 1 },
-    { unique: true, name: 'customerId_month_unique' }
-  )
-  
-  await db.collection('budget_spending').createIndex(
-    { customerId: 1, updatedAt: -1 },
-    { name: 'customerId_updatedAt' }
   )
   
   console.log('✅ Budget indexes created successfully')

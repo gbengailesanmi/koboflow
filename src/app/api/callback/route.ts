@@ -3,7 +3,6 @@ import { getSession } from '@/lib/session'
 import { getTinkTokens, getTinkAccountsData, getTinkTransactionsData } from '@/app/api/tink'
 import { bulkInsertTransactions } from '@/db/helpers/insert-transactions'
 import { bulkInsertAccounts } from '@/db/helpers/insert-accounts'
-import { recalculateMonthlySpending } from '@/db/helpers/budget-helpers'
 import { connectDB } from '@/db/mongo'
 // import fs from 'fs'
 
@@ -31,10 +30,6 @@ export async function GET(req: Request) {
 
     await bulkInsertAccounts(accounts.accounts, user.customerId, connectDB)
     await bulkInsertTransactions(transactions.transactions, user.customerId, connectDB)
-    
-    // Recalculate budget spending after syncing transactions
-    const now = new Date()
-    await recalculateMonthlySpending(user.customerId, now.getFullYear(), now.getMonth())
     
     return NextResponse.redirect(`${process.env.BASE_URI}:${process.env.PORT}/${user.customerId}/dashboard`)
   } catch (err) {

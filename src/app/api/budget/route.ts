@@ -1,7 +1,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/session'
-import { getBudget, upsertBudget, getBudgetWithSpending } from '@/db/helpers/budget-helpers'
+import { getBudget, upsertBudget } from '@/db/helpers/budget-helpers'
 import type { CategoryBudget, BudgetPeriod } from '@/types/budget'
 import { connectDB } from '@/db/mongo'
 
@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const budget = await getBudgetWithSpending(session.customerId)
+    const budget = await getBudget(session.customerId)
     
     if (!budget) {
       // Return default budget if none exists

@@ -26,14 +26,3 @@ export type Budget = {
   createdAt: Date
   updatedAt: Date
 }
-
-export type BudgetSpending = {
-  customerId: string
-  month: string // Format: "YYYY-MM"
-  totalSpent: number
-  categorySpending: {
-    category: string
-    amount: number
-  }[]
-  updatedAt: Date
-}
