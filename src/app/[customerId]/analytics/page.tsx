@@ -5,6 +5,7 @@ import { getSession } from '@/lib/session'
 import { redirect } from 'next/navigation'
 import { sanitizeArray } from '@/lib/sanitize'
 import AnalyticsPageClient from '@/app/components/analytics/analytics-page-client/analytics-page-client'
+import PageLayoutWithSidebar from '@/app/components/page-layout-with-sidebar/page-layout-with-sidebar'
 
 export default async function AnalyticsPage() {
   const user = await getSession()
@@ -55,11 +56,13 @@ export default async function AnalyticsPage() {
   }
 
   return (
-    <AnalyticsPageClient 
-      accounts={accountsData} 
-      transactions={transactionsData}
-      customCategories={customCategories}
-      profile={profile}
-    />
+    <PageLayoutWithSidebar customerId={user.customerId}>
+      <AnalyticsPageClient 
+        accounts={accountsData} 
+        transactions={transactionsData}
+        customCategories={customCategories}
+        profile={profile}
+      />
+    </PageLayoutWithSidebar>
   )
 }

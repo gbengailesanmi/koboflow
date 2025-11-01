@@ -89,7 +89,7 @@ export default function TransactionsPageClient({ transactions, accounts }: Trans
   return (
     <Dialog.Root onOpenChange={open => { if (!open) setSelectedTransaction(null) }}>
       <div className={`${styles.PageGrid} page-gradient-background`}>
-        <div className={styles.Header}>
+        <div id="filters" className={styles.Header}>
           <ArrowLeftIcon className="w-6 h-6" onClick={() => redirect(`/${customerId}/dashboard`)}/>
           <h1 className="text-xl font-semibold mb-2">Transactions</h1>
           <div className={styles.Filters}>
@@ -109,7 +109,7 @@ export default function TransactionsPageClient({ transactions, accounts }: Trans
           setSelectedMonth={setSelectedMonth}
         />
 
-        <div ref={transactionsWrapperRef} className={styles.TransactionsWrapper}>
+        <div id="transaction-list" ref={transactionsWrapperRef} className={styles.TransactionsWrapper}>
           {filteredTransactions.map(transaction => {
             const isDebit = Number(transaction.amount) < 0
             const amountClass = isDebit ? styles.DebitText : styles.CreditText

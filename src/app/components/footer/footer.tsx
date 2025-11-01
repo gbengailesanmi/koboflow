@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import styles from './Footer.module.css'
 import { useParams, useRouter } from 'next/navigation'
 import { HomeIcon, Pencil2Icon, MixerHorizontalIcon, BackpackIcon } from '@radix-ui/react-icons'
@@ -11,6 +11,35 @@ export default function Footer({ buttonColor }: FooterProps) {
   const params = useParams()
   const router = useRouter()
   const customerId = params.customerId as string
+  const [isVisible, setIsVisible] = useState(true)
+  const [lastScrollY, setLastScrollY] = useState(0)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY
+
+      if (currentScrollY < 10) {
+        // Always show footer at the top
+        setIsVisible(true)
+      } else if (currentScrollY > lastScrollY) {
+        // Scrolling down - hide footer
+        setIsVisible(false)
+      } else if (currentScrollY < lastScrollY) {
+        // Scrolling up - show footer
+        setIsVisible(true)
+      }
+
+      setLastScrollY(currentScrollY)
+    }
+
+    // Add scroll event listener
+    window.addEventListener('scroll', handleScroll, { passive: true })
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+    }
+  }, [lastScrollY])
 
   const handleHomeClick = () => {
     router.push(`/${customerId}/dashboard`)
@@ -29,7 +58,7 @@ export default function Footer({ buttonColor }: FooterProps) {
     : {}
 
   return (
-    <div className={styles.Footer}>
+    <div className={`${styles.Footer} ${isVisible ? styles.FooterVisible : styles.FooterHidden}`}>
       <FooterIconButton 
         onClick={handleHomeClick} 
         text='Home' 

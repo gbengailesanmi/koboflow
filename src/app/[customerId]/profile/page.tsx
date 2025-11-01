@@ -4,6 +4,7 @@ import { connectDB } from '@/db/mongo'
 import { getSession } from '@/lib/session'
 import { redirect } from 'next/navigation'
 import ProfilePageClient from '@/app/components/profile/profile-page-client/profile-page-client'
+import PageLayoutWithSidebar from '@/app/components/page-layout-with-sidebar/page-layout-with-sidebar'
 
 export default async function ProfilePage() {
   const user = await getSession()
@@ -32,5 +33,9 @@ export default async function ProfilePage() {
     monthlyBudget: monthlyBudget
   }
 
-  return <ProfilePageClient user={sanitizedUser} />
+  return (
+    <PageLayoutWithSidebar customerId={user?.customerId || ''}>
+      <ProfilePageClient user={sanitizedUser} />
+    </PageLayoutWithSidebar>
+  )
 }

@@ -3,6 +3,7 @@ import { getSession } from '@/lib/session'
 import { redirect } from 'next/navigation'
 import { sanitizeArray } from '@/lib/sanitize'
 import BudgetClient from '@/app/components/budget/budget-page-client/budget-page-client'
+import PageLayoutWithSidebar from '@/app/components/page-layout-with-sidebar/page-layout-with-sidebar'
 
 export default async function BudgetPage() {
   const user = await getSession()
@@ -49,5 +50,9 @@ export default async function BudgetPage() {
     monthlyBudget: monthlyBudget
   }
 
-  return <BudgetClient transactions={transactionsData} profile={profile} customCategories={customCategories} />
+  return (
+    <PageLayoutWithSidebar customerId={user.customerId}>
+      <BudgetClient transactions={transactionsData} profile={profile} customCategories={customCategories} />
+    </PageLayoutWithSidebar>
+  )
 }

@@ -534,7 +534,7 @@ export default function BudgetClient({ transactions, profile, customCategories }
           />
 
           {/* Monthly Budget Card */}
-          <div className={styles.card} style={{ margin: '0 16px 32px 16px' }}>
+          <div id="monthly-budget" className={styles.card} style={{ margin: '0 16px 32px 16px' }}>
             <div className={styles.cardHeader}>
               <div className={styles.cardHeaderFlex}>
                 <div className={styles.cardTitleSection}>
@@ -839,7 +839,7 @@ export default function BudgetClient({ transactions, profile, customCategories }
 
           {/* Categories with Budget */}
           {allCategoriesWithBudget.length > 0 && (
-            <div className={styles.card} style={{ margin: '0 16px 32px 16px' }}>
+            <div id="category-budgets" className={styles.card} style={{ margin: '0 16px 32px 16px' }}>
               <div className={styles.cardHeader}>
                 <h2 className={styles.cardTitle}>Category Budgets</h2>
                 <p className={styles.cardDescription}>
@@ -1101,7 +1101,7 @@ export default function BudgetClient({ transactions, profile, customCategories }
           )}
 
           {/* Add Category Budget */}
-          <div className={styles.card} style={{ margin: '0 16px 32px 16px' }}>
+          <div id="add-category" className={styles.card} style={{ margin: '0 16px 32px 16px' }}>
             <div className={styles.cardHeader}>
               <h2 className={styles.cardTitle}>Add Category Budget</h2>
               <p className={styles.cardDescription}>

@@ -119,7 +119,7 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pr
         />
 
         {/* User Info Section */}
-        <div className={styles.section}>
+        <div id="user-profile" className={styles.section}>
           <div className={styles.userInfo}>
             <div className={styles.avatar}>
               {userName.charAt(0).toUpperCase()}
@@ -132,7 +132,7 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pr
         </div>
 
         {/* Appearance Section */}
-        <div className={styles.section}>
+        <div id="appearance" className={styles.section}>
           <h3 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>🎨</span>
             Appearance
@@ -191,7 +191,7 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pr
         </div>
 
         {/* Notifications Section */}
-        <div className={styles.section}>
+        <div id="notifications" className={styles.section}>
           <h3 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>🔔</span>
             Notifications
@@ -271,7 +271,7 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pr
         </div>
 
         {/* Security Section */}
-        <div className={styles.section}>
+        <div id="security" className={styles.section}>
           <h3 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>🔒</span>
             Security
@@ -310,7 +310,7 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pr
         </div>
 
         {/* Support Section */}
-        <div className={styles.section}>
+        <div id="support" className={styles.section}>
           <h3 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>💬</span>
             Support
@@ -333,7 +333,7 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pr
         </div>
 
         {/* About Section */}
-        <div className={styles.section}>
+        <div id="about-app" className={styles.section}>
           <h3 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>ℹ️</span>
             About
@@ -361,7 +361,7 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pr
         </div>
 
         {/* Danger Zone */}
-        <div className={styles.section}>
+        <div id="account" className={styles.section}>
           <div className={styles.dangerZone}>
             <button 
               className={styles.deleteButton}

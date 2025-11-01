@@ -5,6 +5,7 @@ import { getSession } from '@/lib/session'
 import { redirect } from 'next/navigation'
 import { sanitizeArray } from '@/lib/sanitize'
 import TransactionsPageClient from '@/app/components/transactions/transactions-page-client/transactions-page-client'
+import PageLayoutWithSidebar from '@/app/components/page-layout-with-sidebar/page-layout-with-sidebar'
 
 export default async function TransactionsPage() {
   const user = await getSession()
@@ -33,5 +34,9 @@ export default async function TransactionsPage() {
   const accountsData = sanitizeArray(accountsDataRaw)
   const transactionsData = sanitizeArray(transactionsDataRaw)
 
-  return <TransactionsPageClient accounts={accountsData} transactions={transactionsData} />
+  return (
+    <PageLayoutWithSidebar customerId={user.customerId}>
+      <TransactionsPageClient accounts={accountsData} transactions={transactionsData} />
+    </PageLayoutWithSidebar>
+  )
 }

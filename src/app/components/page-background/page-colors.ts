@@ -1,4 +1,3 @@
-// Static colors for different pages
 export const PAGE_COLORS = {
   analytics: '#8b5cf6',    // Purple - for analytics/insights
   budget: '#10b981',       // Green - for budget/money management  

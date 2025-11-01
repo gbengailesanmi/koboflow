@@ -298,109 +298,121 @@ export default function AnalyticsPageClient({ accounts, transactions, customCate
           ) : (
             <>
               {/* Stats Cards */}
-              <StatsCards 
-                totalIncome={totalIncome}
-                totalExpense={totalExpense}
-                netBalance={netBalance}
-                incomeTransactionCount={filteredTransactions.filter(t => t.type === 'income').length}
-                expenseTransactionCount={filteredTransactions.filter(t => t.type === 'expense').length}
-                currency={profile.currency}
-              />
+              <div id="stats-cards">
+                <StatsCards 
+                  totalIncome={totalIncome}
+                  totalExpense={totalExpense}
+                  netBalance={netBalance}
+                  incomeTransactionCount={filteredTransactions.filter(t => t.type === 'income').length}
+                  expenseTransactionCount={filteredTransactions.filter(t => t.type === 'expense').length}
+                  currency={profile.currency}
+                />
+              </div>
 
               {/* Expense Pie Chart */}
-              <AnalyticsCard
-                title="📊 Expense Breakdown"
-                description="Visual breakdown of your spending by category"
-              >
-                {categoryData.length === 0 ? (
-                  <div className={styles.noData}>
-                    <div style={{ fontSize: '48px', marginBottom: '16px' }}>📈</div>
-                    No expense data for this period
-                  </div>
-                ) : (
-                  <div className={styles.chartContainer}>
-                    <PieChart 
-                      data={categoryData.slice(0, 6)} 
-                      categoryConfig={categoryConfig}
-                      currency={profile.currency}
-                    />
-                  </div>
-                )}
-              </AnalyticsCard>
-
-              {/* Month-on-Month Comparison */}
-              <AnalyticsCard
-                title="📈 Daily Expense Comparison"
-                description="Compare daily expenses for the entire month between current and previous month"
-              >
-                {(monthOnMonthData.currentMonth.expense === 0 && monthOnMonthData.prevMonth.expense === 0) ? (
-                  <div className={styles.noData}>
-                    <div style={{ fontSize: '48px', marginBottom: '16px' }}>📈</div>
-                    No expense data for comparison
-                  </div>
-                ) : (
-                  <div className={styles.chartContainer}>
-                    <MonthOnMonthChart 
-                      data={monthOnMonthData}
-                      currency={profile.currency}
-                      transactions={processedTransactions}
-                    />
-                    <div className={styles.comparisonStats}>
-                      <DailySpendingComparison
-                        currentMonthAverage={monthOnMonthData.currentMonth.dailyAverage}
-                        prevMonthAverage={monthOnMonthData.prevMonth.dailyAverage}
-                        currentMonthName={monthOnMonthData.currentMonth.name}
-                        prevMonthName={monthOnMonthData.prevMonth.name}
+              <div id="expense-breakdown">
+                <AnalyticsCard
+                  title="📊 Expense Breakdown"
+                  description="Visual breakdown of your spending by category"
+                >
+                  {categoryData.length === 0 ? (
+                    <div className={styles.noData}>
+                      <div style={{ fontSize: '48px', marginBottom: '16px' }}>📈</div>
+                      No expense data for this period
+                    </div>
+                  ) : (
+                    <div className={styles.chartContainer}>
+                      <PieChart 
+                        data={categoryData.slice(0, 6)} 
+                        categoryConfig={categoryConfig}
                         currency={profile.currency}
                       />
                     </div>
-                  </div>
-                )}
-              </AnalyticsCard>
+                  )}
+                </AnalyticsCard>
+              </div>
+
+              {/* Month-on-Month Comparison */}
+              <div id="daily-comparison">
+                <AnalyticsCard
+                  title="📈 Daily Expense Comparison"
+                  description="Compare daily expenses for the entire month between current and previous month"
+                >
+                  {(monthOnMonthData.currentMonth.expense === 0 && monthOnMonthData.prevMonth.expense === 0) ? (
+                    <div className={styles.noData}>
+                      <div style={{ fontSize: '48px', marginBottom: '16px' }}>📈</div>
+                      No expense data for comparison
+                    </div>
+                  ) : (
+                    <div className={styles.chartContainer}>
+                      <MonthOnMonthChart 
+                        data={monthOnMonthData}
+                        currency={profile.currency}
+                        transactions={processedTransactions}
+                      />
+                      <div className={styles.comparisonStats}>
+                        <DailySpendingComparison
+                          currentMonthAverage={monthOnMonthData.currentMonth.dailyAverage}
+                          prevMonthAverage={monthOnMonthData.prevMonth.dailyAverage}
+                          currentMonthName={monthOnMonthData.currentMonth.name}
+                          prevMonthName={monthOnMonthData.prevMonth.name}
+                          currency={profile.currency}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </AnalyticsCard>
+              </div>
 
               {/* Category Breakdown */}
-              <AnalyticsCard
-                title="🏷️ Spending by Category"
-                description="Detailed breakdown of your expenses across different categories"
-              >
-                <CategoryBreakdown 
-                  categoryData={categoryData}
-                  currency={profile.currency}
-                  customCategories={customCategories}
-                  onAddCategory={async (name, keywords) => {
-                    // Generate a random color for the new category
-                    const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316']
-                    const randomColor = colors[Math.floor(Math.random() * colors.length)]
-                    await handleAddCategory(name, keywords, randomColor)
-                  }}
-                  onDeleteCategory={handleDeleteCategory}
-                />
-              </AnalyticsCard>
+              <div id="spending-category">
+                <AnalyticsCard
+                  title="🏷️ Spending by Category"
+                  description="Detailed breakdown of your expenses across different categories"
+                >
+                  <CategoryBreakdown 
+                    categoryData={categoryData}
+                    currency={profile.currency}
+                    customCategories={customCategories}
+                    onAddCategory={async (name, keywords) => {
+                      // Generate a random color for the new category
+                      const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316']
+                      const randomColor = colors[Math.floor(Math.random() * colors.length)]
+                      await handleAddCategory(name, keywords, randomColor)
+                    }}
+                    onDeleteCategory={handleDeleteCategory}
+                  />
+                </AnalyticsCard>
+              </div>
 
               {/* Recurring Payments */}
-              <AnalyticsCard
-                title="🔄 Recurring Payments"
-                description="Track your recurring expenses and upcoming payment predictions"
-              >
-                <RecurringPayments 
-                  transactions={processedTransactions}
-                  currency={profile.currency}
-                  maxItems={5}
-                  showSeeMore={false}
-                />
-              </AnalyticsCard>
+              <div id="recurring-payments">
+                <AnalyticsCard
+                  title="🔄 Recurring Payments"
+                  description="Track your recurring expenses and upcoming payment predictions"
+                >
+                  <RecurringPayments 
+                    transactions={processedTransactions}
+                    currency={profile.currency}
+                    maxItems={5}
+                    showSeeMore={false}
+                  />
+                </AnalyticsCard>
+              </div>
 
               {/* Budget Progress */}
-              <AnalyticsCard
-                title="💰 Monthly Budget Overview"
-                description="Track your progress against your monthly spending budget (current month)"
-              >
-                <BudgetOverview
-                  monthlyExpense={monthlyExpense}
-                  monthlyBudget={profile.monthlyBudget}
-                  currency={profile.currency}
-                />
-              </AnalyticsCard>
+              <div id="budget-overview">
+                <AnalyticsCard
+                  title="💰 Monthly Budget Overview"
+                  description="Track your progress against your monthly spending budget (current month)"
+                >
+                  <BudgetOverview
+                    monthlyExpense={monthlyExpense}
+                    monthlyBudget={profile.monthlyBudget}
+                    currency={profile.currency}
+                  />
+                </AnalyticsCard>
+              </div>
             </>
           )}
         </div>

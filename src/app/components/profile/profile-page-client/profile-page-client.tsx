@@ -168,7 +168,7 @@ export default function ProfilePageClient({ user }: ProfilePageClientProps) {
           />
 
           {/* Profile Card */}
-          <div className={styles.profileCard}>
+          <div id="user-info" className={styles.profileCard}>
             
             {/* Customer ID Section */}
             <div className={styles.customerIdSection}>
@@ -236,7 +236,7 @@ export default function ProfilePageClient({ user }: ProfilePageClientProps) {
             </div>
 
             {/* Currency Field */}
-            <div className={styles.fieldContainer}>
+            <div id="currency-settings" className={styles.fieldContainer}>
               <label className={styles.labelWithIcon}>
                 💰 Preferred Currency
               </label>
@@ -322,7 +322,7 @@ export default function ProfilePageClient({ user }: ProfilePageClientProps) {
           </div>
 
           {/* About Section */}
-          <div className={styles.profileCard}>
+          <div id="about" className={styles.profileCard}>
             <h2 className={styles.aboutTitle}>About Money Mapper</h2>
             <p className={styles.aboutSubtitle}>Personal finance tracking made simple</p>
             <div className={styles.aboutContent}>
