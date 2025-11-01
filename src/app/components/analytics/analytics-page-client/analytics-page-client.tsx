@@ -1,12 +1,12 @@
 'use client'
 
 import React, { useMemo, useState, useEffect } from 'react'
-import { ArrowLeftIcon } from '@radix-ui/react-icons'
 import { useParams, useRouter } from 'next/navigation'
 import type { Account } from '@/types/account'
 import type { Transaction } from '@/types/transactions'
 import type { CustomCategory } from '@/types/custom-category'
 import Footer from '@/app/components/footer/footer'
+import { PageHeader } from '@/app/components/page-header/page-header'
 import { UserProfile, CategoryData } from '../types/analytics-types'
 import { categorizeTransaction } from '../utils/categorize-transaction'
 import { formatCurrency } from '../utils/format-currency'
@@ -237,21 +237,10 @@ export default function AnalyticsPageClient({ accounts, transactions, customCate
         <div>
           
           {/* Header */}
-          <div className={styles.header}>
-            <div className={styles.backButton}>
-              <ArrowLeftIcon
-                className={styles.backIcon}
-                onClick={() => router.push(`/${customerId}/dashboard`)}
-                style={{ color: '#fff' }}
-              />
-            </div>
-            <div className={styles.headerCenter}>
-              <h1 className={styles.title}>Analytics</h1>
-            </div>
-          </div>
-          <div className={styles.subtitle}>
-            <p className={styles.subtitleText}>Insights into your spending patterns and trends</p>
-          </div>
+          <PageHeader 
+            title="Analytics" 
+            subtitle="Insights into your spending patterns and trends"
+          />
 
           {/* Account Selector */}
           <div className={styles.accountSelectorContainer}>

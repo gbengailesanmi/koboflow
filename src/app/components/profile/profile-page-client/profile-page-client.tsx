@@ -1,9 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Pencil1Icon, CheckIcon, Cross2Icon, PersonIcon, EnvelopeClosedIcon, ArrowLeftIcon } from '@radix-ui/react-icons'
+import { Pencil1Icon, CheckIcon, Cross2Icon, PersonIcon, EnvelopeClosedIcon } from '@radix-ui/react-icons'
 import Footer from '@/app/components/footer/footer'
 import { redirect, useParams, useRouter } from 'next/navigation'
+import { PageHeader } from '@/app/components/page-header/page-header'
 import { updateProfile } from '@/app/actions/profile'
 import styles from './profile-page-client.module.css'
 
@@ -153,21 +154,10 @@ export default function ProfilePageClient({ user }: ProfilePageClientProps) {
         <div>
           
           {/* Header */}
-            <div className={styles.header}>
-            <div className={styles.backButton}>
-              <ArrowLeftIcon
-              className={styles.backIcon}
-              onClick={() => redirect(`/${customerId}/dashboard`)}
-              style={{ color: '#222222' }}
-              />
-            </div>
-            <div className={styles.headerCenter}>
-              <h1 className={styles.title}>Profile</h1>
-            </div>
-            </div>
-            <div className={styles.subtitle}>
-            <p className={styles.subtitleText}>Manage your account settings and preferences</p>
-            </div>
+          <PageHeader 
+            title="Profile" 
+            subtitle="Manage your account settings and preferences"
+          />
 
           {/* Profile Card */}
           <div className={styles.profileCard}>

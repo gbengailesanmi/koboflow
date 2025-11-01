@@ -1,14 +1,15 @@
 'use client'
 
 import React, { useMemo, useState } from 'react'
-import { ArrowLeftIcon } from '@radix-ui/react-icons'
 import { useParams, useRouter } from 'next/navigation'
 import type { Transaction } from '@/types/transactions'
 import type { CustomCategory } from '@/types/custom-category'
 import Footer from '@/app/components/footer/footer'
+import { PageHeader } from '@/app/components/page-header/page-header'
 import { categorizeTransaction } from '@/app/components/analytics/utils/categorize-transaction'
 import { formatCurrency } from '@/app/components/analytics/utils/format-currency'
 import { getCategoryConfig } from '@/app/components/analytics/utils/category-config'
+import type { BudgetPeriod, BudgetPeriodType } from '@/types/budget'
 import styles from './budget-page-client.module.css'
 
 type UserProfile = {
@@ -26,6 +27,7 @@ type CategoryBudget = {
 
 type BudgetData = {
   monthly: number
+  period?: BudgetPeriod
   categories: CategoryBudget[]
 }
 
@@ -46,6 +48,7 @@ export default function BudgetClient({ transactions, profile, customCategories }
   // Load budget data from database
   const [budgetData, setBudgetData] = useState<BudgetData>({
     monthly: profile.monthlyBudget || 0,
+    period: { type: 'current-month' },
     categories: []
   })
   const [isLoading, setIsLoading] = useState(true)
@@ -54,6 +57,14 @@ export default function BudgetClient({ transactions, profile, customCategories }
   const [editValue, setEditValue] = useState('')
   const [isRenamingCategory, setIsRenamingCategory] = useState<string | null>(null)
   const [renameValue, setRenameValue] = useState('')
+  
+  // Period editing states
+  const [isEditingPeriod, setIsEditingPeriod] = useState(false)
+  const [periodType, setPeriodType] = useState<BudgetPeriodType>('current-month')
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
+  const [recurringInterval, setRecurringInterval] = useState('1')
+  const [recurringUnit, setRecurringUnit] = useState<'days' | 'months' | 'years'>('months')
 
   // Fetch budget data from database
   React.useEffect(() => {
@@ -63,10 +74,18 @@ export default function BudgetClient({ transactions, profile, customCategories }
         const response = await fetch('/api/budget')
         if (response.ok) {
           const data = await response.json()
+          const period = data.period || { type: 'current-month' }
           setBudgetData({
             monthly: data.monthly || profile.monthlyBudget || 0,
+            period: period,
             categories: data.categories || []
           })
+          // Set period editing states
+          setPeriodType(period.type)
+          if (period.startDate) setStartDate(new Date(period.startDate).toISOString().split('T')[0])
+          if (period.endDate) setEndDate(new Date(period.endDate).toISOString().split('T')[0])
+          if (period.recurringInterval) setRecurringInterval(period.recurringInterval.toString())
+          if (period.recurringUnit) setRecurringUnit(period.recurringUnit)
         }
       } catch (error) {
         console.error('Failed to fetch budget:', error)
@@ -112,38 +131,78 @@ export default function BudgetClient({ transactions, profile, customCategories }
     })
   }, [transactions, customCategories])
 
-  // Calculate current month expenses
-  const monthlyExpenses = useMemo(() => {
-    const now = new Date()
-    const currentMonth = now.getMonth()
-    const currentYear = now.getFullYear()
+  // Helper function to check if a date is within the budget period
+  const isDateInPeriod = (date: Date, period?: BudgetPeriod): boolean => {
+    if (!period || period.type === 'current-month') {
+      const now = new Date()
+      return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear()
+    }
+    
+    if (period.type === 'custom-date' && period.startDate && period.endDate) {
+      const start = new Date(period.startDate)
+      const end = new Date(period.endDate)
+      return date >= start && date <= end
+    }
+    
+    if (period.type === 'recurring' && period.startDate && period.recurringInterval && period.recurringUnit) {
+      const start = new Date(period.startDate)
+      const now = new Date()
+      
+      // Calculate how many periods have passed since start
+      let periodsSinceStart = 0
+      if (period.recurringUnit === 'days') {
+        const daysSinceStart = Math.floor((now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))
+        periodsSinceStart = Math.floor(daysSinceStart / period.recurringInterval)
+      } else if (period.recurringUnit === 'months') {
+        const monthsSinceStart = (now.getFullYear() - start.getFullYear()) * 12 + (now.getMonth() - start.getMonth())
+        periodsSinceStart = Math.floor(monthsSinceStart / period.recurringInterval)
+      } else if (period.recurringUnit === 'years') {
+        const yearsSinceStart = now.getFullYear() - start.getFullYear()
+        periodsSinceStart = Math.floor(yearsSinceStart / period.recurringInterval)
+      }
+      
+      // Calculate current period start and end
+      const currentPeriodStart = new Date(start)
+      if (period.recurringUnit === 'days') {
+        currentPeriodStart.setDate(start.getDate() + (periodsSinceStart * period.recurringInterval))
+      } else if (period.recurringUnit === 'months') {
+        currentPeriodStart.setMonth(start.getMonth() + (periodsSinceStart * period.recurringInterval))
+      } else if (period.recurringUnit === 'years') {
+        currentPeriodStart.setFullYear(start.getFullYear() + (periodsSinceStart * period.recurringInterval))
+      }
+      
+      const currentPeriodEnd = new Date(currentPeriodStart)
+      if (period.recurringUnit === 'days') {
+        currentPeriodEnd.setDate(currentPeriodStart.getDate() + period.recurringInterval)
+      } else if (period.recurringUnit === 'months') {
+        currentPeriodEnd.setMonth(currentPeriodStart.getMonth() + period.recurringInterval)
+      } else if (period.recurringUnit === 'years') {
+        currentPeriodEnd.setFullYear(currentPeriodStart.getFullYear() + period.recurringInterval)
+      }
+      
+      return date >= currentPeriodStart && date < currentPeriodEnd
+    }
+    
+    return false
+  }
 
+  // Calculate expenses for the selected period
+  const monthlyExpenses = useMemo(() => {
     return processedTransactions
-      .filter(t => {
-        const date = t.date
-        return t.type === 'expense' && 
-               date.getMonth() === currentMonth && 
-               date.getFullYear() === currentYear
-      })
+      .filter(t => t.type === 'expense' && isDateInPeriod(t.date, budgetData.period))
       .reduce((sum, t) => sum + t.numericAmount, 0)
-  }, [processedTransactions])
+  }, [processedTransactions, budgetData.period])
 
   // Calculate category expenses
   const categoryExpenses = useMemo(() => {
-    const now = new Date()
-    const currentMonth = now.getMonth()
-    const currentYear = now.getFullYear()
-    
     const categories = Object.keys(categoryConfig).filter(cat => cat !== 'income')
     
     return categories.map(category => {
       const spent = processedTransactions
         .filter(t => {
-          const date = t.date
           return t.type === 'expense' &&
                  t.category === category &&
-                 date.getMonth() === currentMonth &&
-                 date.getFullYear() === currentYear
+                 isDateInPeriod(t.date, budgetData.period)
         })
         .reduce((sum, t) => sum + t.numericAmount, 0)
 
@@ -161,7 +220,7 @@ export default function BudgetClient({ transactions, profile, customCategories }
         customName: undefined as string | undefined
       }
     }).sort((a, b) => b.spent - a.spent)
-  }, [processedTransactions, budgetData.categories])
+  }, [processedTransactions, budgetData.categories, budgetData.period])
 
   const monthlyProgress = (monthlyExpenses / budgetData.monthly) * 100
   const isOverBudget = monthlyExpenses > budgetData.monthly
@@ -175,6 +234,91 @@ export default function BudgetClient({ transactions, profile, customCategories }
     saveBudget(newBudget)
     setIsEditing(null)
     setEditValue('')
+  }
+  
+  const handleUpdateBudgetWithPeriod = () => {
+    // Validate inputs based on period type
+    if (periodType === 'custom-date') {
+      if (!startDate || !endDate) {
+        alert('Please enter both start and end dates')
+        return
+      }
+      if (new Date(startDate) >= new Date(endDate)) {
+        alert('End date must be after start date')
+        return
+      }
+    }
+    
+    if (periodType === 'recurring') {
+      if (!startDate) {
+        alert('Please enter a start date')
+        return
+      }
+      if (!recurringInterval || parseInt(recurringInterval) < 1) {
+        alert('Please enter a valid interval')
+        return
+      }
+    }
+    
+    // Build period object
+    const period: BudgetPeriod = { type: periodType }
+    
+    if (periodType === 'custom-date') {
+      period.startDate = new Date(startDate)
+      period.endDate = new Date(endDate)
+    } else if (periodType === 'recurring') {
+      period.startDate = new Date(startDate)
+      period.recurringInterval = parseInt(recurringInterval)
+      period.recurringUnit = recurringUnit
+    }
+    
+    const amount = parseFloat(editValue)
+    if (isNaN(amount) || amount <= 0) {
+      alert('Please enter a valid amount')
+      return
+    }
+    
+    const newBudget = {
+      ...budgetData,
+      monthly: amount,
+      period: period
+    }
+    setBudgetData(newBudget)
+    saveBudget(newBudget)
+    setIsEditingPeriod(false)
+    setIsEditing(null)
+    setEditValue('')
+  }
+  
+  // Format period for display
+  const formatPeriod = (period?: BudgetPeriod): string => {
+    if (!period || period.type === 'current-month') {
+      return 'Current Month'
+    }
+    
+    if (period.type === 'custom-date' && period.startDate && period.endDate) {
+      const start = new Date(period.startDate).toLocaleDateString()
+      const end = new Date(period.endDate).toLocaleDateString()
+      return `${start} - ${end}`
+    }
+    
+    if (period.type === 'recurring' && period.recurringInterval && period.recurringUnit) {
+      const interval = period.recurringInterval === 1 ? '' : period.recurringInterval
+      const unit = period.recurringInterval === 1 
+        ? period.recurringUnit.slice(0, -1) // Remove 's' for singular
+        : period.recurringUnit
+      return `Every ${interval} ${unit}`.trim()
+    }
+    
+    return 'Current Month'
+  }
+  
+  // Get period text for messages (e.g., "this month" or "this period")
+  const getPeriodText = (period?: BudgetPeriod): string => {
+    if (!period || period.type === 'current-month') {
+      return 'this month'
+    }
+    return 'this period'
   }
 
   const handleSetCategoryBudget = (category: string, limit: number, customName?: string) => {
@@ -316,21 +460,10 @@ export default function BudgetClient({ transactions, profile, customCategories }
       <div className={styles.wrapper}>
         <div>
           {/* Header */}
-          <div className={styles.header}>
-            <div className={styles.backButton}>
-              <ArrowLeftIcon
-                className={styles.backIcon}
-                onClick={() => router.push(`/${customerId}/dashboard`)}
-                style={{ color: '#222222' }}
-              />
-            </div>
-            <div className={styles.headerCenter}>
-              <h1 className={styles.title}>Budget</h1>
-            </div>
-          </div>
-          <div className={styles.subtitle}>
-            <p className={styles.subtitleText}>Set spending limits and track your progress</p>
-          </div>
+          <PageHeader 
+            title="Budget" 
+            subtitle="Set spending limits and track your progress"
+          />
 
           {/* Monthly Budget Card */}
           <div className={styles.card} style={{ margin: '0 16px 32px 16px' }}>
@@ -341,51 +474,184 @@ export default function BudgetClient({ transactions, profile, customCategories }
                     <span style={{ fontSize: '24px' }}>🎯</span>
                   </div>
                   <div>
-                    <h2 className={styles.cardTitle}>Monthly Budget</h2>
+                    <h2 className={styles.cardTitle}>Budget</h2>
                     <p className={styles.cardDescription}>
-                      Overall spending limit for this month
+                      {formatPeriod(budgetData.period)}
                     </p>
                   </div>
                 </div>
-                {isEditing !== 'monthly' ? (
+                {!isEditing ? (
                   <button 
                     className={styles.editButton}
-                    onClick={() => startEdit('monthly', budgetData.monthly)}
+                    onClick={() => {
+                      setIsEditing('monthly')
+                      setIsEditingPeriod(true)
+                      setEditValue(budgetData.monthly.toString())
+                    }}
                   >
                     ✏️ Edit
                   </button>
                 ) : (
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <input
-                      type="number"
-                      value={editValue}
-                      onChange={(e) => setEditValue(e.target.value)}
-                      placeholder="Enter amount"
-                      style={{
-                        padding: '8px 12px',
-                        borderRadius: '8px',
-                        border: '1px solid #e5e7eb',
-                        width: '120px'
-                      }}
-                    />
-                    <button 
-                      className={styles.editButton}
-                      onClick={() => {
-                        const amount = parseFloat(editValue)
-                        if (amount > 0) handleUpdateMonthlyBudget(amount)
-                      }}
-                    >
-                      ✓
-                    </button>
-                    <button 
-                      className={styles.editButton}
-                      onClick={() => {
-                        setIsEditing(null)
-                        setEditValue('')
-                      }}
-                    >
-                      ✕
-                    </button>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', minWidth: '300px' }}>
+                    {/* Amount Input */}
+                    <div>
+                      <label style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px', display: 'block' }}>
+                        Budget Amount
+                      </label>
+                      <input
+                        type="number"
+                        value={editValue}
+                        onChange={(e) => setEditValue(e.target.value)}
+                        placeholder="Enter amount"
+                        style={{
+                          padding: '8px 12px',
+                          borderRadius: '8px',
+                          border: '1px solid #e5e7eb',
+                          width: '100%'
+                        }}
+                      />
+                    </div>
+                    
+                    {/* Period Type Selector */}
+                    <div>
+                      <label style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px', display: 'block' }}>
+                        Budget Period
+                      </label>
+                      <select
+                        value={periodType}
+                        onChange={(e) => setPeriodType(e.target.value as BudgetPeriodType)}
+                        style={{
+                          padding: '8px 12px',
+                          borderRadius: '8px',
+                          border: '1px solid #e5e7eb',
+                          width: '100%'
+                        }}
+                      >
+                        <option value="current-month">Current Month</option>
+                        <option value="custom-date">Custom Date Range</option>
+                        <option value="recurring">Recurring Period</option>
+                      </select>
+                    </div>
+                    
+                    {/* Custom Date Inputs */}
+                    {periodType === 'custom-date' && (
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <div style={{ flex: 1 }}>
+                          <label style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px', display: 'block' }}>
+                            Start Date
+                          </label>
+                          <input
+                            type="date"
+                            value={startDate}
+                            onChange={(e) => setStartDate(e.target.value)}
+                            style={{
+                              padding: '8px 12px',
+                              borderRadius: '8px',
+                              border: '1px solid #e5e7eb',
+                              width: '100%'
+                            }}
+                          />
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <label style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px', display: 'block' }}>
+                            End Date
+                          </label>
+                          <input
+                            type="date"
+                            value={endDate}
+                            onChange={(e) => setEndDate(e.target.value)}
+                            style={{
+                              padding: '8px 12px',
+                              borderRadius: '8px',
+                              border: '1px solid #e5e7eb',
+                              width: '100%'
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Recurring Period Inputs */}
+                    {periodType === 'recurring' && (
+                      <>
+                        <div>
+                          <label style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px', display: 'block' }}>
+                            Start Date
+                          </label>
+                          <input
+                            type="date"
+                            value={startDate}
+                            onChange={(e) => setStartDate(e.target.value)}
+                            style={{
+                              padding: '8px 12px',
+                              borderRadius: '8px',
+                              border: '1px solid #e5e7eb',
+                              width: '100%'
+                            }}
+                          />
+                        </div>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <div style={{ flex: 1 }}>
+                            <label style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px', display: 'block' }}>
+                              Every
+                            </label>
+                            <input
+                              type="number"
+                              min="1"
+                              value={recurringInterval}
+                              onChange={(e) => setRecurringInterval(e.target.value)}
+                              style={{
+                                padding: '8px 12px',
+                                borderRadius: '8px',
+                                border: '1px solid #e5e7eb',
+                                width: '100%'
+                              }}
+                            />
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <label style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px', display: 'block' }}>
+                              Unit
+                            </label>
+                            <select
+                              value={recurringUnit}
+                              onChange={(e) => setRecurringUnit(e.target.value as 'days' | 'months' | 'years')}
+                              style={{
+                                padding: '8px 12px',
+                                borderRadius: '8px',
+                                border: '1px solid #e5e7eb',
+                                width: '100%'
+                              }}
+                            >
+                              <option value="days">Days</option>
+                              <option value="months">Months</option>
+                              <option value="years">Years</option>
+                            </select>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                    
+                    {/* Action Buttons */}
+                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                      <button 
+                        className={styles.editButton}
+                        onClick={handleUpdateBudgetWithPeriod}
+                        style={{ background: '#10b981' }}
+                      >
+                        ✓ Save
+                      </button>
+                      <button 
+                        className={styles.editButton}
+                        onClick={() => {
+                          setIsEditing(null)
+                          setIsEditingPeriod(false)
+                          setEditValue('')
+                        }}
+                        style={{ background: '#ef4444' }}
+                      >
+                        ✕ Cancel
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -393,7 +659,7 @@ export default function BudgetClient({ transactions, profile, customCategories }
             <div className={styles.cardContent}>
               <div className={styles.budgetOverview}>
                 <div className={styles.budgetSection}>
-                  <div className={styles.budgetLabel}>Spent this month</div>
+                  <div className={styles.budgetLabel}>Spent {getPeriodText(budgetData.period)}</div>
                   <div className={`${styles.budgetValue} ${isOverBudget ? styles.budgetValueOver : styles.budgetValueNormal}`}>
                     {formatCurrency(monthlyExpenses, profile.currency)}
                   </div>
@@ -489,8 +755,8 @@ export default function BudgetClient({ transactions, profile, customCategories }
                   </div>
                   <div className={styles.statusMessage}>
                     {isOverBudget 
-                      ? `You've exceeded your monthly budget by ${formatCurrency(monthlyExpenses - budgetData.monthly, profile.currency)}`
-                      : `You have ${formatCurrency(budgetData.monthly - monthlyExpenses, profile.currency)} remaining this month`
+                      ? `You've exceeded your budget by ${formatCurrency(monthlyExpenses - budgetData.monthly, profile.currency)}`
+                      : `You have ${formatCurrency(budgetData.monthly - monthlyExpenses, profile.currency)} remaining ${getPeriodText(budgetData.period)}`
                     }
                   </div>
                 </div>
@@ -806,7 +1072,7 @@ export default function BudgetClient({ transactions, profile, customCategories }
                               {category === 'other' ? 'Other' : getCategoryDisplayName(category)}
                             </div>
                             <div className={styles.categorySpent}>
-                              {spent > 0 ? `Spent ${formatCurrency(spent, profile.currency)} this month` : 'No spending this month'}
+                              {spent > 0 ? `Spent ${formatCurrency(spent, profile.currency)} ${getPeriodText(budgetData.period)}` : `No spending ${getPeriodText(budgetData.period)}`}
                             </div>
                           </div>
                         </div>
