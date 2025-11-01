@@ -110,11 +110,7 @@ export {
   getBudget,
   upsertBudget,
   updateMonthlyBudget,
-  updateCategoryBudgets,
-  getMonthlySpending,
-  updateMonthlySpending,
-  recalculateMonthlySpending,
-  getBudgetWithSpending
+  updateCategoryBudgets
 } from '@/db/helpers/budget-helpers'
 
 // Export custom category helper functions
