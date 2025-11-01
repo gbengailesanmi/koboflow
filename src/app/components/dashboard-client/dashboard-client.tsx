@@ -148,25 +148,28 @@ export default function DashboardClient({ accounts, transactions, profile }: Das
           </div>
         </Grid>        <Grid className={styles.Grid4}>
           <h2 className="text-xl font-semibold mb-2">This Month vs Last Month</h2>
-          {processedTransactions.length > 0 && 
-           (monthOnMonthData.currentMonth.expense > 0 || monthOnMonthData.prevMonth.expense > 0) ? (
-            <MonthOnMonthChart 
-              data={monthOnMonthData}
-              currency={profile.currency}
-              transactions={processedTransactions}
-            />
-          ) : (
-            <div style={{ 
-              display: 'flex', 
-              flexDirection: 'column', 
-              alignItems: 'center', 
-              justifyContent: 'center',
-              color: '#6b7280'
-            }}>
-              <div style={{ fontSize: '48px', marginBottom: '6px' }}>📈</div>
-              <p>No expense data for comparison</p>
-            </div>
-          )}
+          <div style={{ width: '100%', height: '350px', minHeight: '350px' }}>
+            {processedTransactions.length > 0 && 
+             (monthOnMonthData.currentMonth.expense > 0 || monthOnMonthData.prevMonth.expense > 0) ? (
+              <MonthOnMonthChart 
+                data={monthOnMonthData}
+                currency={profile.currency}
+                transactions={processedTransactions}
+              />
+            ) : (
+              <div style={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                color: '#6b7280',
+                height: '100%'
+              }}>
+                <div style={{ fontSize: '48px', marginBottom: '6px' }}>📈</div>
+                <p>No expense data for comparison</p>
+              </div>
+            )}
+          </div>
         </Grid>
         {/* <Grid className={styles.Grid5}>
           <h2 className="text-xl font-semibold mb-2">Insights</h2>
