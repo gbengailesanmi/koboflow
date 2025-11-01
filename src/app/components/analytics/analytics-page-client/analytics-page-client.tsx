@@ -7,6 +7,8 @@ import type { Transaction } from '@/types/transactions'
 import type { CustomCategory } from '@/types/custom-category'
 import Footer from '@/app/components/footer/footer'
 import { PageHeader } from '@/app/components/page-header/page-header'
+import { useBaseColor } from '@/providers/base-colour-provider'
+import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
 import { UserProfile, CategoryData } from '../types/analytics-types'
 import { categorizeTransaction } from '../utils/categorize-transaction'
 import { formatCurrency } from '../utils/format-currency'
@@ -29,6 +31,7 @@ type AnalyticsPageClientProps = {
 }
 
 export default function AnalyticsPageClient({ accounts, transactions, customCategories: initialCategories, profile }: AnalyticsPageClientProps) {
+  const { setBaseColor } = useBaseColor()
   const [selectedAccountId, setSelectedAccountId] = useState<string>('all')
   const [timePeriod, setTimePeriod] = useState<'day' | 'month' | 'year'>('month')
   const [isHydrated, setIsHydrated] = useState(false)
@@ -39,6 +42,11 @@ export default function AnalyticsPageClient({ accounts, transactions, customCate
   const customerId = params.customerId as string
   
   const categoryConfig = useMemo(() => getCategoryConfig(customCategories), [customCategories])
+
+  // Set static purple color for analytics page
+  useEffect(() => {
+    setBaseColor(PAGE_COLORS.analytics)
+  }, [setBaseColor])
 
   useEffect(() => {
     setIsHydrated(true)
@@ -232,7 +240,7 @@ export default function AnalyticsPageClient({ accounts, transactions, customCate
   }, [processedTransactions])
 
   return (
-    <div className={styles.container}>
+    <div className={`${styles.container} page-gradient-background`}>
       <div className={styles.wrapper}>
         <div>
           

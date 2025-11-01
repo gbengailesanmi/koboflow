@@ -6,6 +6,8 @@ import Footer from '@/app/components/footer/footer'
 import { redirect, useParams, useRouter } from 'next/navigation'
 import { PageHeader } from '@/app/components/page-header/page-header'
 import { updateProfile } from '@/app/actions/profile'
+import { useBaseColor } from '@/providers/base-colour-provider'
+import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
 import styles from './profile-page-client.module.css'
 
 type User = {
@@ -34,6 +36,7 @@ const currencies = [
 ]
 
 export default function ProfilePageClient({ user }: ProfilePageClientProps) {
+  const { setBaseColor } = useBaseColor()
   const [isEditing, setIsEditing] = useState(false)
   const [budgetSetInBudgetPage, setBudgetSetInBudgetPage] = useState(false)
   const [formData, setFormData] = useState({
@@ -49,6 +52,11 @@ export default function ProfilePageClient({ user }: ProfilePageClientProps) {
   const params = useParams()
   const router = useRouter()
   const customerId = params.customerId as string
+
+  // Set static amber color for profile page
+  useEffect(() => {
+    setBaseColor(PAGE_COLORS.profile)
+  }, [setBaseColor])
 
   // Check if budget was set from budget page
   useEffect(() => {
@@ -149,7 +157,7 @@ export default function ProfilePageClient({ user }: ProfilePageClientProps) {
   }
 
   return (
-    <div className={styles.container}>
+    <div className={`${styles.container} page-gradient-background`}>
       <div className={styles.wrapper}>
         <div>
           

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import type { Transaction } from '@/types/transactions'
 import type { CustomCategory } from '@/types/custom-category'
@@ -10,6 +10,8 @@ import { categorizeTransaction } from '@/app/components/analytics/utils/categori
 import { formatCurrency } from '@/app/components/analytics/utils/format-currency'
 import { getCategoryConfig } from '@/app/components/analytics/utils/category-config'
 import type { BudgetPeriod, BudgetPeriodType } from '@/types/budget'
+import { useBaseColor } from '@/providers/base-colour-provider'
+import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
 import styles from './budget-page-client.module.css'
 
 type UserProfile = {
@@ -41,6 +43,12 @@ export default function BudgetClient({ transactions, profile, customCategories }
   const params = useParams()
   const router = useRouter()
   const customerId = params.customerId as string
+  const { setBaseColor } = useBaseColor()
+
+  // Set static green color for budget page
+  useEffect(() => {
+    setBaseColor(PAGE_COLORS.budget)
+  }, [setBaseColor])
 
   // Get category config including custom categories
   const categoryConfig = useMemo(() => getCategoryConfig(customCategories), [customCategories])
@@ -516,7 +524,7 @@ export default function BudgetClient({ transactions, profile, customCategories }
   const allCategoriesWithBudget = [...categoriesWithBudget, ...customBudgetCategories]
 
   return (
-    <div className={styles.container}>
+    <div className={`${styles.container} page-gradient-background`}>
       <div className={styles.wrapper}>
         <div>
           {/* Header */}

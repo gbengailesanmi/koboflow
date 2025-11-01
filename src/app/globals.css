@@ -9,3 +9,22 @@ html, body {
 .radix-themes {
 	--default-font-family: var(--font-open-sans);
 }
+
+/* Dynamic Page Background - Reusable gradient system */
+.page-gradient-background {
+  --viaColor: color-mix(in srgb, var(--baseColor) 10%, #040914 90%);
+  --viaStop: 40%;
+  --bottomColor: #040914;
+  --bottomStop: 90%;
+
+  background:
+    linear-gradient(
+      to bottom,
+      var(--baseColor) 0%,
+      var(--viaColor) var(--viaStop),
+      var(--bottomColor) var(--bottomStop)
+    ) no-repeat,
+    var(--bottomColor);
+  background-size: 100% 100vh;
+  background-repeat: no-repeat;
+}

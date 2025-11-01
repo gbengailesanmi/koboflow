@@ -1,6 +1,6 @@
 'use client'
 
-import React, { createContext, useState, useContext } from 'react'
+import React, { createContext, useState, useContext, useEffect } from 'react'
 
 type ColorContextType = {
   baseColor: string
@@ -52,7 +52,19 @@ export default function BaseColorProvider({ children }: { children: React.ReactN
   const setBaseColor = (color: string, userSet = false) => {
     _setBaseColor(color)
     if (userSet) setIsUserSet(true)
+    
+    // Apply the color as a CSS custom property on the document root
+    if (typeof document !== 'undefined') {
+      document.documentElement.style.setProperty('--baseColor', color)
+    }
   }
+
+  // Set initial baseColor on mount
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.style.setProperty('--baseColor', baseColor)
+    }
+  }, [baseColor])
 
   return (
     <ColorContext.Provider

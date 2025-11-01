@@ -12,6 +12,8 @@ import TransactionDetailsDialog from '@/app/components/transactions/transaction-
 import TransactionCard from '@/app/components/transactions/transaction-card/transaction-card'
 import TransactionsFilters from '@/app/components/transactions/transactions-filters/transactions-filters'
 import { redirect, useParams } from 'next/navigation'
+import { useBaseColor } from '@/providers/base-colour-provider'
+import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
 
 type TransactionsPageClientProps = {
   transactions: Transaction[]
@@ -19,6 +21,7 @@ type TransactionsPageClientProps = {
 }
 
 export default function TransactionsPageClient({ transactions, accounts }: TransactionsPageClientProps) {
+  const { setBaseColor } = useBaseColor()
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null)
   const [filterAccountId, setFilterAccountId] = useState<string>('')
   const [searchTerm, setSearchTerm] = useState<string>('')
@@ -26,6 +29,11 @@ export default function TransactionsPageClient({ transactions, accounts }: Trans
 
   const params = useParams()
   const customerId = params.customerId as string
+
+  // Set static pink color for transactions page
+  useEffect(() => {
+    setBaseColor(PAGE_COLORS.transactions)
+  }, [setBaseColor])
 
   const months = useMemo(() => {
     const monthSet = new Set<string>()
@@ -80,7 +88,7 @@ export default function TransactionsPageClient({ transactions, accounts }: Trans
 
   return (
     <Dialog.Root onOpenChange={open => { if (!open) setSelectedTransaction(null) }}>
-      <div className={styles.PageGrid}>
+      <div className={`${styles.PageGrid} page-gradient-background`}>
         <div className={styles.Header}>
           <ArrowLeftIcon className="w-6 h-6" onClick={() => redirect(`/${customerId}/dashboard`)}/>
           <h1 className="text-xl font-semibold mb-2">Transactions</h1>

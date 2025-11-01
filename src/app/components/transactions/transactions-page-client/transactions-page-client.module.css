@@ -1,6 +1,13 @@
 /* @reference "../../globals.css";
  */
 
+.PageGrid {
+  display: grid;
+  grid-template-rows: auto auto 1fr 5rem;
+  height: 100vh;
+  min-height: 100vh;
+}
+
 .Header {
   display: flex;
   flex-direction: column;
@@ -9,11 +16,6 @@
   top: 0;
   z-index: 10;
   padding: .5rem;
-}
-
-.PageGrid {
-  display: grid;  grid-template-rows: auto auto 1fr 5rem;
-  height: 100vh;
 }
 
 .Filters {

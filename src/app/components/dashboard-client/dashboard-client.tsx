@@ -105,7 +105,7 @@ export default function DashboardClient({ accounts, transactions, profile }: Das
   return (
     <>
       <Header />
-      <main className={styles.main} style={{ '--baseColor': baseColor } as React.CSSProperties}>
+      <main className={`${styles.main} page-gradient-background`}>
         <Grid className={styles.AccountsGrid}>
 
           <AccountsCarousel

@@ -1,8 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { PageHeader } from '@/app/components/page-header/page-header'
+import { useBaseColor } from '@/providers/base-colour-provider'
+import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
 import styles from './settings-page-client.module.css'
 
 type Theme = 'light' | 'dark' | 'system'
@@ -34,6 +36,7 @@ type Props = {
 
 export default function SettingsPageClient({ customerId, userName, userEmail, preferences }: Props) {
   const router = useRouter()
+  const { setBaseColor } = useBaseColor()
   const [theme, setTheme] = useState<Theme>(preferences.theme)
   const [accentColor, setAccentColor] = useState(preferences.accentColor)
   const [notifications, setNotifications] = useState(preferences.notifications)
@@ -41,6 +44,11 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pr
   const [showPinModal, setShowPinModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+
+  // Set static indigo color for settings page
+  useEffect(() => {
+    setBaseColor(PAGE_COLORS.settings)
+  }, [setBaseColor])
 
   const accentColors = [
     { name: 'Blue', value: 'blue', color: '#3b82f6' },
@@ -102,7 +110,7 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pr
   }
 
   return (
-    <div className={styles.container}>
+    <div className={`${styles.container} page-gradient-background`}>
       <div className={styles.wrapper}>
         <PageHeader 
           title="Settings" 

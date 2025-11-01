@@ -1,7 +1,7 @@
 @reference "../../../globals.css";
 
 .container {
-  @apply min-h-screen bg-gray-300;
+  @apply min-h-screen;
 }
 
 .wrapper {
