@@ -2,7 +2,7 @@
 
 .container {
   @apply min-h-screen;
-  background: linear-gradient(135deg, #222937 0%, #9e8f9e 100%);
+  background: linear-gradient(135deg, #222937 0%, #a09aa0 100%);
 }
 
 .wrapper {
