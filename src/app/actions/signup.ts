@@ -10,15 +10,24 @@ import { cookies } from 'next/headers'
 const secret = new TextEncoder().encode(process.env.SESSION_SECRET!)
 
 export async function signup(_: FormState, formData: FormData): Promise<FormState> {
-  const name = formData.get('name')?.toString().trim() || ''
+  const firstName = formData.get('firstName')?.toString().trim() || ''
+  const lastName = formData.get('lastName')?.toString().trim() || ''
   const email = formData.get('email')?.toString().trim().toLowerCase() || ''
   const password = formData.get('password')?.toString() || ''
   const passwordConfirm = formData.get('passwordConfirm')?.toString() || ''
 
-  if (!name || !email || !password || !passwordConfirm) {
+  if (!firstName || !lastName || !email || !password || !passwordConfirm) {
     return { message: 'All fields are required.' }
   }
-  const parsed = SignupFormSchema.safeParse({ name, email, password, passwordConfirm: formData.get('passwordConfirm')?.toString() || '' })
+  
+  const parsed = SignupFormSchema.safeParse({ 
+    firstName, 
+    lastName, 
+    email, 
+    password, 
+    passwordConfirm: formData.get('passwordConfirm')?.toString() || '' 
+  })
+  
   if (!parsed.success) {
     return { errors: parsed.error.flatten().fieldErrors }
   }
@@ -32,11 +41,16 @@ export async function signup(_: FormState, formData: FormData): Promise<FormStat
   try {
     const hashedPassword = await bcrypt.hash(password, 10)
     const customerId = uuidv4()
+    
+    // Combine first and last name
+    const name = `${firstName} ${lastName}`
 
     const insertResult = await db.collection('users').insertOne({
       email,
       password: hashedPassword,
       name,
+      firstName,
+      lastName,
       customerId,
     })
 

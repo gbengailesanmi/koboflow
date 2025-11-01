@@ -10,9 +10,15 @@ export default function SignupForm() {
   return (
     <form action={formAction} className="space-y-4">
       <div>
-        <label htmlFor="name">Name</label>
-        <input id="name" name="name" placeholder="Name" required autoComplete="name" />
-        {state?.errors?.name && <p>{state.errors.name.join(', ')}</p>}
+        <label htmlFor="firstName">First Name</label>
+        <input id="firstName" name="firstName" placeholder="First Name" required autoComplete="given-name" />
+        {state?.errors?.firstName && <p>{state.errors.firstName.join(', ')}</p>}
+      </div>
+
+      <div>
+        <label htmlFor="lastName">Last Name</label>
+        <input id="lastName" name="lastName" placeholder="Last Name" required autoComplete="family-name" />
+        {state?.errors?.lastName && <p>{state.errors.lastName.join(', ')}</p>}
       </div>
 
       <div>

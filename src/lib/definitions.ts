@@ -1,7 +1,8 @@
 import { z } from 'zod'
 
 export const SignupFormSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters').trim(),
+  firstName: z.string().min(2, 'First name must be at least 2 characters').trim(),
+  lastName: z.string().min(2, 'Last name must be at least 2 characters').trim(),
   email: z.email('Invalid email').trim(),
   password: z.string()
     .min(8, 'At least 8 characters')
@@ -16,7 +17,8 @@ export const SignupFormSchema = z.object({
 
 export type FormState = {
   errors?: {
-    name?: string[]
+    firstName?: string[]
+    lastName?: string[]
     email?: string[]
     password?: string[]
     passwordConfirm?: string[]
