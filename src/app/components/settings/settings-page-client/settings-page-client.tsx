@@ -21,21 +21,32 @@ type SecuritySettings = {
   useFaceId: boolean
 }
 
+type AccentColours = {
+  analytics: string
+  budget: string
+  profile: string
+  settings: string
+  transactions: string
+  dashboard: string
+}
+
 type UserPreferences = {
   theme: Theme
   accentColor: string
   notifications: NotificationSettings
   security: SecuritySettings
+  accentColours?: AccentColours
 }
 
 type Props = {
   customerId: string
   userName: string
   userEmail: string
+  pageColor: string
   preferences: UserPreferences
 }
 
-export default function SettingsPageClient({ customerId, userName, userEmail, preferences }: Props) {
+export default function SettingsPageClient({ customerId, userName, userEmail, pageColor, preferences }: Props) {
   const router = useRouter()
   const { setBaseColor } = useBaseColor()
   const [theme, setTheme] = useState<Theme>(preferences.theme)
@@ -45,11 +56,25 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pr
   const [showPinModal, setShowPinModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [isAccentColorsExpanded, setIsAccentColorsExpanded] = useState(false)
+  
+  // Initialize accent colours with defaults from PAGE_COLORS
+  const [accentColours, setAccentColours] = useState<AccentColours>(
+    preferences.accentColours || {
+      analytics: PAGE_COLORS.analytics,
+      budget: PAGE_COLORS.budget,
+      profile: PAGE_COLORS.profile,
+      settings: PAGE_COLORS.settings,
+      transactions: PAGE_COLORS.transactions,
+      dashboard: PAGE_COLORS.dashboard,
+    }
+  )
 
-  // Set static indigo color for settings page
+  // Set page color with 30% transparency
   useEffect(() => {
-    setBaseColor(PAGE_COLORS.settings)
-  }, [setBaseColor])
+    const colorWithTransparency = `${pageColor}4D` // 30% transparency
+    setBaseColor(colorWithTransparency)
+  }, [pageColor, setBaseColor])
 
   const accentColors = [
     { name: 'Blue', value: 'blue', color: '#3b82f6' },
@@ -73,7 +98,8 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pr
           theme,
           accentColor,
           notifications,
-          useFaceId
+          useFaceId,
+          accentColours
         })
       })
 
@@ -166,28 +192,175 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pr
             </div>
           </div>
 
-          {/* Accent Color */}
-          <div className={styles.settingItem}>
-            <div className={styles.settingInfo}>
-              <label className={styles.settingLabel}>Accent Color</label>
-              <p className={styles.settingDescription}>Customize your page colors</p>
-            </div>
-            <div className={styles.colorGrid}>
-              {accentColors.map((color) => (
-                <button
-                  key={color.value}
-                  className={`${styles.colorOption} ${accentColor === color.value ? styles.colorOptionActive : ''}`}
-                  style={{ backgroundColor: color.color }}
-                  onClick={() => {
-                    setAccentColor(color.value)
-                    savePreferences()
-                  }}
-                  title={color.name}
-                >
-                  {accentColor === color.value && <span className={styles.colorCheck}>✓</span>}
-                </button>
-              ))}
-            </div>
+          {/* Accent Colours - Collapsible Dropdown */}
+          <div className={styles.settingItem} style={{ flexDirection: 'column', alignItems: 'stretch' }}>
+            <button 
+              className={styles.dropdownHeader}
+              onClick={() => setIsAccentColorsExpanded(!isAccentColorsExpanded)}
+            >
+              <div className={styles.settingInfo}>
+                <label className={styles.settingLabel}>Accent Colours</label>
+                <p className={styles.settingDescription}>Customize page colors</p>
+              </div>
+              <span className={`${styles.dropdownArrow} ${isAccentColorsExpanded ? styles.dropdownArrowOpen : ''}`}>
+                ▼
+              </span>
+            </button>
+
+            {/* Collapsible Page Color List */}
+            {isAccentColorsExpanded && (
+              <div className={styles.dropdownContent}>
+                {/* Analytics */}
+                <div className={styles.pageColorItem}>
+                  <div className={styles.pageColorLabel}>
+                    <div 
+                      className={styles.pageColorDot}
+                      style={{ backgroundColor: `${accentColours.analytics}80` }}
+                    />
+                    <span className={styles.pageColorName}>Analytics</span>
+                  </div>
+                  <input
+                    type="text"
+                    value={accentColours.analytics}
+                    onChange={(e) => {
+                      const value = e.target.value
+                      if (/^#[0-9A-Fa-f]{0,6}$/.test(value)) {
+                        setAccentColours({ ...accentColours, analytics: value })
+                      }
+                    }}
+                    onBlur={() => savePreferences()}
+                    className={styles.hexInput}
+                    placeholder="#8B7DAB"
+                    maxLength={7}
+                  />
+                </div>
+
+                {/* Budget */}
+                <div className={styles.pageColorItem}>
+                  <div className={styles.pageColorLabel}>
+                    <div 
+                      className={styles.pageColorDot}
+                      style={{ backgroundColor: `${accentColours.budget}80` }}
+                    />
+                    <span className={styles.pageColorName}>Budget</span>
+                  </div>
+                  <input
+                    type="text"
+                    value={accentColours.budget}
+                    onChange={(e) => {
+                      const value = e.target.value
+                      if (/^#[0-9A-Fa-f]{0,6}$/.test(value)) {
+                        setAccentColours({ ...accentColours, budget: value })
+                      }
+                    }}
+                    onBlur={() => savePreferences()}
+                    className={styles.hexInput}
+                    placeholder="#86B0AA"
+                    maxLength={7}
+                  />
+                </div>
+
+                {/* Transactions */}
+                <div className={styles.pageColorItem}>
+                  <div className={styles.pageColorLabel}>
+                    <div 
+                      className={styles.pageColorDot}
+                      style={{ backgroundColor: `${accentColours.transactions}80` }}
+                    />
+                    <span className={styles.pageColorName}>Transactions</span>
+                  </div>
+                  <input
+                    type="text"
+                    value={accentColours.transactions}
+                    onChange={(e) => {
+                      const value = e.target.value
+                      if (/^#[0-9A-Fa-f]{0,6}$/.test(value)) {
+                        setAccentColours({ ...accentColours, transactions: value })
+                      }
+                    }}
+                    onBlur={() => savePreferences()}
+                    className={styles.hexInput}
+                    placeholder="#966F83"
+                    maxLength={7}
+                  />
+                </div>
+
+                {/* Profile */}
+                <div className={styles.pageColorItem}>
+                  <div className={styles.pageColorLabel}>
+                    <div 
+                      className={styles.pageColorDot}
+                      style={{ backgroundColor: `${accentColours.profile}80` }}
+                    />
+                    <span className={styles.pageColorName}>Profile</span>
+                  </div>
+                  <input
+                    type="text"
+                    value={accentColours.profile}
+                    onChange={(e) => {
+                      const value = e.target.value
+                      if (/^#[0-9A-Fa-f]{0,6}$/.test(value)) {
+                        setAccentColours({ ...accentColours, profile: value })
+                      }
+                    }}
+                    onBlur={() => savePreferences()}
+                    className={styles.hexInput}
+                    placeholder="#f59e0b"
+                    maxLength={7}
+                  />
+                </div>
+
+                {/* Settings */}
+                <div className={styles.pageColorItem}>
+                  <div className={styles.pageColorLabel}>
+                    <div 
+                      className={styles.pageColorDot}
+                      style={{ backgroundColor: `${accentColours.settings}80` }}
+                    />
+                    <span className={styles.pageColorName}>Settings</span>
+                  </div>
+                  <input
+                    type="text"
+                    value={accentColours.settings}
+                    onChange={(e) => {
+                      const value = e.target.value
+                      if (/^#[0-9A-Fa-f]{0,6}$/.test(value)) {
+                        setAccentColours({ ...accentColours, settings: value })
+                      }
+                    }}
+                    onBlur={() => savePreferences()}
+                    className={styles.hexInput}
+                    placeholder="#7D7DBD"
+                    maxLength={7}
+                  />
+                </div>
+
+                {/* Dashboard */}
+                <div className={styles.pageColorItem}>
+                  <div className={styles.pageColorLabel}>
+                    <div 
+                      className={styles.pageColorDot}
+                      style={{ backgroundColor: `${accentColours.dashboard}80` }}
+                    />
+                    <span className={styles.pageColorName}>Dashboard</span>
+                  </div>
+                  <input
+                    type="text"
+                    value={accentColours.dashboard}
+                    onChange={(e) => {
+                      const value = e.target.value
+                      if (/^#[0-9A-Fa-f]{0,6}$/.test(value)) {
+                        setAccentColours({ ...accentColours, dashboard: value })
+                      }
+                    }}
+                    onBlur={() => savePreferences()}
+                    className={styles.hexInput}
+                    placeholder="#245cd4"
+                    maxLength={7}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

@@ -7,7 +7,6 @@ import { redirect, useParams, useRouter } from 'next/navigation'
 import { PageHeader } from '@/app/components/page-header/page-header'
 import { updateProfile } from '@/app/actions/profile'
 import { useBaseColor } from '@/providers/base-colour-provider'
-import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
 import styles from './profile-page-client.module.css'
 
 type User = {
@@ -20,6 +19,7 @@ type User = {
 
 type ProfilePageClientProps = {
   user: User
+  pageColor: string
 }
 
 const currencies = [
@@ -35,7 +35,7 @@ const currencies = [
   { code: 'NGN', name: 'Nigerian Naira', symbol: '₦' },
 ]
 
-export default function ProfilePageClient({ user }: ProfilePageClientProps) {
+export default function ProfilePageClient({ user, pageColor }: ProfilePageClientProps) {
   const { setBaseColor } = useBaseColor()
   const [isEditing, setIsEditing] = useState(false)
   const [budgetSetInBudgetPage, setBudgetSetInBudgetPage] = useState(false)
@@ -53,10 +53,11 @@ export default function ProfilePageClient({ user }: ProfilePageClientProps) {
   const router = useRouter()
   const customerId = params.customerId as string
 
-  // Set static amber color for profile page
+  // Set page color with 30% transparency
   useEffect(() => {
-    setBaseColor(PAGE_COLORS.profile)
-  }, [setBaseColor])
+    const colorWithTransparency = `${pageColor}4D` // 30% transparency
+    setBaseColor(colorWithTransparency)
+  }, [pageColor, setBaseColor])
 
   // Check if budget was set from budget page
   useEffect(() => {

@@ -13,14 +13,14 @@ import TransactionCard from '@/app/components/transactions/transaction-card/tran
 import TransactionsFilters from '@/app/components/transactions/transactions-filters/transactions-filters'
 import { redirect, useParams } from 'next/navigation'
 import { useBaseColor } from '@/providers/base-colour-provider'
-import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
 
 type TransactionsPageClientProps = {
   transactions: Transaction[]
   accounts: Account[]
+  pageColor: string
 }
 
-export default function TransactionsPageClient({ transactions, accounts }: TransactionsPageClientProps) {
+export default function TransactionsPageClient({ transactions, accounts, pageColor }: TransactionsPageClientProps) {
   const { setBaseColor } = useBaseColor()
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null)
   const [filterAccountId, setFilterAccountId] = useState<string>('')
@@ -30,10 +30,11 @@ export default function TransactionsPageClient({ transactions, accounts }: Trans
   const params = useParams()
   const customerId = params.customerId as string
 
-  // Set static pink color for transactions page
+  // Set page color with 30% transparency
   useEffect(() => {
-    setBaseColor(PAGE_COLORS.transactions)
-  }, [setBaseColor])
+    const colorWithTransparency = `${pageColor}4D` // 30% transparency
+    setBaseColor(colorWithTransparency)
+  }, [pageColor, setBaseColor])
 
   const months = useMemo(() => {
     const monthSet = new Set<string>()

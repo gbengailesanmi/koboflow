@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { customerId, theme, accentColor, notifications, useFaceId } = body
+    const { customerId, theme, accentColor, notifications, useFaceId, accentColours } = body
 
     // Verify the customerId matches the session
     if (customerId !== session.customerId) {
@@ -31,17 +31,22 @@ export async function POST(request: NextRequest) {
     const db = await connectDB()
     
     // Update user preferences
+    const updateData: any = {
+      theme,
+      accentColor,
+      notifications,
+      useFaceId,
+      updatedAt: new Date()
+    }
+
+    // Always include accentColours (either from request or will be set to defaults)
+    if (accentColours) {
+      updateData.accentColours = accentColours
+    }
+    
     await db.collection('users').updateOne(
       { customerId },
-      {
-        $set: {
-          theme,
-          accentColor,
-          notifications,
-          useFaceId,
-          updatedAt: new Date()
-        }
-      }
+      { $set: updateData }
     )
 
     return NextResponse.json({ 

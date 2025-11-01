@@ -11,7 +11,6 @@ import { formatCurrency } from '@/app/components/analytics/utils/format-currency
 import { getCategoryConfig } from '@/app/components/analytics/utils/category-config'
 import type { BudgetPeriod, BudgetPeriodType } from '@/types/budget'
 import { useBaseColor } from '@/providers/base-colour-provider'
-import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
 import styles from './budget-page-client.module.css'
 
 type UserProfile = {
@@ -37,18 +36,20 @@ type BudgetClientProps = {
   transactions: Transaction[]
   profile: UserProfile
   customCategories: CustomCategory[]
+  pageColor: string
 }
 
-export default function BudgetClient({ transactions, profile, customCategories }: BudgetClientProps) {
+export default function BudgetClient({ transactions, profile, customCategories, pageColor }: BudgetClientProps) {
   const params = useParams()
   const router = useRouter()
   const customerId = params.customerId as string
   const { setBaseColor } = useBaseColor()
 
-  // Set static green color for budget page
+  // Set page color with 30% transparency
   useEffect(() => {
-    setBaseColor(PAGE_COLORS.budget)
-  }, [setBaseColor])
+    const colorWithTransparency = `${pageColor}4D` // 30% transparency
+    setBaseColor(colorWithTransparency)
+  }, [pageColor, setBaseColor])
 
   // Get category config including custom categories
   const categoryConfig = useMemo(() => getCategoryConfig(customCategories), [customCategories])

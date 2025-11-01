@@ -5,6 +5,7 @@ import { getSession } from '@/lib/session'
 import { redirect } from 'next/navigation'
 import ProfilePageClient from '@/app/components/profile/profile-page-client/profile-page-client'
 import PageLayoutWithSidebar from '@/app/components/page-layout-with-sidebar/page-layout-with-sidebar'
+import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
 
 export default async function ProfilePage() {
   const user = await getSession()
@@ -33,9 +34,12 @@ export default async function ProfilePage() {
     monthlyBudget: monthlyBudget
   }
 
+  // Get page color from user profile or use default
+  const pageColor = userData?.accentColours?.profile || PAGE_COLORS.profile
+
   return (
     <PageLayoutWithSidebar customerId={user?.customerId || ''}>
-      <ProfilePageClient user={sanitizedUser} />
+      <ProfilePageClient user={sanitizedUser} pageColor={pageColor} />
     </PageLayoutWithSidebar>
   )
 }

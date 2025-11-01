@@ -8,7 +8,6 @@ import type { CustomCategory } from '@/types/custom-category'
 import Footer from '@/app/components/footer/footer'
 import { PageHeader } from '@/app/components/page-header/page-header'
 import { useBaseColor } from '@/providers/base-colour-provider'
-import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
 import { UserProfile, CategoryData } from '../types/analytics-types'
 import { categorizeTransaction } from '../utils/categorize-transaction'
 import { formatCurrency } from '../utils/format-currency'
@@ -28,9 +27,10 @@ type AnalyticsPageClientProps = {
   transactions: Transaction[]
   customCategories: CustomCategory[]
   profile: UserProfile
+  pageColor: string
 }
 
-export default function AnalyticsPageClient({ accounts, transactions, customCategories: initialCategories, profile }: AnalyticsPageClientProps) {
+export default function AnalyticsPageClient({ accounts, transactions, customCategories: initialCategories, profile, pageColor }: AnalyticsPageClientProps) {
   const { setBaseColor } = useBaseColor()
   const [selectedAccountId, setSelectedAccountId] = useState<string>('all')
   const [timePeriod, setTimePeriod] = useState<'day' | 'month' | 'year'>('month')
@@ -43,10 +43,11 @@ export default function AnalyticsPageClient({ accounts, transactions, customCate
   
   const categoryConfig = useMemo(() => getCategoryConfig(customCategories), [customCategories])
 
-  // Set static purple color for analytics page
+  // Set page color with 30% transparency
   useEffect(() => {
-    setBaseColor(PAGE_COLORS.analytics)
-  }, [setBaseColor])
+    const colorWithTransparency = `${pageColor}4D` // Add 30% transparency (4D in hex)
+    setBaseColor(colorWithTransparency)
+  }, [pageColor, setBaseColor])
 
   useEffect(() => {
     setIsHydrated(true)

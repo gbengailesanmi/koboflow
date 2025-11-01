@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation'
 import { sanitizeArray } from '@/lib/sanitize'
 import AnalyticsPageClient from '@/app/components/analytics/analytics-page-client/analytics-page-client'
 import PageLayoutWithSidebar from '@/app/components/page-layout-with-sidebar/page-layout-with-sidebar'
+import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
 
 export default async function AnalyticsPage() {
   const user = await getSession()
@@ -55,6 +56,8 @@ export default async function AnalyticsPage() {
     monthlyBudget: userProfile?.monthlyBudget || 5000
   }
 
+  const pageColor = userProfile?.accentColours?.analytics || PAGE_COLORS.analytics
+
   return (
     <PageLayoutWithSidebar customerId={user.customerId}>
       <AnalyticsPageClient 
@@ -62,6 +65,7 @@ export default async function AnalyticsPage() {
         transactions={transactionsData}
         customCategories={customCategories}
         profile={profile}
+        pageColor={pageColor}
       />
     </PageLayoutWithSidebar>
   )

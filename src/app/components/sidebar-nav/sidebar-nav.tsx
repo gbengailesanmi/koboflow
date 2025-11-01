@@ -150,11 +150,16 @@ export default function SidebarNav({ customerId }: SidebarNavProps) {
             return (
               <div key={section.id} className={styles.section}>
                 {/* Section Header */}
-                <button
+                <div
                   className={`${styles.sectionHeader} ${isActive ? styles.sectionHeaderActive : ''}`}
-                  onClick={() => handleSectionClick(section.id)}
                 >
-                  <span className={styles.sectionLabel}>{section.label}</span>
+                  <span 
+                    className={styles.sectionLabel}
+                    onClick={() => handleSectionClick(section.id)}
+                    style={{ cursor: 'pointer', flex: 1 }}
+                  >
+                    {section.label}
+                  </span>
                   <button
                     className={styles.expandButton}
                     onClick={(e) => {
@@ -168,7 +173,7 @@ export default function SidebarNav({ customerId }: SidebarNavProps) {
                       <ChevronRightIcon className={styles.chevron} />
                     )}
                   </button>
-                </button>
+                </div>
 
                 {/* Section Items */}
                 {isExpanded && (
