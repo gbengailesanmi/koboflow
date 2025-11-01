@@ -1,6 +1,5 @@
-
 import { connectDB } from '@/db/mongo'
-import type { Budget, BudgetSpending, CategoryBudget } from '@/types/budget'
+import type { Budget, BudgetSpending, CategoryBudget, BudgetPeriod } from '@/types/budget'
 
 /**
  * Get or create budget for a customer
@@ -16,18 +15,26 @@ export async function getBudget(customerId: string): Promise<Budget | null> {
 export async function upsertBudget(
   customerId: string, 
   monthly: number, 
-  categories: CategoryBudget[]
+  categories: CategoryBudget[],
+  period?: BudgetPeriod
 ): Promise<void> {
   const db = await connectDB()
+  
+  const updateFields: any = {
+    monthly,
+    categories,
+    updatedAt: new Date()
+  }
+  
+  // Include period if provided, otherwise keep existing or use default
+  if (period) {
+    updateFields.period = period
+  }
   
   await db.collection('budgets').updateOne(
     { customerId },
     {
-      $set: {
-        monthly,
-        categories,
-        updatedAt: new Date()
-      },
+      $set: updateFields,
       $setOnInsert: {
         customerId,
         createdAt: new Date()
@@ -42,17 +49,25 @@ export async function upsertBudget(
  */
 export async function updateMonthlyBudget(
   customerId: string, 
-  monthly: number
+  monthly: number,
+  period?: BudgetPeriod
 ): Promise<void> {
   const db = await connectDB()
+  
+  const updateFields: any = {
+    monthly,
+    updatedAt: new Date()
+  }
+  
+  // Include period if provided
+  if (period) {
+    updateFields.period = period
+  }
   
   await db.collection('budgets').updateOne(
     { customerId },
     {
-      $set: {
-        monthly,
-        updatedAt: new Date()
-      }
+      $set: updateFields
     }
   )
 }
@@ -74,6 +89,56 @@ export async function updateCategoryBudgets(
         updatedAt: new Date()
       }
     }
+  )
+}
+
+/**
+ * Update budget period
+ */
+export async function updateBudgetPeriod(
+  customerId: string,
+  period: BudgetPeriod
+): Promise<void> {
+  const db = await connectDB()
+  
+  await db.collection('budgets').updateOne(
+    { customerId },
+    {
+      $set: {
+        period,
+        updatedAt: new Date()
+      }
+    }
+  )
+}
+
+/**
+ * Update budget with period (convenience function)
+ */
+export async function updateBudgetWithPeriod(
+  customerId: string,
+  monthly: number,
+  categories: CategoryBudget[],
+  period?: BudgetPeriod
+): Promise<void> {
+  const db = await connectDB()
+  
+  const updateFields: any = {
+    monthly,
+    categories,
+    updatedAt: new Date()
+  }
+  
+  if (period) {
+    updateFields.period = period
+  }
+  
+  await db.collection('budgets').updateOne(
+    { customerId },
+    {
+      $set: updateFields
+    },
+    { upsert: true }
   )
 }
 

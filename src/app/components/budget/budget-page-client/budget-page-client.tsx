@@ -320,6 +320,66 @@ export default function BudgetClient({ transactions, profile, customCategories }
     }
     return 'this period'
   }
+  
+  // Get the current active period date range (for recurring budgets)
+  const getCurrentPeriodRange = (period?: BudgetPeriod): string => {
+    if (!period || period.type === 'current-month') {
+      const now = new Date()
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+      const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+      return `${monthStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${monthEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
+    }
+    
+    if (period.type === 'custom-date' && period.startDate && period.endDate) {
+      const start = new Date(period.startDate)
+      const end = new Date(period.endDate)
+      return `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
+    }
+    
+    if (period.type === 'recurring' && period.startDate && period.recurringInterval && period.recurringUnit) {
+      const start = new Date(period.startDate)
+      const now = new Date()
+      
+      // Calculate how many periods have passed since start
+      let periodsSinceStart = 0
+      if (period.recurringUnit === 'days') {
+        const daysSinceStart = Math.floor((now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))
+        periodsSinceStart = Math.floor(daysSinceStart / period.recurringInterval)
+      } else if (period.recurringUnit === 'months') {
+        const monthsSinceStart = (now.getFullYear() - start.getFullYear()) * 12 + (now.getMonth() - start.getMonth())
+        periodsSinceStart = Math.floor(monthsSinceStart / period.recurringInterval)
+      } else if (period.recurringUnit === 'years') {
+        const yearsSinceStart = now.getFullYear() - start.getFullYear()
+        periodsSinceStart = Math.floor(yearsSinceStart / period.recurringInterval)
+      }
+      
+      // Calculate current period start
+      const currentPeriodStart = new Date(start)
+      if (period.recurringUnit === 'days') {
+        currentPeriodStart.setDate(start.getDate() + (periodsSinceStart * period.recurringInterval))
+      } else if (period.recurringUnit === 'months') {
+        currentPeriodStart.setMonth(start.getMonth() + (periodsSinceStart * period.recurringInterval))
+      } else if (period.recurringUnit === 'years') {
+        currentPeriodStart.setFullYear(start.getFullYear() + (periodsSinceStart * period.recurringInterval))
+      }
+      
+      // Calculate current period end
+      const currentPeriodEnd = new Date(currentPeriodStart)
+      if (period.recurringUnit === 'days') {
+        currentPeriodEnd.setDate(currentPeriodStart.getDate() + period.recurringInterval - 1)
+      } else if (period.recurringUnit === 'months') {
+        currentPeriodEnd.setMonth(currentPeriodStart.getMonth() + period.recurringInterval)
+        currentPeriodEnd.setDate(0) // Last day of previous month
+      } else if (period.recurringUnit === 'years') {
+        currentPeriodEnd.setFullYear(currentPeriodStart.getFullYear() + period.recurringInterval)
+        currentPeriodEnd.setDate(currentPeriodEnd.getDate() - 1)
+      }
+      
+      return `${currentPeriodStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${currentPeriodEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
+    }
+    
+    return ''
+  }
 
   const handleSetCategoryBudget = (category: string, limit: number, customName?: string) => {
     // Calculate total of all other categories
@@ -477,6 +537,11 @@ export default function BudgetClient({ transactions, profile, customCategories }
                     <h2 className={styles.cardTitle}>Budget</h2>
                     <p className={styles.cardDescription}>
                       {formatPeriod(budgetData.period)}
+                      {budgetData.period?.type === 'recurring' && (
+                        <span style={{ display: 'block', fontSize: '11px', color: '#9ca3af', marginTop: '2px' }}>
+                          Current: {getCurrentPeriodRange(budgetData.period)}
+                        </span>
+                      )}
                     </p>
                   </div>
                 </div>

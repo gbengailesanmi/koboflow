@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/session'
 import { getBudget, upsertBudget, getBudgetWithSpending } from '@/db/helpers/budget-helpers'
-import type { CategoryBudget } from '@/types/budget'
+import type { CategoryBudget, BudgetPeriod } from '@/types/budget'
 import { connectDB } from '@/db/mongo'
 
 /**
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { monthly, categories } = body
+    const { monthly, categories, period } = body
 
     if (typeof monthly !== 'number' || monthly < 0) {
       return NextResponse.json(
@@ -81,9 +81,30 @@ export async function POST(request: NextRequest) {
       typeof cat.limit === 'number' && 
       cat.limit >= 0
     )
+    
+    // Validate period if provided
+    let validPeriod: BudgetPeriod | undefined = undefined
+    if (period) {
+      if (!period.type || !['current-month', 'custom-date', 'recurring'].includes(period.type)) {
+        return NextResponse.json(
+          { error: 'Invalid period type' },
+          { status: 400 }
+        )
+      }
+      
+      // Convert date strings to Date objects if present
+      if (period.startDate) {
+        period.startDate = new Date(period.startDate)
+      }
+      if (period.endDate) {
+        period.endDate = new Date(period.endDate)
+      }
+      
+      validPeriod = period as BudgetPeriod
+    }
 
     // Update budget in budget collection
-    await upsertBudget(session.customerId, monthly, validCategories)
+    await upsertBudget(session.customerId, monthly, validCategories, validPeriod)
 
     // Sync monthly budget to user profile (Budget page takes precedence)
     const db = await connectDB()
@@ -137,11 +158,22 @@ export async function PATCH(request: NextRequest) {
 
     const updatedBudget = {
       monthly: body.monthly ?? currentBudget.monthly,
-      categories: body.categories ?? currentBudget.categories
+      categories: body.categories ?? currentBudget.categories,
+      period: body.period ?? currentBudget.period
+    }
+    
+    // Validate and convert period dates if present
+    if (updatedBudget.period) {
+      if (updatedBudget.period.startDate && typeof updatedBudget.period.startDate === 'string') {
+        updatedBudget.period.startDate = new Date(updatedBudget.period.startDate)
+      }
+      if (updatedBudget.period.endDate && typeof updatedBudget.period.endDate === 'string') {
+        updatedBudget.period.endDate = new Date(updatedBudget.period.endDate)
+      }
     }
 
     // Update budget in budget collection
-    await upsertBudget(session.customerId, updatedBudget.monthly, updatedBudget.categories)
+    await upsertBudget(session.customerId, updatedBudget.monthly, updatedBudget.categories, updatedBudget.period)
 
     // Sync monthly budget to user profile (Budget page takes precedence)
     const db = await connectDB()
