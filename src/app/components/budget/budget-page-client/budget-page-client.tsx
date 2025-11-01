@@ -37,33 +37,58 @@ export default function BudgetClient({ transactions, profile }: BudgetClientProp
   const router = useRouter()
   const customerId = params.customerId as string
 
-  // Load budget data from localStorage
-  const [budgetData, setBudgetData] = useState<BudgetData>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem(`budget-data-${customerId}`)
-      if (saved) {
-        try {
-          return JSON.parse(saved)
-        } catch (e) {
-          console.warn('Failed to parse budget data')
-        }
-      }
-    }
-    return {
-      monthly: profile.monthlyBudget || 5000,
-      categories: []
-    }
+  // Load budget data from database
+  const [budgetData, setBudgetData] = useState<BudgetData>({
+    monthly: profile.monthlyBudget || 5000,
+    categories: []
   })
-
+  const [isLoading, setIsLoading] = useState(true)
+  const [isSaving, setIsSaving] = useState(false)
   const [isEditing, setIsEditing] = useState<string | null>(null)
   const [editValue, setEditValue] = useState('')
 
-  // Save budget data to localStorage whenever it changes
+  // Fetch budget data from database
   React.useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(`budget-data-${customerId}`, JSON.stringify(budgetData))
+    async function fetchBudget() {
+      try {
+        setIsLoading(true)
+        const response = await fetch('/api/budget')
+        if (response.ok) {
+          const data = await response.json()
+          setBudgetData({
+            monthly: data.monthly || profile.monthlyBudget || 5000,
+            categories: data.categories || []
+          })
+        }
+      } catch (error) {
+        console.error('Failed to fetch budget:', error)
+      } finally {
+        setIsLoading(false)
+      }
     }
-  }, [budgetData, customerId])
+    fetchBudget()
+  }, [profile.monthlyBudget])
+
+  // Save budget data to database
+  const saveBudget = React.useCallback(async (newBudget: BudgetData) => {
+    try {
+      setIsSaving(true)
+      const response = await fetch('/api/budget', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newBudget)
+      })
+      
+      if (!response.ok) {
+        throw new Error('Failed to save budget')
+      }
+    } catch (error) {
+      console.error('Failed to save budget:', error)
+      alert('Failed to save budget. Please try again.')
+    } finally {
+      setIsSaving(false)
+    }
+  }, [])
 
   // Process transactions
   const processedTransactions = useMemo(() => {
@@ -129,39 +154,40 @@ export default function BudgetClient({ transactions, profile }: BudgetClientProp
   const isOverBudget = monthlyExpenses > budgetData.monthly
 
   const handleUpdateMonthlyBudget = (newAmount: number) => {
-    setBudgetData(prev => ({
-      ...prev,
+    const newBudget = {
+      ...budgetData,
       monthly: newAmount
-    }))
+    }
+    setBudgetData(newBudget)
+    saveBudget(newBudget)
     setIsEditing(null)
     setEditValue('')
   }
 
   const handleSetCategoryBudget = (category: string, limit: number) => {
-    setBudgetData(prev => {
-      const existing = prev.categories.find(b => b.category === category)
-      if (existing) {
-        return {
-          ...prev,
-          categories: prev.categories.map(b => 
+    const newBudget = {
+      ...budgetData,
+      categories: (() => {
+        const existing = budgetData.categories.find(b => b.category === category)
+        if (existing) {
+          return budgetData.categories.map(b => 
             b.category === category ? { ...b, limit } : b
           )
         }
-      }
-      return {
-        ...prev,
-        categories: [...prev.categories, { category, limit }]
-      }
-    })
-    setIsEditing(null)
-    setEditValue('')
+        return [...budgetData.categories, { category, limit }]
+      })()
+    }
+    setBudgetData(newBudget)
+    saveBudget(newBudget)
   }
 
   const handleRemoveCategoryBudget = (category: string) => {
-    setBudgetData(prev => ({
-      ...prev,
-      categories: prev.categories.filter(b => b.category !== category)
-    }))
+    const newBudget = {
+      ...budgetData,
+      categories: budgetData.categories.filter(b => b.category !== category)
+    }
+    setBudgetData(newBudget)
+    saveBudget(newBudget)
   }
 
   const startEdit = (type: string, currentValue?: number) => {

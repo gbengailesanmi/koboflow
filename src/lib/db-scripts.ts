@@ -105,3 +105,15 @@ export async function getUserTotalBalance(customerId: string) {
 //     .where(inArray(transactions.accountId, accountIds))
 // }
 
+// Export budget helper functions
+export {
+  getBudget,
+  upsertBudget,
+  updateMonthlyBudget,
+  updateCategoryBudgets,
+  getMonthlySpending,
+  updateMonthlySpending,
+  recalculateMonthlySpending,
+  getBudgetWithSpending
+} from '@/db/helpers/budget-helpers'
+

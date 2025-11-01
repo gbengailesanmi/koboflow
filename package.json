@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "create-budget-indexes": "tsx src/db/indexes/budget-indexer.ts"
   },
   "dependencies": {
     "@fontsource/roboto": "^5.2.6",
