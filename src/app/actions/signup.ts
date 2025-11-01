@@ -6,6 +6,7 @@ import bcrypt from 'bcrypt'
 import { v4 as uuidv4 } from 'uuid'
 import { SignJWT } from 'jose'
 import { cookies } from 'next/headers'
+import { sendVerificationEmail } from '@/lib/email'
 
 const secret = new TextEncoder().encode(process.env.SESSION_SECRET!)
 
@@ -44,6 +45,10 @@ export async function signup(_: FormState, formData: FormData): Promise<FormStat
     
     // Combine first and last name
     const name = `${firstName} ${lastName}`
+    
+    // Generate email verification token
+    const verificationToken = uuidv4()
+    const verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
 
     const insertResult = await db.collection('users').insertOne({
       email,
@@ -52,36 +57,26 @@ export async function signup(_: FormState, formData: FormData): Promise<FormStat
       firstName,
       lastName,
       customerId,
+      emailVerified: false,
+      verificationToken,
+      verificationTokenExpiry,
+      createdAt: new Date(),
     })
 
     if (!insertResult.insertedId) {
       return { message: 'Failed to create user.' }
     }
+    
+    // Send verification email
+    const emailResult = await sendVerificationEmail(email, name, verificationToken)
+    
+    if (!emailResult.success) {
+      console.error('Failed to send verification email:', emailResult.error)
+      // Continue with signup even if email fails - user can request another verification email
+    }
 
-    // Issue JWT and set cookie so the user is auto-logged-in after signup
-    const token = await new SignJWT({
-      userId: insertResult.insertedId.toString(),
-      customerId,
-      name,
-      email,
-    })
-      .setProtectedHeader({ alg: 'HS256' })
-      .setIssuedAt()
-      .setExpirationTime('3d')
-      .sign(secret)
-
-    const cookieStore = await cookies()
-    cookieStore.set({
-      name: 'jwt_token',
-      value: token,
-      httpOnly: true,
-      sameSite: 'none',
-      secure: process.env.NODE_ENV === 'production',
-      path: '/',
-      maxAge: 60 * 60 * 24 * 7,
-    })
-
-    return { message: 'signup successful' }
+    // Do NOT auto-login after signup - redirect to verification pending page
+    return { message: 'signup successful - verification email sent' }
   } catch (err) {
     return { message: 'An unexpected error occurred. Please try again.' }
   }

@@ -1,11 +1,20 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useActionState } from 'react'
+import { useRouter } from 'next/navigation'
 import { signup } from '@/app/actions/signup'
 
 export default function SignupForm() {
   const [state, formAction, pending] = useActionState(signup, undefined)
+  const router = useRouter()
+
+  useEffect(() => {
+    if (state?.message === 'signup successful - verification email sent') {
+      // Redirect to verification page
+      router.push('/verify-email')
+    }
+  }, [state?.message, router])
 
   return (
     <form action={formAction} className="space-y-4">

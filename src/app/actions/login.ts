@@ -21,6 +21,11 @@ export async function login(_: any, formData: FormData) {
   const valid = await bcrypt.compare(password, user.password)
   if (!valid) return { message: 'Invalid credentials.' }
 
+  // Check if email is verified
+  if (!user.emailVerified) {
+    return { message: 'Please verify your email before logging in. Check your inbox for the verification link.' }
+  }
+
   // Create JWT token for session
   const token = await new SignJWT({ 
       userId: user._id, 
