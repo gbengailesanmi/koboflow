@@ -178,7 +178,7 @@ export default function DashboardClient({ accounts, transactions, profile }: Das
           <h2 className="text-xl font-semibold mb-2">My top receivers</h2>
         </Grid>
       </main>
-      <Footer />
+      <Footer opacity={2} />
     </>
   )
 }

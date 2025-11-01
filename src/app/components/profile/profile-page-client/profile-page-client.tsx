@@ -338,7 +338,7 @@ export default function ProfilePageClient({ user }: ProfilePageClientProps) {
         </div>
       </div>
       
-      <Footer buttonColor='#222222'/>
+      <Footer buttonColor='#222222' opacity={50} />
     </div>
   )
 }

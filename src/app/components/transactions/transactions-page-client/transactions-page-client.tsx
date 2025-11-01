@@ -128,7 +128,7 @@ export default function TransactionsPageClient({ transactions, accounts }: Trans
             )
           })}
         </div>
-        <Footer />
+        <Footer opacity={2} />
       </div>
 
       {selectedTransaction && (

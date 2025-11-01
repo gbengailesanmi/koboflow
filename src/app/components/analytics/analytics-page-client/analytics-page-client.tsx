@@ -418,7 +418,7 @@ export default function AnalyticsPageClient({ accounts, transactions, customCate
         </div>
       </div>
       
-      <Footer buttonColor='#222222'/>
+      <Footer buttonColor='#222222' opacity={50} />
     </div>
   )
 }

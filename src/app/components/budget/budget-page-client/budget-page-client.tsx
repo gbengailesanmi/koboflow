@@ -1238,7 +1238,7 @@ export default function BudgetClient({ transactions, profile, customCategories }
         </div>
       </div>
       
-      <Footer buttonColor='#222222'/>
+      <Footer buttonColor='#222222' opacity={50} />
     </div>
   )
 }

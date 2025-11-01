@@ -2,7 +2,7 @@
 
 .Footer {
   @apply fixed left-0 bottom-0 w-full h-[5rem] flex gap-12 lg:gap-70 items-center rounded-tl-2xl rounded-tr-2xl justify-center z-50 
-         bg-white/2 backdrop-blur-xs shadow-md;
+         backdrop-blur-xs shadow-md;
   box-shadow: 0px -7px 15px rgba(102, 96, 96, 0.4);
   transition: transform 0.3s ease-in-out;
 }

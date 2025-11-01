@@ -5,9 +5,10 @@ import { HomeIcon, Pencil2Icon, MixerHorizontalIcon, BackpackIcon } from '@radix
 
 interface FooterProps {
   buttonColor?: string
+  opacity?: number // Opacity value from 0-100 (e.g., 2, 75, 100)
 }
 
-export default function Footer({ buttonColor }: FooterProps) {
+export default function Footer({ buttonColor, opacity = 75 }: FooterProps) {
   const params = useParams()
   const router = useRouter()
   const customerId = params.customerId as string
@@ -57,8 +58,16 @@ export default function Footer({ buttonColor }: FooterProps) {
     ? { color: buttonColor }
     : {}
 
+  // Create inline style for footer with dynamic opacity
+  const footerStyle = {
+    backgroundColor: `rgba(255, 255, 255, ${opacity / 100})`
+  }
+
   return (
-    <div className={`${styles.Footer} ${isVisible ? styles.FooterVisible : styles.FooterHidden}`}>
+    <div 
+      className={`${styles.Footer} ${isVisible ? styles.FooterVisible : styles.FooterHidden}`}
+      style={footerStyle}
+    >
       <FooterIconButton 
         onClick={handleHomeClick} 
         text='Home' 

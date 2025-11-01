@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { PageHeader } from '@/app/components/page-header/page-header'
+import Footer from '@/app/components/footer/footer'
 import { useBaseColor } from '@/providers/base-colour-provider'
 import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
 import styles from './settings-page-client.module.css'
@@ -458,6 +459,7 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pr
           </div>
         )}
       </div>
+      <Footer buttonColor='#222222' opacity={50} />
     </div>
   )
 }
