@@ -1,5 +1,6 @@
 export type UserProfile = {
-  name: string
+  firstName: string
+  lastName: string
   email: string
   currency: string
   totalBudgetLimit: number

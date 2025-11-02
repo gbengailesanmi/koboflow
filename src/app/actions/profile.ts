@@ -5,13 +5,12 @@ import { getSession } from '@/lib/session'
 import { revalidatePath } from 'next/cache'
 
 export async function updateProfile(
-  data: { name: string; email: string; currency?: string; totalBudgetLimit?: number }
+  data: { firstName: string; lastName: string; email: string; currency?: string; totalBudgetLimit?: number }
 ): Promise<{ error?: string; success?: string }> {
-  const { name, email, currency, totalBudgetLimit } = data
+  const { firstName, lastName, email, currency, totalBudgetLimit } = data
 
-  // Validate input
-  if (!name?.trim() || !email?.trim()) {
-    return { error: 'Name and email are required' }
+  if (!firstName?.trim() || !lastName?.trim() || !email?.trim()) {
+    return { error: 'First name, last name, and email are required' }
   }
 
   // Basic email validation
@@ -38,9 +37,11 @@ export async function updateProfile(
 
     if (existingUser) {
       return { error: 'Email is already taken' }
-    }    // Update user profile
+    }
+
     const updateData: any = {
-      name: name.trim(), 
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
       email: email.toLowerCase().trim(),
       updatedAt: new Date()
     }
@@ -68,7 +69,6 @@ export async function updateProfile(
       const budgetCollection = db.collection('budgets')
       const existingBudget = await budgetCollection.findOne({ customerId: user.customerId })
       
-      // Only create/update budget if it doesn't exist or if it hasn't been set via budget page
       if (!existingBudget) {
         await budgetCollection.updateOne(
           { customerId: user.customerId },
@@ -85,11 +85,8 @@ export async function updateProfile(
           { upsert: true }
         )
       }
-      // If budget exists, only update if the profile total budget limit was higher
-      // This ensures budget page always takes precedence
     }
 
-    // Revalidate the profile page to show updated data
     revalidatePath(`/${user.customerId}/profile`)
 
     return { success: 'Profile updated successfully!' }

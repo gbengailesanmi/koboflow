@@ -51,7 +51,8 @@ export default async function AnalyticsPage() {
   const customCategories = sanitizeArray(customCategoriesRaw)
 
   const profile = {
-    name: userProfile?.name || 'User',
+    firstName: userProfile?.firstName || '',
+    lastName: userProfile?.lastName || '',
     email: userProfile?.email || '',
     currency: userProfile?.currency || 'USD',
     totalBudgetLimit: userProfile?.totalBudgetLimit || 5000

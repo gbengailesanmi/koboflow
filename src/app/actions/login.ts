@@ -26,11 +26,11 @@ export async function login(_: any, formData: FormData) {
     return { message: 'Please verify your email before logging in. Check your inbox for the verification link.' }
   }
 
-  // Create JWT token for session
   const token = await new SignJWT({ 
       userId: user._id, 
       customerId: user.customerId,
-      name: user.name,
+      firstName: user.firstName,
+      lastName: user.lastName,
       email: user.email
     })
     .setProtectedHeader({ alg: 'HS256' })
@@ -38,7 +38,6 @@ export async function login(_: any, formData: FormData) {
     .setExpirationTime('3d')
     .sign(secret)
 
-  // Set cookie for session
   const cookieStore = await cookies()
   cookieStore.set({
     name: 'jwt_token',

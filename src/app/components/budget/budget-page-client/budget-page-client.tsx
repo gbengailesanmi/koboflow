@@ -14,7 +14,8 @@ import { useBaseColor } from '@/providers/base-colour-provider'
 import styles from './budget-page-client.module.css'
 
 type UserProfile = {
-  name: string
+  firstName: string
+  lastName: string
   email: string
   currency: string
   totalBudgetLimit: number

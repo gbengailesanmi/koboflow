@@ -11,7 +11,8 @@ import styles from './profile-page-client.module.css'
 
 type User = {
   customerId: string
-  name: string
+  firstName: string
+  lastName: string
   email: string
   currency?: string
   totalBudgetLimit?: number
@@ -40,7 +41,8 @@ export default function ProfilePageClient({ user, pageColor }: ProfilePageClient
   const [isEditing, setIsEditing] = useState(false)
   const [budgetSetInBudgetPage, setBudgetSetInBudgetPage] = useState(false)
   const [formData, setFormData] = useState({
-    name: user.name || '',
+    firstName: user.firstName || '',
+    lastName: user.lastName || '',
     email: user.email || '',
     currency: user.currency || 'USD',
     totalBudgetLimit: user.totalBudgetLimit?.toString() || '0'
@@ -78,20 +80,20 @@ export default function ProfilePageClient({ user, pageColor }: ProfilePageClient
 
   // Sync form data when user prop changes (after successful update)
   useEffect(() => {
-    // Only sync if we're not currently editing to avoid overwriting user changes
     if (!isEditing) {
       setFormData({
-        name: user.name || '',
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
         email: user.email || '',
         currency: user.currency || 'USD',
         totalBudgetLimit: user.totalBudgetLimit?.toString() || '0'
       })
     }
-  }, [user.name, user.email, user.currency, user.totalBudgetLimit, isEditing])
+  }, [user.firstName, user.lastName, user.email, user.currency, user.totalBudgetLimit, isEditing])
 
   const handleSave = async () => {
-    if (!formData.name?.trim() || !formData.email?.trim()) {
-      setError('Name and email are required')
+    if (!formData.firstName?.trim() || !formData.lastName?.trim() || !formData.email?.trim()) {
+      setError('First name, last name, and email are required')
       return
     }
 
@@ -114,7 +116,8 @@ export default function ProfilePageClient({ user, pageColor }: ProfilePageClient
 
     try {
       const result = await updateProfile({
-        name: formData.name.trim(),
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
         email: formData.email.trim(),
         currency: formData.currency,
         totalBudgetLimit: budgetValue
@@ -145,9 +148,9 @@ export default function ProfilePageClient({ user, pageColor }: ProfilePageClient
   }
 
   const handleCancel = () => {
-    // Reset to current user data, but preserve any valid currency selection
     setFormData({
-      name: user.name,
+      firstName: user.firstName,
+      lastName: user.lastName,
       email: user.email,
       currency: user.currency || formData.currency || 'USD',
       totalBudgetLimit: user.totalBudgetLimit?.toString() || '0'
@@ -194,23 +197,44 @@ export default function ProfilePageClient({ user, pageColor }: ProfilePageClient
               </div>
             )}
 
-            {/* Name Field */}
+            {/* First Name Field */}
             <div className={styles.fieldContainer}>
               <label className={styles.labelWithIcon}>
                 <PersonIcon className={styles.iconWithMargin} />
-                Full Name
+                First Name
               </label>
               {isEditing ? (
                 <input
                   type='text'
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  value={formData.firstName}
+                  onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                   className={styles.input}
-                  placeholder='Enter your full name'
+                  placeholder='Enter your first name'
                 />
               ) : (
                 <div className={styles.displayField}>
-                  <span className={styles.displayText}>{formData.name}</span>
+                  <span className={styles.displayText}>{formData.firstName}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Last Name Field */}
+            <div className={styles.fieldContainer}>
+              <label className={styles.labelWithIcon}>
+                <PersonIcon className={styles.iconWithMargin} />
+                Last Name
+              </label>
+              {isEditing ? (
+                <input
+                  type='text'
+                  value={formData.lastName}
+                  onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                  className={styles.input}
+                  placeholder='Enter your last name'
+                />
+              ) : (
+                <div className={styles.displayField}>
+                  <span className={styles.displayText}>{formData.lastName}</span>
                 </div>
               )}
             </div>

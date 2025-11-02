@@ -45,7 +45,8 @@ export default async function BudgetPage() {
   const totalBudgetLimit = budgetData?.monthly ?? userProfile.totalBudgetLimit ?? 0
   
   const profile = {
-    name: userProfile.name || '',
+    firstName: userProfile.firstName || '',
+    lastName: userProfile.lastName || '',
     email: userProfile.email || '',
     currency: userProfile.currency || 'GBP',
     totalBudgetLimit: totalBudgetLimit

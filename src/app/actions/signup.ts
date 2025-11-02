@@ -42,17 +42,12 @@ export async function signup(_: FormState, formData: FormData): Promise<FormStat
     const hashedPassword = await bcrypt.hash(password, 10)
     const customerId = uuidv4()
     
-    // Combine first and last name
-    const name = `${firstName} ${lastName}`
-    
-    // Generate email verification token
     const verificationToken = uuidv4()
-    const verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
+    const verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000)
 
     const insertResult = await db.collection('users').insertOne({
       email,
       password: hashedPassword,
-      name,
       firstName,
       lastName,
       customerId,
@@ -66,11 +61,9 @@ export async function signup(_: FormState, formData: FormData): Promise<FormStat
       return { message: 'Failed to create user.' }
     }
     
-    // Create default settings for the new user
     await createUserSettings(customerId)
     
-    // Send verification email
-    const emailResult = await sendVerificationEmail(email, name, verificationToken)
+    const emailResult = await sendVerificationEmail(email, `${firstName} ${lastName}`, verificationToken)
     
     if (!emailResult.success) {
       console.error('Failed to send verification email:', emailResult.error)

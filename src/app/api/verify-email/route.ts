@@ -55,11 +55,11 @@ export async function GET(request: NextRequest) {
       }
     )
 
-    // Auto-login the user after verification
     const jwtToken = await new SignJWT({
       userId: user._id.toString(),
       customerId: user.customerId,
-      name: user.name,
+      firstName: user.firstName,
+      lastName: user.lastName,
       email: user.email,
     })
       .setProtectedHeader({ alg: 'HS256' })

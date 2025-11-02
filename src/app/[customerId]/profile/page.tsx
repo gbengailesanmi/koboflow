@@ -26,7 +26,8 @@ export default async function ProfilePage() {
 
   const sanitizedUser = {
     customerId: userData.customerId,
-    name: userData.name || `${userData.firstName || ''} ${userData.lastName || ''}`.trim(),
+    firstName: userData.firstName || '',
+    lastName: userData.lastName || '',
     email: userData.email,
     currency: userData.currency,
     totalBudgetLimit: totalBudgetLimit
