@@ -11,7 +11,7 @@ type NavSection = {
   items: {
     id: string
     label: string
-    scrollTo?: string // ID of the component to scroll to
+    scrollTo?: string
   }[]
 }
 
@@ -24,7 +24,6 @@ export default function SidebarNav({ customerId }: SidebarNavProps) {
   const pathname = usePathname()
   const [expandedSections, setExpandedSections] = useState<string[]>([])
 
-  // Define navigation structure
   const navSections: NavSection[] = [
     {
       id: 'analytics',
@@ -42,7 +41,7 @@ export default function SidebarNav({ customerId }: SidebarNavProps) {
       id: 'budget',
       label: 'BUDGET',
       items: [
-        { id: 'monthly-budget', label: 'Monthly Budget', scrollTo: 'monthly-budget' },
+        { id: 'monthly-budget', label: 'Budget', scrollTo: 'monthly-budget' },
         { id: 'category-budgets', label: 'Category Budgets', scrollTo: 'category-budgets' },
         { id: 'add-category', label: 'Add Category Budget', scrollTo: 'add-category' },
       ]
@@ -79,7 +78,6 @@ export default function SidebarNav({ customerId }: SidebarNavProps) {
     },
   ]
 
-  // Determine current page
   const getCurrentPage = () => {
     if (pathname.includes('/analytics')) return 'analytics'
     if (pathname.includes('/budget')) return 'budget'
@@ -91,7 +89,6 @@ export default function SidebarNav({ customerId }: SidebarNavProps) {
 
   const currentPage = getCurrentPage()
 
-  // Auto-expand current section
   useState(() => {
     if (currentPage && !expandedSections.includes(currentPage)) {
       setExpandedSections([currentPage])
@@ -107,9 +104,7 @@ export default function SidebarNav({ customerId }: SidebarNavProps) {
   }
 
   const handleSectionClick = (sectionId: string) => {
-    // Navigate to the page
     router.push(`/${customerId}/${sectionId}`)
-    // Expand the section
     if (!expandedSections.includes(sectionId)) {
       setExpandedSections([...expandedSections, sectionId])
     }
@@ -119,15 +114,12 @@ export default function SidebarNav({ customerId }: SidebarNavProps) {
     const isCurrentPage = currentPage === sectionId
 
     if (isCurrentPage && item.scrollTo) {
-      // Scroll to component on current page
       const element = document.getElementById(item.scrollTo)
       if (element) {
         element.scrollIntoView({ behavior: 'smooth', block: 'start' })
       }
     } else {
-      // Navigate to page and scroll after navigation
       router.push(`/${customerId}/${sectionId}`)
-      // Wait for navigation and then scroll
       setTimeout(() => {
         if (item.scrollTo) {
           const element = document.getElementById(item.scrollTo)

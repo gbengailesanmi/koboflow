@@ -59,11 +59,11 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { monthly, categories, period } = body
+    const { totalBudgetLimit, categories, period } = body
 
-    if (typeof monthly !== 'number' || monthly < 0) {
+    if (typeof totalBudgetLimit !== 'number' || totalBudgetLimit < 0) {
       return NextResponse.json(
-        { error: 'Invalid monthly budget' },
+        { error: 'Invalid budget limit' },
         { status: 400 }
       )
     }
@@ -75,14 +75,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validate categories
     const validCategories: CategoryBudget[] = categories.filter(cat => 
       cat.category && 
       typeof cat.limit === 'number' && 
       cat.limit >= 0
     )
     
-    // Validate period if provided
     let validPeriod: BudgetPeriod | undefined = undefined
     if (period) {
       if (!period.type || !['current-month', 'custom-date', 'recurring'].includes(period.type)) {
@@ -92,7 +90,6 @@ export async function POST(request: NextRequest) {
         )
       }
       
-      // Convert date strings to Date objects if present
       if (period.startDate) {
         period.startDate = new Date(period.startDate)
       }
@@ -103,16 +100,14 @@ export async function POST(request: NextRequest) {
       validPeriod = period as BudgetPeriod
     }
 
-    // Update budget in budget collection
-    await upsertBudget(session.customerId, monthly, validCategories, validPeriod)
+    await upsertBudget(session.customerId, totalBudgetLimit, validCategories, validPeriod)
 
-    // Sync monthly budget to user profile (Budget page takes precedence)
     const db = await connectDB()
     await db.collection('users').updateOne(
       { customerId: session.customerId },
       { 
         $set: { 
-          totalBudgetLimit: monthly,
+          totalBudgetLimit: totalBudgetLimit,
           updatedAt: new Date()
         } 
       }

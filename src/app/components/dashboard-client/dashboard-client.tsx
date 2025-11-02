@@ -146,7 +146,8 @@ export default function DashboardClient({ accounts, transactions, profile }: Das
           >
             See all
           </div>
-        </Grid>        <Grid className={styles.Grid4}>
+        </Grid>        
+        <Grid className={styles.Grid4}>
           <h2 className="text-xl font-semibold mb-2">This Month vs Last Month</h2>
           <div style={{ width: '100%', height: '350px', minHeight: '350px' }}>
             {processedTransactions.length > 0 && 

@@ -61,14 +61,12 @@ export default function ProfilePageClient({ user, pageColor }: ProfilePageClient
     setBaseColor(colorWithTransparency)
   }, [pageColor, setBaseColor])
 
-  // Check if budget was set from budget page
   useEffect(() => {
     async function checkBudgetSource() {
       try {
         const response = await fetch('/api/budget')
         if (response.ok) {
           const data = await response.json()
-          // If budget exists in budget collection and has a monthly value, it was set from budget page
           setBudgetSetInBudgetPage(data.monthly > 0 && data.categories?.length >= 0)
         }
       } catch (error) {
@@ -78,7 +76,6 @@ export default function ProfilePageClient({ user, pageColor }: ProfilePageClient
     checkBudgetSource()
   }, [])
 
-  // Sync form data when user prop changes (after successful update)
   useEffect(() => {
     if (!isEditing) {
       setFormData({
@@ -97,13 +94,11 @@ export default function ProfilePageClient({ user, pageColor }: ProfilePageClient
       return
     }
 
-    // Validate email format
     if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       setError('Please enter a valid email address')
       return
     }
 
-    // Validate total budget limit
     const budgetValue = parseFloat(formData.totalBudgetLimit)
     if (isNaN(budgetValue) || budgetValue < 0) {
       setError('Please enter a valid total budget limit')
@@ -137,7 +132,6 @@ export default function ProfilePageClient({ user, pageColor }: ProfilePageClient
         router.refresh()
       }, 1000)
       
-      // Clear success message after 3 seconds
       setTimeout(() => setSuccess(''), 3000)
 
     } catch (err) {
