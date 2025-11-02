@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
       // Return default budget if none exists
       return NextResponse.json({
         customerId: session.customerId,
-        monthly: 0,
+        totalBudgetLimit: 0,
         categories: [],
         createdAt: new Date(),
         updatedAt: new Date()
@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
       { customerId: session.customerId },
       { 
         $set: { 
-          monthlyBudget: monthly,
+          totalBudgetLimit: monthly,
           updatedAt: new Date()
         } 
       }
@@ -157,7 +157,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const updatedBudget = {
-      monthly: body.monthly ?? currentBudget.monthly,
+      totalBudgetLimit: body.totalBudgetLimit ?? currentBudget.totalBudgetLimit,
       categories: body.categories ?? currentBudget.categories,
       period: body.period ?? currentBudget.period
     }
@@ -173,15 +173,15 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Update budget in budget collection
-    await upsertBudget(session.customerId, updatedBudget.monthly, updatedBudget.categories, updatedBudget.period)
+    await upsertBudget(session.customerId, updatedBudget.totalBudgetLimit, updatedBudget.categories, updatedBudget.period)
 
-    // Sync monthly budget to user profile (Budget page takes precedence)
+    // Sync total budget limit to user profile (Budget page takes precedence)
     const db = await connectDB()
     await db.collection('users').updateOne(
       { customerId: session.customerId },
       { 
         $set: { 
-          monthlyBudget: updatedBudget.monthly,
+          totalBudgetLimit: updatedBudget.totalBudgetLimit,
           updatedAt: new Date()
         } 
       }

@@ -5,9 +5,9 @@ import { getSession } from '@/lib/session'
 import { revalidatePath } from 'next/cache'
 
 export async function updateProfile(
-  data: { name: string; email: string; currency?: string; monthlyBudget?: number }
+  data: { name: string; email: string; currency?: string; totalBudgetLimit?: number }
 ): Promise<{ error?: string; success?: string }> {
-  const { name, email, currency, monthlyBudget } = data
+  const { name, email, currency, totalBudgetLimit } = data
 
   // Validate input
   if (!name?.trim() || !email?.trim()) {
@@ -49,8 +49,8 @@ export async function updateProfile(
     if (currency) {
       updateData.currency = currency
     }
-    if (monthlyBudget !== undefined && monthlyBudget >= 0) {
-      updateData.monthlyBudget = monthlyBudget
+    if (totalBudgetLimit !== undefined && totalBudgetLimit >= 0) {
+      updateData.totalBudgetLimit = totalBudgetLimit
     }
 
     const result = await db.collection('users').updateOne(
@@ -62,9 +62,9 @@ export async function updateProfile(
       return { error: 'User not found' }
     }
 
-    // If monthly budget was updated, sync it to the budget collection
+    // If total budget limit was updated, sync it to the budget collection
     // (but only if no budget exists yet - Budget page takes precedence)
-    if (monthlyBudget !== undefined && monthlyBudget >= 0) {
+    if (totalBudgetLimit !== undefined && totalBudgetLimit >= 0) {
       const budgetCollection = db.collection('budgets')
       const existingBudget = await budgetCollection.findOne({ customerId: user.customerId })
       
@@ -74,7 +74,7 @@ export async function updateProfile(
           { customerId: user.customerId },
           { 
             $set: { 
-              monthly: monthlyBudget,
+              totalBudgetLimit: totalBudgetLimit,
               updatedAt: new Date()
             },
             $setOnInsert: {
@@ -85,7 +85,7 @@ export async function updateProfile(
           { upsert: true }
         )
       }
-      // If budget exists, only update if the profile monthly budget was higher
+      // If budget exists, only update if the profile total budget limit was higher
       // This ensures budget page always takes precedence
     }
 

@@ -30,13 +30,14 @@ export async function DELETE(request: NextRequest) {
 
     const db = await connectDB()
     
-    // Delete all user data
+    // Delete all user data including settings
     await Promise.all([
       db.collection('users').deleteOne({ customerId }),
       db.collection('accounts').deleteMany({ customerId }),
       db.collection('transactions').deleteMany({ customerId }),
       db.collection('budgets').deleteOne({ customerId }),
-      db.collection('spending_categories').deleteMany({ customerId })
+      db.collection('spending_categories').deleteMany({ customerId }),
+      db.collection('settings').deleteOne({ customerId })
     ])
 
     // Clear session

@@ -42,13 +42,13 @@ export default async function BudgetPage() {
   const customCategories = sanitizeArray(customCategoriesRaw)
   
   // Use budget collection value if it exists, otherwise fallback to profile, or 0 if neither exists
-  const monthlyBudget = budgetData?.monthly ?? userProfile.monthlyBudget ?? 0
+  const totalBudgetLimit = budgetData?.monthly ?? userProfile.totalBudgetLimit ?? 0
   
   const profile = {
     name: userProfile.name || '',
     email: userProfile.email || '',
     currency: userProfile.currency || 'GBP',
-    monthlyBudget: monthlyBudget
+    totalBudgetLimit: totalBudgetLimit
   }
 
   // Get page color from user profile or use default

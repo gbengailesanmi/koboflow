@@ -14,7 +14,7 @@ type User = {
   name: string
   email: string
   currency?: string
-  monthlyBudget?: number
+  totalBudgetLimit?: number
 }
 
 type ProfilePageClientProps = {
@@ -40,10 +40,10 @@ export default function ProfilePageClient({ user, pageColor }: ProfilePageClient
   const [isEditing, setIsEditing] = useState(false)
   const [budgetSetInBudgetPage, setBudgetSetInBudgetPage] = useState(false)
   const [formData, setFormData] = useState({
-    name: user.name,
-    email: user.email,
+    name: user.name || '',
+    email: user.email || '',
     currency: user.currency || 'USD',
-    monthlyBudget: user.monthlyBudget?.toString() || '0'
+    totalBudgetLimit: user.totalBudgetLimit?.toString() || '0'
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -81,16 +81,16 @@ export default function ProfilePageClient({ user, pageColor }: ProfilePageClient
     // Only sync if we're not currently editing to avoid overwriting user changes
     if (!isEditing) {
       setFormData({
-        name: user.name,
-        email: user.email,
+        name: user.name || '',
+        email: user.email || '',
         currency: user.currency || 'USD',
-        monthlyBudget: user.monthlyBudget?.toString() || '0'
+        totalBudgetLimit: user.totalBudgetLimit?.toString() || '0'
       })
     }
-  }, [user.name, user.email, user.currency, user.monthlyBudget, isEditing])
+  }, [user.name, user.email, user.currency, user.totalBudgetLimit, isEditing])
 
   const handleSave = async () => {
-    if (!formData.name.trim() || !formData.email.trim()) {
+    if (!formData.name?.trim() || !formData.email?.trim()) {
       setError('Name and email are required')
       return
     }
@@ -101,10 +101,10 @@ export default function ProfilePageClient({ user, pageColor }: ProfilePageClient
       return
     }
 
-    // Validate monthly budget
-    const budgetValue = parseFloat(formData.monthlyBudget)
+    // Validate total budget limit
+    const budgetValue = parseFloat(formData.totalBudgetLimit)
     if (isNaN(budgetValue) || budgetValue < 0) {
-      setError('Please enter a valid monthly budget')
+      setError('Please enter a valid total budget limit')
       return
     }
 
@@ -117,7 +117,7 @@ export default function ProfilePageClient({ user, pageColor }: ProfilePageClient
         name: formData.name.trim(),
         email: formData.email.trim(),
         currency: formData.currency,
-        monthlyBudget: budgetValue
+        totalBudgetLimit: budgetValue
       })
 
       if (result.error) {
@@ -150,7 +150,7 @@ export default function ProfilePageClient({ user, pageColor }: ProfilePageClient
       name: user.name,
       email: user.email,
       currency: user.currency || formData.currency || 'USD',
-      monthlyBudget: user.monthlyBudget?.toString() || '0'
+      totalBudgetLimit: user.totalBudgetLimit?.toString() || '0'
     })
     setIsEditing(false)
     setError('')
@@ -272,15 +272,15 @@ export default function ProfilePageClient({ user, pageColor }: ProfilePageClient
                   type='number'
                   step='0.01'
                   min='0'
-                  value={formData.monthlyBudget}
-                  onChange={(e) => setFormData({ ...formData, monthlyBudget: e.target.value })}
+                  value={formData.totalBudgetLimit}
+                  onChange={(e) => setFormData({ ...formData, totalBudgetLimit: e.target.value })}
                   className={styles.input}
                   placeholder='Enter your monthly budget'
                 />
               ) : (
                 <div className={styles.displayField}>
                   <span className={styles.displayText}>
-                    {currencies.find(c => c.code === formData.currency)?.symbol}{parseFloat(formData.monthlyBudget).toLocaleString()}
+                    {currencies.find(c => c.code === formData.currency)?.symbol}{parseFloat(formData.totalBudgetLimit).toLocaleString()}
                   </span>
                 </div>
               )}

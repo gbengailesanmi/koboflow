@@ -4,9 +4,8 @@ import { SignupFormSchema, FormState } from '@/lib/definitions'
 import { connectDB } from '@/db/mongo'
 import bcrypt from 'bcrypt'
 import { v4 as uuidv4 } from 'uuid'
-import { SignJWT } from 'jose'
-import { cookies } from 'next/headers'
 import { sendVerificationEmail } from '@/lib/email'
+import { createUserSettings } from '@/lib/settings-helpers'
 
 const secret = new TextEncoder().encode(process.env.SESSION_SECRET!)
 
@@ -66,6 +65,9 @@ export async function signup(_: FormState, formData: FormData): Promise<FormStat
     if (!insertResult.insertedId) {
       return { message: 'Failed to create user.' }
     }
+    
+    // Create default settings for the new user
+    await createUserSettings(customerId)
     
     // Send verification email
     const emailResult = await sendVerificationEmail(email, name, verificationToken)

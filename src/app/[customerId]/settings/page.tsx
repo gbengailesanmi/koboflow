@@ -5,16 +5,17 @@ import SettingsPageClient from '@/app/components/settings/settings-page-client/s
 import PageLayoutWithSidebar from '@/app/components/page-layout-with-sidebar/page-layout-with-sidebar'
 import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
 
-export default async function SettingsPage({ params }: { params: { customerId: string } }) {
+export default async function SettingsPage({ params }: { params: Promise<{ customerId: string }> }) {
+  const { customerId } = await params
   const session = await getSession()
 
-  if (!session || session.customerId !== params.customerId) {
+  if (!session || session.customerId !== customerId) {
     redirect('/login')
   }
 
   // Fetch user data
   const db = await connectDB()
-  const user = await db.collection('users').findOne({ customerId: params.customerId })
+  const user = await db.collection('users').findOne({ customerId })
 
   if (!user) {
     redirect('/login')
@@ -24,9 +25,9 @@ export default async function SettingsPage({ params }: { params: { customerId: s
   const pageColor = user?.accentColours?.settings || PAGE_COLORS.settings
 
   return (
-    <PageLayoutWithSidebar customerId={params.customerId}>
+    <PageLayoutWithSidebar customerId={customerId}>
       <SettingsPageClient
-        customerId={params.customerId}
+        customerId={customerId}
         userName={user.name || ''}
         userEmail={user.email || ''}
         pageColor={pageColor}

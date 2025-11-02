@@ -19,7 +19,7 @@ type UserProfile = {
   name: string
   email: string
   currency: string
-  monthlyBudget: number
+  totalBudgetLimit: number
 }
 
 type DashboardClientProps = {

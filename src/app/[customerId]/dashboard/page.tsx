@@ -40,7 +40,7 @@ export default async function Dashboard() {
     name: userProfile.name || '',
     email: userProfile.email || '',
     currency: userProfile.currency || 'GBP',
-    monthlyBudget: userProfile.monthlyBudget || 0
+    totalBudgetLimit: userProfile.totalBudgetLimit || 0
   }
 
   return <DashboardClient accounts={accountsData} transactions={transactionsData} profile={profile} />

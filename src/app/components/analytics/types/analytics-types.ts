@@ -2,7 +2,7 @@ export type UserProfile = {
   name: string
   email: string
   currency: string
-  monthlyBudget: number
+  totalBudgetLimit: number
 }
 
 export type CategoryData = {

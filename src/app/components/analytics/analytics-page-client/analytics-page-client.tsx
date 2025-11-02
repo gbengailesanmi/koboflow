@@ -409,7 +409,7 @@ export default function AnalyticsPageClient({ accounts, transactions, customCate
                 >
                   <BudgetOverview
                     monthlyExpense={monthlyExpense}
-                    monthlyBudget={profile.monthlyBudget}
+                    totalBudgetLimit={profile.totalBudgetLimit}
                     currency={profile.currency}
                   />
                 </AnalyticsCard>

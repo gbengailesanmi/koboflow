@@ -23,15 +23,15 @@ export default async function ProfilePage() {
   const budgetData = await db.collection('budgets').findOne({ customerId: user?.customerId })
   
   // Use budget collection value if it exists, otherwise fallback to profile, or 0 if neither exists
-  const monthlyBudget = budgetData?.monthly ?? userData.monthlyBudget ?? 0
+  const totalBudgetLimit = budgetData?.monthly ?? userData.totalBudgetLimit ?? 0
 
   // Remove sensitive data before passing to client
   const sanitizedUser = {
     customerId: userData.customerId,
-    name: userData.name,
+    name: userData.name || `${userData.firstName || ''} ${userData.lastName || ''}`.trim(),
     email: userData.email,
     currency: userData.currency,
-    monthlyBudget: monthlyBudget
+    totalBudgetLimit: totalBudgetLimit
   }
 
   // Get page color from user profile or use default

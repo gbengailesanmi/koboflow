@@ -11,6 +11,20 @@ if (!uri) {
 // This makes connection reuse safe in serverless environments (Vercel, AWS Lambda, etc.).
 let cachedClient = globalThis.__mongoClient
 let cachedClientPromise = globalThis.__mongoClientPromise
+let indexesCreated = false
+
+async function ensureIndexes(db) {
+  if (indexesCreated) return
+  
+  try {
+    await db.collection('settings').createIndex({ customerId: 1 }, { unique: true })
+    await db.collection('settings').createIndex({ updatedAt: -1 })
+    
+    indexesCreated = true
+  } catch (error) {
+    console.error('Error creating indexes:', error)
+  }
+}
 
 export async function connectDB() {
   if (cachedClient) {
@@ -19,9 +33,13 @@ export async function connectDB() {
 
   if (!cachedClientPromise) {
     const client = new MongoClient(uri)
-    cachedClientPromise = client.connect().then(() => {
+    cachedClientPromise = client.connect().then(async () => {
       globalThis.__mongoClient = client
       console.log('MongoDB online ✅')
+      
+      const db = client.db(dbName)
+      await ensureIndexes(db)
+      
       return client
     })
     globalThis.__mongoClientPromise = cachedClientPromise

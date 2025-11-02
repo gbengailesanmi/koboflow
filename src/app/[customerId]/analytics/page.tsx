@@ -53,7 +53,7 @@ export default async function AnalyticsPage() {
     name: userProfile?.name || 'User',
     email: userProfile?.email || '',
     currency: userProfile?.currency || 'USD',
-    monthlyBudget: userProfile?.monthlyBudget || 5000
+    totalBudgetLimit: userProfile?.totalBudgetLimit || 5000
   }
 
   const pageColor = userProfile?.accentColours?.analytics || PAGE_COLORS.analytics

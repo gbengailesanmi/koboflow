@@ -15,47 +15,72 @@ export default function SessionTimeoutProvider({ children }: SessionTimeoutProvi
   const pathname = usePathname()
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
   const warningRef = useRef<NodeJS.Timeout | null>(null)
+  const lastActivityRef = useRef<number>(Date.now())
   const [showWarning, setShowWarning] = useState(false)
   const [countdown, setCountdown] = useState(120) // 2 minutes in seconds
+  const isLoggingOutRef = useRef(false)
 
   // Check if user is on a public page (login/signup)
-  const isPublicPage = pathname === '/login' || pathname === '/signup' || pathname === '/verify-email'
+  const isPublicPage = pathname === '/login' || pathname === '/signup' || pathname === '/verify-email' || pathname?.startsWith('/verify-email')
 
   const logout = useCallback(async () => {
+    // Prevent multiple logout calls
+    if (isLoggingOutRef.current) {
+      return
+    }
+    
+    isLoggingOutRef.current = true
+
     try {
-      // Clear all timers
+      // Clear all timers first
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current)
+        timeoutRef.current = null
       }
       if (warningRef.current) {
         clearTimeout(warningRef.current)
+        warningRef.current = null
       }
 
       // Hide warning modal
       setShowWarning(false)
 
-      // Call logout API
-      await fetch('/api/session', { method: 'DELETE' })
+      // Call logout API - this will clear the cookie on the server
+      await fetch('/api/session', { 
+        method: 'DELETE',
+        credentials: 'same-origin', // Ensure cookies are sent
+      })
       
-      // Redirect to login
+      // Redirect to login with timeout flag
       router.push('/login?timeout=true')
     } catch (error) {
       console.error('Error during automatic logout:', error)
       router.push('/login')
+    } finally {
+      // Reset the flag after a short delay
+      setTimeout(() => {
+        isLoggingOutRef.current = false
+      }, 2000)
     }
   }, [router])
-
-  const continueSession = useCallback(() => {
-    setShowWarning(false)
-    setCountdown(120)
-    resetTimer()
-  }, [])
 
   const resetTimer = useCallback(() => {
     // Don't track activity on public pages
     if (isPublicPage) {
       return
     }
+
+    // Don't reset if currently logging out
+    if (isLoggingOutRef.current) {
+      return
+    }
+
+    // Throttle activity tracking - only reset if at least 1 second has passed
+    const now = Date.now()
+    if (now - lastActivityRef.current < 1000) {
+      return
+    }
+    lastActivityRef.current = now
 
     // Clear existing timers
     if (timeoutRef.current) {
@@ -66,20 +91,32 @@ export default function SessionTimeoutProvider({ children }: SessionTimeoutProvi
     }
 
     // Hide warning if it's showing
-    setShowWarning(false)
-    setCountdown(120)
+    if (showWarning) {
+      setShowWarning(false)
+      setCountdown(120)
+    }
 
     // Set warning timer (13 minutes - shows warning 2 minutes before logout)
     warningRef.current = setTimeout(() => {
-      setShowWarning(true)
-      setCountdown(120)
+      if (!isLoggingOutRef.current) {
+        setShowWarning(true)
+        setCountdown(120)
+      }
     }, TIMEOUT_DURATION - WARNING_DURATION)
 
     // Set logout timer (15 minutes)
     timeoutRef.current = setTimeout(() => {
-      logout()
+      if (!isLoggingOutRef.current) {
+        logout()
+      }
     }, TIMEOUT_DURATION)
-  }, [isPublicPage, logout])
+  }, [isPublicPage, logout, showWarning])
+
+  const continueSession = useCallback(() => {
+    setShowWarning(false)
+    setCountdown(120)
+    resetTimer()
+  }, [resetTimer])
 
   // Countdown timer for warning modal
   useEffect(() => {
@@ -104,11 +141,14 @@ export default function SessionTimeoutProvider({ children }: SessionTimeoutProvi
       // Clear any existing timers
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current)
+        timeoutRef.current = null
       }
       if (warningRef.current) {
         clearTimeout(warningRef.current)
+        warningRef.current = null
       }
       setShowWarning(false)
+      isLoggingOutRef.current = false
       return
     }
 
@@ -122,27 +162,34 @@ export default function SessionTimeoutProvider({ children }: SessionTimeoutProvi
       'click',
     ]
 
-    // Start the timer initially
+    // Throttled reset function to prevent excessive calls
+    const throttledResetTimer = () => {
+      resetTimer()
+    }
+
+    // Start the timer initially (only once when entering protected page)
     resetTimer()
 
     // Add event listeners
     events.forEach((event) => {
-      document.addEventListener(event, resetTimer)
+      document.addEventListener(event, throttledResetTimer, { passive: true })
     })
 
     // Cleanup function
     return () => {
       events.forEach((event) => {
-        document.removeEventListener(event, resetTimer)
+        document.removeEventListener(event, throttledResetTimer)
       })
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current)
+        timeoutRef.current = null
       }
       if (warningRef.current) {
         clearTimeout(warningRef.current)
+        warningRef.current = null
       }
     }
-  }, [resetTimer, isPublicPage])
+  }, [isPublicPage]) // Only re-run when isPublicPage changes
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60)

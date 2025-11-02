@@ -14,14 +14,14 @@ export async function getBudget(customerId: string): Promise<Budget | null> {
  */
 export async function upsertBudget(
   customerId: string, 
-  monthly: number, 
+  totalBudgetLimit: number, 
   categories: CategoryBudget[],
   period?: BudgetPeriod
 ): Promise<void> {
   const db = await connectDB()
   
   const updateFields: any = {
-    monthly,
+    totalBudgetLimit,
     categories,
     updatedAt: new Date()
   }
@@ -49,13 +49,13 @@ export async function upsertBudget(
  */
 export async function updateMonthlyBudget(
   customerId: string, 
-  monthly: number,
+  totalBudgetLimit: number,
   period?: BudgetPeriod
 ): Promise<void> {
   const db = await connectDB()
   
   const updateFields: any = {
-    monthly,
+    totalBudgetLimit,
     updatedAt: new Date()
   }
   
@@ -117,14 +117,14 @@ export async function updateBudgetPeriod(
  */
 export async function updateBudgetWithPeriod(
   customerId: string,
-  monthly: number,
+  totalBudgetLimit: number,
   categories: CategoryBudget[],
   period?: BudgetPeriod
 ): Promise<void> {
   const db = await connectDB()
   
   const updateFields: any = {
-    monthly,
+    totalBudgetLimit,
     categories,
     updatedAt: new Date()
   }

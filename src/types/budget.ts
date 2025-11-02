@@ -20,7 +20,7 @@ export type BudgetPeriod = {
 export type Budget = {
   _id?: string
   customerId: string
-  monthly: number // Budget amount (name kept for backwards compatibility)
+  totalBudgetLimit: number // Total budget limit amount
   period?: BudgetPeriod // Budget period settings
   categories: CategoryBudget[]
   createdAt: Date

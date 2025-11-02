@@ -17,7 +17,7 @@ type UserProfile = {
   name: string
   email: string
   currency: string
-  monthlyBudget: number
+  totalBudgetLimit: number
 }
 
 type CategoryBudget = {
@@ -27,7 +27,7 @@ type CategoryBudget = {
 }
 
 type BudgetData = {
-  monthly: number
+  totalBudgetLimit: number
   period?: BudgetPeriod
   categories: CategoryBudget[]
 }
@@ -56,7 +56,7 @@ export default function BudgetClient({ transactions, profile, customCategories, 
 
   // Load budget data from database
   const [budgetData, setBudgetData] = useState<BudgetData>({
-    monthly: profile.monthlyBudget || 0,
+    totalBudgetLimit: profile.totalBudgetLimit || 0,
     period: { type: 'current-month' },
     categories: []
   })
@@ -85,7 +85,7 @@ export default function BudgetClient({ transactions, profile, customCategories, 
           const data = await response.json()
           const period = data.period || { type: 'current-month' }
           setBudgetData({
-            monthly: data.monthly || profile.monthlyBudget || 0,
+            totalBudgetLimit: data.totalBudgetLimit || profile.totalBudgetLimit || 0,
             period: period,
             categories: data.categories || []
           })
@@ -103,7 +103,7 @@ export default function BudgetClient({ transactions, profile, customCategories, 
       }
     }
     fetchBudget()
-  }, [profile.monthlyBudget])
+  }, [profile.totalBudgetLimit])
 
   // Save budget data to database
   const saveBudget = React.useCallback(async (newBudget: BudgetData) => {
@@ -231,13 +231,13 @@ export default function BudgetClient({ transactions, profile, customCategories, 
     }).sort((a, b) => b.spent - a.spent)
   }, [processedTransactions, budgetData.categories, budgetData.period])
 
-  const monthlyProgress = (monthlyExpenses / budgetData.monthly) * 100
-  const isOverBudget = monthlyExpenses > budgetData.monthly
+  const monthlyProgress = (monthlyExpenses / budgetData.totalBudgetLimit) * 100
+  const isOverBudget = monthlyExpenses > budgetData.totalBudgetLimit
 
   const handleUpdateMonthlyBudget = (newAmount: number) => {
     const newBudget = {
       ...budgetData,
-      monthly: newAmount
+      totalBudgetLimit: newAmount
     }
     setBudgetData(newBudget)
     saveBudget(newBudget)
@@ -289,7 +289,7 @@ export default function BudgetClient({ transactions, profile, customCategories, 
     
     const newBudget = {
       ...budgetData,
-      monthly: amount,
+      totalBudgetLimit: amount,
       period: period
     }
     setBudgetData(newBudget)
@@ -407,11 +407,11 @@ export default function BudgetClient({ transactions, profile, customCategories, 
     
     // Check if new total would exceed monthly budget
     const newTotal = otherCategoriesTotal + limit
-    if (newTotal > budgetData.monthly) {
-      const available = budgetData.monthly - otherCategoriesTotal
+    if (newTotal > budgetData.totalBudgetLimit) {
+      const available = budgetData.totalBudgetLimit - otherCategoriesTotal
       alert(
         `Category budget exceeds monthly limit!\n\n` +
-        `Monthly Budget: ${formatCurrency(budgetData.monthly, profile.currency)}\n` +
+        `Monthly Budget: ${formatCurrency(budgetData.totalBudgetLimit, profile.currency)}\n` +
         `Other Categories Total: ${formatCurrency(otherCategoriesTotal, profile.currency)}\n` +
         `Available for this category: ${formatCurrency(available, profile.currency)}\n\n` +
         `You tried to set: ${formatCurrency(limit, profile.currency)}`
@@ -560,7 +560,7 @@ export default function BudgetClient({ transactions, profile, customCategories, 
                     onClick={() => {
                       setIsEditing('monthly')
                       setIsEditingPeriod(true)
-                      setEditValue(budgetData.monthly.toString())
+                      setEditValue(budgetData.totalBudgetLimit.toString())
                     }}
                   >
                     ✏️ Edit
@@ -741,7 +741,7 @@ export default function BudgetClient({ transactions, profile, customCategories, 
                 <div className={styles.budgetSection} style={{ alignItems: 'flex-end' }}>
                   <div className={styles.budgetLabel}>Budget limit</div>
                   <div className={`${styles.budgetValue} ${styles.budgetValueMuted}`}>
-                    {formatCurrency(budgetData.monthly, profile.currency)}
+                    {formatCurrency(budgetData.totalBudgetLimit, profile.currency)}
                   </div>
                 </div>
               </div>
@@ -769,9 +769,9 @@ export default function BudgetClient({ transactions, profile, customCategories, 
               {/* Budget Allocation Progress */}
               {(() => {
                 const totalAllocated = budgetData.categories.reduce((sum, b) => sum + b.limit, 0)
-                const remaining = budgetData.monthly - totalAllocated
-                const allocationPercentage = (totalAllocated / budgetData.monthly) * 100
-                const isOverAllocated = totalAllocated > budgetData.monthly
+                const remaining = budgetData.totalBudgetLimit - totalAllocated
+                const allocationPercentage = (totalAllocated / budgetData.totalBudgetLimit) * 100
+                const isOverAllocated = totalAllocated > budgetData.totalBudgetLimit
 
                 return totalAllocated > 0 ? (
                   <div style={{ marginTop: '16px' }}>
@@ -829,8 +829,8 @@ export default function BudgetClient({ transactions, profile, customCategories, 
                   </div>
                   <div className={styles.statusMessage}>
                     {isOverBudget 
-                      ? `You've exceeded your budget by ${formatCurrency(monthlyExpenses - budgetData.monthly, profile.currency)}`
-                      : `You have ${formatCurrency(budgetData.monthly - monthlyExpenses, profile.currency)} remaining ${getPeriodText(budgetData.period)}`
+                      ? `You've exceeded your budget by ${formatCurrency(monthlyExpenses - budgetData.totalBudgetLimit, profile.currency)}`
+                      : `You have ${formatCurrency(budgetData.totalBudgetLimit - monthlyExpenses, profile.currency)} remaining ${getPeriodText(budgetData.period)}`
                     }
                   </div>
                 </div>
@@ -988,11 +988,11 @@ export default function BudgetClient({ transactions, profile, customCategories, 
                                 
                                 // Check if new total would exceed monthly budget
                                 const newTotal = otherCategoriesTotal + amount
-                                if (newTotal > budgetData.monthly) {
-                                  const available = budgetData.monthly - otherCategoriesTotal
+                                if (newTotal > budgetData.totalBudgetLimit) {
+                                  const available = budgetData.totalBudgetLimit - otherCategoriesTotal
                                   alert(
                                     `Category budget exceeds monthly limit!\n\n` +
-                                    `Monthly Budget: ${formatCurrency(budgetData.monthly, profile.currency)}\n` +
+                                    `Monthly Budget: ${formatCurrency(budgetData.totalBudgetLimit, profile.currency)}\n` +
                                     `Other Categories Total: ${formatCurrency(otherCategoriesTotal, profile.currency)}\n` +
                                     `Available for this category: ${formatCurrency(available, profile.currency)}\n\n` +
                                     `You tried to set: ${formatCurrency(amount, profile.currency)}`
