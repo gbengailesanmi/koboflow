@@ -35,7 +35,7 @@ type UserPreferences = {
   accentColor: string
   notifications: NotificationSettings
   security: SecuritySettings
-  accentColours?: AccentColours
+  pageColors?: AccentColours // Changed from accentColours to pageColors
 }
 
 type Props = {
@@ -58,9 +58,9 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pa
   const [isSaving, setIsSaving] = useState(false)
   const [isAccentColorsExpanded, setIsAccentColorsExpanded] = useState(false)
   
-  // Initialize accent colours with defaults from PAGE_COLORS
-  const [accentColours, setAccentColours] = useState<AccentColours>(
-    preferences.accentColours || {
+  // Initialize page colours (stored as pageColors in settings collection)
+  const [pageColors, setPageColors] = useState<AccentColours>(
+    preferences.pageColors || {
       analytics: PAGE_COLORS.analytics,
       budget: PAGE_COLORS.budget,
       profile: PAGE_COLORS.profile,
@@ -97,9 +97,10 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pa
           customerId,
           theme,
           accentColor,
-          notifications,
-          useFaceId,
-          accentColours
+          notifications: {
+            email: notifications
+          },
+          pageColors // Changed from accentColours to pageColors
         })
       })
 
@@ -215,17 +216,17 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pa
                   <div className={styles.pageColorLabel}>
                     <div 
                       className={styles.pageColorDot}
-                      style={{ backgroundColor: `${accentColours.analytics}80` }}
+                      style={{ backgroundColor: `${pageColors.analytics}80` }}
                     />
                     <span className={styles.pageColorName}>Analytics</span>
                   </div>
                   <input
                     type="text"
-                    value={accentColours.analytics}
+                    value={pageColors.analytics}
                     onChange={(e) => {
                       const value = e.target.value
                       if (/^#[0-9A-Fa-f]{0,6}$/.test(value)) {
-                        setAccentColours({ ...accentColours, analytics: value })
+                        setPageColors({ ...pageColors, analytics: value })
                       }
                     }}
                     onBlur={() => savePreferences()}
@@ -240,17 +241,17 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pa
                   <div className={styles.pageColorLabel}>
                     <div 
                       className={styles.pageColorDot}
-                      style={{ backgroundColor: `${accentColours.budget}80` }}
+                      style={{ backgroundColor: `${pageColors.budget}80` }}
                     />
                     <span className={styles.pageColorName}>Budget</span>
                   </div>
                   <input
                     type="text"
-                    value={accentColours.budget}
+                    value={pageColors.budget}
                     onChange={(e) => {
                       const value = e.target.value
                       if (/^#[0-9A-Fa-f]{0,6}$/.test(value)) {
-                        setAccentColours({ ...accentColours, budget: value })
+                        setPageColors({ ...pageColors, budget: value })
                       }
                     }}
                     onBlur={() => savePreferences()}
@@ -265,17 +266,17 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pa
                   <div className={styles.pageColorLabel}>
                     <div 
                       className={styles.pageColorDot}
-                      style={{ backgroundColor: `${accentColours.transactions}80` }}
+                      style={{ backgroundColor: `${pageColors.transactions}80` }}
                     />
                     <span className={styles.pageColorName}>Transactions</span>
                   </div>
                   <input
                     type="text"
-                    value={accentColours.transactions}
+                    value={pageColors.transactions}
                     onChange={(e) => {
                       const value = e.target.value
                       if (/^#[0-9A-Fa-f]{0,6}$/.test(value)) {
-                        setAccentColours({ ...accentColours, transactions: value })
+                        setPageColors({ ...pageColors, transactions: value })
                       }
                     }}
                     onBlur={() => savePreferences()}
@@ -290,17 +291,17 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pa
                   <div className={styles.pageColorLabel}>
                     <div 
                       className={styles.pageColorDot}
-                      style={{ backgroundColor: `${accentColours.profile}80` }}
+                      style={{ backgroundColor: `${pageColors.profile}80` }}
                     />
                     <span className={styles.pageColorName}>Profile</span>
                   </div>
                   <input
                     type="text"
-                    value={accentColours.profile}
+                    value={pageColors.profile}
                     onChange={(e) => {
                       const value = e.target.value
                       if (/^#[0-9A-Fa-f]{0,6}$/.test(value)) {
-                        setAccentColours({ ...accentColours, profile: value })
+                        setPageColors({ ...pageColors, profile: value })
                       }
                     }}
                     onBlur={() => savePreferences()}
@@ -315,17 +316,17 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pa
                   <div className={styles.pageColorLabel}>
                     <div 
                       className={styles.pageColorDot}
-                      style={{ backgroundColor: `${accentColours.settings}80` }}
+                      style={{ backgroundColor: `${pageColors.settings}80` }}
                     />
                     <span className={styles.pageColorName}>Settings</span>
                   </div>
                   <input
                     type="text"
-                    value={accentColours.settings}
+                    value={pageColors.settings}
                     onChange={(e) => {
                       const value = e.target.value
                       if (/^#[0-9A-Fa-f]{0,6}$/.test(value)) {
-                        setAccentColours({ ...accentColours, settings: value })
+                        setPageColors({ ...pageColors, settings: value })
                       }
                     }}
                     onBlur={() => savePreferences()}
@@ -340,17 +341,17 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pa
                   <div className={styles.pageColorLabel}>
                     <div 
                       className={styles.pageColorDot}
-                      style={{ backgroundColor: `${accentColours.dashboard}80` }}
+                      style={{ backgroundColor: `${pageColors.dashboard}80` }}
                     />
                     <span className={styles.pageColorName}>Dashboard</span>
                   </div>
                   <input
                     type="text"
-                    value={accentColours.dashboard}
+                    value={pageColors.dashboard}
                     onChange={(e) => {
                       const value = e.target.value
                       if (/^#[0-9A-Fa-f]{0,6}$/.test(value)) {
-                        setAccentColours({ ...accentColours, dashboard: value })
+                        setPageColors({ ...pageColors, dashboard: value })
                       }
                     }}
                     onBlur={() => savePreferences()}

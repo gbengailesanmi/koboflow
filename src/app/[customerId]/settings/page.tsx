@@ -4,6 +4,7 @@ import { connectDB } from '@/db/mongo'
 import SettingsPageClient from '@/app/components/settings/settings-page-client/settings-page-client'
 import PageLayoutWithSidebar from '@/app/components/page-layout-with-sidebar/page-layout-with-sidebar'
 import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
+import { getUserSettings } from '@/lib/settings-helpers'
 
 export default async function SettingsPage({ params }: { params: Promise<{ customerId: string }> }) {
   const { customerId } = await params
@@ -21,8 +22,11 @@ export default async function SettingsPage({ params }: { params: Promise<{ custo
     redirect('/login')
   }
 
-  // Get page color from user profile or use default
-  const pageColor = user?.accentColours?.settings || PAGE_COLORS.settings
+  // Get user settings (includes pageColors)
+  const userSettings = await getUserSettings(customerId)
+
+  // Get page color from settings or use default
+  const pageColor = userSettings?.pageColors?.settings || PAGE_COLORS.settings
 
   return (
     <PageLayoutWithSidebar customerId={customerId}>
@@ -32,9 +36,9 @@ export default async function SettingsPage({ params }: { params: Promise<{ custo
         userEmail={user.email || ''}
         pageColor={pageColor}
         preferences={{
-          theme: user.theme || 'system',
-          accentColor: user.accentColor || 'blue',
-          notifications: user.notifications || {
+          theme: userSettings?.theme || 'system',
+          accentColor: userSettings?.accentColor || 'blue',
+          notifications: userSettings?.notifications?.email || {
             budgetAlerts: true,
             transactionUpdates: true,
             weeklyReports: false,
@@ -43,7 +47,7 @@ export default async function SettingsPage({ params }: { params: Promise<{ custo
           security: {
             useFaceId: user.useFaceId || false
           },
-          accentColours: user.accentColours || {
+          pageColors: userSettings?.pageColors || {
             analytics: PAGE_COLORS.analytics,
             budget: PAGE_COLORS.budget,
             profile: PAGE_COLORS.profile,

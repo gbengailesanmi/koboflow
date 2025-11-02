@@ -7,6 +7,7 @@ import { sanitizeArray } from '@/lib/sanitize'
 import AnalyticsPageClient from '@/app/components/analytics/analytics-page-client/analytics-page-client'
 import PageLayoutWithSidebar from '@/app/components/page-layout-with-sidebar/page-layout-with-sidebar'
 import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
+import { getUserSettings } from '@/lib/settings-helpers'
 
 export default async function AnalyticsPage() {
   const user = await getSession()
@@ -56,7 +57,9 @@ export default async function AnalyticsPage() {
     totalBudgetLimit: userProfile?.totalBudgetLimit || 5000
   }
 
-  const pageColor = userProfile?.accentColours?.analytics || PAGE_COLORS.analytics
+  // Get page color from settings collection
+  const userSettings = await getUserSettings(user.customerId)
+  const pageColor = userSettings?.pageColors?.analytics || PAGE_COLORS.analytics
 
   return (
     <PageLayoutWithSidebar customerId={user.customerId}>

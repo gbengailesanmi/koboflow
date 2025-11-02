@@ -1,6 +1,8 @@
 import { connectDB } from '@/db/mongo'
 import { DEFAULT_SETTINGS, SettingsUpdate } from './default-settings'
 
+export type { SettingsUpdate }
+
 /**
  * Creates default settings for a new user
  */
@@ -25,7 +27,6 @@ export async function getUserSettings(customerId: string) {
   
   let settings = await db.collection('settings').findOne({ customerId })
   
-  // If settings don't exist, create them
   if (!settings) {
     settings = await createUserSettings(customerId)
   }

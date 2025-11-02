@@ -5,6 +5,7 @@ import { sanitizeArray } from '@/lib/sanitize'
 import BudgetClient from '@/app/components/budget/budget-page-client/budget-page-client'
 import PageLayoutWithSidebar from '@/app/components/page-layout-with-sidebar/page-layout-with-sidebar'
 import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
+import { getUserSettings } from '@/lib/settings-helpers'
 
 export default async function BudgetPage() {
   const user = await getSession()
@@ -51,8 +52,9 @@ export default async function BudgetPage() {
     totalBudgetLimit: totalBudgetLimit
   }
 
-  // Get page color from user profile or use default
-  const pageColor = userProfile?.accentColours?.budget || PAGE_COLORS.budget
+  // Get page color from settings collection
+  const userSettings = await getUserSettings(user.customerId)
+  const pageColor = userSettings?.pageColors?.budget || PAGE_COLORS.budget
 
   return (
     <PageLayoutWithSidebar customerId={user.customerId}>
