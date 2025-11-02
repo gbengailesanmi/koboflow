@@ -1,3 +1,36 @@
+/* Grid Layout Styles */
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 16px;
+  min-height: 100vh;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .main {
+    padding: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .main {
+    padding: 32px;
+  }
+}
+
+.profileCard {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
 @reference "../../../globals.css";
 
 .container {
@@ -34,8 +67,13 @@
 
 .profileCard {
   @apply bg-white rounded-xl shadow-lg;
-  padding: 5px;
+  padding: 24px;
   margin: 0 16px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .customerIdSection {
@@ -152,4 +190,28 @@
 
 .aboutText {
   @apply text-sm text-gray-600 leading-relaxed;
+}
+
+/* Grid Layout Styles */
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 16px;
+  min-height: 100vh;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .main {
+    padding: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .main {
+    padding: 32px;
+  }
 }

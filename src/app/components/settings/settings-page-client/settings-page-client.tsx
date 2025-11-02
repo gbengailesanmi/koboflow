@@ -6,6 +6,22 @@ import { PageHeader } from '@/app/components/page-header/page-header'
 import Footer from '@/app/components/footer/footer'
 import { useBaseColor } from '@/providers/base-colour-provider'
 import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
+import { 
+  Grid, 
+  Card, 
+  Badge, 
+  Button, 
+  Switch, 
+  TextField, 
+  RadioCards, 
+  Separator, 
+  Dialog,
+  Heading,
+  Text,
+  Flex,
+  Box,
+  Avatar
+} from '@radix-ui/themes'
 import styles from './settings-page-client.module.css'
 
 type Theme = 'light' | 'dark' | 'system'
@@ -137,16 +153,17 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pa
   }
 
   return (
-    <div className={`${styles.container} page-gradient-background`}>
-      <div className={styles.wrapper}>
-        <PageHeader 
-          title="Settings" 
-          subtitle="Manage your account preferences"
-          backTo={`/${customerId}/dashboard`}
-        />
+    <>
+      <div className={`${styles.container} page-gradient-background`}>
+        <main className={styles.main}>
+          <PageHeader 
+            title="Settings" 
+            subtitle="Manage your account preferences"
+            backTo={`/${customerId}/dashboard`}
+          />
 
-        {/* User Info Section */}
-        <div id="user-profile" className={styles.section}>
+          {/* User Info Section */}
+          <Grid id="user-profile" className={styles.settingsCard}>
           <div className={styles.userInfo}>
             <div className={styles.avatar}>
               {userName.charAt(0).toUpperCase()}
@@ -156,40 +173,47 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pa
               <p className={styles.userEmail}>{userEmail}</p>
             </div>
           </div>
-        </div>
+        </Grid>
 
         {/* Appearance Section */}
-        <div id="appearance" className={styles.section}>
+        <Grid id="appearance" className={styles.settingsCard}>
           <h3 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>🎨</span>
             Appearance
           </h3>
           
-          {/* Theme Selection */}
           <div className={styles.settingItem}>
             <div className={styles.settingInfo}>
-              <label className={styles.settingLabel}>Theme</label>
-              <p className={styles.settingDescription}>Choose your preferred color scheme</p>
+              <Text as="label" size="2" weight="medium">Theme</Text>
+              <Text size="2" color="gray">Choose your preferred color scheme</Text>
             </div>
-            <div className={styles.themeOptions}>
-              {(['light', 'dark', 'system'] as Theme[]).map((t) => (
-                <button
-                  key={t}
-                  className={`${styles.themeButton} ${theme === t ? styles.themeButtonActive : ''}`}
-                  onClick={() => {
-                    setTheme(t)
-                    savePreferences()
-                  }}
-                >
-                  <span className={styles.themeIcon}>
-                    {t === 'light' ? '☀️' : t === 'dark' ? '🌙' : '💻'}
-                  </span>
-                  <span className={styles.themeLabel}>
-                    {t.charAt(0).toUpperCase() + t.slice(1)}
-                  </span>
-                </button>
-              ))}
-            </div>
+            <RadioCards.Root
+              value={theme}
+              onValueChange={(value) => {
+                setTheme(value as Theme)
+                savePreferences()
+              }}
+              columns="3"
+            >
+              <RadioCards.Item value="light">
+                <Flex direction="column" align="center" gap="1">
+                  <Text size="3">☀️</Text>
+                  <Text size="2">Light</Text>
+                </Flex>
+              </RadioCards.Item>
+              <RadioCards.Item value="dark">
+                <Flex direction="column" align="center" gap="1">
+                  <Text size="3">🌙</Text>
+                  <Text size="2">Dark</Text>
+                </Flex>
+              </RadioCards.Item>
+              <RadioCards.Item value="system">
+                <Flex direction="column" align="center" gap="1">
+                  <Text size="3">💻</Text>
+                  <Text size="2">System</Text>
+                </Flex>
+              </RadioCards.Item>
+            </RadioCards.Root>
           </div>
 
           {/* Accent Colours - Collapsible Dropdown */}
@@ -362,7 +386,7 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pa
               </div>
             )}
           </div>
-        </div>
+        </Grid>
 
         {/* Notifications Section */}
         <div id="notifications" className={styles.section}>
@@ -373,74 +397,58 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pa
           
           <div className={styles.settingItem}>
             <div className={styles.settingInfo}>
-              <label className={styles.settingLabel}>Budget Alerts</label>
-              <p className={styles.settingDescription}>Get notified when approaching budget limits</p>
+              <Text as="label" size="2" weight="medium">Budget Alerts</Text>
+              <Text size="2" color="gray">Get notified when approaching budget limits</Text>
             </div>
-            <label className={styles.toggle}>
-              <input
-                type="checkbox"
-                checked={notifications.budgetAlerts}
-                onChange={(e) => {
-                  setNotifications({ ...notifications, budgetAlerts: e.target.checked })
-                  savePreferences()
-                }}
-              />
-              <span className={styles.toggleSlider}></span>
-            </label>
+            <Switch
+              checked={notifications.budgetAlerts}
+              onCheckedChange={(checked) => {
+                setNotifications({ ...notifications, budgetAlerts: checked })
+                savePreferences()
+              }}
+            />
           </div>
 
           <div className={styles.settingItem}>
             <div className={styles.settingInfo}>
-              <label className={styles.settingLabel}>Transaction Updates</label>
-              <p className={styles.settingDescription}>Receive alerts for new transactions</p>
+              <Text as="label" size="2" weight="medium">Transaction Updates</Text>
+              <Text size="2" color="gray">Receive alerts for new transactions</Text>
             </div>
-            <label className={styles.toggle}>
-              <input
-                type="checkbox"
-                checked={notifications.transactionUpdates}
-                onChange={(e) => {
-                  setNotifications({ ...notifications, transactionUpdates: e.target.checked })
-                  savePreferences()
-                }}
-              />
-              <span className={styles.toggleSlider}></span>
-            </label>
+            <Switch
+              checked={notifications.transactionUpdates}
+              onCheckedChange={(checked) => {
+                setNotifications({ ...notifications, transactionUpdates: checked })
+                savePreferences()
+              }}
+            />
           </div>
 
           <div className={styles.settingItem}>
             <div className={styles.settingInfo}>
-              <label className={styles.settingLabel}>Weekly Reports</label>
-              <p className={styles.settingDescription}>Summary of your weekly spending</p>
+              <Text as="label" size="2" weight="medium">Weekly Reports</Text>
+              <Text size="2" color="gray">Summary of your weekly spending</Text>
             </div>
-            <label className={styles.toggle}>
-              <input
-                type="checkbox"
-                checked={notifications.weeklyReports}
-                onChange={(e) => {
-                  setNotifications({ ...notifications, weeklyReports: e.target.checked })
-                  savePreferences()
-                }}
-              />
-              <span className={styles.toggleSlider}></span>
-            </label>
+            <Switch
+              checked={notifications.weeklyReports}
+              onCheckedChange={(checked) => {
+                setNotifications({ ...notifications, weeklyReports: checked })
+                savePreferences()
+              }}
+            />
           </div>
 
           <div className={styles.settingItem}>
             <div className={styles.settingInfo}>
-              <label className={styles.settingLabel}>Monthly Reports</label>
-              <p className={styles.settingDescription}>Detailed monthly financial overview</p>
+              <Text as="label" size="2" weight="medium">Monthly Reports</Text>
+              <Text size="2" color="gray">Detailed monthly financial overview</Text>
             </div>
-            <label className={styles.toggle}>
-              <input
-                type="checkbox"
-                checked={notifications.monthlyReports}
-                onChange={(e) => {
-                  setNotifications({ ...notifications, monthlyReports: e.target.checked })
-                  savePreferences()
-                }}
-              />
-              <span className={styles.toggleSlider}></span>
-            </label>
+            <Switch
+              checked={notifications.monthlyReports}
+              onCheckedChange={(checked) => {
+                setNotifications({ ...notifications, monthlyReports: checked })
+                savePreferences()
+              }}
+            />
           </div>
         </div>
 
@@ -453,15 +461,15 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pa
           
           <div className={styles.settingItem}>
             <div className={styles.settingInfo}>
-              <label className={styles.settingLabel}>Change PIN</label>
-              <p className={styles.settingDescription}>Update your security PIN</p>
+              <Text as="label" size="2" weight="medium">Change PIN</Text>
+              <Text size="2" color="gray">Update your security PIN</Text>
             </div>
-            <button 
-              className={styles.actionButton}
+            <Button 
+              variant="soft"
               onClick={() => setShowPinModal(true)}
             >
               Change
-            </button>
+            </Button>
           </div>
 
           <div className={styles.settingItem}>
@@ -631,8 +639,9 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pa
             </div>
           </div>
         )}
+        </main>
       </div>
       <Footer buttonColor='#222222' opacity={50} />
-    </div>
+    </>
   )
 }

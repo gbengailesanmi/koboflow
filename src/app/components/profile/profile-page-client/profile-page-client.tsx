@@ -7,6 +7,23 @@ import { redirect, useParams, useRouter } from 'next/navigation'
 import { PageHeader } from '@/app/components/page-header/page-header'
 import { updateProfile } from '@/app/actions/profile'
 import { useBaseColor } from '@/providers/base-colour-provider'
+import { 
+  Grid, 
+  Card, 
+  Badge, 
+  Button, 
+  IconButton,
+  TextField, 
+  Select, 
+  Separator,
+  Avatar,
+  Heading,
+  Text,
+  Flex,
+  Box,
+  Callout
+} from '@radix-ui/themes'
+import { InfoCircledIcon } from '@radix-ui/react-icons'
 import styles from './profile-page-client.module.css'
 
 type User = {
@@ -191,153 +208,145 @@ export default function ProfilePageClient({ user, pageColor }: ProfilePageClient
               </div>
             )}
 
-            {/* First Name Field */}
-            <div className={styles.fieldContainer}>
-              <label className={styles.labelWithIcon}>
+            <Box className={styles.fieldContainer}>
+              <Text as="label" size="2" weight="medium" className={styles.labelWithIcon}>
                 <PersonIcon className={styles.iconWithMargin} />
                 First Name
-              </label>
+              </Text>
               {isEditing ? (
-                <input
+                <TextField.Root
                   type='text'
                   value={formData.firstName}
                   onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                  className={styles.input}
                   placeholder='Enter your first name'
                 />
               ) : (
                 <div className={styles.displayField}>
-                  <span className={styles.displayText}>{formData.firstName}</span>
+                  <Text className={styles.displayText}>{formData.firstName}</Text>
                 </div>
               )}
-            </div>
+            </Box>
 
-            {/* Last Name Field */}
-            <div className={styles.fieldContainer}>
-              <label className={styles.labelWithIcon}>
+            <Box className={styles.fieldContainer}>
+              <Text as="label" size="2" weight="medium" className={styles.labelWithIcon}>
                 <PersonIcon className={styles.iconWithMargin} />
                 Last Name
-              </label>
+              </Text>
               {isEditing ? (
-                <input
+                <TextField.Root
                   type='text'
                   value={formData.lastName}
                   onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                  className={styles.input}
                   placeholder='Enter your last name'
                 />
               ) : (
                 <div className={styles.displayField}>
-                  <span className={styles.displayText}>{formData.lastName}</span>
+                  <Text className={styles.displayText}>{formData.lastName}</Text>
                 </div>
               )}
-            </div>
+            </Box>
 
-            {/* Email Field */}
-            <div className={styles.fieldContainer}>
-              <label className={styles.labelWithIcon}>
+            <Box className={styles.fieldContainer}>
+              <Text as="label" size="2" weight="medium" className={styles.labelWithIcon}>
                 <EnvelopeClosedIcon className={styles.iconWithMargin} />
                 Email Address
-              </label>
+              </Text>
               {isEditing ? (
-                <input
+                <TextField.Root
                   type='email'
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className={styles.input}
                   placeholder='Enter your email address'
                 />
               ) : (
                 <div className={styles.displayField}>
-                  <span className={styles.displayText}>{formData.email}</span>
+                  <Text className={styles.displayText}>{formData.email}</Text>
                 </div>
               )}
-            </div>
+            </Box>
 
-            {/* Currency Field */}
-            <div id="currency-settings" className={styles.fieldContainer}>
-              <label className={styles.labelWithIcon}>
+            <Box id="currency-settings" className={styles.fieldContainer}>
+              <Text as="label" size="2" weight="medium" className={styles.labelWithIcon}>
                 💰 Preferred Currency
-              </label>
+              </Text>
               {isEditing ? (
-                <select
+                <Select.Root
                   value={formData.currency}
-                  onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
-                  className={styles.input}
+                  onValueChange={(value) => setFormData({ ...formData, currency: value })}
                 >
-                  {currencies.map((currency) => (
-                    <option key={currency.code} value={currency.code}>
-                      {currency.symbol} {currency.name} ({currency.code})
-                    </option>
-                  ))}
-                </select>
+                  <Select.Trigger className={styles.input} />
+                  <Select.Content>
+                    {currencies.map((currency) => (
+                      <Select.Item key={currency.code} value={currency.code}>
+                        {currency.symbol} {currency.name} ({currency.code})
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select.Root>
               ) : (
                 <div className={styles.displayField}>
-                  <span className={styles.displayText}>
+                  <Text className={styles.displayText}>
                     {currencies.find(c => c.code === formData.currency)?.symbol} {currencies.find(c => c.code === formData.currency)?.name} ({formData.currency})
-                  </span>
+                  </Text>
                 </div>
               )}
-            </div>
+            </Box>
 
-            {/* Monthly Budget Field */}
-            <div className={styles.emailFieldContainer}>
-              <label className={styles.labelWithIcon}>
+            <Box className={styles.emailFieldContainer}>
+              <Text as="label" size="2" weight="medium" className={styles.labelWithIcon}>
                 📊 Monthly Budget
-              </label>
+              </Text>
               {isEditing ? (
-                <input
+                <TextField.Root
                   type='number'
                   step='0.01'
                   min='0'
                   value={formData.totalBudgetLimit}
                   onChange={(e) => setFormData({ ...formData, totalBudgetLimit: e.target.value })}
-                  className={styles.input}
                   placeholder='Enter your monthly budget'
                 />
               ) : (
                 <div className={styles.displayField}>
-                  <span className={styles.displayText}>
+                  <Text className={styles.displayText}>
                     {currencies.find(c => c.code === formData.currency)?.symbol}{parseFloat(formData.totalBudgetLimit).toLocaleString()}
-                  </span>
+                  </Text>
                 </div>
               )}
-              <p className={styles.helpText}>
+              <Text size="2" color="gray" className={styles.helpText}>
                 Set a monthly spending limit to track your budget
-              </p>
-            </div>
+              </Text>
+            </Box>
 
-            {/* Action Buttons */}
-            <div className={styles.buttonContainer}>
+            <Flex className={styles.buttonContainer} gap="3">
               {isEditing ? (
                 <>
-                  <button
+                  <Button
                     onClick={handleSave}
                     disabled={loading}
-                    className={`${styles.button} ${styles.buttonPrimary} ${loading ? styles.buttonDisabled : ''}`}
+                    variant="solid"
                   >
-                    <CheckIcon className={styles.icon} />
+                    <CheckIcon />
                     {loading ? 'Saving...' : 'Save Changes'}
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={handleCancel}
                     disabled={loading}
-                    className={`${styles.button} ${styles.buttonSecondary} ${loading ? styles.buttonDisabled : ''}`}
+                    variant="soft"
                   >
-                    <Cross2Icon className={styles.icon} />
+                    <Cross2Icon />
                     Cancel
-                  </button>
+                  </Button>
                 </>
               ) : (
-                <button
+                <Button
                   onClick={() => setIsEditing(true)}
-                  className={`${styles.button} ${styles.buttonPrimary}`}
+                  variant="soft"
                 >
-                  <Pencil1Icon className={styles.icon} />
+                  <Pencil1Icon />
                   Edit Profile
-                </button>
+                </Button>
               )}
-            </div>
+            </Flex>
           </div>
 
           {/* About Section */}

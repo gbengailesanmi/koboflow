@@ -20,6 +20,19 @@ import { CategoryBreakdown } from '../category-breakdown/category-breakdown'
 import { BudgetOverview } from '../budget-overview/budget-overview'
 import { DailySpendingComparison } from '../daily-spending-comparison/daily-spending-comparison'
 import { AnalyticsCard } from '../analytics-card/analytics-card'
+import { 
+  Grid, 
+  Card, 
+  Badge, 
+  Select, 
+  Tabs, 
+  Separator, 
+  Skeleton,
+  Heading,
+  Text,
+  Flex,
+  Box
+} from '@radix-ui/themes'
 import styles from './analytics-page-client.module.css'
 
 type AnalyticsPageClientProps = {
@@ -241,9 +254,9 @@ export default function AnalyticsPageClient({ accounts, transactions, customCate
   }, [processedTransactions])
 
   return (
-    <div className={`${styles.container} page-gradient-background`}>
-      <div className={styles.wrapper}>
-        <div>
+    <>
+      <div className={`${styles.container} page-gradient-background`}>
+        <main className={styles.main}>
           
           {/* Header */}
           <PageHeader 
@@ -251,40 +264,35 @@ export default function AnalyticsPageClient({ accounts, transactions, customCate
             subtitle="Insights into your spending patterns and trends"
           />
 
-          {/* Account Selector */}
-          <div className={styles.accountSelectorContainer}>
-            <label htmlFor="account-select" className={styles.accountSelectorLabel}>
+          <Flex className={styles.accountSelectorContainer} direction="column" gap="2">
+            <Text as="label" size="2" weight="medium">
               Filter by Account:
-            </label>
-            <select
-              id="account-select"
+            </Text>
+            <Select.Root
               value={selectedAccountId}
-              onChange={(e) => setSelectedAccountId(e.target.value)}
-              className={styles.accountSelector}
+              onValueChange={(value) => setSelectedAccountId(value)}
             >
-              <option value="all">All Accounts</option>
-              {accounts.map((account) => (
-                <option key={account.id} value={account.uniqueId}>
-                  {account.name} — {profile.currency === 'GBP' ? '£' : formatCurrency(0, profile.currency).charAt(0)}{Number(account.balance).toFixed(2)}
-                </option>
-              ))}
-            </select>
-          </div>
+              <Select.Trigger className={styles.accountSelector} />
+              <Select.Content>
+                <Select.Item value="all">All Accounts</Select.Item>
+                {accounts.map((account) => (
+                  <Select.Item key={account.id} value={account.uniqueId}>
+                    {account.name} — {profile.currency === 'GBP' ? '£' : formatCurrency(0, profile.currency).charAt(0)}{Number(account.balance).toFixed(2)}
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select.Root>
+          </Flex>
 
-          {/* Time Period Selector */}
-          <div className={styles.timeRangeContainer}>
-            <div className={styles.timeRangeTabs}>
-              {(['day', 'month', 'year'] as const).map((period) => (
-                <button
-                  key={period}
-                  onClick={() => setTimePeriod(period)}
-                  className={`${styles.timeRangeTab} ${timePeriod === period ? styles.timeRangeTabActive : ''}`}
-                >
-                  {period.charAt(0).toUpperCase() + period.slice(1)}
-                </button>
-              ))}
-            </div>
-          </div>
+          <Box className={styles.timeRangeContainer}>
+            <Tabs.Root value={timePeriod} onValueChange={(value) => setTimePeriod(value as 'day' | 'month' | 'year')}>
+              <Tabs.List>
+                <Tabs.Trigger value="day">Day</Tabs.Trigger>
+                <Tabs.Trigger value="month">Month</Tabs.Trigger>
+                <Tabs.Trigger value="year">Year</Tabs.Trigger>
+              </Tabs.List>
+            </Tabs.Root>
+          </Box>
 
           {processedTransactions.length === 0 ? (
             <div className={styles.emptyState}>
@@ -299,7 +307,7 @@ export default function AnalyticsPageClient({ accounts, transactions, customCate
           ) : (
             <>
               {/* Stats Cards */}
-              <div id="stats-cards">
+              <Grid id="stats-cards" className={styles.statsGrid}>
                 <StatsCards 
                   totalIncome={totalIncome}
                   totalExpense={totalExpense}
@@ -308,10 +316,10 @@ export default function AnalyticsPageClient({ accounts, transactions, customCate
                   expenseTransactionCount={filteredTransactions.filter(t => t.type === 'expense').length}
                   currency={profile.currency}
                 />
-              </div>
+              </Grid>
 
               {/* Expense Pie Chart */}
-              <div id="expense-breakdown">
+              <Grid id="expense-breakdown" className={styles.analyticsCard}>
                 <AnalyticsCard
                   title="📊 Expense Breakdown"
                   description="Visual breakdown of your spending by category"
@@ -331,10 +339,10 @@ export default function AnalyticsPageClient({ accounts, transactions, customCate
                     </div>
                   )}
                 </AnalyticsCard>
-              </div>
+              </Grid>
 
               {/* Month-on-Month Comparison */}
-              <div id="daily-comparison">
+              <Grid id="daily-comparison" className={styles.analyticsCard}>
                 <AnalyticsCard
                   title="📈 Daily Expense Comparison"
                   description="Compare daily expenses for the entire month between current and previous month"
@@ -363,10 +371,10 @@ export default function AnalyticsPageClient({ accounts, transactions, customCate
                     </div>
                   )}
                 </AnalyticsCard>
-              </div>
+              </Grid>
 
               {/* Category Breakdown */}
-              <div id="spending-category">
+              <Grid id="spending-category" className={styles.analyticsCard}>
                 <AnalyticsCard
                   title="🏷️ Spending by Category"
                   description="Detailed breakdown of your expenses across different categories"
@@ -384,10 +392,10 @@ export default function AnalyticsPageClient({ accounts, transactions, customCate
                     onDeleteCategory={handleDeleteCategory}
                   />
                 </AnalyticsCard>
-              </div>
+              </Grid>
 
               {/* Recurring Payments */}
-              <div id="recurring-payments">
+              <Grid id="recurring-payments" className={styles.analyticsCard}>
                 <AnalyticsCard
                   title="🔄 Recurring Payments"
                   description="Track your recurring expenses and upcoming payment predictions"
@@ -399,10 +407,10 @@ export default function AnalyticsPageClient({ accounts, transactions, customCate
                     showSeeMore={false}
                   />
                 </AnalyticsCard>
-              </div>
+              </Grid>
 
               {/* Budget Progress */}
-              <div id="budget-overview">
+              <Grid id="budget-overview" className={styles.analyticsCard}>
                 <AnalyticsCard
                   title="💰 Monthly Budget Overview"
                   description="Track your progress against your monthly spending budget (current month)"
@@ -413,13 +421,13 @@ export default function AnalyticsPageClient({ accounts, transactions, customCate
                     currency={profile.currency}
                   />
                 </AnalyticsCard>
-              </div>
+              </Grid>
             </>
           )}
-        </div>
+        </main>
       </div>
       
       <Footer buttonColor='#222222' opacity={50} />
-    </div>
+    </>
   )
 }

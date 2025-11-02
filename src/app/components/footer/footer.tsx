@@ -20,23 +20,18 @@ export default function Footer({ buttonColor, opacity = 75 }: FooterProps) {
       const currentScrollY = window.scrollY
 
       if (currentScrollY < 10) {
-        // Always show footer at the top
         setIsVisible(true)
       } else if (currentScrollY > lastScrollY) {
-        // Scrolling down - hide footer
         setIsVisible(false)
       } else if (currentScrollY < lastScrollY) {
-        // Scrolling up - show footer
         setIsVisible(true)
       }
 
       setLastScrollY(currentScrollY)
     }
 
-    // Add scroll event listener
     window.addEventListener('scroll', handleScroll, { passive: true })
 
-    // Cleanup
     return () => {
       window.removeEventListener('scroll', handleScroll)
     }
@@ -76,7 +71,7 @@ export default function Footer({ buttonColor, opacity = 75 }: FooterProps) {
       >
         <HomeIcon width='25' height='25' />
       </FooterIconButton>
-      <FooterIconButton onClick={handleSpendingClick} text='Spending' style={buttonStyle} textColor={buttonColor}>
+      <FooterIconButton onClick={handleSpendingClick} text='Insights' style={buttonStyle} textColor={buttonColor}>
         <Pencil2Icon width='25' height='25' />
       </FooterIconButton>
       <FooterIconButton onClick={handleBudgetClick} text='Budget' style={buttonStyle} textColor={buttonColor}>
