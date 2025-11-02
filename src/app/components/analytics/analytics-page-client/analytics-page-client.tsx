@@ -256,12 +256,11 @@ export default function AnalyticsPageClient({ accounts, transactions, customCate
   return (
     <>
       <div className={`${styles.container} page-gradient-background`}>
-        <main className={styles.main}>
-          
+        <div className={styles.headerSection}>
           {/* Header */}
           <PageHeader 
-            title="Analytics" 
-            subtitle="Insights into your spending patterns and trends"
+            title="Insights" 
+            subtitle="Look into your spending patterns and trends"
           />
 
           <Flex className={styles.accountSelectorContainer} direction="column" gap="2">
@@ -293,6 +292,9 @@ export default function AnalyticsPageClient({ accounts, transactions, customCate
               </Tabs.List>
             </Tabs.Root>
           </Box>
+        </div>
+
+        <main className={styles.main}>
 
           {processedTransactions.length === 0 ? (
             <div className={styles.emptyState}>
