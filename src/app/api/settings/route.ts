@@ -2,10 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/session'
 import { getUserSettings, updateUserSettings, SettingsUpdate } from '@/lib/settings-helpers'
 
-/**
- * GET /api/settings
- * Get user settings
- */
 export async function GET(request: NextRequest) {
   try {
     const session = await getSession()
@@ -32,10 +28,6 @@ export async function GET(request: NextRequest) {
   }
 }
 
-/**
- * POST /api/settings
- * Update user settings
- */
 export async function POST(request: NextRequest) {
   try {
     const session = await getSession()
@@ -50,7 +42,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { customerId, ...updates } = body
 
-    // Verify the customerId matches the session
     if (customerId && customerId !== session.customerId) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -58,7 +49,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Update settings in the settings collection
     const updatedSettings = await updateUserSettings(
       session.customerId,
       updates as SettingsUpdate

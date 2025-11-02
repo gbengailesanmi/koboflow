@@ -38,7 +38,6 @@ export default async function TransactionsPage() {
   const accountsData = sanitizeArray(accountsDataRaw)
   const transactionsData = sanitizeArray(transactionsDataRaw)
 
-  // Get page color from settings collection
   const userSettings = await getUserSettings(user.customerId)
   const pageColor = userSettings?.pageColors?.transactions || PAGE_COLORS.transactions
 

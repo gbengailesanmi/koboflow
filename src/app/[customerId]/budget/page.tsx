@@ -42,7 +42,6 @@ export default async function BudgetPage() {
   
   const customCategories = sanitizeArray(customCategoriesRaw)
   
-  // Use budget collection value if it exists, otherwise fallback to profile, or 0 if neither exists
   const totalBudgetLimit = budgetData?.monthly ?? userProfile.totalBudgetLimit ?? 0
   
   const profile = {
@@ -52,7 +51,6 @@ export default async function BudgetPage() {
     totalBudgetLimit: totalBudgetLimit
   }
 
-  // Get page color from settings collection
   const userSettings = await getUserSettings(user.customerId)
   const pageColor = userSettings?.pageColors?.budget || PAGE_COLORS.budget
 

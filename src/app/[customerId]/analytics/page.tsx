@@ -57,7 +57,6 @@ export default async function AnalyticsPage() {
     totalBudgetLimit: userProfile?.totalBudgetLimit || 5000
   }
 
-  // Get page color from settings collection
   const userSettings = await getUserSettings(user.customerId)
   const pageColor = userSettings?.pageColors?.analytics || PAGE_COLORS.analytics
 

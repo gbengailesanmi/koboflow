@@ -22,10 +22,8 @@ export default async function SettingsPage({ params }: { params: Promise<{ custo
     redirect('/login')
   }
 
-  // Get user settings (includes pageColors)
   const userSettings = await getUserSettings(customerId)
 
-  // Get page color from settings or use default
   const pageColor = userSettings?.pageColors?.settings || PAGE_COLORS.settings
 
   return (

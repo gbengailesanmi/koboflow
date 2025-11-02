@@ -35,7 +35,7 @@ type UserPreferences = {
   accentColor: string
   notifications: NotificationSettings
   security: SecuritySettings
-  pageColors?: AccentColours // Changed from accentColours to pageColors
+  pageColors?: AccentColours
 }
 
 type Props = {
@@ -58,7 +58,6 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pa
   const [isSaving, setIsSaving] = useState(false)
   const [isAccentColorsExpanded, setIsAccentColorsExpanded] = useState(false)
   
-  // Initialize page colours (stored as pageColors in settings collection)
   const [pageColors, setPageColors] = useState<AccentColours>(
     preferences.pageColors || {
       analytics: PAGE_COLORS.analytics,
@@ -100,7 +99,7 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pa
           notifications: {
             email: notifications
           },
-          pageColors // Changed from accentColours to pageColors
+          pageColors
         })
       })
 
