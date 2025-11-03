@@ -58,21 +58,24 @@ export async function signup(_: FormState, formData: FormData): Promise<FormStat
     await createUserSettings(customerId)
     
     // Auto-login after successful signup
-    // Note: signIn will throw a NEXT_REDIRECT error, which is expected behavior
-    await signIn('credentials', {
+    // Note: signIn with redirect: false returns null on success or throws on error
+    const result = await signIn('credentials', {
       email,
       password,
-      redirect: true,
-      redirectTo: '/auth-redirect'
+      redirect: false
     })
     
-    // This line will never be reached due to redirect above
-    return { message: 'signup successful' }
-  } catch (err) {
-    // Check if it's a redirect error (which is expected)
-    if (err instanceof Error && err.message === 'NEXT_REDIRECT') {
-      throw err // Re-throw redirect errors to let Next.js handle them
+    if (result?.error) {
+      return { message: 'Account created but login failed. Please try logging in manually.' }
     }
+    
+    // Return success with customerId for client-side redirect
+    return { 
+      success: true,
+      customerId,
+      message: 'Account created successfully!' 
+    }
+  } catch (err) {
     console.error('Signup error:', err)
     return { message: 'An unexpected error occurred. Please try again.' }
   }

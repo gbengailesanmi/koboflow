@@ -24,6 +24,8 @@ export type FormState = {
     passwordConfirm?: string[]
   }
   message?: string
+  success?: boolean
+  customerId?: string
 } | undefined
 
 export type SessionPayload = {

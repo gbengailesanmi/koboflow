@@ -1,12 +1,21 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useActionState } from 'react'
+import { useRouter } from 'next/navigation'
 import { signup } from '@/app/actions/signup'
 import { handleGoogleSignIn } from '@/app/actions/google-signin'
 
 export default function SignupForm() {
   const [state, formAction, pending] = useActionState(signup, undefined)
+  const router = useRouter()
+
+  // Handle redirect on successful signup
+  useEffect(() => {
+    if (state?.success && state?.customerId) {
+      router.push(`/${state.customerId}/dashboard`)
+    }
+  }, [state?.success, state?.customerId, router])
 
   const onGoogleSignIn = async () => {
     await handleGoogleSignIn()

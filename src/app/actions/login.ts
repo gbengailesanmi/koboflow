@@ -1,6 +1,6 @@
 'use server'
 
-import { signIn } from '@/auth'
+import { signIn, auth } from '@/auth'
 import { AuthError } from 'next-auth'
 
 export async function login(_: any, formData: FormData) {
@@ -12,19 +12,31 @@ export async function login(_: any, formData: FormData) {
   }
 
   try {
-    // Note: signIn will throw a NEXT_REDIRECT error on success, which is expected behavior
-    await signIn('credentials', {
+    // Note: signIn with redirect: false returns null on success or throws on error
+    const result = await signIn('credentials', {
       email,
       password,
-      redirect: true,
-      redirectTo: '/auth-redirect'
+      redirect: false
     })
-  } catch (error) {
-    // Check if it's a redirect error (which is expected and means success)
-    if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
-      throw error // Re-throw redirect errors to let Next.js handle them
+    
+    if (result?.error) {
+      return { message: 'Invalid credentials.' }
     }
     
+    // Get the session to retrieve customerId
+    const session = await auth()
+    
+    if (!session?.user?.customerId) {
+      return { message: 'Login failed. Please try again.' }
+    }
+    
+    // Return success with customerId for client-side redirect
+    return {
+      success: true,
+      customerId: session.user.customerId,
+      message: 'Login successful!'
+    }
+  } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {
         case 'CredentialsSignin':

@@ -1,14 +1,22 @@
 'use client'
 
-import { useActionState } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useActionState, useEffect } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { login } from '@/app/actions/login'
 import { handleGoogleSignIn } from '@/app/actions/google-signin'
 
 export default function LoginForm() {
   const [state, formAction, pending] = useActionState(login, undefined)
   const searchParams = useSearchParams()
+  const router = useRouter()
   const isTimeout = searchParams.get('timeout') === 'true'
+
+  // Handle redirect on successful login
+  useEffect(() => {
+    if (state?.success && state?.customerId) {
+      router.push(`/${state.customerId}/dashboard`)
+    }
+  }, [state?.success, state?.customerId, router])
 
   const onGoogleSignIn = async () => {
     await handleGoogleSignIn()
