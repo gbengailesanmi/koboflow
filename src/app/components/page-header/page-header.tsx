@@ -8,7 +8,7 @@ import styles from './page-header.module.css'
 type PageHeaderProps = {
   title: string
   subtitle?: string
-  backTo?: string // Optional custom back path, defaults to dashboard
+  backTo?: string
 }
 
 export const PageHeader: React.FC<PageHeaderProps> = ({ 
@@ -21,8 +21,11 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
   const customerId = params.customerId as string
   
   const handleBack = () => {
-    const destination = backTo || `/${customerId}/dashboard`
-    router.push(destination)
+    if (backTo) {
+      router.push(backTo)
+    } else {
+      router.back()
+    }
   }
 
   return (
