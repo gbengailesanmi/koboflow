@@ -7,7 +7,7 @@ export async function sendVerificationEmail(
   name: string,
   verificationToken: string
 ) {
-  const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/verify-email?token=${verificationToken}`
+  const verificationUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/verify-email?token=${verificationToken}`
 
   try {
     const { data, error } = await resend.emails.send({

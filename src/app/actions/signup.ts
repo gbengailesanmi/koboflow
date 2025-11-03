@@ -5,7 +5,7 @@ import { connectDB } from '@/db/mongo'
 import bcrypt from 'bcrypt'
 import { v4 as uuidv4 } from 'uuid'
 import { createUserSettings } from '@/lib/settings-helpers'
-import { signIn } from '@/auth'
+import { sendVerificationEmail } from '@/lib/email'
 
 export async function signup(_: FormState, formData: FormData): Promise<FormState> {
   const firstName = formData.get('firstName')?.toString().trim() || ''
@@ -39,6 +39,8 @@ export async function signup(_: FormState, formData: FormData): Promise<FormStat
   try {
     const hashedPassword = await bcrypt.hash(password, 10)
     const customerId = uuidv4()
+    const verificationToken = uuidv4()
+    const verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
 
     const insertResult = await db.collection('users').insertOne({
       email,
@@ -46,7 +48,9 @@ export async function signup(_: FormState, formData: FormData): Promise<FormStat
       firstName,
       lastName,
       customerId,
-      emailVerified: true, // Auto-verify for now, can add email verification later
+      emailVerified: false, // Require email verification
+      verificationToken,
+      verificationTokenExpiry,
       createdAt: new Date(),
       authProvider: 'credentials'
     })
@@ -57,23 +61,24 @@ export async function signup(_: FormState, formData: FormData): Promise<FormStat
     
     await createUserSettings(customerId)
     
-    // Auto-login after successful signup
-    // Note: signIn with redirect: false returns null on success or throws on error
-    const result = await signIn('credentials', {
+    // Send verification email
+    const emailResult = await sendVerificationEmail(
       email,
-      password,
-      redirect: false
-    })
+      `${firstName} ${lastName}`,
+      verificationToken
+    )
     
-    if (result?.error) {
-      return { message: 'Account created but login failed. Please try logging in manually.' }
+    if (!emailResult.success) {
+      // Delete the user if email sending fails
+      await db.collection('users').deleteOne({ _id: insertResult.insertedId })
+      return { message: 'Failed to send verification email. Please try again.' }
     }
     
-    // Return success with customerId for client-side redirect
+    // Return success without customerId to redirect to verify-email page
     return { 
       success: true,
-      customerId,
-      message: 'Account created successfully!' 
+      requiresVerification: true,
+      message: 'Account created! Please check your email to verify your account.' 
     }
   } catch (err) {
     console.error('Signup error:', err)

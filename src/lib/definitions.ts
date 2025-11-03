@@ -26,6 +26,7 @@ export type FormState = {
   message?: string
   success?: boolean
   customerId?: string
+  requiresVerification?: boolean
 } | undefined
 
 export type SessionPayload = {

@@ -18,6 +18,7 @@ export async function GET() {
     
     // If user doesn't exist in database, sign them out and redirect to login
     if (!user) {
+      // Sign out is allowed in Route Handlers
       await signOut({ redirect: false })
       return NextResponse.redirect(new URL('/login', process.env.NEXTAUTH_URL || 'http://localhost:3000'))
     }

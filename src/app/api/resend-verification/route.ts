@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     // Send verification email
     const emailResult = await sendVerificationEmail(
       user.email,
-      user.name,
+      `${user.firstName} ${user.lastName}`,
       verificationToken
     )
 

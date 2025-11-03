@@ -4,7 +4,6 @@ import { connectDB } from '@/db/mongo'
 import { getSession } from '@/lib/session'
 import { redirect } from 'next/navigation'
 import { sanitizeArray } from '@/lib/sanitize'
-import { signOut } from '@/auth'
 
 import DashboardClient from '@/app/components/dashboard-client/dashboard-client'
 
@@ -19,9 +18,9 @@ export default async function Dashboard() {
 
   const userProfile = await db.collection('users').findOne({ customerId: user.customerId })
   
-  // If user doesn't exist in database, sign them out and redirect to login
+  // If user doesn't exist in database, redirect to login
+  // The auth-redirect route will handle signing them out
   if (!userProfile) {
-    await signOut({ redirect: false })
     redirect(`/login`)
   }
 

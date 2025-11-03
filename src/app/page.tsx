@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { auth, signOut } from '@/auth'
+import { auth } from '@/auth'
 import { connectDB } from '@/db/mongo'
 
 export default async function LandingPage() {
@@ -17,14 +17,12 @@ export default async function LandingPage() {
       // If user exists, redirect to dashboard
       if (user) {
         redirect(`/${session.user.customerId}/dashboard`)
-      } else {
-        // User doesn't exist, sign them out
-        await signOut({ redirect: false })
       }
+      // If user doesn't exist, just show the landing page
+      // The auth-redirect route will handle signing them out if they try to access protected routes
     } catch (error) {
       console.error('Error verifying user:', error)
-      // If there's a DB error, sign out to be safe
-      await signOut({ redirect: false })
+      // If there's a DB error, just show the landing page
     }
   }
 

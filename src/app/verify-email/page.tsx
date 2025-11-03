@@ -8,21 +8,23 @@ export default function VerifyEmailPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const token = searchParams.get('token')
-  const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying')
+  const [status, setStatus] = useState<'verifying' | 'success' | 'error' | 'idle'>('idle')
   const [message, setMessage] = useState('Verifying your email...')
+  const [resending, setResending] = useState(false)
 
   useEffect(() => {
     if (token) {
+      setStatus('verifying')
       // Verify the token
       fetch(`/api/verify-email?token=${token}`)
         .then(async (res) => {
           const data = await res.json()
           if (data.success) {
             setStatus('success')
-            setMessage('Email verified successfully! Redirecting...')
-            // Redirect to dashboard after 2 seconds
+            setMessage('Email verified successfully! Redirecting to login...')
+            // Redirect to login after 2 seconds
             setTimeout(() => {
-              router.push(`/${data.customerId}/dashboard`)
+              router.push('/login')
             }, 2000)
           } else {
             setStatus('error')
@@ -35,6 +37,30 @@ export default function VerifyEmailPage() {
         })
     }
   }, [token, router])
+
+  const handleResendEmail = async () => {
+    const email = prompt('Please enter your email address:')
+    if (!email) return
+
+    setResending(true)
+    try {
+      const res = await fetch('/api/resend-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      })
+      const data = await res.json()
+      if (data.success) {
+        alert('Verification email sent! Please check your inbox.')
+      } else {
+        alert(data.message || 'Failed to send verification email')
+      }
+    } catch (error) {
+      alert('An error occurred. Please try again.')
+    } finally {
+      setResending(false)
+    }
+  }
 
   if (!token) {
     return (
@@ -56,12 +82,21 @@ export default function VerifyEmailPage() {
               <li>Wait a few minutes and check again</li>
             </ul>
           </div>
-          <button 
-            onClick={() => router.push('/login')}
-            className={styles.loginButton}
-          >
-            Back to Login
-          </button>
+          <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+            <button 
+              onClick={handleResendEmail}
+              disabled={resending}
+              className={styles.resendButton}
+            >
+              {resending ? 'Sending...' : 'Resend Email'}
+            </button>
+            <button 
+              onClick={() => router.push('/login')}
+              className={styles.loginButton}
+            >
+              Back to Login
+            </button>
+          </div>
         </div>
       </div>
     )
