@@ -1,15 +1,13 @@
 'use client'
 
 import { useActionState, useEffect } from 'react'
-import { useSearchParams, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { login } from '@/app/actions/login'
 import { handleGoogleSignIn } from '@/app/actions/google-signin'
 
-export default function LoginForm() {
+export default function LoginForm({ isTimeout = false }: { isTimeout?: boolean }) {
   const [state, formAction, pending] = useActionState(login, undefined)
-  const searchParams = useSearchParams()
   const router = useRouter()
-  const isTimeout = searchParams.get('timeout') === 'true'
 
   // Handle redirect on successful login
   useEffect(() => {
