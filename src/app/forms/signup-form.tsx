@@ -1,21 +1,12 @@
 'use client'
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useActionState } from 'react'
-import { useRouter } from 'next/navigation'
 import { signup } from '@/app/actions/signup'
 import { handleGoogleSignIn } from '@/app/actions/google-signin'
 
 export default function SignupForm() {
   const [state, formAction, pending] = useActionState(signup, undefined)
-  const router = useRouter()
-
-  useEffect(() => {
-    if (state?.message === 'signup successful - verification email sent') {
-      // Redirect to verification page
-      router.push('/verify-email')
-    }
-  }, [state?.message, router])
 
   const onGoogleSignIn = async () => {
     await handleGoogleSignIn()

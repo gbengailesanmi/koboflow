@@ -4,10 +4,8 @@ import { SignupFormSchema, FormState } from '@/lib/definitions'
 import { connectDB } from '@/db/mongo'
 import bcrypt from 'bcrypt'
 import { v4 as uuidv4 } from 'uuid'
-import { sendVerificationEmail } from '@/lib/email'
 import { createUserSettings } from '@/lib/settings-helpers'
-
-const secret = new TextEncoder().encode(process.env.SESSION_SECRET!)
+import { signIn } from '@/auth'
 
 export async function signup(_: FormState, formData: FormData): Promise<FormState> {
   const firstName = formData.get('firstName')?.toString().trim() || ''
@@ -25,7 +23,7 @@ export async function signup(_: FormState, formData: FormData): Promise<FormStat
     lastName, 
     email, 
     password, 
-    passwordConfirm: formData.get('passwordConfirm')?.toString() || '' 
+    passwordConfirm 
   })
   
   if (!parsed.success) {
@@ -41,9 +39,6 @@ export async function signup(_: FormState, formData: FormData): Promise<FormStat
   try {
     const hashedPassword = await bcrypt.hash(password, 10)
     const customerId = uuidv4()
-    
-    const verificationToken = uuidv4()
-    const verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000)
 
     const insertResult = await db.collection('users').insertOne({
       email,
@@ -51,10 +46,9 @@ export async function signup(_: FormState, formData: FormData): Promise<FormStat
       firstName,
       lastName,
       customerId,
-      emailVerified: false,
-      verificationToken,
-      verificationTokenExpiry,
+      emailVerified: true, // Auto-verify for now, can add email verification later
       createdAt: new Date(),
+      authProvider: 'credentials'
     })
 
     if (!insertResult.insertedId) {
@@ -63,16 +57,17 @@ export async function signup(_: FormState, formData: FormData): Promise<FormStat
     
     await createUserSettings(customerId)
     
-    const emailResult = await sendVerificationEmail(email, `${firstName} ${lastName}`, verificationToken)
+    // Auto-login after successful signup
+    await signIn('credentials', {
+      email,
+      password,
+      redirect: true,
+      redirectTo: '/auth-redirect'
+    })
     
-    if (!emailResult.success) {
-      console.error('Failed to send verification email:', emailResult.error)
-      // Continue with signup even if email fails - user can request another verification email
-    }
-
-    // Do NOT auto-login after signup - redirect to verification pending page
-    return { message: 'signup successful - verification email sent' }
+    return { message: 'signup successful' }
   } catch (err) {
+    console.error('Signup error:', err)
     return { message: 'An unexpected error occurred. Please try again.' }
   }
 }

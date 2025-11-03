@@ -1,19 +1,23 @@
 import { NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
-import { getSession } from '@/lib/session'
+import { auth, signOut } from '@/auth'
 
 export async function GET() {
-  const user = await getSession()
-  if (!user) return NextResponse.json({ user: null })
-  return NextResponse.json({ user: user.customerId })
+  const session = await auth()
+  
+  if (!session?.user?.customerId) {
+    return NextResponse.json({ user: null })
+  }
+  
+  return NextResponse.json({ 
+    user: session.user.customerId,
+    email: session.user.email,
+    name: session.user.name
+  })
 }
 
 export async function DELETE() {
   try {
-    const cookieStore = await cookies()
-    
-    cookieStore.delete('jwt_token')
-    
+    await signOut({ redirect: false })
     return NextResponse.json({ success: true, message: 'Logged out successfully' })
   } catch (error) {
     console.error('Error during logout:', error)

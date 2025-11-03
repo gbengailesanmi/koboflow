@@ -1,53 +1,36 @@
 'use server'
 
-import { connectDB } from '@/db/mongo'
-import bcrypt from 'bcrypt'
-import { redirect } from 'next/navigation'
-import { SignJWT } from 'jose'
-import { cookies } from 'next/headers'
-
-const secret = new TextEncoder().encode(process.env.SESSION_SECRET!)
+import { signIn } from '@/auth'
+import { AuthError } from 'next-auth'
 
 export async function login(_: any, formData: FormData) {
   const email = formData.get('email')?.toString().toLowerCase() || ''
   const password = formData.get('password')?.toString() || ''
 
-  if (!email || !password) return { message: 'All fields are required.' }
-
-  const db = await connectDB()
-  const user = await db.collection('users').findOne({ email })
-  if (!user) return { message: 'Invalid credentials.' }
-
-  const valid = await bcrypt.compare(password, user.password)
-  if (!valid) return { message: 'Invalid credentials.' }
-
-  // Check if email is verified
-  if (!user.emailVerified) {
-    return { message: 'Please verify your email before logging in. Check your inbox for the verification link.' }
+  if (!email || !password) {
+    return { message: 'All fields are required.' }
   }
 
-  const token = await new SignJWT({ 
-      userId: user._id, 
-      customerId: user.customerId,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email
+  try {
+    await signIn('credentials', {
+      email,
+      password,
+      redirect: true,
+      redirectTo: '/auth-redirect'
     })
-    .setProtectedHeader({ alg: 'HS256' })
-    .setIssuedAt()
-    .setExpirationTime('3d')
-    .sign(secret)
-
-  const cookieStore = await cookies()
-  cookieStore.set({
-    name: 'jwt_token',
-    value: token,
-    httpOnly: true,
-    // sameSite: 'none',
-    secure: process.env.NODE_ENV === 'production',
-    path: '/',
-    maxAge: 60 * 60 * 24 * 7,
-  })
-
-  redirect(`/${user.customerId}/dashboard`)
+  } catch (error) {
+    if (error instanceof AuthError) {
+      switch (error.type) {
+        case 'CredentialsSignin':
+          return { message: 'Invalid credentials.' }
+        default:
+          return { message: 'An error occurred during login.' }
+      }
+    }
+    // Check if it's our custom verification error
+    if (error instanceof Error && error.message.includes('verify your email')) {
+      return { message: error.message }
+    }
+    throw error
+  }
 }
