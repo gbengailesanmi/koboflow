@@ -127,7 +127,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async jwt({ token, user, account }) {
       // Add customerId to token on sign in
       if (user?.customerId) {
-        console.log('Adding customerId to JWT token:', user.customerId)
         token.customerId = user.customerId
       }
       return token
