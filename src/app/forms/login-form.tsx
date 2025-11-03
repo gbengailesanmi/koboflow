@@ -44,7 +44,25 @@ export default function LoginForm({ isTimeout = false }: { isTimeout?: boolean }
           <label>Password</label>
           <input name="password" type="password" required />
         </div>
-        {state?.message && <p>{state.message}</p>}
+        {state?.message && (
+          <div style={{
+            padding: '12px 16px',
+            backgroundColor: state.message.includes('verify your email') ? '#fef3c7' : '#fee2e2',
+            border: `1px solid ${state.message.includes('verify your email') ? '#fbbf24' : '#f87171'}`,
+            borderRadius: '8px',
+            color: state.message.includes('verify your email') ? '#92400e' : '#991b1b',
+            fontSize: '14px',
+          }}>
+            {state.message}
+            {state.message.includes('verify your email') && (
+              <div style={{ marginTop: '8px' }}>
+                <a href="/verify-email" style={{ color: '#2563eb', textDecoration: 'underline' }}>
+                  Resend verification email
+                </a>
+              </div>
+            )}
+          </div>
+        )}
         <button type="submit" disabled={pending}>
           {pending ? 'Logging in...' : 'Log In'}
         </button>

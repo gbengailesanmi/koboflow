@@ -1,7 +1,8 @@
 'use server'
 
-import { signIn, auth } from '@/auth'
+import { signIn } from '@/auth'
 import { AuthError } from 'next-auth'
+import { connectDB } from '@/db/mongo'
 
 export async function login(_: any, formData: FormData) {
   const email = formData.get('email')?.toString().toLowerCase() || ''
@@ -12,28 +13,26 @@ export async function login(_: any, formData: FormData) {
   }
 
   try {
-    // Note: signIn with redirect: false returns null on success or throws on error
-    const result = await signIn('credentials', {
+    // signIn with redirect: false will throw on error, return null on success
+    await signIn('credentials', {
       email,
       password,
       redirect: false
     })
     
-    if (result?.error) {
-      return { message: 'Invalid credentials.' }
+    // Get customerId directly from database since session might not be ready yet
+    const db = await connectDB()
+    const user = await db.collection('users').findOne({ email })
+    
+    if (!user?.customerId) {
+      console.error('No customerId found for user:', email)
+      return { message: 'Login failed. Account setup incomplete. Please contact support.' }
     }
-    
-    // Get the session to retrieve customerId
-    const session = await auth()
-    
-    if (!session?.user?.customerId) {
-      return { message: 'Login failed. Please try again.' }
-    }
-    
+        
     // Return success with customerId for client-side redirect
     return {
       success: true,
-      customerId: session.user.customerId,
+      customerId: user.customerId,
       message: 'Login successful!'
     }
   } catch (error) {

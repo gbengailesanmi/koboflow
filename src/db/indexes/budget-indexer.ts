@@ -29,8 +29,6 @@ export async function createBudgetIndexes() {
     { 'period.startDate': 1 },
     { name: 'period_startDate', sparse: true }
   )
-  
-  console.log('✅ Budget indexes created successfully')
 }
 
 /**
@@ -40,14 +38,7 @@ export async function migrateBudgetPeriod() {
   const db = await connectDB()
   const budgetsCollection = db.collection('budgets')
   
-  // Count existing budgets
   const totalBudgets = await budgetsCollection.countDocuments()
-  console.log(`📊 Found ${totalBudgets} budget(s)`)
-  
-  if (totalBudgets === 0) {
-    console.log('✅ No budgets to migrate')
-    return
-  }
   
   // Add default period (current-month) to budgets that don't have one
   const result = await budgetsCollection.updateMany(
@@ -61,14 +52,10 @@ export async function migrateBudgetPeriod() {
       }
     }
   )
-  
-  console.log(`✅ Updated ${result.modifiedCount} budget(s) with default period`)
-  
+    
   const budgetsWithPeriod = await budgetsCollection.countDocuments({
     period: { $exists: true }
   })
-  
-  console.log(`📊 Budgets with period: ${budgetsWithPeriod}/${totalBudgets}`)
 }
 
 // Run this script to create indexes and migrate data
@@ -78,7 +65,6 @@ if (require.main === module) {
     migrateBudgetPeriod()
   ])
     .then(() => {
-      console.log('✅ Budget setup complete')
       process.exit(0)
     })
     .catch((error) => {

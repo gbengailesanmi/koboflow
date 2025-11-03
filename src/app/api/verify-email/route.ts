@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Update user to verified and clear verification token
-    await db.collection('users').updateOne(
+    const updateResult = await db.collection('users').updateOne(
       { _id: user._id },
       {
         $set: {
@@ -52,9 +52,17 @@ export async function GET(request: NextRequest) {
       }
     )
 
+    if (updateResult.modifiedCount === 0) {
+      console.error('Failed to update user verification status')
+      return NextResponse.json(
+        { success: false, message: 'Failed to update verification status' },
+        { status: 500 }
+      )
+    }
+
     return NextResponse.json({
       success: true,
-      message: 'Email verified successfully. Please log in.',
+      message: 'Email verified successfully. You can now log in.',
       customerId: user.customerId,
     })
   } catch (error) {

@@ -38,26 +38,31 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         })
         
         if (!user || !user.password) {
+          console.log('User not found or no password for email:', credentials.email)
           return null
         }
         
         const isValid = await bcrypt.compare(credentials.password as string, user.password)
         
         if (!isValid) {
+          console.log('Invalid password for email:', credentials.email)
           return null
         }
         
         // Check if email is verified
         if (!user.emailVerified) {
-          throw new Error('Please verify your email before logging in.')
+          console.log('Email not verified for:', credentials.email, 'emailVerified value:', user.emailVerified)
+          throw new Error('Please verify your email before logging in. Check your inbox for the verification link.')
         }
         
-        return {
+        const authorizedUser = {
           id: user._id.toString(),
           email: user.email,
           name: `${user.firstName} ${user.lastName}`,
           customerId: user.customerId
         }
+        
+        return authorizedUser
       }
     })
   ],
@@ -122,6 +127,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async jwt({ token, user, account }) {
       // Add customerId to token on sign in
       if (user?.customerId) {
+        console.log('Adding customerId to JWT token:', user.customerId)
         token.customerId = user.customerId
       }
       return token
@@ -130,6 +136,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       // Add customerId to session from token
       if (token?.customerId) {
         session.user.customerId = token.customerId as string
+      } else {
+        console.error('No customerId in token for session')
       }
       return session
     },
