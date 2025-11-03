@@ -12,6 +12,7 @@ export async function login(_: any, formData: FormData) {
   }
 
   try {
+    // Note: signIn will throw a NEXT_REDIRECT error on success, which is expected behavior
     await signIn('credentials', {
       email,
       password,
@@ -19,6 +20,11 @@ export async function login(_: any, formData: FormData) {
       redirectTo: '/auth-redirect'
     })
   } catch (error) {
+    // Check if it's a redirect error (which is expected and means success)
+    if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
+      throw error // Re-throw redirect errors to let Next.js handle them
+    }
+    
     if (error instanceof AuthError) {
       switch (error.type) {
         case 'CredentialsSignin':
