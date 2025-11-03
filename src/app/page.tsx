@@ -1,13 +1,31 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { auth } from '@/auth'
+import { auth, signOut } from '@/auth'
+import { connectDB } from '@/db/mongo'
 
 export default async function LandingPage() {
   const session = await auth()
   
-  // If already logged in, redirect to dashboard
+  // If already logged in, verify user exists and redirect to dashboard
   if (session?.user?.customerId) {
-    redirect(`/${session.user.customerId}/dashboard`)
+    try {
+      const db = await connectDB()
+      const user = await db.collection('users').findOne({ 
+        customerId: session.user.customerId 
+      })
+      
+      // If user exists, redirect to dashboard
+      if (user) {
+        redirect(`/${session.user.customerId}/dashboard`)
+      } else {
+        // User doesn't exist, sign them out
+        await signOut({ redirect: false })
+      }
+    } catch (error) {
+      console.error('Error verifying user:', error)
+      // If there's a DB error, sign out to be safe
+      await signOut({ redirect: false })
+    }
   }
 
   return (

@@ -2,8 +2,10 @@ import NextAuth from "next-auth"
 import Google from "next-auth/providers/google"
 import Credentials from "next-auth/providers/credentials"
 import { v4 as uuidv4 } from 'uuid'
+import { authConfig } from './auth.config'
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  ...authConfig,
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -60,35 +62,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     })
   ],
   callbacks: {
-    async authorized({ auth, request }) {
-      const { pathname } = request.nextUrl
-      const isAuthenticated = !!auth?.user?.customerId
-      
-      // Public routes that don't require authentication
-      const publicRoutes = ['/', '/login', '/signup', '/verify-email', '/auth-redirect']
-      const isPublicRoute = publicRoutes.some(route => pathname === route || pathname.startsWith(route + '/'))
-      
-      // API routes and auth callbacks should always be allowed
-      if (pathname.startsWith('/api')) {
-        return true
-      }
-      
-      // If user is authenticated and trying to access login or signup, redirect to dashboard
-      if (isAuthenticated && (pathname === '/login' || pathname === '/signup')) {
-        const dashboardUrl = new URL(`/${auth.user.customerId}/dashboard`, request.nextUrl.origin)
-        return Response.redirect(dashboardUrl)
-      }
-      
-      // If user is not authenticated and trying to access protected routes, redirect to login
-      if (!isAuthenticated && !isPublicRoute) {
-        const loginUrl = new URL('/login', request.nextUrl.origin)
-        loginUrl.searchParams.set('redirectTo', pathname)
-        return Response.redirect(loginUrl)
-      }
-      
-      return true
-    },
-    async signIn({ user, account, profile }) {
+    ...authConfig.callbacks,
+    async signIn({ user, account }) {
       if (account?.provider === "google") {
         const { connectDB } = await import('@/db/mongo')
         const { createUserSettings } = await import('@/lib/settings-helpers')
@@ -159,17 +134,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return session
     },
     async redirect({ url, baseUrl }) {
-      // If redirecting to callback or auth-redirect, continue
+      // If the url is a relative path, prepend the baseUrl
+      if (url.startsWith('/')) {
+        return `${baseUrl}${url}`
+      }
+      // If the url is already absolute and on the same origin, allow it
       if (url.startsWith(baseUrl)) {
         return url
       }
-      // Default redirect to dashboard via auth-redirect
+      // Default to auth-redirect which will send them to dashboard
       return `${baseUrl}/auth-redirect`
-    }
-  },
-  pages: {
-    signIn: '/login',
-    error: '/login',
+    },
   },
   session: {
     strategy: "jwt",
