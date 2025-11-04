@@ -1,7 +1,7 @@
 import LoginForm from '@/app/forms/login-form'
 import Link from 'next/link'
 
-export default async function Page() {
+export default function Page() {
   return (
     <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">

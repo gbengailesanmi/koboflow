@@ -14,14 +14,14 @@ export default function SignupForm() {
   useEffect(() => {
     if (state?.success) {
       if (state.requiresVerification) {
-        // Redirect to verify-email page if verification is required
+        // Redirect to verify-email page if verification is required (production)
         router.push('/verify-email')
-      } else if (state.customerId) {
-        // Direct redirect to dashboard if no verification needed (e.g., Google OAuth)
-        router.push(`/${state.customerId}/dashboard`)
+      } else {
+        // Redirect to auth-redirect which will handle the dashboard redirect
+        router.push('/auth-redirect')
       }
     }
-  }, [state?.success, state?.customerId, state?.requiresVerification, router])
+  }, [state?.success, state?.requiresVerification, router])
 
   const onGoogleSignIn = async () => {
     await handleGoogleSignIn()

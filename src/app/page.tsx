@@ -8,23 +8,16 @@ export default async function LandingPage() {
   
   // If already logged in, verify user exists and redirect to dashboard
   if (session?.user?.customerId) {
-    try {
-      const db = await connectDB()
-      const user = await db.collection('users').findOne({ 
-        customerId: session.user.customerId 
-      })
-      
-      // If user exists, redirect to dashboard
-      if (user) {
-        redirect(`/${session.user.customerId}/dashboard`)
-      }
-      // If user doesn't exist, just show the landing page
-      // The auth-redirect route will handle signing them out if they try to access protected routes
-    } catch (error) {
-      console.error('Error verifying user:', error)
-      // If there's a DB error, just show the landing page
+    const db = await connectDB()
+    const user = await db.collection('users').findOne({ 
+      customerId: session.user.customerId 
+    })
+    
+    // If user exists, redirect to dashboard
+    if (user) {
+      redirect(`/${session.user.customerId}/dashboard`)
     }
-  }
+}
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">

@@ -11,10 +11,11 @@ export default function LoginForm({ isTimeout = false }: { isTimeout?: boolean }
 
   // Handle redirect on successful login
   useEffect(() => {
-    if (state?.success && state?.customerId) {
-      router.push(`/${state.customerId}/dashboard`)
+    if (state?.success) {
+      // Redirect to auth-redirect which will handle the dashboard redirect
+      router.push('/auth-redirect')
     }
-  }, [state?.success, state?.customerId, router])
+  }, [state?.success, router])
 
   const onGoogleSignIn = async () => {
     await handleGoogleSignIn()
