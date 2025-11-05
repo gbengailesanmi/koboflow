@@ -118,9 +118,10 @@ class ApiClient {
     })
   }
 
-  async deleteAccount() {
+  async deleteAccount(customerId?: string) {
     return this.request('/api/settings/account', {
       method: 'DELETE',
+      body: customerId ? JSON.stringify({ customerId }) : undefined,
     })
   }
 

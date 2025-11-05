@@ -106,25 +106,19 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pa
   const savePreferences = async () => {
     setIsSaving(true)
     try {
-      const response = await fetch('/api/settings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          customerId,
-          theme,
-          accentColor,
-          notifications: {
-            email: notifications
-          },
-          pageColors
-        })
+      await apiClient.updateSettings({
+        customerId,
+        theme,
+        accentColor,
+        notifications: {
+          email: notifications
+        },
+        pageColors
       })
 
-      if (response.ok) {
-        // Apply theme immediately
-        document.documentElement.setAttribute('data-theme', theme)
-        document.documentElement.style.setProperty('--accent-color', accentColors.find(c => c.value === accentColor)?.color || '#3b82f6')
-      }
+      // Apply theme immediately
+      document.documentElement.setAttribute('data-theme', theme)
+      document.documentElement.style.setProperty('--accent-color', accentColors.find(c => c.value === accentColor)?.color || '#3b82f6')
     } catch (error) {
       console.error('Failed to save preferences:', error)
     } finally {
@@ -145,15 +139,8 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pa
 
   const handleDeleteAccount = async () => {
     try {
-      const response = await fetch('/api/settings/delete-account', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ customerId })
-      })
-
-      if (response.ok) {
-        router.push('/signup')
-      }
+      await apiClient.deleteAccount(customerId)
+      router.push('/signup')
     } catch (error) {
       console.error('Failed to delete account:', error)
     }
