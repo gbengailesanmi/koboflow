@@ -31,6 +31,19 @@ app.use(cookieParser())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
+app.use((req: Request, res: Response, next: any) => {
+  const start = Date.now()
+  
+  console.log(`[${req.method}] ${req.path}`)
+  
+  res.on('finish', () => {
+    const duration = Date.now() - start
+    console.log(`[${req.method}] ${req.path} - ${res.statusCode} (${duration}ms)`)
+  })
+  
+  next()
+})
+
 // Log CORS configuration
 console.log('🌐 CORS enabled for origins:', allowedOrigins)
 
