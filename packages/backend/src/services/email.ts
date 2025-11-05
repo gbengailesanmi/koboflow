@@ -11,7 +11,7 @@ export async function sendVerificationEmail(
 
   try {
     const { data, error } = await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL || 'Money Mapper <onboarding@resend.dev>',
+      from: process.env.FROM_EMAIL || 'Money Mapper <onboarding@resend.dev>',
       to: email,
       subject: 'Verify your Money Mapper account',
       html: `

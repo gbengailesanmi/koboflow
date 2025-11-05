@@ -150,9 +150,8 @@ class ApiClient {
   }
 
   async verifyEmail(token: string) {
-    return this.request('/api/auth/verify-email', {
-      method: 'POST',
-      body: JSON.stringify({ token }),
+    return this.request(`/api/auth/verify-email?token=${encodeURIComponent(token)}`, {
+      method: 'GET',
     })
   }
 

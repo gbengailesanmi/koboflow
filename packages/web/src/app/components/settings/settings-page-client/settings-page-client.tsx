@@ -129,10 +129,8 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pa
   const handleLogout = async () => {
     try {
       await apiClient.logout()
-      // apiClient.logout() already redirects to /login
     } catch (error) {
       console.error('Logout failed:', error)
-      // Still redirect even if the API call fails
       router.push('/login')
     }
   }
