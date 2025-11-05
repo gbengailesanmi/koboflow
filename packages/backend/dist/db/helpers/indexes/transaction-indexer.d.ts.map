@@ -1,1 +1,0 @@
-{"version":3,"file":"transaction-indexer.d.ts","sourceRoot":"","sources":["../../../../src/db/helpers/indexes/transaction-indexer.ts"],"names":[],"mappings":"AAKA,iBAAe,kBAAkB,CAAC,aAAa,EAAE,GAAG,iBAenD;AAED,iBAAS,MAAM,CAAC,GAAG,EAAE,GAAG,UAUvB;AAED,OAAO,EAAE,kBAAkB,EAAE,MAAM,EAAE,CAAA"}

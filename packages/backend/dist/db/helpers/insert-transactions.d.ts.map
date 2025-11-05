@@ -1,1 +1,0 @@
-{"version":3,"file":"insert-transactions.d.ts","sourceRoot":"","sources":["../../../src/db/helpers/insert-transactions.ts"],"names":[],"mappings":"AAsCA,iBAAe,sBAAsB,CAAC,YAAY,EAAE,GAAG,EAAE,EAAE,UAAU,EAAE,MAAM,EAAE,SAAS,EAAE,GAAG,iBAE5F;AAED,OAAO,EAAE,sBAAsB,EAAE,CAAA"}
