@@ -24,12 +24,11 @@ export default function TransactionsPage() {
           return
         }
 
-        const [accountsRes, transactionsRes, categoriesRes, settingsRes, profileRes]: any[] = await Promise.all([
-          fetch(`/api/accounts?customerId=${customerId}`).then(r => r.json()),
+        const [accountsRes, transactionsRes, categoriesRes, settingsRes]: any[] = await Promise.all([
+          apiClient.getAccounts(),
           apiClient.getTransactions(),
           apiClient.getCategories(),
           apiClient.getSettings(),
-          fetch(`/api/auth/user/${customerId}`).then(r => r.json()),
         ])
 
         setData({
@@ -37,7 +36,13 @@ export default function TransactionsPage() {
           transactions: transactionsRes.transactions || [],
           customCategories: categoriesRes || [],
           settings: settingsRes.settings || {},
-          profile: profileRes.user || {},
+          profile: {
+            customerId: sessionRes.user.customerId,
+            email: sessionRes.user.email,
+            firstName: sessionRes.user.firstName,
+            lastName: sessionRes.user.lastName,
+            currency: sessionRes.user.currency,
+          },
         })
       } catch (error) {
         console.error('Failed to load transactions data:', error)

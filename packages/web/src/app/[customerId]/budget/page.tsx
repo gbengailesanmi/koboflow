@@ -24,12 +24,11 @@ export default function BudgetPage() {
           return
         }
 
-        const [transactionsRes, categoriesRes, budgetRes, settingsRes, profileRes]: any[] = await Promise.all([
+        const [transactionsRes, categoriesRes, budgetRes, settingsRes]: any[] = await Promise.all([
           apiClient.getTransactions(),
           apiClient.getCategories(),
           apiClient.getBudget(),
           apiClient.getSettings(),
-          fetch(`/api/auth/user/${customerId}`).then(r => r.json()),
         ])
 
         setData({
@@ -37,7 +36,13 @@ export default function BudgetPage() {
           customCategories: categoriesRes || [],
           budget: budgetRes || null,
           settings: settingsRes.settings || {},
-          profile: profileRes.user || {},
+          profile: {
+            customerId: sessionRes.user.customerId,
+            email: sessionRes.user.email,
+            firstName: sessionRes.user.firstName,
+            lastName: sessionRes.user.lastName,
+            currency: sessionRes.user.currency,
+          },
         })
       } catch (error) {
         console.error('Failed to load budget data:', error)

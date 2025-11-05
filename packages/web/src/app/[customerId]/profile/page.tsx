@@ -24,14 +24,19 @@ export default function ProfilePage() {
           return
         }
 
-        const [profileRes, budgetRes, settingsRes]: any[] = await Promise.all([
-          fetch(`/api/auth/user/${customerId}`).then(r => r.json()),
+        const [budgetRes, settingsRes]: any[] = await Promise.all([
           apiClient.getBudget(),
           apiClient.getSettings(),
         ])
 
         setData({
-          profile: profileRes.user || {},
+          profile: {
+            customerId: sessionRes.user.customerId,
+            email: sessionRes.user.email,
+            firstName: sessionRes.user.firstName,
+            lastName: sessionRes.user.lastName,
+            currency: sessionRes.user.currency,
+          },
           totalBudgetLimit: budgetRes?.totalBudgetLimit || 0,
           settings: settingsRes.settings || {},
         })

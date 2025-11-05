@@ -24,13 +24,16 @@ export default function SettingsPage() {
           return
         }
 
-        const [profileRes, settingsRes]: any[] = await Promise.all([
-          fetch(`/api/auth/user/${customerId}`).then(r => r.json()),
-          apiClient.getSettings(),
-        ])
+        const settingsRes: any = await apiClient.getSettings()
 
         setData({
-          profile: profileRes.user || {},
+          profile: {
+            customerId: sessionRes.user.customerId,
+            email: sessionRes.user.email,
+            firstName: sessionRes.user.firstName,
+            lastName: sessionRes.user.lastName,
+            currency: sessionRes.user.currency,
+          },
           settings: settingsRes.settings || {},
         })
       } catch (error) {
