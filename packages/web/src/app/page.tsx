@@ -1,9 +1,6 @@
 import Link from 'next/link'
 
 export default function LandingPage() {
-  // Landing page - no auth check needed here
-  // User authentication is handled by the backend API
-
   return (
     <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="max-w-md w-full mx-4">
