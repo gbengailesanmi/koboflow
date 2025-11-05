@@ -27,9 +27,7 @@ export default function LoginForm({ isTimeout = false }: { isTimeout?: boolean }
     try {
       const result: any = await apiClient.login({ email, password })
       
-      if (result.success && result.token) {
-        localStorage.setItem('authToken', result.token)
-        
+      if (result.success) {
         router.push(`/${result.user.customerId}/dashboard`)
       } else {
         setError(result.message || 'Login failed')

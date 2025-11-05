@@ -21,17 +21,13 @@ class ApiClient {
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`
     
-    // Get JWT token from localStorage
-    const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null
-    
     const config: RequestInit = {
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...(token && { 'Authorization': `Bearer ${token}` }),
         ...options.headers,
       },
-      credentials: 'include',
+      credentials: 'include', // Include HTTP-only cookies in requests
     }
 
     const response = await fetch(url, config)
@@ -39,9 +35,8 @@ class ApiClient {
     if (!response.ok) {
       const error = await response.json().catch(() => ({ message: 'Request failed' }))
       
-      // If unauthorized, clear token and redirect to login
+      // If unauthorized, redirect to login
       if (response.status === 401 && typeof window !== 'undefined') {
-        localStorage.removeItem('authToken')
         window.location.href = '/login'
       }
       
@@ -173,9 +168,10 @@ class ApiClient {
         method: 'POST',
       })
     } finally {
-      // Clear token from localStorage regardless of API response
+      // Cookie is cleared by the backend
+      // Just redirect to login
       if (typeof window !== 'undefined') {
-        localStorage.removeItem('authToken')
+        window.location.href = '/login'
       }
     }
   }

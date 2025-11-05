@@ -25,7 +25,6 @@ export default function AnalyticsPage() {
           return
         }
 
-        // Fetch all data in parallel
         const [accountsRes, transactionsRes, categoriesRes, settingsRes]: any[] = await Promise.all([
           apiClient.getAccounts(),
           apiClient.getTransactions(),
