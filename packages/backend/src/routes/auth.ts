@@ -121,9 +121,16 @@ authRoutes.post('/login', async (req, res) => {
       { expiresIn: '7d' }
     )
 
+    // Set secure HTTP-only cookie
+    res.cookie('auth-token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    })
+
     res.json({
       success: true,
-      token,
       user: {
         customerId: user.customerId,
         email: user.email,
@@ -135,6 +142,20 @@ authRoutes.post('/login', async (req, res) => {
     console.error('Login error:', error)
     res.status(500).json({ message: 'An error occurred during login.' })
   }
+})
+
+// Logout
+authRoutes.post('/logout', (req, res) => {
+  res.clearCookie('auth-token', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax'
+  })
+  
+  res.json({
+    success: true,
+    message: 'Logged out successfully'
+  })
 })
 
 // Verify email
@@ -636,9 +657,17 @@ authRoutes.get('/google/callback', async (req, res) => {
       { expiresIn: '7d' }
     )
 
-    // Redirect to frontend with token
+    // Set secure HTTP-only cookie instead of URL parameter
+    res.cookie('auth-token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    })
+
+    // Redirect to dashboard WITHOUT token in URL
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000'
-    res.redirect(`${frontendUrl}/auth-callback?token=${token}&customerId=${user.customerId}`)
+    res.redirect(`${frontendUrl}/dashboard`)
   } catch (error) {
     console.error('Google OAuth callback error:', error)
     res.redirect('/login?error=oauth_error')

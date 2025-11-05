@@ -45,7 +45,7 @@ export const authMiddleware = async (
     const authHeader = req.headers.authorization
     const token = authHeader?.startsWith('Bearer ') 
       ? authHeader.substring(7)
-      : req.cookies?.token
+      : req.cookies?.['auth-token']
 
     if (!token) {
       return res.status(401).json({ error: 'Authentication required' })
