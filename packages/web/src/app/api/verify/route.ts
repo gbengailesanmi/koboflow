@@ -12,7 +12,6 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Call backend verification endpoint from SERVER
     const response = await fetch(`${BACKEND_URL}/api/auth/verify-email`, {
       method: 'POST',
       headers: {
@@ -22,16 +21,19 @@ export async function GET(request: NextRequest) {
     })
 
     const data = await response.json()
+    console.log('[VERIFY API] Backend response:', { success: data.success, message: data.message })
 
     if (data.success) {
-      // Redirect to login with success message
-      return NextResponse.redirect(new URL('/login?verified=true', request.url))
+      // Redirect to verify-email page with success flag
+      console.log('[VERIFY API] Redirecting to /verify-email?verified=true')
+      return NextResponse.redirect(new URL('/verify-email?verified=true', request.url))
     } else {
       // Redirect to verify-email with error
+      console.log('[VERIFY API] Redirecting to /verify-email?error=invalid')
       return NextResponse.redirect(new URL('/verify-email?error=invalid', request.url))
     }
   } catch (error) {
-    console.error('Verification error:', error)
+    console.error('[VERIFY API] Verification error:', error)
     // Redirect to verify-email with error
     return NextResponse.redirect(new URL('/verify-email?error=failed', request.url))
   }

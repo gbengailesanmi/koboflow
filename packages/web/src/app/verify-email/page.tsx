@@ -16,20 +16,24 @@ function VerifyEmailContent() {
     // Check for success/error query params from server-side redirect
     const verified = searchParams.get('verified')
     const error = searchParams.get('error')
-    
+        
     if (verified === 'true') {
+      console.log('[VERIFY PAGE] Setting status to success')
       setStatus('success')
       setMessage('Email verified successfully! Redirecting to login...')
       setTimeout(() => {
         router.push('/login')
       }, 2000)
     } else if (error) {
+      console.log('[VERIFY PAGE] Setting status to error:', error)
       setStatus('error')
       if (error === 'invalid') {
         setMessage('Invalid or expired verification token')
       } else {
         setMessage('An error occurred during verification')
       }
+    } else {
+      console.log('[VERIFY PAGE] No query params, staying in idle state')
     }
   }, [router, searchParams])
 
