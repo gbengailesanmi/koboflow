@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { authMiddleware } from '../middleware/auth'
+import { authMiddleware, AuthRequest } from '../middleware/auth'
 import { getTinkTokens, getTinkAccountsData, getTinkTransactionsData } from '../services/tink'
 import { bulkInsertTransactions } from '../db/helpers/insert-transactions'
 import { bulkInsertAccounts } from '../db/helpers/insert-accounts'
@@ -8,9 +8,8 @@ import { connectDB } from '../db/mongo'
 export const callbackRoutes = Router()
 
 // Tink callback handler
-callbackRoutes.get('/', authMiddleware, async (req, res) => {
+callbackRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
   try {
-    // @ts-ignore - customerId is set by authMiddleware
     const customerId = req.user?.customerId
 
     if (!customerId) {

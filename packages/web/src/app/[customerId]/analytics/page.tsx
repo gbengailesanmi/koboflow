@@ -1,109 +1,83 @@
-'use server'
+'use client'
 
-import { getSession } from '@/lib/session'
-import { redirect } from 'next/navigation'
-import { sanitizeArray } from '@/lib/sanitize'
+import { useEffect, useState } from 'react'
+import { useParams, useRouter } from 'next/navigation'
+import { apiClient } from '@/lib/api-client'
 import AnalyticsPageClient from '@/app/components/analytics/analytics-page-client/analytics-page-client'
 import PageLayoutWithSidebar from '@/app/components/page-layout-with-sidebar/page-layout-with-sidebar'
 import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
-import { getUserSettings } from '@/lib/settings-helpers'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+export default function AnalyticsPage() {
+  const params = useParams()
+  const router = useRouter()
+  const customerId = params.customerId as string
 
-export default async function AnalyticsPage() {
-  const user = await getSession()
+  const [loading, setLoading] = useState(true)
+  const [data, setData] = useState<any>(null)
 
-  if (!user?.customerId) {
-    redirect(`/login`)
+  useEffect(() => {
+    async function loadData() {
+      try {
+        // Check session
+        const sessionRes: any = await apiClient.getSession()
+        if (!sessionRes.success || sessionRes.user.customerId !== customerId) {
+          router.push('/login')
+          return
+        }
+
+        // Fetch all data in parallel
+        const [accountsRes, transactionsRes, categoriesRes, settingsRes]: any[] = await Promise.all([
+          apiClient.getAccounts(),
+          apiClient.getTransactions(),
+          apiClient.getCategories(),
+          apiClient.getSettings(),
+        ])
+
+        setData({
+          accounts: accountsRes.accounts || [],
+          transactions: transactionsRes.transactions || [],
+          customCategories: categoriesRes || [],
+          settings: settingsRes.settings || {},
+          profile: {
+            customerId: sessionRes.user.customerId,
+            email: sessionRes.user.email,
+            firstName: sessionRes.user.firstName,
+            lastName: sessionRes.user.lastName,
+            currency: sessionRes.user.currency,
+          },
+        })
+      } catch (error) {
+        console.error('Failed to load analytics data:', error)
+        router.push('/login')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadData()
+  }, [customerId, router])
+
+  if (loading || !data) {
+    return (
+      <PageLayoutWithSidebar customerId={customerId}>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading analytics...</p>
+          </div>
+        </div>
+      </PageLayoutWithSidebar>
+    )
   }
-
-  // Fetch user profile from backend API
-  const userResponse = await fetch(`${API_URL}/api/auth/user/${user.customerId}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    cache: 'no-store',
-  })
-
-  if (!userResponse.ok) {
-    redirect(`/login`)
-  }
-
-  const userDataResponse = await userResponse.json()
-  const userProfile = userDataResponse.user
-
-  if (!userProfile) {
-    redirect(`/login`)
-  }
-
-  // Fetch accounts from backend API
-  const accountsResponse = await fetch(`${API_URL}/api/accounts`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-customer-id': user.customerId,
-    },
-    cache: 'no-store',
-  })
-
-  let accountsData = []
-  if (accountsResponse.ok) {
-    const accountsDataResponse = await accountsResponse.json()
-    accountsData = sanitizeArray(accountsDataResponse.accounts || [])
-  }
-
-  // Fetch transactions from backend API
-  const transactionsResponse = await fetch(`${API_URL}/api/transactions`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-customer-id': user.customerId,
-    },
-    cache: 'no-store',
-  })
-
-  let transactionsData = []
-  if (transactionsResponse.ok) {
-    const transactionsDataResponse = await transactionsResponse.json()
-    transactionsData = sanitizeArray(transactionsDataResponse.transactions || [])
-  }
-
-  // Fetch custom categories from backend API
-  const categoriesResponse = await fetch(`${API_URL}/api/categories`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-customer-id': user.customerId,
-    },
-    cache: 'no-store',
-  })
-
-  let customCategories = []
-  if (categoriesResponse.ok) {
-    const categoriesData = await categoriesResponse.json()
-    customCategories = sanitizeArray(categoriesData.categories || [])
-  }
-
-  const profile = {
-    firstName: userProfile.firstName || '',
-    lastName: userProfile.lastName || '',
-    email: userProfile.email || '',
-    currency: userProfile.currency || 'USD',
-    totalBudgetLimit: userProfile.totalBudgetLimit || 5000
-  }
-
-  const userSettings = await getUserSettings(user.customerId)
-  const pageColor = userSettings?.pageColors?.analytics || PAGE_COLORS.analytics
 
   return (
-    <PageLayoutWithSidebar customerId={user.customerId}>
-      <AnalyticsPageClient 
-        accounts={accountsData} 
-        transactions={transactionsData}
-        customCategories={customCategories}
-        profile={profile}
-        pageColor={pageColor}
+    <PageLayoutWithSidebar customerId={customerId}>
+      <AnalyticsPageClient
+        accounts={data.accounts}
+        transactions={data.transactions}
+        customCategories={data.customCategories}
+        profile={data.profile}
+        pageColor={PAGE_COLORS.analytics}
       />
     </PageLayoutWithSidebar>
   )

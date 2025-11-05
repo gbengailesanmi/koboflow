@@ -1,5 +1,13 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
+// Response types
+interface ApiResponse<T = any> {
+  success: boolean
+  message?: string
+  data?: T
+  [key: string]: any
+}
+
 class ApiClient {
   private baseUrl: string
 
@@ -13,10 +21,14 @@ class ApiClient {
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`
     
+    // Get JWT token from localStorage
+    const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null
+    
     const config: RequestInit = {
       ...options,
       headers: {
         'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` }),
         ...options.headers,
       },
       credentials: 'include',
@@ -26,6 +38,13 @@ class ApiClient {
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({ message: 'Request failed' }))
+      
+      // If unauthorized, clear token and redirect to login
+      if (response.status === 401 && typeof window !== 'undefined') {
+        localStorage.removeItem('authToken')
+        window.location.href = '/login'
+      }
+      
       throw new Error(error.message || `HTTP ${response.status}`)
     }
 
@@ -148,9 +167,51 @@ class ApiClient {
     })
   }
 
+  async logout() {
+    try {
+      await this.request('/api/auth/logout', {
+        method: 'POST',
+      })
+    } finally {
+      // Clear token from localStorage regardless of API response
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('authToken')
+      }
+    }
+  }
+
+  async updateProfile(customerId: string, data: {
+    firstName: string
+    lastName: string
+    email: string
+    currency?: string
+    totalBudgetLimit?: number
+  }): Promise<ApiResponse> {
+    return this.request<ApiResponse>(`/api/auth/user/${customerId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    })
+  }
+
   // Session API
   async getSession() {
     return this.request('/api/session')
+  }
+
+  // Transactions API
+  async getTransactions() {
+    return this.request('/api/transactions')
+  }
+
+  // Accounts API
+  async getAccounts() {
+    return this.request('/api/accounts')
+  }
+
+  async refreshAccounts() {
+    return this.request('/api/accounts/refresh', {
+      method: 'POST',
+    })
   }
 
   // Tink Callback

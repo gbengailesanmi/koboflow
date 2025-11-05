@@ -22,8 +22,6 @@ export const DailySpendingComparison: React.FC<DailySpendingComparisonProps> = (
     ? ((dailyChange / prevMonthAverage) * 100) 
     : 0
   
-  // If daily spending increased = bad = red
-  // If daily spending decreased = good = green
   const isGoodChange = dailyChange < 0
   
   return (

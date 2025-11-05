@@ -1,24 +1,41 @@
 import { Router } from 'express'
-import { authMiddleware } from '../middleware/auth'
+import { authMiddleware, AuthRequest } from '../middleware/auth'
+import { connectDB } from '../db/mongo'
 
 export const sessionRoutes = Router()
 
 // Get current session
-sessionRoutes.get('/', authMiddleware, async (req, res) => {
+sessionRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
   try {
-    // @ts-ignore - customerId is set by authMiddleware
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: 'Unauthorized',
+      })
+    }
+    
     const { customerId, email, firstName, lastName } = req.user
     
+    // Get user settings and budget from DB
+    const db = await connectDB()
+    const settings = await db.collection('settings').findOne({ customerId })
+    const budget = await db.collection('budgets').findOne({ customerId })
+    
     res.json({
+      success: true,
       user: {
         customerId,
         email,
-        name: `${firstName || ''} ${lastName || ''}`.trim()
+        firstName: firstName || '',
+        lastName: lastName || '',
+        name: `${firstName || ''} ${lastName || ''}`.trim(),
+        currency: settings?.currency || 'SEK',
+        totalBudgetLimit: budget?.totalBudgetLimit || 0
       }
     })
   } catch (error) {
     console.error('Session error:', error)
-    res.status(500).json({ user: null })
+    res.status(500).json({ success: false, message: 'Failed to get session' })
   }
 })
 

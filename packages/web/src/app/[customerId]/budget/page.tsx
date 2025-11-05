@@ -1,102 +1,76 @@
-import { getSession } from '@/lib/session'
-import { redirect } from 'next/navigation'
-import { sanitizeArray } from '@/lib/sanitize'
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useParams, useRouter } from 'next/navigation'
+import { apiClient } from '@/lib/api-client'
 import BudgetClient from '@/app/components/budget/budget-page-client/budget-page-client'
 import PageLayoutWithSidebar from '@/app/components/page-layout-with-sidebar/page-layout-with-sidebar'
 import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
-import { getUserSettings } from '@/lib/settings-helpers'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+export default function BudgetPage() {
+  const params = useParams()
+  const router = useRouter()
+  const customerId = params.customerId as string
 
-export default async function BudgetPage() {
-  const user = await getSession()
+  const [loading, setLoading] = useState(true)
+  const [data, setData] = useState<any>(null)
 
-  if (!user?.customerId) {
-    redirect(`/login`)
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const sessionRes: any = await apiClient.getSession()
+        if (!sessionRes.success || sessionRes.user.customerId !== customerId) {
+          router.push('/login')
+          return
+        }
+
+        const [transactionsRes, categoriesRes, budgetRes, settingsRes, profileRes]: any[] = await Promise.all([
+          apiClient.getTransactions(),
+          apiClient.getCategories(),
+          apiClient.getBudget(),
+          apiClient.getSettings(),
+          fetch(`/api/auth/user/${customerId}`).then(r => r.json()),
+        ])
+
+        setData({
+          transactions: transactionsRes.transactions || [],
+          customCategories: categoriesRes || [],
+          budget: budgetRes || null,
+          settings: settingsRes.settings || {},
+          profile: profileRes.user || {},
+        })
+      } catch (error) {
+        console.error('Failed to load budget data:', error)
+        router.push('/login')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadData()
+  }, [customerId, router])
+
+  if (loading || !data) {
+    return (
+      <PageLayoutWithSidebar customerId={customerId}>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading budget...</p>
+          </div>
+        </div>
+      </PageLayoutWithSidebar>
+    )
   }
-
-  // Fetch user profile from backend API
-  const userResponse = await fetch(`${API_URL}/api/auth/user/${user.customerId}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    cache: 'no-store',
-  })
-
-  if (!userResponse.ok) {
-    redirect(`/login`)
-  }
-
-  const userDataResponse = await userResponse.json()
-  const userProfile = userDataResponse.user
-
-  if (!userProfile) {
-    redirect(`/login`)
-  }
-
-  // Fetch transactions from backend API
-  const transactionsResponse = await fetch(`${API_URL}/api/transactions`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-customer-id': user.customerId,
-    },
-    cache: 'no-store',
-  })
-
-  let transactionsData = []
-  if (transactionsResponse.ok) {
-    const transactionsDataResponse = await transactionsResponse.json()
-    transactionsData = sanitizeArray(transactionsDataResponse.transactions || [])
-  }
-
-  // Fetch budget from backend API
-  const budgetResponse = await fetch(`${API_URL}/api/budget`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-customer-id': user.customerId,
-    },
-    cache: 'no-store',
-  })
-
-  let totalBudgetLimit = 0
-  if (budgetResponse.ok) {
-    const budgetData = await budgetResponse.json()
-    totalBudgetLimit = budgetData.budget?.monthly ?? 0
-  }
-
-  // Fetch custom categories from backend API
-  const categoriesResponse = await fetch(`${API_URL}/api/categories`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-customer-id': user.customerId,
-    },
-    cache: 'no-store',
-  })
-
-  let customCategories = []
-  if (categoriesResponse.ok) {
-    const categoriesData = await categoriesResponse.json()
-    customCategories = sanitizeArray(categoriesData.categories || [])
-  }
-
-  const profile = {
-    firstName: userProfile.firstName || '',
-    lastName: userProfile.lastName || '',
-    email: userProfile.email || '',
-    currency: userProfile.currency || 'GBP',
-    totalBudgetLimit: totalBudgetLimit
-  }
-
-  const userSettings = await getUserSettings(user.customerId)
-  const pageColor = userSettings?.pageColors?.budget || PAGE_COLORS.budget
 
   return (
-    <PageLayoutWithSidebar customerId={user.customerId}>
-      <BudgetClient transactions={transactionsData} profile={profile} customCategories={customCategories} pageColor={pageColor} />
+    <PageLayoutWithSidebar customerId={customerId}>
+      <BudgetClient
+        transactions={data.transactions}
+        customCategories={data.customCategories}
+        profile={data.profile}
+        pageColor={PAGE_COLORS.budget}
+      />
     </PageLayoutWithSidebar>
   )
 }

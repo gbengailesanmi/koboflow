@@ -19,13 +19,20 @@ const app: Express = express()
 const PORT = process.env.PORT || 3001
 
 // Middleware
+const allowedOrigins = (process.env.ALLOWED_ORIGINS)?.split(',').map(o => o.trim()) || ['http://localhost:3000']
+
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS?.split(','),
+  origin: allowedOrigins,
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-customer-id'],
 }))
 app.use(cookieParser())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+
+// Log CORS configuration
+console.log('🌐 CORS enabled for origins:', allowedOrigins)
 
 // Health check
 app.get('/health', (_req: Request, res: Response) => {

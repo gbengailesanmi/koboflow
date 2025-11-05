@@ -1,35 +1,8 @@
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
-import { auth } from '@/auth'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
-
-export default async function LandingPage() {
-  const session = await auth()
-  
-  // If already logged in, verify user exists and redirect to dashboard
-  if (session?.user?.customerId) {
-    try {
-      const response = await fetch(`${API_URL}/api/auth/user/${session.user.customerId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        cache: 'no-store',
-      })
-
-      // If user exists, redirect to dashboard
-      if (response.ok) {
-        const data = await response.json()
-        if (data.success && data.user) {
-          redirect(`/${session.user.customerId}/dashboard`)
-        }
-      }
-    } catch (error) {
-      console.error('Error checking user:', error)
-      // Continue to landing page if there's an error
-    }
-  }
+export default function LandingPage() {
+  // Landing page - no auth check needed here
+  // User authentication is handled by the backend API
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">

@@ -507,3 +507,140 @@ authRoutes.patch('/user/:customerId', async (req, res) => {
     })
   }
 })
+
+// Google OAuth - Initiate
+authRoutes.get('/google', (req, res) => {
+  const clientId = process.env.GOOGLE_CLIENT_ID
+  const redirectUri = process.env.GOOGLE_REDIRECT_URI || 'http://localhost:3001/api/auth/google/callback'
+  
+  if (!clientId) {
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Google OAuth not configured. Please set GOOGLE_CLIENT_ID in environment variables.' 
+    })
+  }
+
+  const scope = 'openid email profile'
+  const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
+    `client_id=${clientId}&` +
+    `redirect_uri=${encodeURIComponent(redirectUri)}&` +
+    `response_type=code&` +
+    `scope=${encodeURIComponent(scope)}&` +
+    `access_type=offline&` +
+    `prompt=consent`
+
+  res.redirect(authUrl)
+})
+
+// Debug route to check OAuth configuration (REMOVE IN PRODUCTION)
+authRoutes.get('/debug-oauth-config', (req, res) => {
+  const redirectUri = process.env.GOOGLE_REDIRECT_URI || 'http://localhost:3001/api/auth/google/callback'
+  res.json({
+    configured: !!process.env.GOOGLE_CLIENT_ID,
+    clientIdPrefix: process.env.GOOGLE_CLIENT_ID?.substring(0, 20) + '...',
+    hasClientSecret: !!process.env.GOOGLE_CLIENT_SECRET,
+    redirectUri: redirectUri,
+    frontendUrl: process.env.FRONTEND_URL || 'NOT SET',
+    port: process.env.PORT || 3001
+  })
+})
+
+// Google OAuth - Callback
+authRoutes.get('/google/callback', async (req, res) => {
+  try {
+    const { code } = req.query
+
+    if (!code || typeof code !== 'string') {
+      return res.redirect('/login?error=oauth_failed')
+    }
+
+    const clientId = process.env.GOOGLE_CLIENT_ID
+    const clientSecret = process.env.GOOGLE_CLIENT_SECRET
+    const redirectUri = process.env.GOOGLE_REDIRECT_URI || 'http://localhost:3001/api/auth/google/callback'
+
+    if (!clientId || !clientSecret) {
+      return res.redirect('/login?error=oauth_not_configured')
+    }
+
+    // Exchange code for tokens
+    const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        code,
+        client_id: clientId,
+        client_secret: clientSecret,
+        redirect_uri: redirectUri,
+        grant_type: 'authorization_code',
+      }),
+    })
+
+    if (!tokenResponse.ok) {
+      console.error('Google token exchange failed:', await tokenResponse.text())
+      return res.redirect('/login?error=oauth_token_failed')
+    }
+
+    const tokens = await tokenResponse.json()
+
+    // Get user info from Google
+    const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+      headers: { Authorization: `Bearer ${tokens.access_token}` },
+    })
+
+    if (!userInfoResponse.ok) {
+      console.error('Google userinfo failed:', await userInfoResponse.text())
+      return res.redirect('/login?error=oauth_userinfo_failed')
+    }
+
+    const googleUser = await userInfoResponse.json()
+    const email = googleUser.email.toLowerCase()
+
+    const db = await connectDB()
+    let user = await db.collection('users').findOne({ email })
+
+    // Create user if doesn't exist
+    if (!user) {
+      const customerId = randomUUID()
+      
+      await db.collection('users').insertOne({
+        email,
+        firstName: googleUser.given_name || googleUser.name?.split(' ')[0] || 'User',
+        lastName: googleUser.family_name || googleUser.name?.split(' ').slice(1).join(' ') || '',
+        customerId,
+        emailVerified: true, // Google emails are pre-verified
+        createdAt: new Date(),
+        authProvider: 'google',
+        googleId: googleUser.id,
+      })
+
+      await createUserSettings(customerId)
+      
+      user = await db.collection('users').findOne({ email })
+    } else if (!user.emailVerified) {
+      // If user exists but email not verified, mark as verified (via Google OAuth)
+      await db.collection('users').updateOne(
+        { _id: user._id },
+        { $set: { emailVerified: true } }
+      )
+      user.emailVerified = true
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { 
+        userId: user._id.toString(),
+        customerId: user.customerId,
+        email: user.email 
+      },
+      process.env.JWT_SECRET!,
+      { expiresIn: '7d' }
+    )
+
+    // Redirect to frontend with token
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000'
+    res.redirect(`${frontendUrl}/auth-callback?token=${token}&customerId=${user.customerId}`)
+  } catch (error) {
+    console.error('Google OAuth callback error:', error)
+    res.redirect('/login?error=oauth_error')
+  }
+})

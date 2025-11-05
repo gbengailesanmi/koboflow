@@ -1,123 +1,90 @@
 'use client'
 
-import { useActionState, useEffect } from 'react'
+import { useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
-import { login } from '@/app/actions/login'
-import { handleGoogleSignIn } from '@/app/actions/google-signin'
+import { apiClient } from '@/lib/api-client'
 
 export default function LoginForm({ isTimeout = false }: { isTimeout?: boolean }) {
-  const [state, formAction, pending] = useActionState(login, undefined)
+  const [pending, setPending] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
-  // Handle redirect on successful login
-  useEffect(() => {
-    if (state?.success) {
-      // Redirect to auth-redirect which will handle the dashboard redirect
-      router.push('/auth-redirect')
-    }
-  }, [state?.success, router])
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setError(null)
+    setPending(true)
 
-  const onGoogleSignIn = async () => {
-    await handleGoogleSignIn()
+    const formData = new FormData(e.currentTarget)
+    const email = formData.get('email')?.toString().toLowerCase() || ''
+    const password = formData.get('password')?.toString() || ''
+
+    if (!email || !password) {
+      setError('All fields are required.')
+      setPending(false)
+      return
+    }
+
+    try {
+      const result: any = await apiClient.login({ email, password })
+      
+      if (result.success) {
+        // Redirect to dashboard with customerId
+        router.push(`/${result.user.customerId}/dashboard`)
+      } else {
+        setError(result.message || 'Login failed')
+      }
+    } catch (err: any) {
+      setError(err.message || 'Login failed. Please try again.')
+    } finally {
+      setPending(false)
+    }
   }
 
   return (
-    <>
-      <form action={formAction} className="space-y-4">
-        {isTimeout && (
-          <div style={{
-            padding: '12px 16px',
-            backgroundColor: '#fef3c7',
-            border: '1px solid #fbbf24',
-            borderRadius: '8px',
-            color: '#92400e',
-            fontSize: '14px',
-            marginBottom: '16px'
-          }}>
-            ⏱️ Your session expired due to inactivity. Please log in again.
-          </div>
-        )}
-        <div>
-          <label>Email</label>
-          <input name="email" type="email" required />
-        </div>
-        <div>
-          <label>Password</label>
-          <input name="password" type="password" required />
-        </div>
-        {state?.message && (
-          <div style={{
-            padding: '12px 16px',
-            backgroundColor: state.message.includes('verify your email') ? '#fef3c7' : '#fee2e2',
-            border: `1px solid ${state.message.includes('verify your email') ? '#fbbf24' : '#f87171'}`,
-            borderRadius: '8px',
-            color: state.message.includes('verify your email') ? '#92400e' : '#991b1b',
-            fontSize: '14px',
-          }}>
-            {state.message}
-            {state.message.includes('verify your email') && (
-              <div style={{ marginTop: '8px' }}>
-                <a href="/verify-email" style={{ color: '#2563eb', textDecoration: 'underline' }}>
-                  Resend verification email
-                </a>
-              </div>
-            )}
-          </div>
-        )}
-        <button type="submit" disabled={pending}>
-          {pending ? 'Logging in...' : 'Log In'}
-        </button>
-      </form>
-
-      {/* Divider */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        margin: '24px 0',
-        gap: '12px'
-      }}>
-        <div style={{ flex: 1, height: '1px', backgroundColor: '#e5e7eb' }} />
-        <span style={{ color: '#6b7280', fontSize: '14px' }}>or</span>
-        <div style={{ flex: 1, height: '1px', backgroundColor: '#e5e7eb' }} />
-      </div>
-
-      {/* Google Sign-In Button */}
-      <button
-        type="button"
-        onClick={onGoogleSignIn}
-        style={{
-          width: '100%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '12px',
-          padding: '12px 24px',
-          border: '1px solid #e5e7eb',
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {isTimeout && (
+        <div style={{
+          padding: '12px 16px',
+          backgroundColor: '#fef3c7',
+          border: '1px solid #fbbf24',
           borderRadius: '8px',
-          backgroundColor: 'white',
-          color: '#374151',
-          fontSize: '16px',
-          fontWeight: '500',
-          cursor: 'pointer',
-          transition: 'all 0.2s ease'
-        }}
-        onMouseOver={(e) => {
-          e.currentTarget.style.backgroundColor = '#f9fafb'
-          e.currentTarget.style.borderColor = '#d1d5db'
-        }}
-        onMouseOut={(e) => {
-          e.currentTarget.style.backgroundColor = 'white'
-          e.currentTarget.style.borderColor = '#e5e7eb'
-        }}
-      >
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-          <path d="M19.6 10.227c0-.709-.064-1.39-.182-2.045H10v3.868h5.382a4.6 4.6 0 01-1.996 3.018v2.51h3.232c1.891-1.742 2.982-4.305 2.982-7.35z" fill="#4285F4"/>
-          <path d="M10 20c2.7 0 4.964-.895 6.618-2.423l-3.232-2.509c-.895.6-2.04.955-3.386.955-2.605 0-4.81-1.76-5.595-4.123H1.064v2.59A9.996 9.996 0 0010 20z" fill="#34A853"/>
-          <path d="M4.405 11.9c-.2-.6-.314-1.24-.314-1.9 0-.66.114-1.3.314-1.9V5.51H1.064A9.996 9.996 0 000 10c0 1.614.386 3.14 1.064 4.49l3.34-2.59z" fill="#FBBC05"/>
-          <path d="M10 3.977c1.468 0 2.786.505 3.823 1.496l2.868-2.868C14.959.99 12.695 0 10 0 6.09 0 2.71 2.24 1.064 5.51l3.34 2.59C5.19 5.736 7.395 3.977 10 3.977z" fill="#EA4335"/>
-        </svg>
-        Continue with Google
+          color: '#92400e',
+          fontSize: '14px',
+          marginBottom: '16px'
+        }}>
+          ⏱️ Your session expired due to inactivity. Please log in again.
+        </div>
+      )}
+      <div>
+        <label>Email</label>
+        <input name="email" type="email" required />
+      </div>
+      <div>
+        <label>Password</label>
+        <input name="password" type="password" required />
+      </div>
+      {error && (
+        <div style={{
+          padding: '12px 16px',
+          backgroundColor: error.includes('verify your email') ? '#fef3c7' : '#fee2e2',
+          border: `1px solid ${error.includes('verify your email') ? '#fbbf24' : '#f87171'}`,
+          borderRadius: '8px',
+          color: error.includes('verify your email') ? '#92400e' : '#991b1b',
+          fontSize: '14px',
+        }}>
+          {error}
+          {error.includes('verify your email') && (
+            <div style={{ marginTop: '8px' }}>
+              <a href="/verify-email" style={{ color: '#2563eb', textDecoration: 'underline' }}>
+                Resend verification email
+              </a>
+            </div>
+          )}
+        </div>
+      )}
+      <button type="submit" disabled={pending}>
+        {pending ? 'Logging in...' : 'Log In'}
       </button>
-    </>
+    </form>
   )
 }

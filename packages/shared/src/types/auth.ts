@@ -15,6 +15,14 @@ export const SignupFormSchema = z.object({
   path: ['passwordConfirm']
 })
 
+export const LoginFormSchema = z.object({
+  email: z.email('Invalid email').trim(),
+  password: z.string().min(1, 'Password is required'),
+})
+
+export type SignupFormData = z.infer<typeof SignupFormSchema>
+export type LoginFormData = z.infer<typeof LoginFormSchema>
+
 export type FormState = {
   errors?: {
     firstName?: string[]

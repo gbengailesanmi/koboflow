@@ -1,13 +1,21 @@
 import { Router } from 'express'
-import { authMiddleware } from '../middleware/auth'
+import { authMiddleware, AuthRequest } from '../middleware/auth'
 import { connectDB } from '../db/mongo'
 
 export const accountRoutes = Router()
 
 // Get all accounts for a user
-accountRoutes.get('/', authMiddleware, async (req, res) => {
+accountRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
   try {
-    const customerId = req.user!.customerId
+    const customerId = req.user?.customerId
+    
+    if (!customerId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Unauthorized',
+      })
+    }
+    
     const db = await connectDB()
 
     const accounts = await db

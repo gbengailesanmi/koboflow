@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react'
 import { Pencil1Icon, CheckIcon, Cross2Icon, PersonIcon, EnvelopeClosedIcon } from '@radix-ui/react-icons'
 import Footer from '@/app/components/footer/footer'
-import { redirect, useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { PageHeader } from '@/app/components/page-header/page-header'
-import { updateProfile } from '@/app/actions/profile'
+import { apiClient } from '@/lib/api-client'
 import { useBaseColor } from '@/providers/base-colour-provider'
 import { 
   Grid, 
@@ -127,7 +127,7 @@ export default function ProfilePageClient({ user, pageColor }: ProfilePageClient
     setSuccess('')
 
     try {
-      const result = await updateProfile({
+      const result: any = await apiClient.updateProfile(customerId, {
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
         email: formData.email.trim(),
@@ -135,12 +135,12 @@ export default function ProfilePageClient({ user, pageColor }: ProfilePageClient
         totalBudgetLimit: budgetValue
       })
 
-      if (result.error) {
-        setError(result.error)
+      if (!result.success) {
+        setError(result.message || 'Failed to update profile')
         return
       }
 
-      setSuccess(result.success || 'Profile updated successfully!')
+      setSuccess('Profile updated successfully!')
       setIsEditing(false)
       
       // Don't immediately refresh - let the success state show first
@@ -151,8 +151,8 @@ export default function ProfilePageClient({ user, pageColor }: ProfilePageClient
       
       setTimeout(() => setSuccess(''), 3000)
 
-    } catch (err) {
-      setError('An unexpected error occurred')
+    } catch (err: any) {
+      setError(err.message || 'An unexpected error occurred')
     } finally {
       setLoading(false)
     }
