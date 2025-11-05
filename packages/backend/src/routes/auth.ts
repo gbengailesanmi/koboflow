@@ -667,9 +667,10 @@ authRoutes.get('/google/callback', async (req, res) => {
 
     // Redirect to dashboard WITHOUT token in URL
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000'
-    res.redirect(`${frontendUrl}/dashboard`)
+    res.redirect(`${frontendUrl}/${user.customerId}/dashboard`)
   } catch (error) {
     console.error('Google OAuth callback error:', error)
-    res.redirect('/login?error=oauth_error')
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000'
+    res.redirect(`${frontendUrl}/login?error=oauth_error`)
   }
 })

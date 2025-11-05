@@ -98,7 +98,7 @@ export const optionalAuthMiddleware = async (
     const authHeader = req.headers.authorization
     const token = authHeader?.startsWith('Bearer ') 
       ? authHeader.substring(7)
-      : req.cookies?.token
+      : req.cookies?.['auth-token'] // Read from auth-token cookie
 
     if (token) {
       const secret = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET
