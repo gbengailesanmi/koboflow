@@ -2,11 +2,13 @@ import { NextResponse } from 'next/server'
 import { auth, signOut } from '@/auth'
 import { connectDB } from '@/db/mongo'
 
+const BASE_URL = process.env.NEXTAUTH_URL
+
 export async function GET() {
   const session = await auth()
   
   if (!session?.user?.customerId) {
-    return NextResponse.redirect(new URL('/login', process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'))
+    return NextResponse.redirect(new URL('/login', BASE_URL))
   }
 
   // Verify the user actually exists in the database
@@ -20,16 +22,16 @@ export async function GET() {
     if (!user) {
       // Sign out is allowed in Route Handlers
       await signOut({ redirect: false })
-      return NextResponse.redirect(new URL('/login', process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'))
+      return NextResponse.redirect(new URL('/login', BASE_URL))
     }
   } catch (error) {
     console.error('Error verifying user:', error)
     // If there's a DB error, sign out to be safe
     await signOut({ redirect: false })
-    return NextResponse.redirect(new URL('/login', process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'))
+    return NextResponse.redirect(new URL('/login', BASE_URL))
   }
 
   return NextResponse.redirect(
-    new URL(`/${session.user.customerId}/dashboard`, process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000')
+    new URL(`/${session.user.customerId}/dashboard`, BASE_URL)
   )
 }

@@ -9,14 +9,14 @@ export default async function DebugAuth() {
       
       <h2>Environment Variables:</h2>
       <pre style={{ background: '#f5f5f5', padding: '20px', borderRadius: '8px' }}>
-NEXT_PUBLIC_BASE_URL: {process.env.NEXT_PUBLIC_BASE_URL || 'NOT SET'}
+NEXTAUTH_URL: {process.env.NEXTAUTH_URL || 'NOT SET'}
 GOOGLE_CLIENT_ID: {process.env.GOOGLE_CLIENT_ID ? '✅ Set' : '❌ NOT SET'}
 GOOGLE_CLIENT_SECRET: {process.env.GOOGLE_CLIENT_SECRET ? '✅ Set' : '❌ NOT SET'}
       </pre>
 
       <h2>Expected Redirect URI:</h2>
       <pre style={{ background: '#fff3cd', padding: '20px', borderRadius: '8px', fontSize: '16px' }}>
-{process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/auth/callback/google
+{process.env.NEXTAUTH_URL}/api/auth/callback/google
       </pre>
 
       <h2>Current Session:</h2>
@@ -29,7 +29,7 @@ GOOGLE_CLIENT_SECRET: {process.env.GOOGLE_CLIENT_SECRET ? '✅ Set' : '❌ NOT S
         <input 
           type="text" 
           readOnly 
-          value={`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/auth/callback/google`}
+          value={`${process.env.NEXTAUTH_URL}/api/auth/callback/google`}
           style={{ 
             width: '100%', 
             padding: '10px', 
