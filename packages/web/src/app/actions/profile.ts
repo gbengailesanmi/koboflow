@@ -1,8 +1,9 @@
 'use server'
 
-import { connectDB } from '@/db/mongo'
 import { getSession } from '@/lib/session'
 import { revalidatePath } from 'next/cache'
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
 export async function updateProfile(
   data: { firstName: string; lastName: string; email: string; currency?: string; totalBudgetLimit?: number }
@@ -26,65 +27,29 @@ export async function updateProfile(
       return { error: 'Unauthorized' }
     }
 
-    // Connect to database
-    const db = await connectDB()
-
-    // Check if email is already taken by another user
-    const existingUser = await db.collection('users').findOne({ 
-      email: email.toLowerCase().trim(), 
-      customerId: { $ne: user.customerId } 
+    // Call backend API to update user profile
+    const response = await fetch(`${API_URL}/api/auth/user/${user.customerId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        firstName,
+        lastName,
+        email,
+        currency,
+        totalBudgetLimit
+      }),
     })
 
-    if (existingUser) {
-      return { error: 'Email is already taken' }
+    const responseData = await response.json()
+
+    if (!response.ok) {
+      return { error: responseData.message || 'Failed to update profile' }
     }
 
-    const updateData: any = {
-      firstName: firstName.trim(),
-      lastName: lastName.trim(),
-      email: email.toLowerCase().trim(),
-      updatedAt: new Date()
-    }
-
-    // Add optional fields if provided
-    if (currency) {
-      updateData.currency = currency
-    }
-    if (totalBudgetLimit !== undefined && totalBudgetLimit >= 0) {
-      updateData.totalBudgetLimit = totalBudgetLimit
-    }
-
-    const result = await db.collection('users').updateOne(
-      { customerId: user.customerId },
-      { $set: updateData }
-    )
-
-    if (result.matchedCount === 0) {
-      return { error: 'User not found' }
-    }
-
-    // If total budget limit was updated, sync it to the budget collection
-    // (but only if no budget exists yet - Budget page takes precedence)
-    if (totalBudgetLimit !== undefined && totalBudgetLimit >= 0) {
-      const budgetCollection = db.collection('budgets')
-      const existingBudget = await budgetCollection.findOne({ customerId: user.customerId })
-      
-      if (!existingBudget) {
-        await budgetCollection.updateOne(
-          { customerId: user.customerId },
-          { 
-            $set: { 
-              totalBudgetLimit: totalBudgetLimit,
-              updatedAt: new Date()
-            },
-            $setOnInsert: {
-              categories: [],
-              createdAt: new Date()
-            }
-          },
-          { upsert: true }
-        )
-      }
+    if (!responseData.success) {
+      return { error: responseData.message || 'Failed to update profile' }
     }
 
     revalidatePath(`/${user.customerId}/profile`)

@@ -27,21 +27,16 @@ export function PageColorsProvider({ children }: { children: ReactNode }) {
   const fetchPageColors = async () => {
     try {
       setIsLoading(true)
-      const response = await fetch('/api/page-colors')
-      if (response.ok) {
-        const data = await response.json()
-        setPageColors(data.pageColors)
-      } else {
-        // Fallback to defaults if API fails
-        setPageColors({
-          analytics: PAGE_COLORS.analytics + '4D',
-          budget: PAGE_COLORS.budget + '4D',
-          profile: PAGE_COLORS.profile + '4D',
-          settings: PAGE_COLORS.settings + '4D',
-          transactions: PAGE_COLORS.transactions + '4D',
-          dashboard: PAGE_COLORS.dashboard + '4D',
-        })
-      }
+      // TODO: Implement page colors API endpoint in backend
+      // For now, use defaults
+      setPageColors({
+        analytics: PAGE_COLORS.analytics + '4D',
+        budget: PAGE_COLORS.budget + '4D',
+        profile: PAGE_COLORS.profile + '4D',
+        settings: PAGE_COLORS.settings + '4D',
+        transactions: PAGE_COLORS.transactions + '4D',
+        dashboard: PAGE_COLORS.dashboard + '4D',
+      })
     } catch (error) {
       console.error('Error fetching page colors:', error)
       // Fallback to defaults

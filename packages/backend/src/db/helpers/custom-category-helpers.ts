@@ -1,6 +1,6 @@
-import { connectDB } from '@/db/mongo'
+import { connectDB } from '../mongo'
 import type { CustomCategory, CustomCategoryInput } from '@money-mapper/shared'
-import { v4 as uuidv4 } from 'uuid'
+import { randomUUID } from 'crypto'
 
 export async function getCustomCategories(customerId: string): Promise<CustomCategory[]> {
   const db = await connectDB()
@@ -45,7 +45,7 @@ export async function createCustomCategory(
   input: CustomCategoryInput
 ): Promise<CustomCategory> {
   const db = await connectDB()
-  const id = uuidv4()
+  const id = randomUUID()
   
   const category: CustomCategory = {
     id,

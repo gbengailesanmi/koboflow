@@ -1,6 +1,5 @@
 'use server'
 
-import { connectDB } from '@/db/mongo'
 import { getSession } from '@/lib/session'
 import { redirect } from 'next/navigation'
 import { sanitizeArray } from '@/lib/sanitize'
@@ -9,6 +8,8 @@ import PageLayoutWithSidebar from '@/app/components/page-layout-with-sidebar/pag
 import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
 import { getUserSettings } from '@/lib/settings-helpers'
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+
 export default async function AnalyticsPage() {
   const user = await getSession()
 
@@ -16,46 +17,80 @@ export default async function AnalyticsPage() {
     redirect(`/login`)
   }
 
-  const db = await connectDB()
+  // Fetch user profile from backend API
+  const userResponse = await fetch(`${API_URL}/api/auth/user/${user.customerId}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    cache: 'no-store',
+  })
 
-  if (!db.collection('users').findOne({ customerId: user.customerId })) {
+  if (!userResponse.ok) {
     redirect(`/login`)
   }
 
-  // Get user profile data
-  const userProfile = await db
-    .collection('users')
-    .findOne({ customerId: user.customerId })
+  const userDataResponse = await userResponse.json()
+  const userProfile = userDataResponse.user
 
-  const accountsDataRaw = await db
-    .collection('accounts')
-    .find({ customerId: user.customerId })
-    .toArray()
+  if (!userProfile) {
+    redirect(`/login`)
+  }
 
-  const transactionsDataRaw = await db
-    .collection('transactions')
-    .find({ customerId: user.customerId })
-    .sort({ bookedDate: -1 })
-    .toArray()
+  // Fetch accounts from backend API
+  const accountsResponse = await fetch(`${API_URL}/api/accounts`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-customer-id': user.customerId,
+    },
+    cache: 'no-store',
+  })
 
-  const accountsData = sanitizeArray(accountsDataRaw)
-  const transactionsData = sanitizeArray(transactionsDataRaw)
-  
-  // Get custom categories
-  const customCategoriesRaw = await db
-    .collection('spending_categories')
-    .find({ customerId: user.customerId })
-    .sort({ createdAt: -1 })
-    .toArray()
-  
-  const customCategories = sanitizeArray(customCategoriesRaw)
+  let accountsData = []
+  if (accountsResponse.ok) {
+    const accountsDataResponse = await accountsResponse.json()
+    accountsData = sanitizeArray(accountsDataResponse.accounts || [])
+  }
+
+  // Fetch transactions from backend API
+  const transactionsResponse = await fetch(`${API_URL}/api/transactions`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-customer-id': user.customerId,
+    },
+    cache: 'no-store',
+  })
+
+  let transactionsData = []
+  if (transactionsResponse.ok) {
+    const transactionsDataResponse = await transactionsResponse.json()
+    transactionsData = sanitizeArray(transactionsDataResponse.transactions || [])
+  }
+
+  // Fetch custom categories from backend API
+  const categoriesResponse = await fetch(`${API_URL}/api/categories`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-customer-id': user.customerId,
+    },
+    cache: 'no-store',
+  })
+
+  let customCategories = []
+  if (categoriesResponse.ok) {
+    const categoriesData = await categoriesResponse.json()
+    customCategories = sanitizeArray(categoriesData.categories || [])
+  }
 
   const profile = {
-    firstName: userProfile?.firstName || '',
-    lastName: userProfile?.lastName || '',
-    email: userProfile?.email || '',
-    currency: userProfile?.currency || 'USD',
-    totalBudgetLimit: userProfile?.totalBudgetLimit || 5000
+    firstName: userProfile.firstName || '',
+    lastName: userProfile.lastName || '',
+    email: userProfile.email || '',
+    currency: userProfile.currency || 'USD',
+    totalBudgetLimit: userProfile.totalBudgetLimit || 5000
   }
 
   const userSettings = await getUserSettings(user.customerId)

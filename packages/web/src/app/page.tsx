@@ -1,23 +1,35 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { auth } from '@/auth'
-import { connectDB } from '@/db/mongo'
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
 export default async function LandingPage() {
   const session = await auth()
   
   // If already logged in, verify user exists and redirect to dashboard
   if (session?.user?.customerId) {
-    const db = await connectDB()
-    const user = await db.collection('users').findOne({ 
-      customerId: session.user.customerId 
-    })
-    
-    // If user exists, redirect to dashboard
-    if (user) {
-      redirect(`/${session.user.customerId}/dashboard`)
+    try {
+      const response = await fetch(`${API_URL}/api/auth/user/${session.user.customerId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        cache: 'no-store',
+      })
+
+      // If user exists, redirect to dashboard
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success && data.user) {
+          redirect(`/${session.user.customerId}/dashboard`)
+        }
+      }
+    } catch (error) {
+      console.error('Error checking user:', error)
+      // Continue to landing page if there's an error
     }
-}
+  }
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">

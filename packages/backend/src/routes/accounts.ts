@@ -2,29 +2,28 @@ import { Router } from 'express'
 import { authMiddleware } from '../middleware/auth'
 import { connectDB } from '../db/mongo'
 
-export const transactionRoutes = Router()
+export const accountRoutes = Router()
 
-// Get all transactions for a user
-transactionRoutes.get('/', authMiddleware, async (req, res) => {
+// Get all accounts for a user
+accountRoutes.get('/', authMiddleware, async (req, res) => {
   try {
     const customerId = req.user!.customerId
     const db = await connectDB()
 
-    const transactions = await db
-      .collection('transactions')
+    const accounts = await db
+      .collection('accounts')
       .find({ customerId })
-      .sort({ bookedDate: -1 })
       .toArray()
 
     res.json({
       success: true,
-      transactions,
+      accounts,
     })
   } catch (error) {
-    console.error('Get transactions error:', error)
+    console.error('Get accounts error:', error)
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch transactions',
+      message: 'Failed to fetch accounts',
     })
   }
 })

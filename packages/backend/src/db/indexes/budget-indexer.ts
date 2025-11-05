@@ -1,5 +1,5 @@
 
-import { connectDB } from '@/db/mongo'
+import { connectDB } from '../mongo'
 
 /**
  * Create indexes for budgets collection

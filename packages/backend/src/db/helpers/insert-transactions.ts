@@ -1,5 +1,5 @@
 import { formatNarration } from './format-narration'
-import { transactionIndexer, idHash } from '@/db/helpers/indexes/transaction-indexer'
+import { transactionIndexer, idHash } from './indexes/transaction-indexer'
 
 async function insertTransactions(transactions: any[], customerId: string, connectDB: any) {
   if (!Array.isArray(transactions) || transactions.length === 0) return

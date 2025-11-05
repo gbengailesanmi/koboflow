@@ -1,4 +1,4 @@
-import { hasher } from '@/db/helpers/hasher'
+import { hasher } from './hasher'
 
 export const getAccountUniqueId = (account: any): string => {
   const sortCode = account.identifiers?.sortCode?.code ?? ''

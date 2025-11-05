@@ -1,10 +1,11 @@
 import { getSession } from '@/lib/session'
 import { redirect } from 'next/navigation'
-import { connectDB } from '@/db/mongo'
 import SettingsPageClient from '@/app/components/settings/settings-page-client/settings-page-client'
 import PageLayoutWithSidebar from '@/app/components/page-layout-with-sidebar/page-layout-with-sidebar'
 import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
 import { getUserSettings } from '@/lib/settings-helpers'
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
 export default async function SettingsPage({ params }: { params: Promise<{ customerId: string }> }) {
   const { customerId } = await params
@@ -14,9 +15,21 @@ export default async function SettingsPage({ params }: { params: Promise<{ custo
     redirect('/login')
   }
 
-  // Fetch user data
-  const db = await connectDB()
-  const user = await db.collection('users').findOne({ customerId })
+  // Fetch user data from backend API
+  const userResponse = await fetch(`${API_URL}/api/auth/user/${customerId}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    cache: 'no-store',
+  })
+
+  if (!userResponse.ok) {
+    redirect('/login')
+  }
+
+  const userData = await userResponse.json()
+  const user = userData.user
 
   if (!user) {
     redirect('/login')
@@ -30,7 +43,7 @@ export default async function SettingsPage({ params }: { params: Promise<{ custo
     <PageLayoutWithSidebar customerId={customerId}>
       <SettingsPageClient
         customerId={customerId}
-        userName={user.name || ''}
+        userName={`${user.firstName} ${user.lastName}` || ''}
         userEmail={user.email || ''}
         pageColor={pageColor}
         preferences={{

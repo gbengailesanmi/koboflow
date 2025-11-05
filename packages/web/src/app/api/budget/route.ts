@@ -1,196 +1,81 @@
-
 import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/session'
-import { getBudget, upsertBudget } from '@/db/helpers/budget-helpers'
-import type { CategoryBudget, BudgetPeriod } from '@/types/budget'
-import { connectDB } from '@/db/mongo'
 
-/**
- * GET /api/budget
- * Fetch budget for the current user
- */
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+
 export async function GET(request: NextRequest) {
   try {
     const session = await getSession()
     
     if (!session?.customerId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const budget = await getBudget(session.customerId)
-    
-    if (!budget) {
-      // Return default budget if none exists
-      return NextResponse.json({
-        customerId: session.customerId,
-        totalBudgetLimit: 0,
-        categories: [],
-        createdAt: new Date(),
-        updatedAt: new Date()
-      })
-    }
+    const response = await fetch(`${API_URL}/api/budget`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'x-customer-id': session.customerId,
+      },
+    })
 
-    return NextResponse.json(budget)
-  } catch (error) {
+    const data = await response.json()
+    return NextResponse.json(data, { status: response.status })
+  } catch (error: any) {
     console.error('Error fetching budget:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch budget' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
 
-/**
- * POST /api/budget
- * Create or update budget
- */
 export async function POST(request: NextRequest) {
   try {
     const session = await getSession()
     
     if (!session?.customerId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const body = await request.json()
-    const { totalBudgetLimit, categories, period } = body
 
-    if (typeof totalBudgetLimit !== 'number' || totalBudgetLimit < 0) {
-      return NextResponse.json(
-        { error: 'Invalid budget limit' },
-        { status: 400 }
-      )
-    }
-
-    if (!Array.isArray(categories)) {
-      return NextResponse.json(
-        { error: 'Invalid categories' },
-        { status: 400 }
-      )
-    }
-
-    const validCategories: CategoryBudget[] = categories.filter(cat => 
-      cat.category && 
-      typeof cat.limit === 'number' && 
-      cat.limit >= 0
-    )
-    
-    let validPeriod: BudgetPeriod | undefined = undefined
-    if (period) {
-      if (!period.type || !['current-month', 'custom-date', 'recurring'].includes(period.type)) {
-        return NextResponse.json(
-          { error: 'Invalid period type' },
-          { status: 400 }
-        )
-      }
-      
-      if (period.startDate) {
-        period.startDate = new Date(period.startDate)
-      }
-      if (period.endDate) {
-        period.endDate = new Date(period.endDate)
-      }
-      
-      validPeriod = period as BudgetPeriod
-    }
-
-    await upsertBudget(session.customerId, totalBudgetLimit, validCategories, validPeriod)
-
-    const db = await connectDB()
-    await db.collection('users').updateOne(
-      { customerId: session.customerId },
-      { 
-        $set: { 
-          totalBudgetLimit: totalBudgetLimit,
-          updatedAt: new Date()
-        } 
-      }
-    )
-
-    return NextResponse.json({ 
-      success: true,
-      message: 'Budget updated successfully' 
+    const response = await fetch(`${API_URL}/api/budget`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-customer-id': session.customerId,
+      },
+      body: JSON.stringify(body),
     })
-  } catch (error) {
+
+    const data = await response.json()
+    return NextResponse.json(data, { status: response.status })
+  } catch (error: any) {
     console.error('Error updating budget:', error)
-    return NextResponse.json(
-      { error: 'Failed to update budget' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
 
-/**
- * PATCH /api/budget
- * Partial update of budget
- */
 export async function PATCH(request: NextRequest) {
   try {
     const session = await getSession()
     
     if (!session?.customerId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const body = await request.json()
-    const currentBudget = await getBudget(session.customerId)
 
-    if (!currentBudget) {
-      return NextResponse.json(
-        { error: 'Budget not found. Create one first.' },
-        { status: 404 }
-      )
-    }
-
-    const updatedBudget = {
-      totalBudgetLimit: body.totalBudgetLimit ?? currentBudget.totalBudgetLimit,
-      categories: body.categories ?? currentBudget.categories,
-      period: body.period ?? currentBudget.period
-    }
-    
-    // Validate and convert period dates if present
-    if (updatedBudget.period) {
-      if (updatedBudget.period.startDate && typeof updatedBudget.period.startDate === 'string') {
-        updatedBudget.period.startDate = new Date(updatedBudget.period.startDate)
-      }
-      if (updatedBudget.period.endDate && typeof updatedBudget.period.endDate === 'string') {
-        updatedBudget.period.endDate = new Date(updatedBudget.period.endDate)
-      }
-    }
-
-    // Update budget in budget collection
-    await upsertBudget(session.customerId, updatedBudget.totalBudgetLimit, updatedBudget.categories, updatedBudget.period)
-
-    // Sync total budget limit to user profile (Budget page takes precedence)
-    const db = await connectDB()
-    await db.collection('users').updateOne(
-      { customerId: session.customerId },
-      { 
-        $set: { 
-          totalBudgetLimit: updatedBudget.totalBudgetLimit,
-          updatedAt: new Date()
-        } 
-      }
-    )
-
-    return NextResponse.json({ 
-      success: true,
-      message: 'Budget updated successfully' 
+    const response = await fetch(`${API_URL}/api/budget`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-customer-id': session.customerId,
+      },
+      body: JSON.stringify(body),
     })
-  } catch (error) {
+
+    const data = await response.json()
+    return NextResponse.json(data, { status: response.status })
+  } catch (error: any) {
     console.error('Error updating budget:', error)
-    return NextResponse.json(
-      { error: 'Failed to update budget' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }

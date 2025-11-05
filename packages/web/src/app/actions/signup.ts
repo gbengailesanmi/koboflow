@@ -1,11 +1,8 @@
 'use server'
 
 import { SignupFormSchema, FormState } from '@/lib/definitions'
-import { connectDB } from '@/db/mongo'
-import bcrypt from 'bcrypt'
-import { v4 as uuidv4 } from 'uuid'
-import { createUserSettings } from '@/lib/settings-helpers'
-import { sendVerificationEmail } from '@/lib/email'
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
 export async function signup(_: FormState, formData: FormData): Promise<FormState> {
   const firstName = formData.get('firstName')?.toString().trim() || ''
@@ -30,56 +27,37 @@ export async function signup(_: FormState, formData: FormData): Promise<FormStat
     return { errors: parsed.error.flatten().fieldErrors }
   }
 
-  const db = await connectDB()
-  const existing = await db.collection('users').findOne({ email })
-  if (existing) {
-    return { message: 'Email is already registered.' }
-  }
-
   try {
-    const hashedPassword = await bcrypt.hash(password, 10)
-    const customerId = uuidv4()
-    const verificationToken = uuidv4()
-    const verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
-
-    const insertResult = await db.collection('users').insertOne({
-      email,
-      password: hashedPassword,
-      firstName,
-      lastName,
-      customerId,
-      emailVerified: false, // Require email verification
-      verificationToken,
-      verificationTokenExpiry,
-      createdAt: new Date(),
-      authProvider: 'credentials'
+    // Call backend signup endpoint
+    const response = await fetch(`${API_URL}/api/auth/signup`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        firstName,
+        lastName,
+        email,
+        password,
+        passwordConfirm,
+      }),
     })
 
-    if (!insertResult.insertedId) {
-      return { message: 'Failed to create user.' }
+    const data = await response.json()
+
+    if (!response.ok) {
+      return { message: data.message || 'Failed to create account.' }
     }
-    
-    await createUserSettings(customerId)
-    
-    // Send verification email
-    const emailResult = await sendVerificationEmail(
-      email,
-      `${firstName} ${lastName}`,
-      verificationToken
-    )
-    
-    if (!emailResult.success) {
-      // Delete the user if email sending fails
-      await db.collection('users').deleteOne({ _id: insertResult.insertedId })
-      return { message: 'Failed to send verification email. Please try again.' }
+
+    if (data.success) {
+      return { 
+        success: true,
+        requiresVerification: data.requiresVerification,
+        message: data.message || 'Account created! Please check your email to verify your account.' 
+      }
     }
-    
-    // Return success without customerId to redirect to verify-email page
-    return { 
-      success: true,
-      requiresVerification: true,
-      message: 'Account created! Please check your email to verify your account.' 
-    }
+
+    return { message: 'Failed to create account.' }
   } catch (err) {
     console.error('Signup error:', err)
     return { message: 'An unexpected error occurred. Please try again.' }

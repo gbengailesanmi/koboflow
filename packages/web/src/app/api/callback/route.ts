@@ -1,10 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/session'
-import { getTinkTokens, getTinkAccountsData, getTinkTransactionsData } from '@/app/api/tink'
-import { bulkInsertTransactions } from '@/db/helpers/insert-transactions'
-import { bulkInsertAccounts } from '@/db/helpers/insert-accounts'
-import { connectDB } from '@/db/mongo'
-// import fs from 'fs'
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
 export async function GET(req: Request) {
   const user = await getSession()
@@ -19,21 +16,21 @@ export async function GET(req: Request) {
   }
 
   try {
-    const accessToken = await getTinkTokens({
-      code,
-      uriBase: process.env.BASE_URI!,
-      port: process.env.PORT!
+    const response = await fetch(`${API_URL}/api/callback?code=${code}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'x-customer-id': user.customerId,
+      },
     })
-    
-    const accounts = await getTinkAccountsData(accessToken, user.customerId)
-    const transactions = await getTinkTransactionsData(accessToken, accounts, user.customerId)
 
-    await bulkInsertAccounts(accounts.accounts, user.customerId, connectDB)
-    await bulkInsertTransactions(transactions.transactions, user.customerId, connectDB)
-    
+    if (!response.ok) {
+      const error = await response.json()
+      return NextResponse.json(error, { status: response.status })
+    }
+
     return NextResponse.redirect(`${process.env.BASE_URI}:${process.env.PORT}/${user.customerId}/dashboard`)
-  } catch (err) {
+  } catch (err: any) {
     console.error(err)
-    return NextResponse.json({ error: err }, { status: 500 })
+    return NextResponse.json({ error: err.message }, { status: 500 })
   }
 }

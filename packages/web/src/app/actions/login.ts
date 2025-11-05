@@ -2,7 +2,8 @@
 
 import { signIn } from '@/auth'
 import { AuthError } from 'next-auth'
-import { connectDB } from '@/db/mongo'
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
 export async function login(_: any, formData: FormData) {
   const email = formData.get('email')?.toString().toLowerCase() || ''
@@ -20,21 +21,33 @@ export async function login(_: any, formData: FormData) {
       redirect: false
     })
     
-    // Get customerId directly from database since session might not be ready yet
-    const db = await connectDB()
-    const user = await db.collection('users').findOne({ email })
+    // Get customerId from backend API
+    // First, we need to login to get the user data
+    const response = await fetch(`${API_URL}/api/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    })
+
+    if (!response.ok) {
+      return { message: 'Login failed. Please try again.' }
+    }
+
+    const data = await response.json()
     
-    if (!user?.customerId) {
+    if (!data.success || !data.user?.customerId) {
       console.error('No customerId found for user:', email)
       return { message: 'Login failed. Account setup incomplete. Please contact support.' }
     }
     
-    console.log('Login successful for:', email, 'customerId:', user.customerId)
+    console.log('Login successful for:', email, 'customerId:', data.user.customerId)
         
     // Return success with customerId for client-side redirect
     return {
       success: true,
-      customerId: user.customerId,
+      customerId: data.user.customerId,
       message: 'Login successful!'
     }
   } catch (error) {

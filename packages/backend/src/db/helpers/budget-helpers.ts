@@ -1,4 +1,4 @@
-import { connectDB } from '@/db/mongo'
+import { connectDB } from '../mongo'
 import type { Budget, CategoryBudget, BudgetPeriod } from '@money-mapper/shared'
 
 /**

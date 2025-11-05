@@ -1,5 +1,5 @@
-import { hasher } from '@/db/helpers/hasher'
-import { formatNarration } from '@/db/helpers/format-narration'
+import { hasher } from '../hasher'
+import { formatNarration } from '../format-narration'
 
 let transactionsIndexed = false
 

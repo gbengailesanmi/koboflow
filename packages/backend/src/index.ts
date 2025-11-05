@@ -1,22 +1,29 @@
+import dotenv from 'dotenv'
+
+// Load environment variables FIRST before any other imports
+dotenv.config()
+
 import express, { Express, Request, Response } from 'express'
 import cors from 'cors'
-import dotenv from 'dotenv'
-import { authRoutes } from './routes/auth.js'
-import { budgetRoutes } from './routes/budget.js'
-import { transactionRoutes } from './routes/transactions.js'
-import { settingsRoutes } from './routes/settings.js'
-import { categoryRoutes } from './routes/categories.js'
-
-dotenv.config()
+import cookieParser from 'cookie-parser'
+import { authRoutes } from './routes/auth'
+import { budgetRoutes } from './routes/budget'
+import { transactionRoutes } from './routes/transactions'
+import { accountRoutes } from './routes/accounts'
+import { settingsRoutes } from './routes/settings'
+import { categoryRoutes } from './routes/categories'
+import { sessionRoutes } from './routes/session'
+import { callbackRoutes } from './routes/callback'
 
 const app: Express = express()
 const PORT = process.env.PORT || 3001
 
 // Middleware
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'],
+  origin: process.env.ALLOWED_ORIGINS?.split(','),
   credentials: true,
 }))
+app.use(cookieParser())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
@@ -27,8 +34,11 @@ app.get('/health', (_req: Request, res: Response) => {
 
 // API Routes
 app.use('/api/auth', authRoutes)
+app.use('/api/session', sessionRoutes)
+app.use('/api/callback', callbackRoutes)
 app.use('/api/budget', budgetRoutes)
 app.use('/api/transactions', transactionRoutes)
+app.use('/api/accounts', accountRoutes)
 app.use('/api/settings', settingsRoutes)
 app.use('/api/categories', categoryRoutes)
 

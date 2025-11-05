@@ -1,4 +1,3 @@
-import { connectDB } from '@/db/mongo'
 import { getSession } from '@/lib/session'
 import { redirect } from 'next/navigation'
 import { sanitizeArray } from '@/lib/sanitize'
@@ -7,6 +6,8 @@ import PageLayoutWithSidebar from '@/app/components/page-layout-with-sidebar/pag
 import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
 import { getUserSettings } from '@/lib/settings-helpers'
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+
 export default async function BudgetPage() {
   const user = await getSession()
 
@@ -14,36 +15,74 @@ export default async function BudgetPage() {
     redirect(`/login`)
   }
 
-  const db = await connectDB()
+  // Fetch user profile from backend API
+  const userResponse = await fetch(`${API_URL}/api/auth/user/${user.customerId}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    cache: 'no-store',
+  })
 
-  const userProfile = await db.collection('users').findOne({ customerId: user.customerId })
-  
+  if (!userResponse.ok) {
+    redirect(`/login`)
+  }
+
+  const userDataResponse = await userResponse.json()
+  const userProfile = userDataResponse.user
+
   if (!userProfile) {
     redirect(`/login`)
   }
 
-  const transactionsDataRaw = await db
-    .collection('transactions')
-    .find({ customerId: user.customerId })
-    .sort({ bookedDate: -1 })
-    .toArray()
+  // Fetch transactions from backend API
+  const transactionsResponse = await fetch(`${API_URL}/api/transactions`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-customer-id': user.customerId,
+    },
+    cache: 'no-store',
+  })
 
-  const transactionsData = sanitizeArray(transactionsDataRaw)
-  
-  // Fetch budget from budget collection (takes precedence over profile)
-  const budgetData = await db.collection('budgets').findOne({ customerId: user.customerId })
-  
-  // Get custom categories
-  const customCategoriesRaw = await db
-    .collection('spending_categories')
-    .find({ customerId: user.customerId })
-    .sort({ createdAt: -1 })
-    .toArray()
-  
-  const customCategories = sanitizeArray(customCategoriesRaw)
-  
-  const totalBudgetLimit = budgetData?.monthly ?? userProfile.totalBudgetLimit ?? 0
-  
+  let transactionsData = []
+  if (transactionsResponse.ok) {
+    const transactionsDataResponse = await transactionsResponse.json()
+    transactionsData = sanitizeArray(transactionsDataResponse.transactions || [])
+  }
+
+  // Fetch budget from backend API
+  const budgetResponse = await fetch(`${API_URL}/api/budget`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-customer-id': user.customerId,
+    },
+    cache: 'no-store',
+  })
+
+  let totalBudgetLimit = 0
+  if (budgetResponse.ok) {
+    const budgetData = await budgetResponse.json()
+    totalBudgetLimit = budgetData.budget?.monthly ?? 0
+  }
+
+  // Fetch custom categories from backend API
+  const categoriesResponse = await fetch(`${API_URL}/api/categories`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-customer-id': user.customerId,
+    },
+    cache: 'no-store',
+  })
+
+  let customCategories = []
+  if (categoriesResponse.ok) {
+    const categoriesData = await categoriesResponse.json()
+    customCategories = sanitizeArray(categoriesData.categories || [])
+  }
+
   const profile = {
     firstName: userProfile.firstName || '',
     lastName: userProfile.lastName || '',
