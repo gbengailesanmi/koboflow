@@ -2,41 +2,36 @@
 
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState, Suspense } from 'react'
+import { apiClient } from '@/lib/api-client'
 import styles from './verify-email.module.css'
 
 function VerifyEmailContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const token = searchParams.get('token')
-  const [status, setStatus] = useState<'verifying' | 'success' | 'error' | 'idle'>('idle')
-  const [message, setMessage] = useState('Verifying your email...')
+  const [status, setStatus] = useState<'success' | 'error' | 'idle'>('idle')
+  const [message, setMessage] = useState('')
   const [resending, setResending] = useState(false)
 
   useEffect(() => {
-    if (token) {
-      setStatus('verifying')
-      // Verify the token
-      fetch(`/api/verify-email?token=${token}`)
-        .then(async (res) => {
-          const data = await res.json()
-          if (data.success) {
-            setStatus('success')
-            setMessage('Email verified successfully! Redirecting to login...')
-            // Redirect to login after 2 seconds
-            setTimeout(() => {
-              router.push('/login')
-            }, 2000)
-          } else {
-            setStatus('error')
-            setMessage(data.message || 'Verification failed')
-          }
-        })
-        .catch(() => {
-          setStatus('error')
-          setMessage('An error occurred during verification')
-        })
+    // Check for success/error query params from server-side redirect
+    const verified = searchParams.get('verified')
+    const error = searchParams.get('error')
+    
+    if (verified === 'true') {
+      setStatus('success')
+      setMessage('Email verified successfully! Redirecting to login...')
+      setTimeout(() => {
+        router.push('/login')
+      }, 2000)
+    } else if (error) {
+      setStatus('error')
+      if (error === 'invalid') {
+        setMessage('Invalid or expired verification token')
+      } else {
+        setMessage('An error occurred during verification')
+      }
     }
-  }, [token, router])
+  }, [router, searchParams])
 
   const handleResendEmail = async () => {
     const email = prompt('Please enter your email address:')
@@ -44,12 +39,7 @@ function VerifyEmailContent() {
 
     setResending(true)
     try {
-      const res = await fetch('/api/resend-verification', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-      })
-      const data = await res.json()
+      const data: any = await apiClient.resendVerification(email)
       if (data.success) {
         alert('Verification email sent! Please check your inbox.')
       } else {
@@ -62,7 +52,8 @@ function VerifyEmailContent() {
     }
   }
 
-  if (!token) {
+  // Show default "check your email" page if no status
+  if (status === 'idle') {
     return (
       <div className={styles.container}>
         <div className={styles.card}>
@@ -105,16 +96,6 @@ function VerifyEmailContent() {
   return (
     <div className={styles.container}>
       <div className={styles.card}>
-        {status === 'verifying' && (
-          <>
-            <div className={styles.iconWrapper}>
-              <div className={styles.spinner}></div>
-            </div>
-            <h1 className={styles.title}>Verifying Email...</h1>
-            <p className={styles.description}>Please wait while we verify your email address.</p>
-          </>
-        )}
-
         {status === 'success' && (
           <>
             <div className={styles.iconWrapper}>

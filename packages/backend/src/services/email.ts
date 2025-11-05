@@ -7,7 +7,7 @@ export async function sendVerificationEmail(
   name: string,
   verificationToken: string
 ) {
-  const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`
+  const verificationUrl = `${process.env.FRONTEND_URL}/api/verify?token=${verificationToken}`
 
   try {
     const { data, error } = await resend.emails.send({

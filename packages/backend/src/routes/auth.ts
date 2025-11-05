@@ -158,7 +158,6 @@ authRoutes.post('/logout', (req, res) => {
   })
 })
 
-// Verify email
 authRoutes.get('/verify-email', async (req, res) => {
   try {
     const { token } = req.query
@@ -221,6 +220,73 @@ authRoutes.get('/verify-email', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'An error occurred during verification'
+    })
+  }
+})
+
+// Verify email (POST - secure, token in body)
+authRoutes.post('/verify-email', async (req, res) => {
+  try {
+    const { token } = req.body
+
+    if (!token || typeof token !== 'string') {
+      return res.status(400).json({
+        success: false,
+        message: 'Verification token is required'
+      })
+    }
+
+    const db = await connectDB()
+    const user = await db.collection('users').findOne({
+      verificationToken: token,
+      verificationTokenExpiry: { $gt: new Date() }
+    })
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired verification token'
+      })
+    }
+
+    if (user.emailVerified) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email already verified'
+      })
+    }
+
+    const updateResult = await db.collection('users').updateOne(
+      { _id: user._id },
+      {
+        $set: {
+          emailVerified: true,
+          verifiedAt: new Date(),
+        },
+        $unset: {
+          verificationToken: '',
+          verificationTokenExpiry: '',
+        },
+      }
+    )
+
+    if (updateResult.modifiedCount === 0) {
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to update verification status'
+      })
+    }
+
+    res.json({
+      success: true,
+      message: 'Email verified successfully. You can now log in.',
+      customerId: user.customerId,
+    })
+  } catch (error) {
+    console.error('Error verifying email:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Failed to verify email'
     })
   }
 })
