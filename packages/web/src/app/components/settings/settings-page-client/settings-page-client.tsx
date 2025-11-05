@@ -6,6 +6,7 @@ import { PageHeader } from '@/app/components/page-header/page-header'
 import Footer from '@/app/components/footer/footer'
 import { useBaseColor } from '@/providers/base-colour-provider'
 import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
+import { apiClient } from '@/lib/api-client'
 import { 
   Grid, 
   Card, 
@@ -132,8 +133,14 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pa
   }
 
   const handleLogout = async () => {
-    await fetch('/api/session', { method: 'DELETE' })
-    router.push('/login')
+    try {
+      await apiClient.logout()
+      // apiClient.logout() already redirects to /login
+    } catch (error) {
+      console.error('Logout failed:', error)
+      // Still redirect even if the API call fails
+      router.push('/login')
+    }
   }
 
   const handleDeleteAccount = async () => {

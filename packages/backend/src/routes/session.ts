@@ -39,11 +39,16 @@ sessionRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
   }
 })
 
-// Logout (invalidate token on client side)
+// Logout (clear auth cookie)
 sessionRoutes.delete('/', async (req, res) => {
   try {
-    // With JWT, logout is handled client-side by removing the token
-    // Server-side token invalidation would require a blacklist
+    // Clear the auth-token cookie
+    res.clearCookie('auth-token', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax'
+    })
+    
     res.json({ success: true, message: 'Logged out successfully' })
   } catch (error) {
     console.error('Error during logout:', error)

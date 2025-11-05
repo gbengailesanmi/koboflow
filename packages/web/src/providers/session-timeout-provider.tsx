@@ -46,9 +46,10 @@ export default function SessionTimeoutProvider({ children }: SessionTimeoutProvi
       setShowWarning(false)
 
       // Call logout API - this will clear the cookie on the server
-      await fetch('/api/session', { 
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+      await fetch(`${API_URL}/api/session`, { 
         method: 'DELETE',
-        credentials: 'same-origin', // Ensure cookies are sent
+        credentials: 'include', // Send cookies
       })
       
       // Redirect to login with timeout flag
