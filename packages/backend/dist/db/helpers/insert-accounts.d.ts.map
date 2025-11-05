@@ -1,0 +1,1 @@
+{"version":3,"file":"insert-accounts.d.ts","sourceRoot":"","sources":["../../../src/db/helpers/insert-accounts.ts"],"names":[],"mappings":"AAuCA,iBAAe,kBAAkB,CAAC,QAAQ,EAAE,GAAG,EAAE,EAAE,UAAU,EAAE,MAAM,EAAE,SAAS,EAAE,GAAG,iBAEpF;AAED,OAAO,EAAE,kBAAkB,EAAE,CAAA"}

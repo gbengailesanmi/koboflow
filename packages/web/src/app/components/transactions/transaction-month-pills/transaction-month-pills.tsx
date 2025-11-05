@@ -1,0 +1,49 @@
+import { ScrollArea } from '@radix-ui/themes'
+import { RefObject } from 'react'
+import styles from './transaction-month-pills.module.css'
+
+type TransactionMonthPillsProps = {
+  months: string[]
+  selectedMonth: string | null
+  setSelectedMonth: (month: string | null) => void,
+}
+
+export default function TransactionMonthPills({
+  months,
+  selectedMonth,
+  setSelectedMonth,
+}: TransactionMonthPillsProps) {
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+
+  return (
+    <ScrollArea
+      type="auto"
+      className={styles.MonthsScrollArea}
+    >
+      {months.map(month => {
+        const isSelected = month === selectedMonth
+        let displayMonth = month
+        try {
+          const [y, m] = month.split('-')
+          const mi = Math.max(0, Math.min(11, Number(m) - 1))
+          const yy = String(y).slice(-2)
+          displayMonth = `${monthNames[mi]} ${yy}`
+        } catch (e) {
+          displayMonth = month
+        }
+
+        return (
+          <button
+            key={month}
+            data-month={month}
+            onClick={() => setSelectedMonth(isSelected ? null : month)}
+            className={isSelected ? styles.MonthButtonSelected : styles.MonthButtonUnselected}
+            type="button"
+          >
+            <span className='text-xs md:text-sm'>{displayMonth}</span>
+          </button>
+        )
+      })}
+    </ScrollArea>
+  )
+}

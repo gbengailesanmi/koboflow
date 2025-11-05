@@ -1,0 +1,54 @@
+@reference "../../../globals.css";
+
+.card {
+  @apply rounded-2xl overflow-visible mx-4 mb-8;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
+}
+
+.cardHeader {
+  @apply p-6 pb-4;
+}
+
+.cardTitle {
+  @apply text-xl font-bold text-gray-800 mb-2;
+}
+
+.cardDescription {
+  @apply text-sm text-gray-600;
+}
+
+.cardContent {
+  @apply p-6 pt-0;
+  overflow: visible;
+}
+
+@media (max-width: 768px) {
+  .card {
+    @apply mx-2;
+  }
+  
+  .cardHeader {
+    @apply p-4 pb-3;
+  }
+  
+  .cardTitle {
+    @apply text-lg;
+  }
+  
+  .cardDescription {
+    @apply text-xs;
+  }
+  
+  .cardContent {
+    @apply p-4 pt-0;
+    overflow: visible;
+  }
+}

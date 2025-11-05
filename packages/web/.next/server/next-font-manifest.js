@@ -1,0 +1,1 @@
+self.__NEXT_FONT_MANIFEST='{"pages":{},"app":{"/Users/gbenga.ilesanmi/Github/PD/money-mapper/packages/web/src/app/layout":["static/media/e807dee2426166ad-s.p.woff2"]},"appUsingSizeAdjust":true,"pagesUsingSizeAdjust":false}';

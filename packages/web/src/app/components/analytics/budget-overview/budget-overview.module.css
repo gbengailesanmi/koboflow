@@ -1,0 +1,35 @@
+@reference "../../../globals.css";
+
+.budgetOverview {
+  @apply space-y-6;
+}
+
+.budgetProgress {
+  @apply space-y-4;
+}
+
+.budgetProgressBar {
+  @apply w-full h-6 rounded-full overflow-hidden;
+  background: rgba(229, 231, 235, 0.5);
+}
+
+.budgetProgressFill {
+  @apply h-full transition-all duration-500 ease-out;
+  border-radius: inherit;
+}
+
+.budgetLabels {
+  @apply flex justify-between text-sm font-medium text-gray-700;
+}
+
+.budgetRemaining {
+  @apply text-center text-lg font-semibold;
+}
+
+.incomeColor {
+  @apply text-green-600;
+}
+
+.expenseColor {
+  @apply text-red-600;
+}
