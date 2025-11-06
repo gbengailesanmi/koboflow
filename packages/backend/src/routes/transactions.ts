@@ -4,7 +4,6 @@ import { connectDB } from '../db/mongo'
 
 export const transactionRoutes = Router()
 
-// Get all transactions for a user
 transactionRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId

@@ -4,7 +4,6 @@ import { connectDB } from '../db/mongo'
 
 export const settingsRoutes = Router()
 
-// Import settings helpers (you'll need to copy these from web package)
 async function getUserSettings(customerId: string) {
   const db = await connectDB()
   const settings = await db.collection('settings').findOne({ customerId })
@@ -29,10 +28,6 @@ async function updateUserSettings(customerId: string, updates: any) {
   return result
 }
 
-/**
- * GET /api/settings
- * Get user settings
- */
 settingsRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
@@ -53,10 +48,6 @@ settingsRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
   }
 })
 
-/**
- * POST /api/settings
- * Update user settings
- */
 settingsRoutes.post('/', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
@@ -84,10 +75,6 @@ settingsRoutes.post('/', authMiddleware, async (req: AuthRequest, res) => {
   }
 })
 
-/**
- * DELETE /api/settings/account
- * Delete user account and all associated data
- */
 settingsRoutes.delete('/account', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
@@ -98,14 +85,12 @@ settingsRoutes.delete('/account', authMiddleware, async (req: AuthRequest, res) 
 
     const { customerId: bodyCustomerId } = req.body
 
-    // Verify the customerId matches the session
     if (bodyCustomerId && bodyCustomerId !== customerId) {
       return res.status(401).json({ error: 'Unauthorized' })
     }
 
     const db = await connectDB()
     
-    // Delete all user data
     await Promise.all([
       db.collection('users').deleteOne({ customerId }),
       db.collection('accounts').deleteMany({ customerId }),

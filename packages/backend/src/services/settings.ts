@@ -34,7 +34,6 @@ export async function getUserSettings(customerId: string) {
     const settings = await db.collection('settings').findOne({ customerId })
     
     if (!settings) {
-      // Create default settings if they don't exist
       await createUserSettings(customerId)
       return { ...defaultSettings, customerId }
     }

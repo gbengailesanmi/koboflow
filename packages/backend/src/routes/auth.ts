@@ -8,12 +8,10 @@ import { createUserSettings } from '../services/settings'
 
 export const authRoutes = Router()
 
-// Signup
 authRoutes.post('/signup', async (req, res) => {
   try {
     const { firstName, lastName, email, password, passwordConfirm } = req.body
 
-    // Validation
     if (!firstName || !lastName || !email || !password || !passwordConfirm) {
       return res.status(400).json({ message: 'All fields are required.' })
     }
@@ -81,7 +79,6 @@ authRoutes.post('/signup', async (req, res) => {
   }
 })
 
-// Login
 authRoutes.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body
@@ -110,7 +107,6 @@ authRoutes.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Invalid credentials.' })
     }
 
-    // Generate JWT token
     const token = jwt.sign(
       { 
         userId: user._id.toString(),
@@ -121,7 +117,6 @@ authRoutes.post('/login', async (req, res) => {
       { expiresIn: '7d' }
     )
 
-    // Set secure HTTP-only cookie
     res.cookie('auth-token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -144,7 +139,6 @@ authRoutes.post('/login', async (req, res) => {
   }
 })
 
-// Logout
 authRoutes.post('/logout', (req, res) => {
   res.clearCookie('auth-token', {
     httpOnly: true,
@@ -224,7 +218,6 @@ authRoutes.get('/verify-email', async (req, res) => {
   }
 })
 
-// Verify email (POST - secure, token in body)
 authRoutes.post('/verify-email', async (req, res) => {
   try {
     const { token } = req.body
@@ -291,7 +284,6 @@ authRoutes.post('/verify-email', async (req, res) => {
   }
 })
 
-// Resend verification email
 authRoutes.post('/resend-verification', async (req, res) => {
   try {
     const { email } = req.body
@@ -308,7 +300,6 @@ authRoutes.post('/resend-verification', async (req, res) => {
     const user = await db.collection('users').findOne({ email: normalizedEmail })
 
     if (!user) {
-      // Don't reveal if user exists for security
       return res.json({
         success: true,
         message: 'If an account exists with this email, a verification link has been sent.',
@@ -361,7 +352,6 @@ authRoutes.post('/resend-verification', async (req, res) => {
   }
 })
 
-// OAuth user creation/verification (for NextAuth)
 authRoutes.post('/oauth-user', async (req, res) => {
   try {
     const { email, name, provider } = req.body
@@ -378,9 +368,7 @@ authRoutes.post('/oauth-user', async (req, res) => {
     const existingUser = await db.collection('users').findOne({ email: normalizedEmail })
 
     if (existingUser) {
-      // User exists, check if they have a customerId
       if (!existingUser.customerId) {
-        // Update existing user with customerId
         const customerId = randomUUID()
         await db.collection('users').updateOne(
           { email: normalizedEmail },
@@ -407,7 +395,6 @@ authRoutes.post('/oauth-user', async (req, res) => {
         })
       }
 
-      // User exists with customerId
       return res.json({
         success: true,
         customerId: existingUser.customerId,
@@ -420,7 +407,6 @@ authRoutes.post('/oauth-user', async (req, res) => {
       })
     }
 
-    // Create new user
     const customerId = randomUUID()
     const nameParts = name.split(' ')
     const firstName = nameParts[0] || ''
@@ -457,7 +443,6 @@ authRoutes.post('/oauth-user', async (req, res) => {
   }
 })
 
-// Get user by customerId (for NextAuth session)
 authRoutes.get('/user/:customerId', async (req, res) => {
   try {
     const { customerId } = req.params
@@ -498,7 +483,6 @@ authRoutes.get('/user/:customerId', async (req, res) => {
   }
 })
 
-// Update user profile
 authRoutes.patch('/user/:customerId', async (req, res) => {
   try {
     const { customerId } = req.params
@@ -521,7 +505,6 @@ authRoutes.patch('/user/:customerId', async (req, res) => {
     const normalizedEmail = email.trim().toLowerCase()
     const db = await connectDB()
 
-    // Check if email is already taken by another user
     const existingUser = await db.collection('users').findOne({
       email: normalizedEmail,
       customerId: { $ne: customerId }
@@ -560,7 +543,6 @@ authRoutes.patch('/user/:customerId', async (req, res) => {
       })
     }
 
-    // If total budget limit was updated, sync it to the budget collection
     if (totalBudgetLimit !== undefined && totalBudgetLimit >= 0) {
       const existingBudget = await db.collection('budgets').findOne({ customerId })
       
@@ -595,7 +577,6 @@ authRoutes.patch('/user/:customerId', async (req, res) => {
   }
 })
 
-// Google OAuth - Initiate
 authRoutes.get('/google', (req, res) => {
   const clientId = process.env.GOOGLE_CLIENT_ID
   const redirectUri = process.env.GOOGLE_REDIRECT_URI || 'http://localhost:3001/api/auth/google/callback'
@@ -619,7 +600,6 @@ authRoutes.get('/google', (req, res) => {
   res.redirect(authUrl)
 })
 
-// Debug route to check OAuth configuration (REMOVE IN PRODUCTION)
 authRoutes.get('/debug-oauth-config', (req, res) => {
   const redirectUri = process.env.GOOGLE_REDIRECT_URI || 'http://localhost:3001/api/auth/google/callback'
   res.json({
@@ -632,7 +612,6 @@ authRoutes.get('/debug-oauth-config', (req, res) => {
   })
 })
 
-// Google OAuth - Callback
 authRoutes.get('/google/callback', async (req, res) => {
   try {
     const { code } = req.query
@@ -649,7 +628,6 @@ authRoutes.get('/google/callback', async (req, res) => {
       return res.redirect('/login?error=oauth_not_configured')
     }
 
-    // Exchange code for tokens
     const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -669,7 +647,6 @@ authRoutes.get('/google/callback', async (req, res) => {
 
     const tokens = await tokenResponse.json()
 
-    // Get user info from Google
     const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
       headers: { Authorization: `Bearer ${tokens.access_token}` },
     })
@@ -685,7 +662,6 @@ authRoutes.get('/google/callback', async (req, res) => {
     const db = await connectDB()
     let user = await db.collection('users').findOne({ email })
 
-    // Create user if doesn't exist
     if (!user) {
       const customerId = randomUUID()
       
@@ -704,7 +680,6 @@ authRoutes.get('/google/callback', async (req, res) => {
       
       user = await db.collection('users').findOne({ email })
     } else if (!user.emailVerified) {
-      // If user exists but email not verified, mark as verified (via Google OAuth)
       await db.collection('users').updateOne(
         { _id: user._id },
         { $set: { emailVerified: true } }
@@ -712,7 +687,6 @@ authRoutes.get('/google/callback', async (req, res) => {
       user.emailVerified = true
     }
 
-    // Generate JWT token
     const token = jwt.sign(
       { 
         userId: user._id.toString(),
@@ -723,7 +697,6 @@ authRoutes.get('/google/callback', async (req, res) => {
       { expiresIn: '7d' }
     )
 
-    // Set secure HTTP-only cookie instead of URL parameter
     res.cookie('auth-token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -731,7 +704,6 @@ authRoutes.get('/google/callback', async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     })
 
-    // Redirect to dashboard WITHOUT token in URL
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000'
     res.redirect(`${frontendUrl}/${user.customerId}/dashboard`)
   } catch (error) {

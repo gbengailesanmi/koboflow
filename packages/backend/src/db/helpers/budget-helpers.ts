@@ -1,17 +1,11 @@
 import { connectDB } from '../mongo'
 import type { Budget, CategoryBudget, BudgetPeriod } from '@money-mapper/shared'
 
-/**
- * Get or create budget for a customer
- */
 export async function getBudget(customerId: string): Promise<Budget | null> {
   const db = await connectDB()
   return db.collection('budgets').findOne({ customerId }) as Promise<Budget | null>
 }
 
-/**
- * Create or update budget for a customer
- */
 export async function upsertBudget(
   customerId: string, 
   totalBudgetLimit: number, 
@@ -26,7 +20,6 @@ export async function upsertBudget(
     updatedAt: new Date()
   }
   
-  // Include period if provided, otherwise keep existing or use default
   if (period) {
     updateFields.period = period
   }
@@ -44,9 +37,6 @@ export async function upsertBudget(
   )
 }
 
-/**
- * Update monthly budget
- */
 export async function updateMonthlyBudget(
   customerId: string, 
   totalBudgetLimit: number,
@@ -59,7 +49,6 @@ export async function updateMonthlyBudget(
     updatedAt: new Date()
   }
   
-  // Include period if provided
   if (period) {
     updateFields.period = period
   }
@@ -72,9 +61,6 @@ export async function updateMonthlyBudget(
   )
 }
 
-/**
- * Update category budgets
- */
 export async function updateCategoryBudgets(
   customerId: string, 
   categories: CategoryBudget[]
@@ -92,9 +78,6 @@ export async function updateCategoryBudgets(
   )
 }
 
-/**
- * Update budget period
- */
 export async function updateBudgetPeriod(
   customerId: string,
   period: BudgetPeriod
@@ -112,9 +95,6 @@ export async function updateBudgetPeriod(
   )
 }
 
-/**
- * Update budget with period (convenience function)
- */
 export async function updateBudgetWithPeriod(
   customerId: string,
   totalBudgetLimit: number,

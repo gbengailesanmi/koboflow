@@ -7,7 +7,6 @@ import { connectDB } from '../db/mongo'
 
 export const callbackRoutes = Router()
 
-// Tink callback handler
 callbackRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId

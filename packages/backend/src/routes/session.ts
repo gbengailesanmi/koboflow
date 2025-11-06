@@ -4,7 +4,6 @@ import { connectDB } from '../db/mongo'
 
 export const sessionRoutes = Router()
 
-// Get current session
 sessionRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
   try {
     if (!req.user) {
@@ -16,7 +15,6 @@ sessionRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
     
     const { customerId, email, firstName, lastName } = req.user
     
-    // Get user settings and budget from DB
     const db = await connectDB()
     const settings = await db.collection('settings').findOne({ customerId })
     const budget = await db.collection('budgets').findOne({ customerId })
@@ -39,10 +37,8 @@ sessionRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
   }
 })
 
-// Logout (clear auth cookie)
 sessionRoutes.delete('/', async (req, res) => {
   try {
-    // Clear the auth-token cookie
     res.clearCookie('auth-token', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',

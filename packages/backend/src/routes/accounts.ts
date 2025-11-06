@@ -4,7 +4,6 @@ import { connectDB } from '../db/mongo'
 
 export const accountRoutes = Router()
 
-// Get all accounts for a user
 accountRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId

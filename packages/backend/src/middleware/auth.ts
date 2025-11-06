@@ -18,11 +18,9 @@ export const authMiddleware = async (
   next: NextFunction
 ) => {
   try {
-    // Check for x-customer-id header (from Next.js API proxy)
     const customerIdHeader = req.headers['x-customer-id'] as string
     
     if (customerIdHeader) {
-      // Fetch user from DB using customerId
       const db = await connectDB()
       const user = await db.collection('users').findOne({ customerId: customerIdHeader })
       
@@ -41,7 +39,6 @@ export const authMiddleware = async (
       return next()
     }
 
-    // Fallback to JWT token authentication
     const authHeader = req.headers.authorization
     const token = authHeader?.startsWith('Bearer ') 
       ? authHeader.substring(7)
@@ -51,7 +48,6 @@ export const authMiddleware = async (
       return res.status(401).json({ error: 'Authentication required' })
     }
 
-    // Verify JWT token
     const secret = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET
     if (!secret) {
       throw new Error('JWT_SECRET not configured')
@@ -63,7 +59,6 @@ export const authMiddleware = async (
       email: string
     }
 
-    // Optionally fetch user details from DB
     try {
       const db = await connectDB()
       const user = await db.collection('users').findOne({ customerId: decoded.customerId })
@@ -88,7 +83,6 @@ export const authMiddleware = async (
   }
 }
 
-// Optional auth middleware (doesn't fail if no token)
 export const optionalAuthMiddleware = async (
   req: AuthRequest,
   res: Response,
@@ -113,7 +107,6 @@ export const optionalAuthMiddleware = async (
     }
     next()
   } catch (error) {
-    // Continue without auth if token is invalid
     next()
   }
 }

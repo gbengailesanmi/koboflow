@@ -6,13 +6,11 @@ let transactionsIndexed = false
 async function transactionIndexer(txnCollection: any) {
   if (transactionsIndexed) return
 
-  // Unique index to prevent duplicates using generated hash
   await txnCollection.createIndex(
     { customerId: 1, transactionUniqueId: 1 },
     { unique: true }
   )
 
-  // Optional index to speed up queries by bookedDate
   await txnCollection.createIndex(
     { customerId: 1, bookedDate: -1 }
   )

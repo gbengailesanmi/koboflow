@@ -6,10 +6,6 @@ import { connectDB } from '../db/mongo'
 
 export const budgetRoutes = Router()
 
-/**
- * GET /api/budget
- * Fetch budget for the current user
- */
 budgetRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
@@ -21,7 +17,6 @@ budgetRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
     const budget = await getBudget(customerId)
     
     if (!budget) {
-      // Return default budget if none exists
       return res.json({
         customerId,
         totalBudgetLimit: 0,
@@ -38,10 +33,6 @@ budgetRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
   }
 })
 
-/**
- * POST /api/budget
- * Create or update budget
- */
 budgetRoutes.post('/', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
@@ -105,10 +96,6 @@ budgetRoutes.post('/', authMiddleware, async (req: AuthRequest, res) => {
   }
 })
 
-/**
- * PATCH /api/budget
- * Partial update of budget
- */
 budgetRoutes.patch('/', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
@@ -129,7 +116,6 @@ budgetRoutes.patch('/', authMiddleware, async (req: AuthRequest, res) => {
       period: req.body.period ?? currentBudget.period
     }
     
-    // Validate and convert period dates if present
     if (updatedBudget.period) {
       if (updatedBudget.period.startDate && typeof updatedBudget.period.startDate === 'string') {
         updatedBudget.period.startDate = new Date(updatedBudget.period.startDate)
@@ -139,10 +125,8 @@ budgetRoutes.patch('/', authMiddleware, async (req: AuthRequest, res) => {
       }
     }
 
-    // Update budget in budget collection
     await upsertBudget(customerId, updatedBudget.totalBudgetLimit, updatedBudget.categories, updatedBudget.period)
 
-    // Sync total budget limit to user profile
     const db = await connectDB()
     await db.collection('users').updateOne(
       { customerId },

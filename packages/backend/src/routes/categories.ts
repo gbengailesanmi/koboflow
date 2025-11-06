@@ -9,10 +9,6 @@ import {
 
 export const categoryRoutes = Router()
 
-/**
- * GET /api/categories
- * Get all custom categories for the user
- */
 categoryRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
@@ -30,10 +26,6 @@ categoryRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
   }
 })
 
-/**
- * POST /api/categories
- * Create a new custom category
- */
 categoryRoutes.post('/', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
@@ -65,10 +57,6 @@ categoryRoutes.post('/', authMiddleware, async (req: AuthRequest, res) => {
   }
 })
 
-/**
- * PATCH /api/categories/:id
- * Update a custom category
- */
 categoryRoutes.patch('/:id', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
@@ -104,10 +92,6 @@ categoryRoutes.patch('/:id', authMiddleware, async (req: AuthRequest, res) => {
   }
 })
 
-/**
- * DELETE /api/categories/:id
- * Delete a custom category
- */
 categoryRoutes.delete('/:id', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId

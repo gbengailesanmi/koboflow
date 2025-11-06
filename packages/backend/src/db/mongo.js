@@ -7,8 +7,6 @@ if (!uri) {
   throw new Error('Missing MONGODB_URI')
 }
 
-// Use globalThis to cache the MongoClient across module reloads / serverless invocations
-// This makes connection reuse safe in serverless environments (Vercel, AWS Lambda, etc.).
 let cachedClient = globalThis.__mongoClient
 let cachedClientPromise = globalThis.__mongoClientPromise
 let indexesCreated = false
@@ -46,9 +44,6 @@ export async function connectDB() {
   }
 
   const client = await cachedClientPromise
-  // update local cachedClient in case it wasn't set yet
   cachedClient = client
   return client.db(dbName)
 }
-
-// redo cache logic for db instance
