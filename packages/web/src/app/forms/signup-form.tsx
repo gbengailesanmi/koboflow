@@ -24,7 +24,6 @@ export default function SignupForm() {
     const password = formData.get('password')?.toString() || ''
     const passwordConfirm = formData.get('passwordConfirm')?.toString() || ''
 
-    // Validate with shared schema
     const parsed = SignupFormSchema.safeParse({
       firstName,
       lastName,
@@ -50,10 +49,8 @@ export default function SignupForm() {
 
       if (result.success) {
         if (result.requiresVerification) {
-          // Redirect to verify-email page
           router.push('/verify-email')
         } else {
-          // Auto-login and redirect to dashboard
           router.push(`/${result.user.customerId}/dashboard`)
         }
       } else {
@@ -145,7 +142,7 @@ export default function SignupForm() {
         {pending ? 'Signing Up...' : 'Sign Up'}
       </button>
 
-      {/* Divider */}
+      {}
       <div style={{
         display: 'flex',
         alignItems: 'center',
@@ -157,7 +154,7 @@ export default function SignupForm() {
         <div style={{ flex: 1, height: '1px', backgroundColor: '#e5e7eb' }} />
       </div>
 
-      {/* Google Sign-Up Button */}
+      {}
       <button
         type="button"
         onClick={() => {

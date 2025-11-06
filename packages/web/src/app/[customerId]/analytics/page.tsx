@@ -18,7 +18,6 @@ export default function AnalyticsPage() {
   useEffect(() => {
     async function loadData() {
       try {
-        // Check session
         const sessionRes: any = await apiClient.getSession()
         if (!sessionRes.success || sessionRes.user.customerId !== customerId) {
           router.push('/login')

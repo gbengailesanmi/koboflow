@@ -31,11 +31,9 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({
   
   const categoryConfig = getCategoryConfig(customCategories)
   
-  // Merge categoryData with custom categories that have no transactions
   const allCategories = useMemo(() => {
     const categories = [...categoryData]
     
-    // Add custom categories that don't have any transactions yet
     customCategories.forEach(customCat => {
       const customKey = `custom_${customCat.id}`
       if (!categories.find(cat => cat.category === customKey)) {
@@ -59,10 +57,8 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({
       .map(k => k.trim())
       .filter(k => k.length > 0)
     
-    // Validate keywords
     const validation = validateKeywords(keywordArray, customCategories)
     if (!validation.isValid) {
-      // Format error message based on conflict details
       const errorMessages = validation.conflicts.map(conflict => {
         if (conflict.isDefault) {
           return `Keyword "${conflict.keyword}" already captured under ${conflict.categoryName} category.`
@@ -105,7 +101,6 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({
     }
   }
   
-  // Show custom categories even if there are no expense transactions
   if (categoryData.length === 0 && customCategories.length === 0) {
     return (
       <div className={styles.container}>

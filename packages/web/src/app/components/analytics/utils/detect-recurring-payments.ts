@@ -1,11 +1,6 @@
 import { RecurringPayment } from '../types/analytics-types'
 import { categorizeTransaction } from './categorize-transaction'
 
-/**
- * Detects recurring payments from a list of transactions
- * @param transactions - Array of processed transactions
- * @returns Array of detected recurring payments sorted by next payment date
- */
 export const detectRecurringPayments = (transactions: any[]): RecurringPayment[] => {
   const expenseTransactions = transactions.filter(t => t.type === 'expense')
   const patternMap = new Map<string, RecurringPayment['transactions']>()
@@ -60,10 +55,6 @@ export const detectRecurringPayments = (transactions: any[]): RecurringPayment[]
   return recurring.sort((a, b) => a.nextPayment.getTime() - b.nextPayment.getTime())
 }
 
-/**
- * Normalizes transaction narration for pattern matching
- * Removes numbers, special characters, and trims whitespace
- */
 const normalizeNarration = (narration: string): string => {
   return narration
     .toLowerCase()
@@ -72,9 +63,6 @@ const normalizeNarration = (narration: string): string => {
     .trim()
 }
 
-/**
- * Calculates intervals in days between consecutive transactions
- */
 const calculateIntervals = (transactions: Array<{ date: Date }>): number[] => {
   const intervals: number[] = []
   for (let i = 1; i < transactions.length; i++) {
@@ -86,9 +74,6 @@ const calculateIntervals = (transactions: Array<{ date: Date }>): number[] => {
   return intervals
 }
 
-/**
- * Capitalizes each word in a pattern string
- */
 const capitalizePattern = (pattern: string): string => {
   return pattern
     .split(' ')

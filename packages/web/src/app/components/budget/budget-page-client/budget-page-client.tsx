@@ -46,16 +46,13 @@ export default function BudgetClient({ transactions, profile, customCategories, 
   const customerId = params.customerId as string
   const { setBaseColor } = useBaseColor()
 
-  // Set page color with 30% transparency
   useEffect(() => {
     const colorWithTransparency = `${pageColor}4D` // 30% transparency
     setBaseColor(colorWithTransparency)
   }, [pageColor, setBaseColor])
 
-  // Get category config including custom categories
   const categoryConfig = useMemo(() => getCategoryConfig(customCategories), [customCategories])
 
-  // Load budget data from database
   const [budgetData, setBudgetData] = useState<BudgetData>({
     totalBudgetLimit: profile.totalBudgetLimit || 0,
     period: { type: 'current-month' },
@@ -68,7 +65,6 @@ export default function BudgetClient({ transactions, profile, customCategories, 
   const [isRenamingCategory, setIsRenamingCategory] = useState<string | null>(null)
   const [renameValue, setRenameValue] = useState('')
   
-  // Period editing states
   const [isEditingPeriod, setIsEditingPeriod] = useState(false)
   const [periodType, setPeriodType] = useState<BudgetPeriodType>('current-month')
   const [startDate, setStartDate] = useState('')
@@ -76,7 +72,6 @@ export default function BudgetClient({ transactions, profile, customCategories, 
   const [recurringInterval, setRecurringInterval] = useState('1')
   const [recurringUnit, setRecurringUnit] = useState<'days' | 'months' | 'years'>('months')
 
-  // Fetch budget data from database
   React.useEffect(() => {
     async function fetchBudget() {
       try {
@@ -90,7 +85,6 @@ export default function BudgetClient({ transactions, profile, customCategories, 
             period: period,
             categories: data.categories || []
           })
-          // Set period editing states
           setPeriodType(period.type)
           if (period.startDate) setStartDate(new Date(period.startDate).toISOString().split('T')[0])
           if (period.endDate) setEndDate(new Date(period.endDate).toISOString().split('T')[0])
@@ -106,7 +100,6 @@ export default function BudgetClient({ transactions, profile, customCategories, 
     fetchBudget()
   }, [profile.totalBudgetLimit])
 
-  // Save budget data to database
   const saveBudget = React.useCallback(async (newBudget: BudgetData) => {
     try {
       setIsSaving(true)
@@ -127,7 +120,6 @@ export default function BudgetClient({ transactions, profile, customCategories, 
     }
   }, [])
 
-  // Process transactions
   const processedTransactions = useMemo(() => {
     return transactions.map(transaction => {
       const amount = parseFloat(transaction.amount)
@@ -141,7 +133,6 @@ export default function BudgetClient({ transactions, profile, customCategories, 
     })
   }, [transactions, customCategories])
 
-  // Helper function to check if a date is within the budget period
   const isDateInPeriod = (date: Date, period?: BudgetPeriod): boolean => {
     if (!period || period.type === 'current-month') {
       const now = new Date()
@@ -158,7 +149,6 @@ export default function BudgetClient({ transactions, profile, customCategories, 
       const start = new Date(period.startDate)
       const now = new Date()
       
-      // Calculate how many periods have passed since start
       let periodsSinceStart = 0
       if (period.recurringUnit === 'days') {
         const daysSinceStart = Math.floor((now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))
@@ -171,7 +161,6 @@ export default function BudgetClient({ transactions, profile, customCategories, 
         periodsSinceStart = Math.floor(yearsSinceStart / period.recurringInterval)
       }
       
-      // Calculate current period start and end
       const currentPeriodStart = new Date(start)
       if (period.recurringUnit === 'days') {
         currentPeriodStart.setDate(start.getDate() + (periodsSinceStart * period.recurringInterval))
@@ -196,14 +185,12 @@ export default function BudgetClient({ transactions, profile, customCategories, 
     return false
   }
 
-  // Calculate expenses for the selected period
   const monthlyExpenses = useMemo(() => {
     return processedTransactions
       .filter(t => t.type === 'expense' && isDateInPeriod(t.date, budgetData.period))
       .reduce((sum, t) => sum + t.numericAmount, 0)
   }, [processedTransactions, budgetData.period])
 
-  // Calculate category expenses
   const categoryExpenses = useMemo(() => {
     const categories = Object.keys(categoryConfig).filter(cat => cat !== 'income')
     
@@ -216,8 +203,6 @@ export default function BudgetClient({ transactions, profile, customCategories, 
         })
         .reduce((sum, t) => sum + t.numericAmount, 0)
 
-      // For "other" category, only count it as having a limit if there's NO customName
-      // (customName ones are treated as separate custom categories)
       const budget = budgetData.categories.find(b => 
         b.category === category && !b.customName
       )
@@ -247,7 +232,6 @@ export default function BudgetClient({ transactions, profile, customCategories, 
   }
   
   const handleUpdateBudgetWithPeriod = () => {
-    // Validate inputs based on period type
     if (periodType === 'custom-date') {
       if (!startDate || !endDate) {
         alert('Please enter both start and end dates')
@@ -270,7 +254,6 @@ export default function BudgetClient({ transactions, profile, customCategories, 
       }
     }
     
-    // Build period object
     const period: BudgetPeriod = { type: periodType }
     
     if (periodType === 'custom-date') {
@@ -300,7 +283,6 @@ export default function BudgetClient({ transactions, profile, customCategories, 
     setEditValue('')
   }
   
-  // Format period for display
   const formatPeriod = (period?: BudgetPeriod): string => {
     if (!period || period.type === 'current-month') {
       return 'Current Month'
@@ -323,7 +305,6 @@ export default function BudgetClient({ transactions, profile, customCategories, 
     return 'Current Month'
   }
   
-  // Get period text for messages (e.g., "this month" or "this period")
   const getPeriodText = (period?: BudgetPeriod): string => {
     if (!period || period.type === 'current-month') {
       return 'this month'
@@ -331,7 +312,6 @@ export default function BudgetClient({ transactions, profile, customCategories, 
     return 'this period'
   }
   
-  // Get the current active period date range (for recurring budgets)
   const getCurrentPeriodRange = (period?: BudgetPeriod): string => {
     if (!period || period.type === 'current-month') {
       const now = new Date()
@@ -350,7 +330,6 @@ export default function BudgetClient({ transactions, profile, customCategories, 
       const start = new Date(period.startDate)
       const now = new Date()
       
-      // Calculate how many periods have passed since start
       let periodsSinceStart = 0
       if (period.recurringUnit === 'days') {
         const daysSinceStart = Math.floor((now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))
@@ -363,7 +342,6 @@ export default function BudgetClient({ transactions, profile, customCategories, 
         periodsSinceStart = Math.floor(yearsSinceStart / period.recurringInterval)
       }
       
-      // Calculate current period start
       const currentPeriodStart = new Date(start)
       if (period.recurringUnit === 'days') {
         currentPeriodStart.setDate(start.getDate() + (periodsSinceStart * period.recurringInterval))
@@ -373,7 +351,6 @@ export default function BudgetClient({ transactions, profile, customCategories, 
         currentPeriodStart.setFullYear(start.getFullYear() + (periodsSinceStart * period.recurringInterval))
       }
       
-      // Calculate current period end
       const currentPeriodEnd = new Date(currentPeriodStart)
       if (period.recurringUnit === 'days') {
         currentPeriodEnd.setDate(currentPeriodStart.getDate() + period.recurringInterval - 1)
@@ -392,21 +369,16 @@ export default function BudgetClient({ transactions, profile, customCategories, 
   }
 
   const handleSetCategoryBudget = (category: string, limit: number, customName?: string) => {
-    // Calculate total of all other categories
     const otherCategoriesTotal = budgetData.categories
       .filter(b => {
-        // Exclude the category being updated (if it exists)
         if (customName) {
-          // For custom categories, exclude by both category and customName
           return !(b.category === category && b.customName === customName)
         } else {
-          // For standard categories, exclude by category without customName
           return !(b.category === category && !b.customName)
         }
       })
       .reduce((sum, b) => sum + b.limit, 0)
     
-    // Check if new total would exceed monthly budget
     const newTotal = otherCategoriesTotal + limit
     if (newTotal > budgetData.totalBudgetLimit) {
       const available = budgetData.totalBudgetLimit - otherCategoriesTotal
@@ -453,7 +425,6 @@ export default function BudgetClient({ transactions, profile, customCategories, 
   }
 
   const handleRenameCategory = (category: string, customName: string) => {
-    // Validate custom name (max 30 characters)
     const trimmedName = customName.trim()
     if (trimmedName.length === 0 || trimmedName.length > 30) {
       alert('Category name must be between 1 and 30 characters')
@@ -482,7 +453,6 @@ export default function BudgetClient({ transactions, profile, customCategories, 
     setEditValue(currentValue ? currentValue.toString() : '')
   }
 
-  // Get display name for a category (custom name or default label)
   const getCategoryDisplayName = (category: string) => {
     const budget = budgetData.categories.find(b => b.category === category)
     if (budget?.customName) {
@@ -495,7 +465,6 @@ export default function BudgetClient({ transactions, profile, customCategories, 
   const categoriesWithBudget = categoryExpenses.filter(c => c.hasLimit)
   const categoriesWithoutBudget = categoryExpenses.filter(c => !c.hasLimit)
   
-  // Add custom budget categories (those with customName) to the budgets list
   const customBudgetCategories = budgetData.categories
     .filter(b => b.customName)
     .map(b => {
@@ -503,7 +472,6 @@ export default function BudgetClient({ transactions, profile, customCategories, 
       const currentMonth = now.getMonth()
       const currentYear = now.getFullYear()
       
-      // Calculate spent for this custom category (uses "other" transactions)
       const spent = processedTransactions
         .filter(t => {
           const date = t.date
@@ -529,13 +497,13 @@ export default function BudgetClient({ transactions, profile, customCategories, 
     <div className={`${styles.container} page-gradient-background`}>
       <div className={styles.wrapper}>
         <div>
-          {/* Header */}
+          {}
           <PageHeader 
             title="Budget" 
             subtitle="Set spending limits and track your progress"
           />
 
-          {/* Monthly Budget Card */}
+          {}
           <div id="monthly-budget" className={styles.card} style={{ margin: '0 16px 32px 16px' }}>
             <div className={styles.cardHeader}>
               <div className={styles.cardHeaderFlex}>
@@ -568,7 +536,7 @@ export default function BudgetClient({ transactions, profile, customCategories, 
                   </button>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', minWidth: '300px' }}>
-                    {/* Amount Input */}
+                    {}
                     <div>
                       <label style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px', display: 'block' }}>
                         Budget Amount
@@ -587,7 +555,7 @@ export default function BudgetClient({ transactions, profile, customCategories, 
                       />
                     </div>
                     
-                    {/* Period Type Selector */}
+                    {}
                     <div>
                       <label style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px', display: 'block' }}>
                         Budget Period
@@ -608,7 +576,7 @@ export default function BudgetClient({ transactions, profile, customCategories, 
                       </select>
                     </div>
                     
-                    {/* Custom Date Inputs */}
+                    {}
                     {periodType === 'custom-date' && (
                       <div style={{ display: 'flex', gap: '8px' }}>
                         <div style={{ flex: 1 }}>
@@ -646,7 +614,7 @@ export default function BudgetClient({ transactions, profile, customCategories, 
                       </div>
                     )}
                     
-                    {/* Recurring Period Inputs */}
+                    {}
                     {periodType === 'recurring' && (
                       <>
                         <div>
@@ -706,7 +674,7 @@ export default function BudgetClient({ transactions, profile, customCategories, 
                       </>
                     )}
                     
-                    {/* Action Buttons */}
+                    {}
                     <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
                       <button 
                         className={styles.editButton}
@@ -767,7 +735,7 @@ export default function BudgetClient({ transactions, profile, customCategories, 
                 </div>
               </div>
 
-              {/* Budget Allocation Progress */}
+              {}
               {(() => {
                 const totalAllocated = budgetData.categories.reduce((sum, b) => sum + b.limit, 0)
                 const remaining = budgetData.totalBudgetLimit - totalAllocated
@@ -839,7 +807,7 @@ export default function BudgetClient({ transactions, profile, customCategories, 
             </div>
           </div>
 
-          {/* Categories with Budget */}
+          {}
           {allCategoriesWithBudget.length > 0 && (
             <div id="category-budgets" className={styles.card} style={{ margin: '0 16px 32px 16px' }}>
               <div className={styles.cardHeader}>
@@ -855,7 +823,6 @@ export default function BudgetClient({ transactions, profile, customCategories, 
                   const isOver = spent > limit
                   const isNearLimit = progress >= 80 && !isOver
                   
-                  // Create a unique key for custom categories
                   const itemKey = customName ? `${category}-${customName}` : category
 
                   return (
@@ -924,7 +891,6 @@ export default function BudgetClient({ transactions, profile, customCategories, 
                             className={styles.iconButton}
                             onClick={() => {
                               if (customName) {
-                                // Remove custom category
                                 const newBudget = {
                                   ...budgetData,
                                   categories: budgetData.categories.filter(b => 
@@ -974,20 +940,16 @@ export default function BudgetClient({ transactions, profile, customCategories, 
                             onClick={() => {
                               const amount = parseFloat(editValue)
                               if (amount > 0) {
-                                // Calculate total of all other categories
                                 const otherCategoriesTotal = budgetData.categories
                                   .filter(b => {
                                     if (customName) {
-                                      // Exclude current custom category being edited
                                       return !(b.category === category && b.customName === customName)
                                     } else {
-                                      // Exclude current standard category being edited
                                       return !(b.category === category && !b.customName)
                                     }
                                   })
                                   .reduce((sum, b) => sum + b.limit, 0)
                                 
-                                // Check if new total would exceed monthly budget
                                 const newTotal = otherCategoriesTotal + amount
                                 if (newTotal > budgetData.totalBudgetLimit) {
                                   const available = budgetData.totalBudgetLimit - otherCategoriesTotal
@@ -1002,7 +964,6 @@ export default function BudgetClient({ transactions, profile, customCategories, 
                                 }
 
                                 if (customName) {
-                                  // Update custom category
                                   const newBudget = {
                                     ...budgetData,
                                     categories: budgetData.categories.map(b =>
@@ -1063,7 +1024,6 @@ export default function BudgetClient({ transactions, profile, customCategories, 
                             onClick={() => {
                               const trimmedName = renameValue.trim()
                               if (trimmedName.length > 0 && trimmedName.length <= 30) {
-                                // Update custom category name
                                 const newBudget = {
                                   ...budgetData,
                                   categories: budgetData.categories.map(b =>
@@ -1102,7 +1062,7 @@ export default function BudgetClient({ transactions, profile, customCategories, 
             </div>
           )}
 
-          {/* Add Category Budget */}
+          {}
           <div id="add-category" className={styles.card} style={{ margin: '0 16px 32px 16px' }}>
             <div className={styles.cardHeader}>
               <h2 className={styles.cardTitle}>Add Category Budget</h2>
@@ -1206,7 +1166,6 @@ export default function BudgetClient({ transactions, profile, customCategories, 
                               onClick={() => {
                                 const amount = parseFloat(editValue)
                                 if (amount > 0) {
-                                  // For "other" category, include custom name if provided
                                   if (category === 'other' && renameValue.trim().length > 0 && renameValue.length <= 30) {
                                     handleSetCategoryBudget(category, amount, renameValue.trim())
                                   } else {

@@ -1,5 +1,3 @@
-// Shared utility functions placeholder
-// Add shared utilities here that can be used across web and mobile
 
 export const formatCurrency = (amount: number, currency: string = 'USD'): string => {
   return new Intl.NumberFormat('en-US', {

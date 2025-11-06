@@ -21,11 +21,6 @@ type AccountsCarouselProps = {
   onNavigate?: () => void
 }
 
-
-
-
-
-
 export default function AccountsCarousel({
   accounts,
   setSelectedAccount,
@@ -41,7 +36,6 @@ export default function AccountsCarousel({
   const router = useRouter()
   const customerId = params.customerId as string
 
-  // Load saved hues from localStorage on mount
   useEffect(() => {
     try {
       const saved = localStorage.getItem(HUE_LOCAL_STORAGE_KEY)
@@ -53,7 +47,6 @@ export default function AccountsCarousel({
     }
   }, [])
 
-  // Save hues to localStorage on change
   useEffect(() => {
     try {
       localStorage.setItem(HUE_LOCAL_STORAGE_KEY, JSON.stringify(slideHue))
@@ -98,7 +91,6 @@ export default function AccountsCarousel({
     }
   }, [emblaApi, accounts, setSelectedAccount, setBaseColor, hues, slideHue])
 
-  // User picks hue for current slide
   const handleSetHue = (hue: string) => {
     setSlideHue((prev) => ({
       ...prev,
@@ -118,7 +110,7 @@ export default function AccountsCarousel({
         <div className={styles.embla__viewport} ref={emblaRef}>
           <div className={styles.embla__container}>
 
-            {/* Total Slide */}
+            {}
             <div className={styles.embla__slide}>
               <FormatCarouselContent
                 accountType="Total Balance"
@@ -127,7 +119,7 @@ export default function AccountsCarousel({
               />
             </div>
 
-            {/* Account Slides */}
+            {}
             {accounts.map((account) => (
               <div key={account.id} className={styles.embla__slide}>
                 <FormatCarouselContent
@@ -142,17 +134,8 @@ export default function AccountsCarousel({
         </div>
       </Box>
 
-      {/* Hue selection buttons */}
-      {/* <div className="flex space-x-2 mt-4">
-        {hues.map((hue) => (
-          <button
-            key={hue}
-            style={{ backgroundColor: hue, width: 24, height: 24, borderRadius: '50%' }}
-            aria-label={`Set hue ${hue}`}
-            onClick={() => handleSetHue(hue)}
-          />
-        ))}
-      </div> */}
+      {}
+      {}
 
       <div className="flex w-20 justify-between">
         <button onClick={scrollPrev} aria-label="Previous account">
@@ -162,7 +145,6 @@ export default function AccountsCarousel({
           <DoubleArrowRightIcon width="18" height="18" />
         </button>
       </div>
-
 
       <AccountsPills
         buttons={[

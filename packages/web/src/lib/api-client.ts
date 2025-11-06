@@ -1,6 +1,5 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
-// Response types
 interface ApiResponse<T = any> {
   success: boolean
   message?: string
@@ -27,7 +26,7 @@ class ApiClient {
         'Content-Type': 'application/json',
         ...options.headers,
       },
-      credentials: 'include', // Include HTTP-only cookies in requests
+      credentials: 'include',
     }
 
     const response = await fetch(url, config)
@@ -35,7 +34,6 @@ class ApiClient {
     if (!response.ok) {
       const error = await response.json().catch(() => ({ message: 'Request failed' }))
       
-      // If unauthorized, redirect to login
       if (response.status === 401 && typeof window !== 'undefined') {
         window.location.href = '/login'
       }
@@ -46,7 +44,6 @@ class ApiClient {
     return response.json()
   }
 
-  // Budget APIs
   async getBudget() {
     return this.request('/api/budget')
   }
@@ -73,7 +70,6 @@ class ApiClient {
     })
   }
 
-  // Categories APIs
   async getCategories() {
     return this.request('/api/categories')
   }
@@ -106,7 +102,6 @@ class ApiClient {
     })
   }
 
-  // Settings APIs
   async getSettings() {
     return this.request('/api/settings')
   }
@@ -125,7 +120,6 @@ class ApiClient {
     })
   }
 
-  // Auth APIs
   async signup(data: {
     firstName: string
     lastName: string
@@ -169,8 +163,6 @@ class ApiClient {
         method: 'POST',
       })
     } finally {
-      // Cookie is cleared by the backend
-      // Just redirect to login
       if (typeof window !== 'undefined') {
         window.location.href = '/login'
       }
@@ -190,17 +182,14 @@ class ApiClient {
     })
   }
 
-  // Session API
   async getSession() {
     return this.request('/api/session')
   }
 
-  // Transactions API
   async getTransactions() {
     return this.request('/api/transactions')
   }
 
-  // Accounts API
   async getAccounts() {
     return this.request('/api/accounts')
   }
@@ -211,7 +200,6 @@ class ApiClient {
     })
   }
 
-  // Tink Callback
   async handleTinkCallback(code: string) {
     return this.request(`/api/callback?code=${code}`)
   }

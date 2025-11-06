@@ -27,8 +27,6 @@ export function PageColorsProvider({ children }: { children: ReactNode }) {
   const fetchPageColors = async () => {
     try {
       setIsLoading(true)
-      // TODO: Implement page colors API endpoint in backend
-      // For now, use defaults
       setPageColors({
         analytics: PAGE_COLORS.analytics + '4D',
         budget: PAGE_COLORS.budget + '4D',
@@ -39,7 +37,6 @@ export function PageColorsProvider({ children }: { children: ReactNode }) {
       })
     } catch (error) {
       console.error('Error fetching page colors:', error)
-      // Fallback to defaults
       setPageColors({
         analytics: PAGE_COLORS.analytics + '4D',
         budget: PAGE_COLORS.budget + '4D',

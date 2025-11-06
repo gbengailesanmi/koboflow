@@ -141,7 +141,7 @@ export default function SidebarNav({ customerId }: SidebarNavProps) {
 
             return (
               <div key={section.id} className={styles.section}>
-                {/* Section Header */}
+                {}
                 <div
                   className={`${styles.sectionHeader} ${isActive ? styles.sectionHeaderActive : ''}`}
                 >
@@ -167,7 +167,7 @@ export default function SidebarNav({ customerId }: SidebarNavProps) {
                   </button>
                 </div>
 
-                {/* Section Items */}
+                {}
                 {isExpanded && (
                   <div className={styles.items}>
                     {section.items.map((item) => (

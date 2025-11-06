@@ -1,10 +1,8 @@
 import type { CustomCategory } from '@/types/custom-category'
 
-// Simple category mapping based on transaction narration
 export const categorizeTransaction = (narration: string, customCategories?: CustomCategory[]): string => {
   const text = narration.toLowerCase()
   
-  // Check default categories first
   if (text.includes('grocery') || text.includes('supermarket') || text.includes('food')) return 'food'
   if (text.includes('gas') || text.includes('fuel') || text.includes('petrol')) return 'transport'
   if (text.includes('restaurant') || text.includes('cafe') || text.includes('dining')) return 'dining'
@@ -14,7 +12,6 @@ export const categorizeTransaction = (narration: string, customCategories?: Cust
   if (text.includes('medical') || text.includes('hospital') || text.includes('pharmacy')) return 'healthcare'
   if (text.includes('entertainment') || text.includes('movie') || text.includes('game')) return 'entertainment'
   
-  // Only check custom categories if no default category matched (for transactions that would be "other")
   if (customCategories && customCategories.length > 0) {
     for (const category of customCategories) {
       for (const keyword of category.keywords) {

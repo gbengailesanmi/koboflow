@@ -30,7 +30,6 @@ export default function TransactionsPageClient({ transactions, accounts, pageCol
   const params = useParams()
   const customerId = params.customerId as string
 
-  // Set page color with 30% transparency
   useEffect(() => {
     const colorWithTransparency = `${pageColor}4D` // 30% transparency
     setBaseColor(colorWithTransparency)
@@ -46,7 +45,6 @@ export default function TransactionsPageClient({ transactions, accounts, pageCol
     return Array.from(monthSet).sort((a, b) => b.localeCompare(a))
   }, [transactions])
 
-  // Filter by account and search
   const filteredTransactions = useMemo(() => {
     return transactions.filter(txn => {
       const matchesAccount = !filterAccountId || txn.accountUniqueId === filterAccountId
@@ -55,7 +53,6 @@ export default function TransactionsPageClient({ transactions, accounts, pageCol
     })
   }, [filterAccountId, searchTerm, transactions])
 
-  // Map month -> transactions
   const transactionsByMonth = useMemo(() => {
     const map = new Map<string, string[]>()
     filteredTransactions.forEach(txn => {

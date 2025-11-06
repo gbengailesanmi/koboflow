@@ -25,7 +25,6 @@ export const RecurringPayments: React.FC<RecurringPaymentsProps> = ({
   const recurringPayments = useMemo(() => {
     const allRecurring = detectRecurringPayments(transactions)
     
-    // Separate overdue and current/future payments
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     
@@ -43,7 +42,6 @@ export const RecurringPayments: React.FC<RecurringPaymentsProps> = ({
       }
     })
     
-    // Take only 1 overdue payment (the most recent one) and combine with current/future
     const limitedOverdue = overdue.slice(0, 1)
     return [...limitedOverdue, ...currentAndFuture]
   }, [transactions])

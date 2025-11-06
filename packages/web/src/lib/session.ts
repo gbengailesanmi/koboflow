@@ -1,7 +1,4 @@
-/**
- * Session management for both client and server
- * Handles JWT token storage and retrieval
- */
+
 
 import { cookies } from 'next/headers'
 
@@ -11,10 +8,6 @@ export interface SessionData {
   name?: string
 }
 
-/**
- * Get session data from cookies (SERVER-SIDE)
- * This is used in Server Components and API routes
- */
 export async function getSession(): Promise<SessionData | null> {
   try {
     const cookieStore = await cookies()
@@ -24,7 +17,6 @@ export async function getSession(): Promise<SessionData | null> {
       return null
     }
 
-    // Call backend to validate session
     const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
     const response = await fetch(`${API_URL}/api/session`, {
       headers: {
@@ -45,10 +37,6 @@ export async function getSession(): Promise<SessionData | null> {
   }
 }
 
-/**
- * Get session data from cookies (CLIENT-SIDE)
- * This reads the JWT token set by the backend
- */
 export function getSessionFromCookies(): SessionData | null {
   if (typeof window === 'undefined') {
     return null
@@ -69,14 +57,10 @@ export function getSessionFromCookies(): SessionData | null {
   }
 }
 
-/**
- * Clear session (logout)
- */
 export function clearSession() {
   if (typeof window === 'undefined') {
     return
   }
 
-  // Clear the auth-token cookie (will be done by backend on logout)
   document.cookie = 'auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
 }

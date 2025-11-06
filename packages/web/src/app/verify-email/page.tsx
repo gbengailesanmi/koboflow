@@ -13,7 +13,6 @@ function VerifyEmailContent() {
   const [resending, setResending] = useState(false)
 
   useEffect(() => {
-    // Check for success/error query params from server-side redirect
     const verified = searchParams.get('verified')
     const error = searchParams.get('error')
         
@@ -56,7 +55,6 @@ function VerifyEmailContent() {
     }
   }
 
-  // Show default "check your email" page if no status
   if (status === 'idle') {
     return (
       <div className={styles.container}>

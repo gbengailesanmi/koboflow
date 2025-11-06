@@ -72,7 +72,6 @@ export default function ProfilePageClient({ user, pageColor }: ProfilePageClient
   const router = useRouter()
   const customerId = params.customerId as string
 
-  // Set page color with 30% transparency
   useEffect(() => {
     const colorWithTransparency = `${pageColor}4D` // 30% transparency
     setBaseColor(colorWithTransparency)
@@ -143,8 +142,6 @@ export default function ProfilePageClient({ user, pageColor }: ProfilePageClient
       setSuccess('Profile updated successfully!')
       setIsEditing(false)
       
-      // Don't immediately refresh - let the success state show first
-      // Refresh after a short delay to ensure server has processed the update
       setTimeout(() => {
         router.refresh()
       }, 1000)
@@ -176,16 +173,16 @@ export default function ProfilePageClient({ user, pageColor }: ProfilePageClient
       <div className={styles.wrapper}>
         <div>
           
-          {/* Header */}
+          {}
           <PageHeader 
             title="Profile" 
             subtitle="Manage your account settings and preferences"
           />
 
-          {/* Profile Card */}
+          {}
           <div id="user-info" className={styles.profileCard}>
             
-            {/* Customer ID Section */}
+            {}
             <div className={styles.customerIdSection}>
               <label className={styles.label}>
                 Customer ID
@@ -195,7 +192,7 @@ export default function ProfilePageClient({ user, pageColor }: ProfilePageClient
               </div>
             </div>
 
-            {/* Alerts */}
+            {}
             {error && (
               <div className={styles.alertError}>
                 <p className={`${styles.alertText} ${styles.alertTextError}`}>{error}</p>
@@ -349,7 +346,7 @@ export default function ProfilePageClient({ user, pageColor }: ProfilePageClient
             </Flex>
           </div>
 
-          {/* About Section */}
+          {}
           <div id="about" className={styles.profileCard}>
             <h2 className={styles.aboutTitle}>About Money Mapper</h2>
             <p className={styles.aboutSubtitle}>Personal finance tracking made simple</p>

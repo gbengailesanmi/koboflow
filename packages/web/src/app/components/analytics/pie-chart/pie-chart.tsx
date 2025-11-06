@@ -15,7 +15,6 @@ type PieChartProps = {
 export const PieChart: React.FC<PieChartProps> = ({ data, categoryConfig, currency }) => {
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
 
-  // Transform data for Recharts
   const chartData = data.map((item) => ({
     name: categoryConfig[item.category]?.label || 'Other',
     value: item.amount,
@@ -23,7 +22,6 @@ export const PieChart: React.FC<PieChartProps> = ({ data, categoryConfig, curren
     category: item.category
   }))
 
-  // Custom tooltip
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload
@@ -42,7 +40,6 @@ export const PieChart: React.FC<PieChartProps> = ({ data, categoryConfig, curren
     return null
   }
 
-  // Custom legend
   const renderLegend = () => {
     return (
       <div className={styles.pieLegend}>
@@ -104,7 +101,7 @@ export const PieChart: React.FC<PieChartProps> = ({ data, categoryConfig, curren
         </ResponsiveContainer>
       </div>
 
-      {/* Legend */}
+      {}
       {renderLegend()}
     </div>
   )

@@ -40,7 +40,6 @@ export default function DashboardClient({ accounts, transactions, profile }: Das
   ? transactions.filter(txn => txn.accountUniqueId === selectedAccount)
   : transactions
 
-  // Process transactions for month-on-month chart
   const processedTransactions = useMemo(() => {
     return filteredTransactions.map(transaction => {
       const amount = parseFloat(transaction.amount)
@@ -54,7 +53,6 @@ export default function DashboardClient({ accounts, transactions, profile }: Das
     })
   }, [filteredTransactions])
 
-  // Calculate month-on-month data
   const monthOnMonthData = useMemo(() => {
     const now = new Date()
     const currentMonth = now.getMonth()
@@ -172,9 +170,7 @@ export default function DashboardClient({ accounts, transactions, profile }: Das
             )}
           </div>
         </Grid>
-        {/* <Grid className={styles.Grid5}>
-          <h2 className="text-xl font-semibold mb-2">Insights</h2>
-        </Grid> */}
+        {}
         <Grid className={styles.Grid6}>
           <h2 className="text-xl font-semibold mb-2">My top receivers</h2>
         </Grid>

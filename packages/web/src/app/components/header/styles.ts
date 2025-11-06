@@ -20,10 +20,8 @@ const NameWrapper = styled.div`
   @media (max-width: 640px) {
     font-size: 0.6rem;
     line-height: 1;
-    // align-items: center;
     align-self: center;
     align-text: center;
-    // padding: 12px;
   }
 
   @media (min-width: 768px) {

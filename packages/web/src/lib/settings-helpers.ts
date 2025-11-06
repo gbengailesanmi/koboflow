@@ -4,10 +4,6 @@ export type { SettingsUpdate }
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
-/**
- * Gets user settings by calling backend API
- * Falls back to default settings if not found
- */
 export async function getUserSettings(customerId: string) {
   try {
     const response = await fetch(`${API_URL}/api/settings`, {

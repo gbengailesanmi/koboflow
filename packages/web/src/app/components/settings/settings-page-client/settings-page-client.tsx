@@ -86,7 +86,6 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pa
     }
   )
 
-  // Set page color with 30% transparency
   useEffect(() => {
     const colorWithTransparency = `${pageColor}4D` // 30% transparency
     setBaseColor(colorWithTransparency)
@@ -116,7 +115,6 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pa
         pageColors
       })
 
-      // Apply theme immediately
       document.documentElement.setAttribute('data-theme', theme)
       document.documentElement.style.setProperty('--accent-color', accentColors.find(c => c.value === accentColor)?.color || '#3b82f6')
     } catch (error) {
@@ -154,7 +152,7 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pa
             backTo={`/${customerId}/dashboard`}
           />
 
-          {/* User Info Section */}
+          {}
           <Grid id="user-profile" className={styles.settingsCard}>
           <div className={styles.userInfo}>
             <div className={styles.avatar}>
@@ -167,7 +165,7 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pa
           </div>
         </Grid>
 
-        {/* Appearance Section */}
+        {}
         <Grid id="appearance" className={styles.settingsCard}>
           <h3 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>🎨</span>
@@ -208,7 +206,7 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pa
             </RadioCards.Root>
           </div>
 
-          {/* Accent Colours - Collapsible Dropdown */}
+          {}
           <div className={styles.settingItem} style={{ flexDirection: 'column', alignItems: 'stretch' }}>
             <button 
               className={styles.dropdownHeader}
@@ -223,10 +221,10 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pa
               </span>
             </button>
 
-            {/* Collapsible Page Color List */}
+            {}
             {isAccentColorsExpanded && (
               <div className={styles.dropdownContent}>
-                {/* Analytics */}
+                {}
                 <div className={styles.pageColorItem}>
                   <div className={styles.pageColorLabel}>
                     <div 
@@ -251,7 +249,7 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pa
                   />
                 </div>
 
-                {/* Budget */}
+                {}
                 <div className={styles.pageColorItem}>
                   <div className={styles.pageColorLabel}>
                     <div 
@@ -276,7 +274,7 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pa
                   />
                 </div>
 
-                {/* Transactions */}
+                {}
                 <div className={styles.pageColorItem}>
                   <div className={styles.pageColorLabel}>
                     <div 
@@ -301,7 +299,7 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pa
                   />
                 </div>
 
-                {/* Profile */}
+                {}
                 <div className={styles.pageColorItem}>
                   <div className={styles.pageColorLabel}>
                     <div 
@@ -326,7 +324,7 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pa
                   />
                 </div>
 
-                {/* Settings */}
+                {}
                 <div className={styles.pageColorItem}>
                   <div className={styles.pageColorLabel}>
                     <div 
@@ -351,7 +349,7 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pa
                   />
                 </div>
 
-                {/* Dashboard */}
+                {}
                 <div className={styles.pageColorItem}>
                   <div className={styles.pageColorLabel}>
                     <div 
@@ -380,7 +378,7 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pa
           </div>
         </Grid>
 
-        {/* Notifications Section */}
+        {}
         <div id="notifications" className={styles.section}>
           <h3 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>🔔</span>
@@ -444,7 +442,7 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pa
           </div>
         </div>
 
-        {/* Security Section */}
+        {}
         <div id="security" className={styles.section}>
           <h3 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>🔒</span>
@@ -483,7 +481,7 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pa
           </div>
         </div>
 
-        {/* Support Section */}
+        {}
         <div id="support" className={styles.section}>
           <h3 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>💬</span>
@@ -506,7 +504,7 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pa
           </button>
         </div>
 
-        {/* About Section */}
+        {}
         <div id="about-app" className={styles.section}>
           <h3 className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>ℹ️</span>
@@ -534,7 +532,7 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pa
           </div>
         </div>
 
-        {/* Danger Zone */}
+        {}
         <div id="account" className={styles.section}>
           <div className={styles.dangerZone}>
             <button 
@@ -555,7 +553,7 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pa
           </div>
         </div>
 
-        {/* PIN Change Modal */}
+        {}
         {showPinModal && (
           <div className={styles.modal} onClick={() => setShowPinModal(false)}>
             <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
@@ -598,7 +596,7 @@ export default function SettingsPageClient({ customerId, userName, userEmail, pa
           </div>
         )}
 
-        {/* Delete Account Modal */}
+        {}
         {showDeleteModal && (
           <div className={styles.modal} onClick={() => setShowDeleteModal(false)}>
             <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>

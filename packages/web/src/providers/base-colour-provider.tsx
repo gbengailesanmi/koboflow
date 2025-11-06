@@ -26,7 +26,6 @@ export function useBaseColor() {
   return useContext(ColorContext)
 }
 
-// Helper to darken and add alpha
 function shadeAndAlpha(color: string, percent: number, alpha: number) {
   const f = parseInt(color.slice(1), 16)
   const R = f >> 16
@@ -53,13 +52,11 @@ export default function BaseColorProvider({ children }: { children: React.ReactN
     _setBaseColor(color)
     if (userSet) setIsUserSet(true)
     
-    // Apply the color as a CSS custom property on the document root
     if (typeof document !== 'undefined') {
       document.documentElement.style.setProperty('--baseColor', color)
     }
   }
 
-  // Set initial baseColor on mount
   useEffect(() => {
     if (typeof document !== 'undefined') {
       document.documentElement.style.setProperty('--baseColor', baseColor)

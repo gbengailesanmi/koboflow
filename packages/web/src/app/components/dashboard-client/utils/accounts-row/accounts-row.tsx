@@ -3,7 +3,6 @@ import { Avatar, Separator } from '@radix-ui/themes'
 import { PlusIcon } from '@radix-ui/react-icons'
 import type { Account } from '@/types/account'
 import * as Styled from './styles'
-// import { getAccountLogo } from '@/helpers/get-account-logo'
 
 type AccountsRowProps = {
   accounts: Account[]
@@ -16,7 +15,6 @@ const AccountsRow = ({ accounts, onAccountSelect }: AccountsRowProps) => {
       <Styled.Button
         size="4"
         variant="soft"
-        // color="gray"
         onClick={() => window.open(process.env.NEXT_PUBLIC_ADD_ACCOUNT_URL, '_blank')}
         >
         <PlusIcon />

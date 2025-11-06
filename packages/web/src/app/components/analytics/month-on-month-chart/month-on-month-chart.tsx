@@ -15,29 +15,23 @@ type MonthOnMonthChartProps = {
 }
 
 export const MonthOnMonthChart: React.FC<MonthOnMonthChartProps> = ({ data, currency, transactions }) => {
-  // Get current date
   const today = new Date()
   const currentDay = today.getDate()
   const currentMonth = today.getMonth()
   const currentYear = today.getFullYear()
   
-  // Calculate previous month
   const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1
   const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear
 
-  // Get days in both months
   const daysInCurrentMonth = new Date(currentYear, currentMonth + 1, 0).getDate()
   const daysInPrevMonth = new Date(prevYear, prevMonth + 1, 0).getDate()
   
-  // Use the maximum days to ensure consistent x-axis
   const maxDays = Math.max(daysInCurrentMonth, daysInPrevMonth)
 
-  // Generate daily expense data for comparison - span entire month
   const chartData = useMemo(() => {
     const dailyData = []
     
     for (let day = 1; day <= maxDays; day++) {
-      // Current month transactions for this day (only if day exists in current month)
       const currentDayExpenses = day <= daysInCurrentMonth ? transactions
         .filter((t: any) => {
           const tDate = t.date
@@ -48,7 +42,6 @@ export const MonthOnMonthChart: React.FC<MonthOnMonthChartProps> = ({ data, curr
         })
         .reduce((sum: number, t: any) => sum + t.numericAmount, 0) : null
 
-      // Previous month transactions for the same day (only if day exists in previous month)
       const prevDayExpenses = day <= daysInPrevMonth ? transactions
         .filter((t: any) => {
           const tDate = t.date
@@ -69,7 +62,6 @@ export const MonthOnMonthChart: React.FC<MonthOnMonthChartProps> = ({ data, curr
     return dailyData
   }, [currentMonth, currentYear, prevMonth, prevYear, transactions, daysInCurrentMonth, daysInPrevMonth, maxDays])
 
-  // Custom tooltip formatter
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
@@ -98,7 +90,7 @@ export const MonthOnMonthChart: React.FC<MonthOnMonthChartProps> = ({ data, curr
             bottom: 5,
           }}
         >
-          {/* <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" /> */}
+          {}
           <XAxis 
             dataKey="day" 
             axisLine={false}

@@ -56,7 +56,6 @@ export default function AnalyticsPageClient({ accounts, transactions, customCate
   
   const categoryConfig = useMemo(() => getCategoryConfig(customCategories), [customCategories])
 
-  // Set page color with 30% transparency
   useEffect(() => {
     const colorWithTransparency = `${pageColor}4D` // Add 30% transparency (4D in hex)
     setBaseColor(colorWithTransparency)
@@ -77,7 +76,6 @@ export default function AnalyticsPageClient({ accounts, transactions, customCate
     }
   }, [timePeriod, isHydrated])
   
-  // Custom categories handlers
   const handleAddCategory = async (name: string, keywords: string[], color: string) => {
     try {
       const response = await fetch('/api/custom-categories', {
@@ -227,11 +225,9 @@ export default function AnalyticsPageClient({ accounts, transactions, customCate
     
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
     
-    // Calculate days in each month for fair comparison
     const currentDayOfMonth = now.getDate() // How many days have passed in current month
     const daysInPrevMonth = new Date(prevYear, prevMonth + 1, 0).getDate() // Total days in previous month
     
-    // Calculate average daily spending
     const currentDailyAvg = currentDayOfMonth > 0 ? currentExpense / currentDayOfMonth : 0
     const prevDailyAvg = daysInPrevMonth > 0 ? prevExpense / daysInPrevMonth : 0
     
@@ -257,7 +253,7 @@ export default function AnalyticsPageClient({ accounts, transactions, customCate
     <>
       <div className={`${styles.container} page-gradient-background`}>
         <div className={styles.headerSection}>
-          {/* Header */}
+          {}
           <PageHeader 
             title="Insights" 
             subtitle="Look into your spending patterns and trends"
@@ -308,7 +304,7 @@ export default function AnalyticsPageClient({ accounts, transactions, customCate
             </div>
           ) : (
             <>
-              {/* Stats Cards */}
+              {}
               <Grid id="stats-cards" className={styles.statsGrid}>
                 <StatsCards 
                   totalIncome={totalIncome}
@@ -320,7 +316,7 @@ export default function AnalyticsPageClient({ accounts, transactions, customCate
                 />
               </Grid>
 
-              {/* Expense Pie Chart */}
+              {}
               <Grid id="expense-breakdown" className={styles.analyticsCard}>
                 <AnalyticsCard
                   title="📊 Expense Breakdown"
@@ -343,7 +339,7 @@ export default function AnalyticsPageClient({ accounts, transactions, customCate
                 </AnalyticsCard>
               </Grid>
 
-              {/* Month-on-Month Comparison */}
+              {}
               <Grid id="daily-comparison" className={styles.analyticsCard}>
                 <AnalyticsCard
                   title="📈 Daily Expense Comparison"
@@ -375,7 +371,7 @@ export default function AnalyticsPageClient({ accounts, transactions, customCate
                 </AnalyticsCard>
               </Grid>
 
-              {/* Category Breakdown */}
+              {}
               <Grid id="spending-category" className={styles.analyticsCard}>
                 <AnalyticsCard
                   title="🏷️ Spending by Category"
@@ -386,7 +382,6 @@ export default function AnalyticsPageClient({ accounts, transactions, customCate
                     currency={profile.currency}
                     customCategories={customCategories}
                     onAddCategory={async (name, keywords) => {
-                      // Generate a random color for the new category
                       const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316']
                       const randomColor = colors[Math.floor(Math.random() * colors.length)]
                       await handleAddCategory(name, keywords, randomColor)
@@ -396,7 +391,7 @@ export default function AnalyticsPageClient({ accounts, transactions, customCate
                 </AnalyticsCard>
               </Grid>
 
-              {/* Recurring Payments */}
+              {}
               <Grid id="recurring-payments" className={styles.analyticsCard}>
                 <AnalyticsCard
                   title="🔄 Recurring Payments"
@@ -411,7 +406,7 @@ export default function AnalyticsPageClient({ accounts, transactions, customCate
                 </AnalyticsCard>
               </Grid>
 
-              {/* Budget Progress */}
+              {}
               <Grid id="budget-overview" className={styles.analyticsCard}>
                 <AnalyticsCard
                   title="💰 Monthly Budget Overview"

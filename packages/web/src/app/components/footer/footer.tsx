@@ -53,7 +53,6 @@ export default function Footer({ buttonColor, opacity = 75 }: FooterProps) {
     ? { color: buttonColor }
     : {}
 
-  // Create inline style for footer with dynamic opacity
   const footerStyle = {
     backgroundColor: `rgba(255, 255, 255, ${opacity / 100})`
   }

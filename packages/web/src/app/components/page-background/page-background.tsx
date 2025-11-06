@@ -7,7 +7,6 @@ type PageBackgroundProps = {
   children: React.ReactNode
 }
 
-// Helper to darken and add alpha
 function shadeAndAlpha(color: string, percent: number, alpha: number) {
   const f = parseInt(color.slice(1), 16)
   const R = f >> 16
@@ -28,7 +27,6 @@ export function PageBackground({ baseColor, children }: PageBackgroundProps) {
   const bottomStop = '90%'
 
   useEffect(() => {
-    // Apply gradient to body
     document.body.style.background = `
       linear-gradient(
         135deg,
@@ -40,7 +38,6 @@ export function PageBackground({ baseColor, children }: PageBackgroundProps) {
     document.body.style.minHeight = '100vh'
     document.body.style.margin = '0'
     
-    // Cleanup
     return () => {
       document.body.style.background = ''
       document.body.style.minHeight = ''

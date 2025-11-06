@@ -1,4 +1,3 @@
-// Re-export validation schemas from shared package
 export { SignupFormSchema, LoginFormSchema, type SignupFormData, type LoginFormData } from '@money-mapper/shared'
 
 export type FormState = {

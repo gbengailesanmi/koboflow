@@ -1,14 +1,9 @@
-/**
- * Default settings for new users
- * These settings are created when a user first signs up or signs in with Google
- */
+
 
 export const DEFAULT_SETTINGS = {
-  // Theme preferences
   theme: 'system' as 'light' | 'dark' | 'system',
   accentColor: 'blue' as string,
   
-  // Page accent colors (can be customized per page)
   pageColors: {
     analytics: '#8B7DAB',    // Purple
     budget: '#86B0AA',       // Green
@@ -18,7 +13,6 @@ export const DEFAULT_SETTINGS = {
     dashboard: '#245cd4',    // Blue
   },
   
-  // Notification preferences
   notifications: {
     email: {
       budgetAlerts: true,
@@ -33,7 +27,6 @@ export const DEFAULT_SETTINGS = {
     },
   },
   
-  // Display preferences
   display: {
     currency: 'GBP' as string,
     dateFormat: 'DD/MM/YYYY' as string,
@@ -42,7 +35,6 @@ export const DEFAULT_SETTINGS = {
     showDecimals: true,
   },
   
-  // Privacy & Security
   privacy: {
     showBalance: true,
     showTransactions: true,
@@ -50,7 +42,6 @@ export const DEFAULT_SETTINGS = {
     dataSharing: false,
   },
   
-  // Budget preferences
   budget: {
     defaultPeriod: 'monthly' as 'weekly' | 'monthly' | 'yearly',
     carryOverUnspent: false,
@@ -58,7 +49,6 @@ export const DEFAULT_SETTINGS = {
     showProjections: true,
   },
   
-  // Transaction preferences
   transactions: {
     defaultView: 'all' as 'all' | 'income' | 'expense',
     groupByDate: true,
@@ -66,7 +56,6 @@ export const DEFAULT_SETTINGS = {
     autoCategorizationEnabled: true,
   },
   
-  // Metadata
   createdAt: new Date(),
   updatedAt: new Date(),
 } as const
