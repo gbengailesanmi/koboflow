@@ -39,10 +39,12 @@ sessionRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
 
 sessionRoutes.delete('/', async (req, res) => {
   try {
+    const isProduction = process.env.NODE_ENV === 'production'
     res.clearCookie('auth-token', {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax'
+      secure: isProduction,
+      sameSite: 'lax',
+      path: '/'
     })
     
     res.json({ success: true, message: 'Logged out successfully' })

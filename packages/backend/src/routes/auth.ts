@@ -117,12 +117,21 @@ authRoutes.post('/login', async (req, res) => {
       { expiresIn: '7d' }
     )
 
-    res.cookie('auth-token', token, {
+    const isProduction = process.env.NODE_ENV === 'production'
+    const cookieOptions = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-    })
+      secure: isProduction,
+      sameSite: 'lax' as const,
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: '/'
+    }
+    
+    if (!isProduction) {
+      const cookieValue = `auth-token=${token}; Max-Age=604800; Path=/; Domain=localhost; HttpOnly; SameSite=Lax`
+      res.setHeader('Set-Cookie', cookieValue)
+    } else {
+      res.cookie('auth-token', token, cookieOptions)
+    }
 
     res.json({
       success: true,
@@ -140,10 +149,12 @@ authRoutes.post('/login', async (req, res) => {
 })
 
 authRoutes.post('/logout', (req, res) => {
+  const isProduction = process.env.NODE_ENV === 'production'
   res.clearCookie('auth-token', {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax'
+    secure: isProduction,
+    sameSite: 'lax',
+    path: '/'
   })
   
   res.json({
@@ -697,15 +708,43 @@ authRoutes.get('/google/callback', async (req, res) => {
       { expiresIn: '7d' }
     )
 
-    res.cookie('auth-token', token, {
+    const isProduction = process.env.NODE_ENV === 'production'
+    const cookieOptions = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-    })
+      secure: isProduction,
+      sameSite: 'lax' as const,
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: '/'
+    }
 
+    if (!isProduction) {
+      // Manually construct Set-Cookie header for localhost
+      const cookieValue = `auth-token=${token}; Max-Age=604800; Path=/; Domain=localhost; HttpOnly; SameSite=Lax`
+      res.setHeader('Set-Cookie', cookieValue)
+      console.log('🍪 Manual Set-Cookie:', cookieValue)
+    } else {
+      res.cookie('auth-token', token, cookieOptions)
+    }
+    
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000'
-    res.redirect(`${frontendUrl}/${user.customerId}/dashboard`)
+    
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Redirecting...</title>
+        </head>
+        <body>
+          <p>Login successful! Redirecting...</p>
+          <script>
+            // Delay to ensure cookie is set
+            setTimeout(() => {
+              window.location.href = '${frontendUrl}/${user.customerId}/dashboard';
+            }, 100);
+          </script>
+        </body>
+      </html>
+    `)
   } catch (error) {
     console.error('Google OAuth callback error:', error)
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000'

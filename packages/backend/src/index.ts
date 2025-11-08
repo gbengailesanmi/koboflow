@@ -24,16 +24,18 @@ app.use(cors({
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-customer-id'],
+  exposedHeaders: ['set-cookie'],
+  preflightContinue: false,
+  optionsSuccessStatus: 204
 }))
+
 app.use(cookieParser())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 app.use((req: Request, res: Response, next: any) => {
   const start = Date.now()
-  
-  console.log(`[${req.method}] ${req.path}`)
-  
+
   res.on('finish', () => {
     const duration = Date.now() - start
     console.log(`[${req.method}] ${req.path} - ${res.statusCode} (${duration}ms)`)
@@ -41,8 +43,6 @@ app.use((req: Request, res: Response, next: any) => {
   
   next()
 })
-
-console.log('🌐 CORS enabled for origins:', allowedOrigins)
 
 app.get('/health', (_req: Request, res: Response) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() })
