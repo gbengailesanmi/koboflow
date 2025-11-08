@@ -718,10 +718,8 @@ authRoutes.get('/google/callback', async (req, res) => {
     }
 
     if (!isProduction) {
-      // Manually construct Set-Cookie header for localhost
       const cookieValue = `auth-token=${token}; Max-Age=604800; Path=/; Domain=localhost; HttpOnly; SameSite=Lax`
       res.setHeader('Set-Cookie', cookieValue)
-      console.log('🍪 Manual Set-Cookie:', cookieValue)
     } else {
       res.cookie('auth-token', token, cookieOptions)
     }

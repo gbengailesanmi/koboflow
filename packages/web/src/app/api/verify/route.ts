@@ -19,17 +19,13 @@ export async function GET(request: NextRequest) {
     })
 
     const data = await response.json()
-    console.log('[VERIFY API] Backend response:', { success: data.success, message: data.message })
 
     if (data.success) {
-      console.log('[VERIFY API] Redirecting to /verify-email?verified=true')
       return NextResponse.redirect(new URL('/verify-email?verified=true', request.url))
     } else {
-      console.log('[VERIFY API] Redirecting to /verify-email?error=invalid')
       return NextResponse.redirect(new URL('/verify-email?error=invalid', request.url))
     }
   } catch (error) {
-    console.error('[VERIFY API] Verification error:', error)
     return NextResponse.redirect(new URL('/verify-email?error=failed', request.url))
   }
 }
