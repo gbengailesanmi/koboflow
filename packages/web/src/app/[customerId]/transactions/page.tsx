@@ -1,20 +1,41 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { apiClient } from '@/lib/api-client'
-import TransactionsPageClient from '@/app/components/transactions/transactions-page-client/transactions-page-client'
-import PageLayoutWithSidebar from '@/app/components/page-layout-with-sidebar/page-layout-with-sidebar'
+import type { Transaction } from '@/types/transactions'
+import type { Account } from '@/types/account'
+import PageLayoutWithSidebar from '@/app/components/sidebar/sidebar'
 import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
 import { TransactionsSkeleton } from '@/app/components/skeletons/transactions-skeleton'
+import { Dialog } from '@radix-ui/themes'
+import { DownloadIcon, UploadIcon, ArrowLeftIcon } from '@radix-ui/react-icons'
+import styles from './transactions.module.css'
+import Footer from '@/app/components/footer/footer'
+import TransactionMonthPills from '@/app/components/transactions/transaction-month-pills/transaction-month-pills'
+import TransactionDetailsDialog from '@/app/components/transactions/transaction-details-dialog/transaction-details-dialog'
+import TransactionCard from '@/app/components/transactions/transaction-card/transaction-card'
+import TransactionsFilters from '@/app/components/transactions/transactions-filters/transactions-filters'
+import { useBaseColor } from '@/providers/base-colour-provider'
 
 export default function TransactionsPage() {
   const params = useParams()
   const router = useRouter()
   const customerId = params.customerId as string
+  const { setBaseColor } = useBaseColor()
 
   const [loading, setLoading] = useState(true)
-  const [data, setData] = useState<any>(null)
+  const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [accounts, setAccounts] = useState<Account[]>([])
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null)
+  const [filterAccountId, setFilterAccountId] = useState<string>('')
+  const [searchTerm, setSearchTerm] = useState<string>('')
+  const [selectedMonth, setSelectedMonth] = useState<string | null>(null)
+
+  useEffect(() => {
+    const colorWithTransparency = `${PAGE_COLORS.transactions}4D`
+    setBaseColor(colorWithTransparency)
+  }, [setBaseColor])
 
   useEffect(() => {
     async function loadData() {
@@ -25,26 +46,13 @@ export default function TransactionsPage() {
           return
         }
 
-        const [accountsRes, transactionsRes, categoriesRes, settingsRes]: any[] = await Promise.all([
+        const [accountsRes, transactionsRes]: any[] = await Promise.all([
           apiClient.getAccounts(),
           apiClient.getTransactions(),
-          apiClient.getCategories(),
-          apiClient.getSettings(),
         ])
 
-        setData({
-          accounts: accountsRes.accounts || [],
-          transactions: transactionsRes.transactions || [],
-          customCategories: categoriesRes || [],
-          settings: settingsRes.settings || {},
-          profile: {
-            customerId: sessionRes.user.customerId,
-            email: sessionRes.user.email,
-            firstName: sessionRes.user.firstName,
-            lastName: sessionRes.user.lastName,
-            currency: sessionRes.user.currency,
-          },
-        })
+        setAccounts(accountsRes.accounts || [])
+        setTransactions(transactionsRes.transactions || [])
       } catch (error) {
         console.error('Failed to load transactions data:', error)
         router.push('/login')
@@ -56,17 +64,112 @@ export default function TransactionsPage() {
     loadData()
   }, [customerId, router])
 
-  if (loading || !data) {
+  const months = useMemo(() => {
+    const monthSet = new Set<string>()
+    transactions.forEach(txn => {
+      const newDate = new Date(txn.bookedDate)
+      const newMonth = newDate.toISOString().slice(0, 7)
+      monthSet.add(newMonth)
+    })
+    return Array.from(monthSet).sort((a, b) => b.localeCompare(a))
+  }, [transactions])
+
+  const filteredTransactions = useMemo(() => {
+    return transactions.filter(txn => {
+      const matchesAccount = !filterAccountId || txn.accountUniqueId === filterAccountId
+      const matchesSearch = txn.narration.toLowerCase().includes(searchTerm.toLowerCase())
+      return matchesAccount && matchesSearch
+    })
+  }, [filterAccountId, searchTerm, transactions])
+
+  const transactionsByMonth = useMemo(() => {
+    const map = new Map<string, string[]>()
+    filteredTransactions.forEach(txn => {
+      const month = new Date(txn.bookedDate).toISOString().slice(0, 7)
+      if (!map.has(month)) map.set(month, [])
+      map.get(month)!.push(txn.id)
+    })
+    return map
+  }, [filteredTransactions])
+
+  const transactionRefs = useRef<Record<string, HTMLDivElement | null>>({})
+  const transactionsWrapperRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!selectedMonth || !transactionsWrapperRef.current) return
+    const txnsInMonth = transactionsByMonth.get(selectedMonth)
+
+    if (!txnsInMonth || txnsInMonth.length === 0) return
+    const lastTxnId = txnsInMonth[txnsInMonth.length - 1]
+    const lastTxnEl = transactionRefs.current[lastTxnId]
+
+    if (lastTxnEl && transactionsWrapperRef.current) {
+      const containerTop = transactionsWrapperRef.current.getBoundingClientRect().top
+      const elementTop = lastTxnEl.getBoundingClientRect().top
+      const scrollTop = transactionsWrapperRef.current.scrollTop
+      const offset = elementTop - containerTop + scrollTop
+
+      transactionsWrapperRef.current.scrollTo({ top: offset, behavior: 'smooth' })
+    }
+  }, [selectedMonth, transactionsByMonth])
+
+  if (loading) {
     return <TransactionsSkeleton customerId={customerId} />
   }
 
   return (
     <PageLayoutWithSidebar customerId={customerId}>
-      <TransactionsPageClient
-        accounts={data.accounts}
-        transactions={data.transactions}
-        pageColor={PAGE_COLORS.transactions}
-      />
+      <Dialog.Root onOpenChange={open => { if (!open) setSelectedTransaction(null) }}>
+        <div className={`${styles.PageGrid} page-gradient-background`}>
+          <div id="filters" className={styles.Header}>
+            <ArrowLeftIcon className="w-6 h-6" onClick={() => router.push(`/${customerId}/dashboard`)}/>
+            <h1 className="text-xl font-semibold mb-2">Transactions</h1>
+            <div className={styles.Filters}>
+              <TransactionsFilters
+                accounts={accounts}
+                filterAccountId={filterAccountId}
+                setFilterAccountId={setFilterAccountId}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+              />
+            </div>
+          </div>
+
+          <TransactionMonthPills
+            months={months}
+            selectedMonth={selectedMonth}
+            setSelectedMonth={setSelectedMonth}
+          />
+
+          <div id="transaction-list" ref={transactionsWrapperRef} className={styles.TransactionsWrapper}>
+            {filteredTransactions.map(transaction => {
+              const isDebit = Number(transaction.amount) < 0
+              const amountClass = isDebit ? styles.DebitText : styles.CreditText
+              const Icon = isDebit ? UploadIcon : DownloadIcon
+
+              return (
+                <TransactionCard
+                  key={transaction.id}
+                  transaction={transaction}
+                  isDebit={isDebit}
+                  amountClass={amountClass}
+                  Icon={Icon}
+                  onClick={() => setSelectedTransaction(transaction)}
+                  cardRef={el => { transactionRefs.current[transaction.id] = el }}
+                />
+              )
+            })}
+          </div>
+          <Footer opacity={2} />
+        </div>
+
+        {selectedTransaction && (
+          <TransactionDetailsDialog
+            transaction={selectedTransaction}
+            onClose={() => setSelectedTransaction(null)}
+          />
+        )}
+      </Dialog.Root>
     </PageLayoutWithSidebar>
   )
 }
