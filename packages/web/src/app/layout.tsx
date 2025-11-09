@@ -10,8 +10,8 @@ const openSans = Open_Sans({
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning className={openSans.variable}>
-      <body>
+    <html lang="en" className={openSans.variable}>
+      <body suppressHydrationWarning>
         <AppProviders>
           <div style={{ minHeight: '100vh', width: '100%' }}>
             {children}

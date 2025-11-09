@@ -15,6 +15,7 @@ import TransactionsColumn from '@/app/components/transactions/transactions-colum
 import { MonthOnMonthChart } from '@/app/components/analytics/month-on-month-chart/month-on-month-chart'
 import { RecurringPayments } from '@/app/components/analytics/recurring-payments/recurring-payments'
 import { categorizeTransaction } from '@/app/components/analytics/utils/categorize-transaction'
+import { DashboardSkeleton } from '@/app/components/skeletons/dashboard-skeleton'
 
 type UserProfile = {
   name: string
@@ -30,7 +31,6 @@ export default function Dashboard() {
   const { baseColor } = useBaseColor()
 
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [accounts, setAccounts] = useState<Account[]>([])
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [profile, setProfile] = useState<UserProfile | null>(null)
@@ -66,7 +66,7 @@ export default function Dashboard() {
         setTransactions(transactionsRes.transactions || [])
 
       } catch (error: any) {
-        setError(error.message || 'Failed to load dashboard')
+        console.error('Failed to load dashboard:', error)
       } finally {
         setLoading(false)
       }
@@ -134,58 +134,7 @@ export default function Dashboard() {
   }, [processedTransactions])
 
   if (loading || !profile) {
-    return (
-      <>
-        <Header />
-        <main className={`${styles.main} page-gradient-background`}>
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh', flexDirection: 'column', gap: '16px' }}>
-            <div style={{
-              width: '40px',
-              height: '40px',
-              border: '4px solid #e5e7eb',
-              borderTopColor: '#3b82f6',
-              borderRadius: '50%',
-              animation: 'spin 1s linear infinite'
-            }} />
-            <p>Loading dashboard...</p>
-          </div>
-        </main>
-        <Footer opacity={2} />
-        <style jsx>{`
-          @keyframes spin {
-            to { transform: rotate(360deg); }
-          }
-        `}</style>
-      </>
-    )
-  }
-
-  if (error) {
-    return (
-      <>
-        <Header />
-        <main className={`${styles.main} page-gradient-background`}>
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh', flexDirection: 'column', gap: '16px' }}>
-            <div style={{ fontSize: '48px' }}>⚠️</div>
-            <p style={{ color: '#ef4444', fontSize: '18px', fontWeight: '500' }}>{error}</p>
-            <button 
-              onClick={() => window.location.reload()} 
-              style={{
-                padding: '8px 16px',
-                backgroundColor: '#3b82f6',
-                color: 'white',
-                borderRadius: '8px',
-                border: 'none',
-                cursor: 'pointer'
-              }}
-            >
-              Retry
-            </button>
-          </div>
-        </main>
-        <Footer opacity={2} />
-      </>
-    )
+    return <DashboardSkeleton />
   }
 
   return (
