@@ -6,6 +6,7 @@ import { apiClient } from '@/lib/api-client'
 import AnalyticsPageClient from '@/app/components/analytics/analytics-page-client/analytics-page-client'
 import PageLayoutWithSidebar from '@/app/components/page-layout-with-sidebar/page-layout-with-sidebar'
 import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
+import { AnalyticsSkeleton } from '@/app/components/skeletons/analytics-skeleton'
 
 export default function AnalyticsPage() {
   const params = useParams()
@@ -56,16 +57,7 @@ export default function AnalyticsPage() {
   }, [customerId, router])
 
   if (loading || !data) {
-    return (
-      <PageLayoutWithSidebar customerId={customerId}>
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading analytics...</p>
-          </div>
-        </div>
-      </PageLayoutWithSidebar>
-    )
+    return <AnalyticsSkeleton customerId={customerId} />
   }
 
   return (
