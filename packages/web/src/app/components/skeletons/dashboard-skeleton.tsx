@@ -2,7 +2,7 @@ import React from 'react'
 import { Grid, Skeleton } from '@radix-ui/themes'
 import Header from '@/app/components/header/header'
 import Footer from '@/app/components/footer/footer'
-import styles from '@/app/components/dashboard-client/dashboard-client.module.css'
+import styles from '../../[customerId]/dashboard/dashboard.module.css'
 
 export function DashboardSkeleton() {
   return (
