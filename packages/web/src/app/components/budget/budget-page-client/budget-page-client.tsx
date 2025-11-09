@@ -4,6 +4,7 @@ import React, { useMemo, useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import type { Transaction } from '@/types/transactions'
 import type { CustomCategory } from '@/types/custom-category'
+import { apiClient } from '@/lib/api-client'
 import Footer from '@/app/components/footer/footer'
 import { PageHeader } from '@/app/components/page-header/page-header'
 import { categorizeTransaction } from '@/app/components/analytics/utils/categorize-transaction'
@@ -76,21 +77,18 @@ export default function BudgetClient({ transactions, profile, customCategories, 
     async function fetchBudget() {
       try {
         setIsLoading(true)
-        const response = await fetch('/api/budget')
-        if (response.ok) {
-          const data = await response.json()
-          const period = data.period || { type: 'current-month' }
-          setBudgetData({
-            totalBudgetLimit: data.totalBudgetLimit || profile.totalBudgetLimit || 0,
-            period: period,
-            categories: data.categories || []
-          })
-          setPeriodType(period.type)
-          if (period.startDate) setStartDate(new Date(period.startDate).toISOString().split('T')[0])
-          if (period.endDate) setEndDate(new Date(period.endDate).toISOString().split('T')[0])
-          if (period.recurringInterval) setRecurringInterval(period.recurringInterval.toString())
-          if (period.recurringUnit) setRecurringUnit(period.recurringUnit)
-        }
+        const data: any = await apiClient.getBudget()
+        const period = data.period || { type: 'current-month' }
+        setBudgetData({
+          totalBudgetLimit: data.totalBudgetLimit || profile.totalBudgetLimit || 0,
+          period: period,
+          categories: data.categories || []
+        })
+        setPeriodType(period.type)
+        if (period.startDate) setStartDate(new Date(period.startDate).toISOString().split('T')[0])
+        if (period.endDate) setEndDate(new Date(period.endDate).toISOString().split('T')[0])
+        if (period.recurringInterval) setRecurringInterval(period.recurringInterval.toString())
+        if (period.recurringUnit) setRecurringUnit(period.recurringUnit)
       } catch (error) {
         console.error('Failed to fetch budget:', error)
       } finally {
@@ -103,15 +101,11 @@ export default function BudgetClient({ transactions, profile, customCategories, 
   const saveBudget = React.useCallback(async (newBudget: BudgetData) => {
     try {
       setIsSaving(true)
-      const response = await fetch('/api/budget', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newBudget)
+      await apiClient.createBudget({
+        totalBudgetLimit: newBudget.totalBudgetLimit,
+        categories: newBudget.categories,
+        period: newBudget.period
       })
-      
-      if (!response.ok) {
-        throw new Error('Failed to save budget')
-      }
     } catch (error) {
       console.error('Failed to save budget:', error)
       alert('Failed to save budget. Please try again.')
