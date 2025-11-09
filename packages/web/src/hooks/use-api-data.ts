@@ -3,10 +3,6 @@ import { apiClient } from '@/lib/api-client'
 import type { Account } from '@/types/account'
 import type { Transaction } from '@/types/transactions'
 
-/**
- * Generic hook for fetching and caching API data
- * All data is cached automatically at the API client level
- */
 function useApiData<T>(
   fetchFn: () => Promise<T>,
   deps: any[] = []
@@ -40,30 +36,18 @@ function useApiData<T>(
   return { data, loading, error, refetch }
 }
 
-/**
- * Hook to fetch accounts (cached at API level)
- * Can be used anywhere in the app - cache is shared globally
- */
 export function useAccounts() {
   return useApiData<{ accounts: Account[] }>(
     () => apiClient.getAccounts() as Promise<{ accounts: Account[] }>
   )
 }
 
-/**
- * Hook to fetch transactions (cached at API level)
- * Can be used anywhere in the app - cache is shared globally
- */
 export function useTransactions() {
   return useApiData<{ transactions: Transaction[] }>(
     () => apiClient.getTransactions() as Promise<{ transactions: Transaction[] }>
   )
 }
 
-/**
- * Hook to fetch session/profile (cached at API level)
- * Can be used anywhere in the app - cache is shared globally
- */
 export function useSession() {
   return useApiData<{
     success: boolean
@@ -90,40 +74,24 @@ export function useSession() {
   )
 }
 
-/**
- * Hook to fetch budget (cached at API level)
- * Can be used anywhere in the app - cache is shared globally
- */
 export function useBudget() {
   return useApiData<any>(
     () => apiClient.getBudget() as Promise<any>
   )
 }
 
-/**
- * Hook to fetch categories (cached at API level)
- * Can be used anywhere in the app - cache is shared globally
- */
 export function useCategories() {
   return useApiData<any>(
     () => apiClient.getCategories() as Promise<any>
   )
 }
 
-/**
- * Hook to fetch settings (cached at API level)
- * Can be used anywhere in the app - cache is shared globally
- */
 export function useSettings() {
   return useApiData<any>(
     () => apiClient.getSettings()
   )
 }
 
-/**
- * Example: Combined hook that uses multiple cached endpoints
- * All individual calls are cached, so this is very efficient
- */
 export function useCompleteProfile() {
   const { data: session, loading: sessionLoading, error: sessionError } = useSession()
   const { data: settings, loading: settingsLoading, error: settingsError } = useSettings()
