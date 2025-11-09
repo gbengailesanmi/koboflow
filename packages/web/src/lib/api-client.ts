@@ -1,3 +1,5 @@
+import { apiCacheManager } from './api-cache'
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
 interface ApiResponse<T = any> {
@@ -14,10 +16,27 @@ class ApiClient {
     this.baseUrl = baseUrl
   }
 
+  /**
+   * Main request method with automatic caching
+   * - GET requests are cached automatically
+   * - POST/PUT/PATCH/DELETE requests invalidate related cache
+   */
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
+    const method = options.method || 'GET'
+    const isGetRequest = method === 'GET'
+    const isMutation = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)
+
+    // Check cache for GET requests
+    if (isGetRequest) {
+      const cached = apiCacheManager.get<T>(endpoint, options)
+      if (cached) {
+        return cached
+      }
+    }
+
     const url = `${this.baseUrl}${endpoint}`
     
     const config: RequestInit = {
@@ -41,7 +60,19 @@ class ApiClient {
       throw new Error(error.message || `HTTP ${response.status}`)
     }
 
-    return response.json()
+    const data = await response.json()
+
+    // Cache GET responses
+    if (isGetRequest) {
+      apiCacheManager.set(endpoint, data, options)
+    }
+
+    // Invalidate related cache on mutations
+    if (isMutation) {
+      apiCacheManager.invalidateOnMutation(endpoint)
+    }
+
+    return data
   }
 
   async getBudget() {
@@ -162,6 +193,9 @@ class ApiClient {
       await this.request('/api/auth/logout', {
         method: 'POST',
       })
+      
+      // Clear all cache on logout
+      apiCacheManager.clearAll()
     } finally {
       if (typeof window !== 'undefined') {
         window.location.href = '/login'
