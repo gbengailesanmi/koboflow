@@ -1,3 +1,5 @@
+import { apiCacheManager } from './api-cache'
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
 interface ApiResponse<T = any> {
@@ -15,13 +17,25 @@ class ApiClient {
   }
 
   /**
-   * Main request method
-   * State management is handled by Zustand store
+   * Main request method with integrated caching
+   * - GET requests are cached and served from cache if available
+   * - Mutation requests (POST, PATCH, DELETE) invalidate related cache entries
    */
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
+    const method = options.method || 'GET'
+    const isMutation = ['POST', 'PATCH', 'PUT', 'DELETE'].includes(method)
+    
+    // Try to get from cache for GET requests
+    if (method === 'GET') {
+      const cached = apiCacheManager.get<T>(endpoint, options)
+      if (cached) {
+        return cached
+      }
+    }
+    
     const url = `${this.baseUrl}${endpoint}`
     
     const config: RequestInit = {
@@ -46,6 +60,17 @@ class ApiClient {
     }
 
     const data = await response.json()
+    
+    // Cache GET responses
+    if (method === 'GET') {
+      apiCacheManager.set(endpoint, data, options)
+    }
+    
+    // Invalidate cache on mutations
+    if (isMutation) {
+      apiCacheManager.invalidateOnMutation(endpoint)
+    }
+    
     return data
   }
 

@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { apiClient } from '@/lib/api-client'
+import { useEssentialData } from '@/hooks/use-data'
 import type { Transaction } from '@/types/transactions'
 import type { Account } from '@/types/account'
 import PageLayoutWithSidebar from '@/app/components/sidebar/sidebar'
@@ -24,9 +25,9 @@ export default function TransactionsPage() {
   const customerId = params.customerId as string
   const { setBaseColor } = useBaseColor()
 
-  const [loading, setLoading] = useState(true)
-  const [transactions, setTransactions] = useState<Transaction[]>([])
-  const [accounts, setAccounts] = useState<Account[]>([])
+  const { accounts, transactions, isLoading: dataLoading } = useEssentialData()
+
+  const [sessionLoading, setSessionLoading] = useState(true)
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null)
   const [filterAccountId, setFilterAccountId] = useState<string>('')
   const [searchTerm, setSearchTerm] = useState<string>('')
@@ -38,35 +39,29 @@ export default function TransactionsPage() {
   }, [setBaseColor])
 
   useEffect(() => {
-    async function loadData() {
+    async function loadSession() {
       try {
         const sessionRes: any = await apiClient.getSession()
         if (!sessionRes.success || sessionRes.user.customerId !== customerId) {
           router.push('/login')
           return
         }
-
-        const [accountsRes, transactionsRes]: any[] = await Promise.all([
-          apiClient.getAccounts(),
-          apiClient.getTransactions(),
-        ])
-
-        setAccounts(accountsRes.accounts || [])
-        setTransactions(transactionsRes.transactions || [])
       } catch (error) {
-        console.error('Failed to load transactions data:', error)
+        console.error('Failed to load session:', error)
         router.push('/login')
       } finally {
-        setLoading(false)
+        setSessionLoading(false)
       }
     }
 
-    loadData()
+    loadSession()
   }, [customerId, router])
+
+  const loading = sessionLoading || dataLoading
 
   const months = useMemo(() => {
     const monthSet = new Set<string>()
-    transactions.forEach(txn => {
+    ;(transactions || []).forEach(txn => {
       const newDate = new Date(txn.bookedDate)
       const newMonth = newDate.toISOString().slice(0, 7)
       monthSet.add(newMonth)
@@ -75,7 +70,7 @@ export default function TransactionsPage() {
   }, [transactions])
 
   const filteredTransactions = useMemo(() => {
-    return transactions.filter(txn => {
+    return (transactions || []).filter(txn => {
       const matchesAccount = !filterAccountId || txn.accountUniqueId === filterAccountId
       const matchesSearch = txn.narration.toLowerCase().includes(searchTerm.toLowerCase())
       return matchesAccount && matchesSearch
@@ -126,7 +121,7 @@ export default function TransactionsPage() {
             <h1 className="text-xl font-semibold mb-2">Transactions</h1>
             <div className={styles.Filters}>
               <TransactionsFilters
-                accounts={accounts}
+                accounts={accounts || []}
                 filterAccountId={filterAccountId}
                 setFilterAccountId={setFilterAccountId}
                 searchTerm={searchTerm}

@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { apiClient } from '@/lib/api-client'
+import { useEssentialData } from '@/hooks/use-data'
 import type { Account } from '@/types/account'
 import type { Transaction } from '@/types/transactions'
 import Header from '@/app/components/header/header'
@@ -30,22 +31,17 @@ export default function Dashboard() {
   const customerId = params.customerId as string
   const { baseColor } = useBaseColor()
 
-  const [loading, setLoading] = useState(true)
-  const [accounts, setAccounts] = useState<Account[]>([])
-  const [transactions, setTransactions] = useState<Transaction[]>([])
+  const { accounts, transactions, isLoading: dataLoading } = useEssentialData()
+  
+  const [sessionLoading, setSessionLoading] = useState(true)
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [selectedAccount, setSelectedAccount] = useState<string | null>(null)
   const [hasNavigated, setHasNavigated] = useState(false)
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
+    const fetchSession = async () => {
       try {
-        
-        const [sessionRes, accountsRes, transactionsRes]: any[] = await Promise.all([
-          apiClient.getSession(),
-          apiClient.getAccounts(),
-          apiClient.getTransactions(),
-        ])
+        const sessionRes: any = await apiClient.getSession()
 
         if (!sessionRes.success || sessionRes.user?.customerId !== customerId) {
           router.push('/login')
@@ -60,24 +56,22 @@ export default function Dashboard() {
         }
         
         setProfile(profileData)
-
-        setAccounts(accountsRes.accounts || [])
-        
-        setTransactions(transactionsRes.transactions || [])
-
       } catch (error: any) {
-        console.error('Failed to load dashboard:', error)
+        console.error('Failed to load session:', error)
+        router.push('/login')
       } finally {
-        setLoading(false)
+        setSessionLoading(false)
       }
     }
 
-    fetchDashboardData()
+    fetchSession()
   }, [customerId, router])
 
+  const loading = sessionLoading || dataLoading
+
   const filteredTransactions = selectedAccount
-    ? transactions.filter(txn => txn.accountUniqueId === selectedAccount)
-    : transactions
+    ? (transactions || []).filter(txn => txn.accountUniqueId === selectedAccount)
+    : (transactions || [])
 
   const processedTransactions = useMemo(() => {
     return filteredTransactions.map(transaction => {
@@ -143,7 +137,7 @@ export default function Dashboard() {
       <main className={`${styles.main} page-gradient-background`}>
         <Grid className={styles.AccountsGrid}>
           <AccountsCarousel
-            accounts={accounts}
+            accounts={accounts || []}
             setSelectedAccount={setSelectedAccount}
             onNavigate={() => setHasNavigated(true)}
           />
