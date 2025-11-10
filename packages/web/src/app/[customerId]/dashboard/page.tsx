@@ -4,8 +4,7 @@ import React, { useEffect, useState, useMemo } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { apiClient } from '@/lib/api-client'
 import { useEssentialData } from '@/hooks/use-data'
-import type { Account } from '@/types/account'
-import type { Transaction } from '@/types/transactions'
+import { usePageSelection } from '@/hooks/use-session-storage'
 import Header from '@/app/components/header/header'
 import Footer from '@/app/components/footer/footer'
 import { Grid } from '@radix-ui/themes'
@@ -35,8 +34,14 @@ export default function Dashboard() {
   
   const [sessionLoading, setSessionLoading] = useState(true)
   const [profile, setProfile] = useState<UserProfile | null>(null)
-  const [selectedAccount, setSelectedAccount] = useState<string | null>(null)
   const [hasNavigated, setHasNavigated] = useState(false)
+  
+  const [selectedAccount, setSelectedAccount] = usePageSelection<string | null>(
+    'dashboard',
+    customerId,
+    'selectedAccount',
+    null
+  )
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -138,6 +143,7 @@ export default function Dashboard() {
         <Grid className={styles.AccountsGrid}>
           <AccountsCarousel
             accounts={accounts || []}
+            selectedAccount={selectedAccount}
             setSelectedAccount={setSelectedAccount}
             onNavigate={() => setHasNavigated(true)}
           />

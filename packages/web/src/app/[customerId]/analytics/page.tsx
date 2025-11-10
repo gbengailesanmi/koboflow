@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { apiClient } from '@/lib/api-client'
+import { usePageSelection } from '@/hooks/use-session-storage'
 import type { Account } from '@/types/account'
 import type { Transaction } from '@/types/transactions'
 import type { CustomCategory } from '@/types/custom-category'
@@ -60,8 +61,20 @@ export default function AnalyticsPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [customCategories, setCustomCategories] = useState<CustomCategory[]>([])
   const [profile, setProfile] = useState<UserProfile | null>(null)
-  const [selectedAccountId, setSelectedAccountId] = useState<string>('all')
-  const [timePeriod, setTimePeriod] = useState<'day' | 'month' | 'year'>('month')
+  
+  const [selectedAccountId, setSelectedAccountId] = usePageSelection<string>(
+    'analytics',
+    customerId,
+    'selectedAccount',
+    'all'
+  )
+  const [timePeriod, setTimePeriod] = usePageSelection<'day' | 'month' | 'year'>(
+    'analytics',
+    customerId,
+    'timePeriod',
+    'month'
+  )
+  
   const [isHydrated, setIsHydrated] = useState(false)
   
   const categoryConfig = useMemo(() => getCategoryConfig(customCategories), [customCategories])
@@ -73,18 +86,7 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     setIsHydrated(true)
-    
-    const savedPeriod = localStorage.getItem('analytics-time-period') as 'day' | 'month' | 'year'
-    if (savedPeriod && ['day', 'month', 'year'].includes(savedPeriod)) {
-      setTimePeriod(savedPeriod)
-    }
   }, [])
-
-  useEffect(() => {
-    if (isHydrated) {
-      localStorage.setItem('analytics-time-period', timePeriod)
-    }
-  }, [timePeriod, isHydrated])
 
   useEffect(() => {
     async function loadData() {

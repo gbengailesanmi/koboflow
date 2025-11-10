@@ -4,8 +4,8 @@ import React, { useEffect, useState, useMemo, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { apiClient } from '@/lib/api-client'
 import { useEssentialData } from '@/hooks/use-data'
+import { usePageSelection } from '@/hooks/use-session-storage'
 import type { Transaction } from '@/types/transactions'
-import type { Account } from '@/types/account'
 import PageLayoutWithSidebar from '@/app/components/sidebar/sidebar'
 import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
 import { TransactionsSkeleton } from '@/app/components/skeletons/transactions-skeleton'
@@ -29,9 +29,25 @@ export default function TransactionsPage() {
 
   const [sessionLoading, setSessionLoading] = useState(true)
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null)
-  const [filterAccountId, setFilterAccountId] = useState<string>('')
-  const [searchTerm, setSearchTerm] = useState<string>('')
-  const [selectedMonth, setSelectedMonth] = useState<string | null>(null)
+  
+  const [filterAccountId, setFilterAccountId] = usePageSelection<string>(
+    'transactions',
+    customerId,
+    'filterAccount',
+    ''
+  )
+  const [searchTerm, setSearchTerm] = usePageSelection<string>(
+    'transactions',
+    customerId,
+    'searchTerm',
+    ''
+  )
+  const [selectedMonth, setSelectedMonth] = usePageSelection<string | null>(
+    'transactions',
+    customerId,
+    'selectedMonth',
+    null
+  )
 
   useEffect(() => {
     const colorWithTransparency = `${PAGE_COLORS.transactions}4D`

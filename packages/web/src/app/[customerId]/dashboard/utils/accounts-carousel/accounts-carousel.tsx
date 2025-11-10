@@ -17,12 +17,14 @@ const HUE_LOCAL_STORAGE_KEY = 'accounts-carousel-slide-hue'
 
 type AccountsCarouselProps = {
   accounts: Account[]
+  selectedAccount: string | null
   setSelectedAccount: (id: string | null) => void
   onNavigate?: () => void
 }
 
 export default function AccountsCarousel({
   accounts,
+  selectedAccount,
   setSelectedAccount,
   onNavigate,
 }: AccountsCarouselProps) {
@@ -31,6 +33,7 @@ export default function AccountsCarousel({
   const { setBaseColor } = useBaseColor()
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [slideHue, setSlideHue] = useState<Record<number, string>>({ 0: hues[0] })
+  const [hasInitialized, setHasInitialized] = useState(false)
   
   const params = useParams()
   const router = useRouter()
@@ -54,6 +57,19 @@ export default function AccountsCarousel({
       console.warn('Failed to save hues to localStorage', e)
     }
   }, [slideHue])
+
+  useEffect(() => {
+    if (!emblaApi || !accounts.length || hasInitialized) return
+
+    if (selectedAccount) {
+      const accountIndex = accounts.findIndex(acc => acc.uniqueId === selectedAccount)
+      if (accountIndex !== -1) {
+        emblaApi.scrollTo(accountIndex + 1, true)
+      }
+    }
+    
+    setHasInitialized(true)
+  }, [emblaApi, accounts, selectedAccount, hasInitialized])
 
   const scrollPrev = useCallback(() => {
     emblaApi?.scrollPrev()
