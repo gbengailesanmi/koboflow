@@ -1,6 +1,7 @@
 import { useEffect, useCallback } from 'react'
 import { useAppStore } from '@/store'
 import { apiClient } from '@/lib/api-client'
+import { clearAllAppSessionStorage } from './use-session-storage'
 import type { Account } from '@/types/account'
 import type { Transaction } from '@/types/transactions'
 import type { Budget } from '@/types/budget'
@@ -215,6 +216,9 @@ export function useLogout() {
       clearSession()
       clearCategories()
       clearAnalytics()
+      
+      // Clear sessionStorage (page selections)
+      clearAllAppSessionStorage()
     } catch (err) {
       console.error('Logout error:', err)
       throw err

@@ -188,17 +188,10 @@ class ApiClient {
   }
 
   async logout() {
-    try {
-      await this.request('/api/auth/logout', {
-        method: 'POST',
-      })
-      
-      // Clear store on logout (handled in hook)
-    } finally {
-      if (typeof window !== 'undefined') {
-        window.location.href = '/login'
-      }
-    }
+    await this.request('/api/auth/logout', {
+      method: 'POST',
+    })
+    // Note: Cleanup and redirect handled by useLogout() hook
   }
 
   async updateProfile(customerId: string, data: {

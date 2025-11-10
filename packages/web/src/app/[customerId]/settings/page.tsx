@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { apiClient } from '@/lib/api-client'
+import { useLogout } from '@/hooks/use-zustand'
 import Sidebar from '@/app/components/sidebar/sidebar'
 import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
 import { SettingsSkeleton } from '@/app/components/skeletons/settings-skeleton'
@@ -54,6 +55,7 @@ export default function SettingsPage() {
   const router = useRouter()
   const customerId = params.customerId as string
   const { setBaseColor } = useBaseColor()
+  const { logout } = useLogout()
 
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState<any>(null)
@@ -171,7 +173,8 @@ export default function SettingsPage() {
 
   const handleLogout = async () => {
     try {
-      await apiClient.logout()
+      await logout()
+      router.push('/login')
     } catch (error) {
       console.error('Logout failed:', error)
       router.push('/login')

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useCallback, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
+import { clearAllAppSessionStorage } from '@/hooks/use-session-storage'
 
 const TIMEOUT_DURATION = 15 * 60 * 1000 // 15 minutes in milliseconds
 const WARNING_DURATION = 2 * 60 * 1000 // Show warning 2 minutes before timeout
@@ -46,6 +47,8 @@ export default function SessionTimeoutProvider({ children }: SessionTimeoutProvi
         method: 'DELETE',
         credentials: 'include', // Send cookies
       })
+      
+      clearAllAppSessionStorage()
       
       router.push('/login?timeout=true')
     } catch (error) {

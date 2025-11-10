@@ -73,3 +73,44 @@ export function usePageSelection<T>(
   const storageKey = `money-mapper:${customerId}:${pageName}:${selectionKey}`
   return useSessionStorage(storageKey, initialValue)
 }
+
+/**
+ * Clear all sessionStorage keys for the app
+ * Useful for logout, session timeout, etc.
+ */
+export function clearAllAppSessionStorage(): void {
+  if (typeof window === 'undefined') return
+  
+  try {
+    const keys = Object.keys(window.sessionStorage)
+    keys.forEach(key => {
+      if (key.startsWith('money-mapper:')) {
+        window.sessionStorage.removeItem(key)
+      }
+    })
+    console.log('Cleared all app sessionStorage')
+  } catch (error) {
+    console.warn('Error clearing app sessionStorage:', error)
+  }
+}
+
+/**
+ * Clear sessionStorage keys for a specific customer
+ * Useful when switching between customers
+ */
+export function clearCustomerSessionStorage(customerId: string): void {
+  if (typeof window === 'undefined') return
+  
+  try {
+    const keys = Object.keys(window.sessionStorage)
+    const prefix = `money-mapper:${customerId}:`
+    keys.forEach(key => {
+      if (key.startsWith(prefix)) {
+        window.sessionStorage.removeItem(key)
+      }
+    })
+    console.log(`Cleared sessionStorage for customer: ${customerId}`)
+  } catch (error) {
+    console.warn(`Error clearing sessionStorage for customer ${customerId}:`, error)
+  }
+}
