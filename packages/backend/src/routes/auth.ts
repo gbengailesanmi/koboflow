@@ -611,18 +611,6 @@ authRoutes.get('/google', (req, res) => {
   res.redirect(authUrl)
 })
 
-authRoutes.get('/debug-oauth-config', (req, res) => {
-  const redirectUri = process.env.GOOGLE_REDIRECT_URI || 'http://localhost:3001/api/auth/google/callback'
-  res.json({
-    configured: !!process.env.GOOGLE_CLIENT_ID,
-    clientIdPrefix: process.env.GOOGLE_CLIENT_ID?.substring(0, 20) + '...',
-    hasClientSecret: !!process.env.GOOGLE_CLIENT_SECRET,
-    redirectUri: redirectUri,
-    frontendUrl: process.env.FRONTEND_URL || 'NOT SET',
-    port: process.env.PORT || 3001
-  })
-})
-
 authRoutes.get('/google/callback', async (req, res) => {
   try {
     const { code } = req.query
@@ -724,7 +712,7 @@ authRoutes.get('/google/callback', async (req, res) => {
       res.cookie('auth-token', token, cookieOptions)
     }
     
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000'
+    const frontendUrl = process.env.FRONTEND_URL
     
     res.send(`
       <!DOCTYPE html>
@@ -738,14 +726,14 @@ authRoutes.get('/google/callback', async (req, res) => {
             // Delay to ensure cookie is set
             setTimeout(() => {
               window.location.href = '${frontendUrl}/${user.customerId}/dashboard';
-            }, 100);
+            }, 50);
           </script>
         </body>
       </html>
     `)
   } catch (error) {
     console.error('Google OAuth callback error:', error)
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000'
+    const frontendUrl = process.env.FRONTEND_URL
     res.redirect(`${frontendUrl}/login?error=oauth_error`)
   }
 })

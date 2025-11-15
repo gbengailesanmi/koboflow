@@ -18,7 +18,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 8px 0;
+  padding: 8px 8px;
   max-height: 250px;
   overflow-y: auto;
 }
@@ -28,10 +28,10 @@
   justify-content: space-between;
   align-items: center;
   padding: 12px;
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(223, 253, 255, 0.034);
   border-radius: 12px;
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(100, 93, 93, 0.3);
   transition: all 0.2s ease;
   cursor: pointer;
 }
@@ -49,7 +49,7 @@
 }
 
 .categoryIcon {
-  font-size: 24px;
+  font-size: 12px;
 }
 
 .itemDetails {
@@ -60,7 +60,7 @@
 .itemName {
   font-weight: 600;
   font-size: 14px;
-  color: #111827;
+  color: #ffffff;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

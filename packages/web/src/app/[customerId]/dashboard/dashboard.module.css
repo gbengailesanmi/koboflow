@@ -8,13 +8,13 @@
   @apply h-[45dvh] grid items-center justify-items-center;
   
 }
-
+ /* border-2 border-solid border-amber- 600 */
 .Grid2 {
-  @apply h-40 border-2 border-solid border-amber-600 rounded-lg grid;
+  @apply h-40 rounded-lg grid;
 }
 
 .TransactionsGrid {
-  @apply h-[40dvh] border-2 border-solid border-amber-600 rounded-2xl grid;
+  @apply h-[40dvh] rounded-2xl grid;
 }
 
 .TransactionsListWrapper {
@@ -22,13 +22,13 @@
 }
 
 .Grid4 {
-  @apply h-[50dvh] border-2 border-solid border-amber-600 rounded-lg grid;
+  @apply h-[50dvh] rounded-lg grid;
 }
 
 .Grid5 {
-  @apply h-[50dvh] border-2 border-solid border-amber-600 rounded-lg grid;
+  @apply h-[50dvh] rounded-lg grid;
 }
 
 .Grid6 {
-  @apply h-[50dvh] border-2 border-solid border-amber-600 rounded-lg grid;
+  @apply h-[50dvh] rounded-lg grid;
 }
