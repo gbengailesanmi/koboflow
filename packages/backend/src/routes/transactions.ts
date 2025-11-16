@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { authMiddleware, AuthRequest } from '../middleware/auth'
+import { authMiddleware, AuthRequest } from '../middleware/middleware'
 import { connectDB } from '../db/mongo'
 
 export const transactionRoutes = Router()

@@ -65,10 +65,8 @@ app.use((err: any, _req: Request, res: Response, _next: any) => {
   })
 })
 
-if (process.env.NODE_ENV !== 'test') {
-  app.listen(PORT, () => {
-    console.log(`🚀 Backend server running on port ${PORT}`)
-  })
-}
+app.listen(PORT, () => {
+  console.log(`🚀 Backend server running on port ${PORT}`)
+})
 
 export default app

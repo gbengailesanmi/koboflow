@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { authMiddleware, AuthRequest } from '../middleware/auth'
+import { authMiddleware, AuthRequest } from '../middleware/middleware'
 import {
   getCustomCategories,
   createCustomCategory,

@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { authMiddleware, AuthRequest } from '../middleware/auth'
+import { authMiddleware, AuthRequest } from '../middleware/middleware'
 import { getBudget, upsertBudget } from '../db/helpers/budget-helpers'
 import type { CategoryBudget, BudgetPeriod } from '@money-mapper/shared'
 import { connectDB } from '../db/mongo'

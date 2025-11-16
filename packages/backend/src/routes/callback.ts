@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { authMiddleware, AuthRequest } from '../middleware/auth'
+import { authMiddleware, AuthRequest } from '../middleware/middleware'
 import { getTinkTokens, getTinkAccountsData, getTinkTransactionsData } from '../services/tink'
 import { bulkInsertTransactions } from '../db/helpers/insert-transactions'
 import { bulkInsertAccounts } from '../db/helpers/insert-accounts'
@@ -22,8 +22,8 @@ callbackRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
 
     const accessToken = await getTinkTokens({
       code,
-      uriBase: process.env.BASE_URI || 'http://localhost',
-      port: process.env.FRONTEND_PORT || '3000'
+      uriBase: process.env.BASE_URI,
+      port: process.env.FRONTEND_PORT
     })
 
     const accounts = await getTinkAccountsData(accessToken, customerId)
