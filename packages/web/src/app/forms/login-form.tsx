@@ -2,7 +2,7 @@
 
 import { useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
-import { login } from '@/lib/api-service'
+import { loginClient } from '@/lib/api-service-client'
 import config from '@/config'
 
 export default function LoginForm({ isTimeout = false }: { isTimeout?: boolean }) {
@@ -26,7 +26,8 @@ export default function LoginForm({ isTimeout = false }: { isTimeout?: boolean }
     }
 
     try {
-      const result: any = await login({ email, password })
+      // ✅ Fixed: Uses client-side login so browser receives session-id cookie
+      const result: any = await loginClient(email, password)
       
       if (result.success) {
         router.push(`/${result.user.customerId}/dashboard`)

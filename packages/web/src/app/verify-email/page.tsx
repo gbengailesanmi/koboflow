@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState, Suspense } from 'react'
-import { resendVerification } from '@/lib/api-service'
+import { resendVerificationEmail } from '@/lib/api-service'
 import styles from './verify-email.module.css'
 
 function VerifyEmailContent() {
@@ -42,7 +42,7 @@ function VerifyEmailContent() {
 
     setResending(true)
     try {
-      const data: any = await resendVerification(email)
+      const data: any = await resendVerificationEmail(email)
       if (data.success) {
         alert('Verification email sent! Please check your inbox.')
       } else {

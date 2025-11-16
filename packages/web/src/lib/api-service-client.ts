@@ -57,6 +57,34 @@ async function fetchClient(endpoint: string, options: RequestInit = {}) {
 // AUTHENTICATION (Client-side)
 // ============================================================================
 
+/**
+ * Login user (client-side)
+ * MUST be client-side so browser receives session-id cookie
+ */
+export async function loginClient(email: string, password: string) {
+  return fetchClient('/api/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ email, password }),
+  })
+}
+
+/**
+ * Signup user (client-side)
+ * MUST be client-side so browser can receive verification instructions
+ */
+export async function signupClient(userData: {
+  firstName: string
+  lastName: string
+  email: string
+  password: string
+  passwordConfirm: string
+}) {
+  return fetchClient('/api/auth/signup', {
+    method: 'POST',
+    body: JSON.stringify(userData),
+  })
+}
+
 export async function logoutClient() {
   return logoutUser()
 }
