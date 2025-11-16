@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { updateAppSettings, deleteUserAccount, logoutUser } from '@/lib/api-service-client'
+import { useToasts } from '@/store'
 import Sidebar from '@/app/components/sidebar/sidebar'
 import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
 import { PageHeader } from '@/app/components/page-header/page-header'
@@ -61,6 +62,9 @@ export default function SettingsClient({
 }: SettingsClientProps) {
   const router = useRouter()
   const { setBaseColor } = useBaseColor()
+  
+  // ✅ Use UI store for toast notifications
+  const { showToast } = useToasts()
 
   const [theme, setTheme] = useState<Theme>(initialTheme)
   const [accentColor, setAccentColor] = useState(initialAccentColor)
@@ -102,9 +106,11 @@ export default function SettingsClient({
 
       document.documentElement.setAttribute('data-theme', theme)
       document.documentElement.style.setProperty('--accent-color', accentColors.find(c => c.value === accentColor)?.color || '#3b82f6')
+      showToast('Settings saved successfully', 'success')
       router.refresh()
     } catch (error) {
       console.error('Failed to save preferences:', error)
+      showToast('Failed to save settings', 'error')
     } finally {
       setIsSaving(false)
     }
@@ -116,6 +122,7 @@ export default function SettingsClient({
       router.push('/login')
     } catch (error) {
       console.error('Logout failed:', error)
+      showToast('Logout failed', 'error')
       router.push('/login')
     }
   }
@@ -123,9 +130,11 @@ export default function SettingsClient({
   const handleDeleteAccount = async () => {
     try {
       await deleteUserAccount()
+      showToast('Account deleted successfully', 'success')
       router.push('/signup')
     } catch (error) {
       console.error('Failed to delete account:', error)
+      showToast('Failed to delete account', 'error')
     }
   }
 

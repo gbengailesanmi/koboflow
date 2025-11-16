@@ -3,6 +3,7 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { updateBudget } from '@/lib/api-service-client'
+import { useToasts } from '@/store'
 import Sidebar from '@/app/components/sidebar/sidebar'
 import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
 import Footer from '@/app/components/footer/footer'
@@ -45,6 +46,9 @@ export default function BudgetClient({
 }: BudgetClientProps) {
   const router = useRouter()
   const { setBaseColor } = useBaseColor()
+  
+  // ✅ Use UI store for toast notifications
+  const { showToast } = useToasts()
 
   const [budgetData, setBudgetData] = useState<BudgetData>(initialBudget)
   const [isSaving, setIsSaving] = useState(false)
@@ -87,14 +91,15 @@ export default function BudgetClient({
         categories: newBudget.categories,
         period: newBudget.period
       })
+      showToast('Budget saved successfully', 'success')
       router.refresh()
     } catch (error) {
       console.error('Failed to save budget:', error)
-      alert('Failed to save budget. Please try again.')
+      showToast('Failed to save budget. Please try again.', 'error')
     } finally {
       setIsSaving(false)
     }
-  }, [router])
+  }, [router, showToast])
 
   const processedTransactions = useMemo(() => {
     return transactions.map((transaction) => {

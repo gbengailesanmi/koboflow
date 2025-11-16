@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { updateUserProfile } from '@/lib/api-service-client'
+import { useToasts } from '@/store'
 import Sidebar from '@/app/components/sidebar/sidebar'
 import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
 import { Pencil1Icon, CheckIcon, Cross2Icon, PersonIcon, EnvelopeClosedIcon } from '@radix-ui/react-icons'
@@ -51,6 +52,9 @@ export default function ProfileClient({
 }: ProfileClientProps) {
   const router = useRouter()
   const { setBaseColor } = useBaseColor()
+  
+  // ✅ Use UI store for toast notifications
+  const { showToast } = useToasts()
 
   const [isEditing, setIsEditing] = useState(false)
   const [formData, setFormData] = useState({
@@ -61,8 +65,6 @@ export default function ProfileClient({
     totalBudgetLimit: totalBudgetLimit.toString()
   })
   const [savingProfile, setSavingProfile] = useState(false)
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
 
   useEffect(() => {
     const colorWithTransparency = `${PAGE_COLORS.profile}4D`
@@ -71,24 +73,22 @@ export default function ProfileClient({
 
   const handleSave = async () => {
     if (!formData.firstName?.trim() || !formData.lastName?.trim() || !formData.email?.trim()) {
-      setError('First name, last name, and email are required')
+      showToast('First name, last name, and email are required', 'error')
       return
     }
 
     if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      setError('Please enter a valid email address')
+      showToast('Please enter a valid email address', 'error')
       return
     }
 
     const budgetValue = parseFloat(formData.totalBudgetLimit)
     if (isNaN(budgetValue) || budgetValue < 0) {
-      setError('Please enter a valid total budget limit')
+      showToast('Please enter a valid total budget limit', 'error')
       return
     }
 
     setSavingProfile(true)
-    setError('')
-    setSuccess('')
 
     try {
       const result = await updateUserProfile({
@@ -100,21 +100,19 @@ export default function ProfileClient({
       })
 
       if (!result.success) {
-        setError(result.message || 'Failed to update profile')
+        showToast(result.message || 'Failed to update profile', 'error')
         return
       }
 
-      setSuccess('Profile updated successfully!')
+      showToast('Profile updated successfully!', 'success')
       setIsEditing(false)
       
       setTimeout(() => {
         router.refresh()
       }, 1000)
-      
-      setTimeout(() => setSuccess(''), 3000)
 
     } catch (err: any) {
-      setError(err.message || 'An unexpected error occurred')
+      showToast(err.message || 'An unexpected error occurred', 'error')
     } finally {
       setSavingProfile(false)
     }
@@ -129,8 +127,6 @@ export default function ProfileClient({
       totalBudgetLimit: totalBudgetLimit.toString()
     })
     setIsEditing(false)
-    setError('')
-    setSuccess('')
   }
 
   return (
@@ -154,19 +150,6 @@ export default function ProfileClient({
                   {customerId}
                 </div>
               </div>
-
-              {/* Error and Success Messages */}
-              {error && (
-                <div className={styles.alertError}>
-                  <p className={`${styles.alertText} ${styles.alertTextError}`}>{error}</p>
-                </div>
-              )}
-
-              {success && (
-                <div className={styles.alertSuccess}>
-                  <p className={`${styles.alertText} ${styles.alertTextSuccess}`}>{success}</p>
-                </div>
-              )}
 
               <Box className={styles.fieldContainer}>
                 <Text as="label" size="2" weight="medium" className={styles.labelWithIcon}>

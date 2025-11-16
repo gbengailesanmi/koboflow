@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { usePageSelection } from '@/hooks/use-session-storage'
+import { useSelectedItems, useFilters } from '@/store'
 import type { Transaction, Account } from '@money-mapper/shared'
 import PageLayoutWithSidebar from '@/app/components/sidebar/sidebar'
 import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
@@ -30,26 +30,33 @@ export default function TransactionsClient({
   const router = useRouter()
   const { setBaseColor } = useBaseColor()
 
-  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null)
+  // ✅ Use UI store for transaction selection
+  const { selectedTransactionId, setSelectedTransaction } = useSelectedItems()
   
-  const [filterAccountId, setFilterAccountId] = usePageSelection<string>(
-    'transactions',
-    customerId,
-    'filterAccount',
-    ''
-  )
-  const [searchTerm, setSearchTerm] = usePageSelection<string>(
-    'transactions',
-    customerId,
-    'searchTerm',
-    ''
-  )
-  const [selectedMonth, setSelectedMonth] = usePageSelection<string | null>(
-    'transactions',
-    customerId,
-    'selectedMonth',
-    null
-  )
+  // ✅ Use UI store for filters
+  const { accountFilter, searchQuery, setSearchQuery, addAccountFilter, removeAccountFilter } = useFilters()
+  
+  // Local state for selected month (specific to transactions page)
+  const [selectedMonth, setSelectedMonth] = useState<string | null>(null)
+  
+  // Get the actual transaction object from ID
+  const selectedTransaction = selectedTransactionId 
+    ? transactions.find(txn => txn.id === selectedTransactionId) || null
+    : null
+  
+  // Get the filter account ID (use first account in filter array)
+  const filterAccountId = accountFilter.length > 0 ? accountFilter[0] : ''
+  
+  const setFilterAccountId = (accountId: string) => {
+    if (accountId) {
+      if (!accountFilter.includes(accountId)) {
+        addAccountFilter(accountId)
+      }
+    } else {
+      // Clear all account filters
+      accountFilter.forEach(id => removeAccountFilter(id))
+    }
+  }
 
   useEffect(() => {
     const colorWithTransparency = `${PAGE_COLORS.transactions}4D`
@@ -69,10 +76,10 @@ export default function TransactionsClient({
   const filteredTransactions = useMemo(() => {
     return transactions.filter(txn => {
       const matchesAccount = !filterAccountId || txn.accountUniqueId === filterAccountId
-      const matchesSearch = txn.narration.toLowerCase().includes(searchTerm.toLowerCase())
+      const matchesSearch = txn.narration.toLowerCase().includes(searchQuery.toLowerCase())
       return matchesAccount && matchesSearch
     })
-  }, [filterAccountId, searchTerm, transactions])
+  }, [filterAccountId, searchQuery, transactions])
 
   const transactionsByMonth = useMemo(() => {
     const map = new Map<string, string[]>()
@@ -117,8 +124,8 @@ export default function TransactionsClient({
                 accounts={accounts}
                 filterAccountId={filterAccountId}
                 setFilterAccountId={setFilterAccountId}
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
+                searchTerm={searchQuery}
+                setSearchTerm={setSearchQuery}
               />
             </div>
           </div>
@@ -142,7 +149,7 @@ export default function TransactionsClient({
                   isDebit={isDebit}
                   amountClass={amountClass}
                   Icon={Icon}
-                  onClick={() => setSelectedTransaction(transaction)}
+                  onClick={() => setSelectedTransaction(transaction.id)}
                   cardRef={el => { transactionRefs.current[transaction.id] = el }}
                 />
               )

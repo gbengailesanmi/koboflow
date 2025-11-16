@@ -14,6 +14,7 @@
 
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
+import { useShallow } from 'zustand/react/shallow'
 
 // ============================================================================
 // TYPES
@@ -270,54 +271,66 @@ export const useUIStore = create<UIState>()(
 
 /**
  * Hook for selected items
+ * Uses useShallow to prevent infinite re-renders
  */
-export const useSelectedItems = () => useUIStore((state) => ({
-  selectedAccountId: state.selectedAccountId,
-  selectedTransactionId: state.selectedTransactionId,
-  selectedCategoryId: state.selectedCategoryId,
-  setSelectedAccount: state.setSelectedAccount,
-  setSelectedTransaction: state.setSelectedTransaction,
-  setSelectedCategory: state.setSelectedCategory,
-  clearSelections: state.clearSelections,
-}))
+export const useSelectedItems = () => useUIStore(
+  useShallow((state) => ({
+    selectedAccountId: state.selectedAccountId,
+    selectedTransactionId: state.selectedTransactionId,
+    selectedCategoryId: state.selectedCategoryId,
+    setSelectedAccount: state.setSelectedAccount,
+    setSelectedTransaction: state.setSelectedTransaction,
+    setSelectedCategory: state.setSelectedCategory,
+    clearSelections: state.clearSelections,
+  }))
+)
 
 /**
  * Hook for modal state
+ * Uses useShallow to prevent infinite re-renders
  */
-export const useModal = () => useUIStore((state) => ({
-  isOpen: state.isModalOpen,
-  type: state.modalType,
-  data: state.modalData,
-  openModal: state.openModal,
-  closeModal: state.closeModal,
-}))
+export const useModal = () => useUIStore(
+  useShallow((state) => ({
+    isOpen: state.isModalOpen,
+    type: state.modalType,
+    data: state.modalData,
+    openModal: state.openModal,
+    closeModal: state.closeModal,
+  }))
+)
 
 /**
  * Hook for filters
+ * Uses useShallow to prevent infinite re-renders
  */
-export const useFilters = () => useUIStore((state) => ({
-  dateRange: state.dateRange,
-  categoryFilter: state.categoryFilter,
-  accountFilter: state.accountFilter,
-  amountRangeFilter: state.amountRangeFilter,
-  searchQuery: state.searchQuery,
-  setDateRange: state.setDateRange,
-  addCategoryFilter: state.addCategoryFilter,
-  removeCategoryFilter: state.removeCategoryFilter,
-  setCategoryFilter: state.setCategoryFilter,
-  addAccountFilter: state.addAccountFilter,
-  removeAccountFilter: state.removeAccountFilter,
-  setAmountRangeFilter: state.setAmountRangeFilter,
-  setSearchQuery: state.setSearchQuery,
-  clearFilters: state.clearFilters,
-}))
+export const useFilters = () => useUIStore(
+  useShallow((state) => ({
+    dateRange: state.dateRange,
+    categoryFilter: state.categoryFilter,
+    accountFilter: state.accountFilter,
+    amountRangeFilter: state.amountRangeFilter,
+    searchQuery: state.searchQuery,
+    setDateRange: state.setDateRange,
+    addCategoryFilter: state.addCategoryFilter,
+    removeCategoryFilter: state.removeCategoryFilter,
+    setCategoryFilter: state.setCategoryFilter,
+    addAccountFilter: state.addAccountFilter,
+    removeAccountFilter: state.removeAccountFilter,
+    setAmountRangeFilter: state.setAmountRangeFilter,
+    setSearchQuery: state.setSearchQuery,
+    clearFilters: state.clearFilters,
+  }))
+)
 
 /**
  * Hook for toasts
+ * Uses useShallow to prevent infinite re-renders
  */
-export const useToasts = () => useUIStore((state) => ({
-  toasts: state.toasts,
-  showToast: state.showToast,
-  clearToast: state.clearToast,
-  clearAllToasts: state.clearAllToasts,
-}))
+export const useToasts = () => useUIStore(
+  useShallow((state) => ({
+    toasts: state.toasts,
+    showToast: state.showToast,
+    clearToast: state.clearToast,
+    clearAllToasts: state.clearAllToasts,
+  }))
+)

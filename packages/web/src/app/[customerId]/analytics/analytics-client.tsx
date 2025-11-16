@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { usePageSelection } from '@/hooks/use-session-storage'
+import { useSelectedItems, useToasts } from '@/store'
 import type { Account } from '@/types/account'
 import type { Transaction } from '@/types/transactions'
 import type { CustomCategory } from '@/types/custom-category'
@@ -51,19 +51,18 @@ export default function AnalyticsClient({
 }: AnalyticsClientProps) {
   const router = useRouter()
   const { setBaseColor } = useBaseColor()
+  
+  // ✅ Use UI store for account selection
+  const { selectedAccountId, setSelectedAccount } = useSelectedItems()
+  
+  // ✅ Use UI store for toast notifications
+  const { showToast } = useToasts()
 
-  const [selectedAccountId, setSelectedAccountId] = usePageSelection<string>(
-    'analytics',
-    customerId,
-    'selectedAccount',
-    'all'
-  )
-  const [timePeriod, setTimePeriod] = usePageSelection<'day' | 'month' | 'year'>(
-    'analytics',
-    customerId,
-    'timePeriod',
-    'month'
-  )
+  // Local state for time period (specific to analytics page)
+  const [timePeriod, setTimePeriod] = useState<'day' | 'month' | 'year'>('month')
+  
+  // Use 'all' as default if no account is selected
+  const effectiveAccountId = selectedAccountId || 'all'
 
   const categoryConfig = useMemo(() => getCategoryConfig(customCategories), [customCategories])
 
@@ -84,10 +83,14 @@ export default function AnalyticsClient({
       })
       
       if (response.ok) {
+        showToast('Category added successfully', 'success')
         router.refresh()
+      } else {
+        showToast('Failed to add category', 'error')
       }
     } catch (error) {
       console.error('Failed to add category:', error)
+      showToast('Failed to add category', 'error')
     }
   }
 
@@ -98,19 +101,23 @@ export default function AnalyticsClient({
       })
       
       if (response.ok) {
+        showToast('Category deleted successfully', 'success')
         router.refresh()
+      } else {
+        showToast('Failed to delete category', 'error')
       }
     } catch (error) {
       console.error('Failed to delete category:', error)
+      showToast('Failed to delete category', 'error')
     }
   }
 
   const processedTransactions = useMemo(() => {
     let filteredByAccount = transactions
     
-    if (selectedAccountId !== 'all') {
+    if (effectiveAccountId !== 'all') {
       filteredByAccount = transactions.filter(transaction => 
-        transaction.accountUniqueId === selectedAccountId
+        transaction.accountUniqueId === effectiveAccountId
       )
     }
     
@@ -124,7 +131,7 @@ export default function AnalyticsClient({
         date: new Date(transaction.bookedDate)
       }
     })
-  }, [transactions, selectedAccountId, customCategories])
+  }, [transactions, effectiveAccountId, customCategories])
 
   const filteredTransactions = useMemo(() => {
     const now = new Date()
@@ -259,8 +266,8 @@ export default function AnalyticsClient({
               Filter by Account:
             </Text>
             <Select.Root
-              value={selectedAccountId}
-              onValueChange={(value) => setSelectedAccountId(value)}
+              value={effectiveAccountId}
+              onValueChange={(value) => setSelectedAccount(value === 'all' ? null : value)}
             >
               <Select.Trigger className={styles.accountSelector} />
               <Select.Content>

@@ -24,10 +24,16 @@
  * // Client Component (uses UI store)
  * 'use client'
  * function DashboardClient({ accounts }) {
- *   const { selectedAccountId, setSelectedAccount } = useUIStore()
+ *   const { selectedAccountId, setSelectedAccount } = useSelectedItems()
  *   // Use accounts from props, UI state from Zustand
  * }
  * ```
  */
 
-export { useUIStore } from './ui-store'
+export { 
+  useUIStore,
+  useSelectedItems,
+  useModal,
+  useFilters,
+  useToasts,
+} from './ui-store'

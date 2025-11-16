@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { usePageSelection } from '@/hooks/use-session-storage'
+import { useSelectedItems } from '@/store'
 import Header from '@/app/components/header/header'
 import Footer from '@/app/components/footer/footer'
 import { Grid } from '@radix-ui/themes'
@@ -35,15 +35,11 @@ export default function DashboardClient({
   const router = useRouter()
   const [hasNavigated, setHasNavigated] = useState(false)
   
-  const [selectedAccount, setSelectedAccount] = usePageSelection<string | null>(
-    'dashboard',
-    customerId,
-    'selectedAccount',
-    null
-  )
+  // ✅ Use UI store for account selection
+  const { selectedAccountId, setSelectedAccount } = useSelectedItems()
 
-  const filteredTransactions = selectedAccount
-    ? transactions.filter(txn => txn.accountUniqueId === selectedAccount)
+  const filteredTransactions = selectedAccountId
+    ? transactions.filter(txn => txn.accountUniqueId === selectedAccountId)
     : transactions
 
   const processedTransactions = useMemo(() => {
@@ -107,7 +103,7 @@ export default function DashboardClient({
         <Grid className={styles.AccountsGrid}>
           <AccountsCarousel
             accounts={accounts}
-            selectedAccount={selectedAccount}
+            selectedAccount={selectedAccountId}
             setSelectedAccount={setSelectedAccount}
             onNavigate={() => setHasNavigated(true)}
           />
