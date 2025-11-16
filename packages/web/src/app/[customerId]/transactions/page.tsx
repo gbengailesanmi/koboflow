@@ -1,186 +1,32 @@
-'use client'
-
-import React, { useEffect, useState, useMemo, useRef } from 'react'
-import { useParams, useRouter } from 'next/navigation'
-import { getSession } from '@/lib/api-service'
-import { useEssentialData } from '@/hooks/use-data'
-import { usePageSelection } from '@/hooks/use-session-storage'
-import type { Transaction } from '@/types/transactions'
-import PageLayoutWithSidebar from '@/app/components/sidebar/sidebar'
-import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
+import { redirect } from 'next/navigation'
+import { getSession, getAccounts, getTransactions } from '@/lib/api-service'
 import { TransactionsSkeleton } from '@/app/components/skeletons/transactions-skeleton'
-import { Dialog } from '@radix-ui/themes'
-import { DownloadIcon, UploadIcon, ArrowLeftIcon } from '@radix-ui/react-icons'
-import styles from './transactions.module.css'
-import Footer from '@/app/components/footer/footer'
-import TransactionMonthPills from '@/app/components/transactions/transaction-month-pills/transaction-month-pills'
-import TransactionDetailsDialog from '@/app/components/transactions/transaction-details-dialog/transaction-details-dialog'
-import TransactionCard from '@/app/components/transactions/transaction-card/transaction-card'
-import TransactionsFilters from '@/app/components/transactions/transactions-filters/transactions-filters'
-import { useBaseColor } from '@/providers/base-colour-provider'
+import TransactionsClient from './transactions-client'
 
-export default function TransactionsPage() {
-  const params = useParams()
-  const router = useRouter()
-  const customerId = params.customerId as string
-  const { setBaseColor } = useBaseColor()
+interface TransactionsPageProps {
+  params: Promise<{ customerId: string }>
+}
 
-  const { accounts, transactions, isLoading: dataLoading } = useEssentialData()
+export default async function TransactionsPage({ params }: TransactionsPageProps) {
+  const { customerId } = await params
 
-  const [sessionLoading, setSessionLoading] = useState(true)
-  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null)
-  
-  const [filterAccountId, setFilterAccountId] = usePageSelection<string>(
-    'transactions',
-    customerId,
-    'filterAccount',
-    ''
-  )
-  const [searchTerm, setSearchTerm] = usePageSelection<string>(
-    'transactions',
-    customerId,
-    'searchTerm',
-    ''
-  )
-  const [selectedMonth, setSelectedMonth] = usePageSelection<string | null>(
-    'transactions',
-    customerId,
-    'selectedMonth',
-    null
-  )
+  // Parallel data fetching on server
+  const [session, accounts, transactions] = await Promise.all([
+    getSession(),
+    getAccounts(),
+    getTransactions()
+  ])
 
-  useEffect(() => {
-    const colorWithTransparency = `${PAGE_COLORS.transactions}4D`
-    setBaseColor(colorWithTransparency)
-  }, [setBaseColor])
-
-  useEffect(() => {
-    async function loadSession() {
-      try {
-        const sessionRes: any = await getSession()
-        if (!sessionRes || sessionRes.customerId !== customerId) {
-          router.push('/login')
-          return
-        }
-      } catch (error) {
-        console.error('Failed to load session:', error)
-        router.push('/login')
-      } finally {
-        setSessionLoading(false)
-      }
-    }
-
-    loadSession()
-  }, [customerId, router])
-
-  const loading = sessionLoading || dataLoading
-
-  const months = useMemo(() => {
-    const monthSet = new Set<string>()
-    ;(transactions || []).forEach(txn => {
-      const newDate = new Date(txn.bookedDate)
-      const newMonth = newDate.toISOString().slice(0, 7)
-      monthSet.add(newMonth)
-    })
-    return Array.from(monthSet).sort((a, b) => b.localeCompare(a))
-  }, [transactions])
-
-  const filteredTransactions = useMemo(() => {
-    return (transactions || []).filter(txn => {
-      const matchesAccount = !filterAccountId || txn.accountUniqueId === filterAccountId
-      const matchesSearch = txn.narration.toLowerCase().includes(searchTerm.toLowerCase())
-      return matchesAccount && matchesSearch
-    })
-  }, [filterAccountId, searchTerm, transactions])
-
-  const transactionsByMonth = useMemo(() => {
-    const map = new Map<string, string[]>()
-    filteredTransactions.forEach(txn => {
-      const month = new Date(txn.bookedDate).toISOString().slice(0, 7)
-      if (!map.has(month)) map.set(month, [])
-      map.get(month)!.push(txn.id)
-    })
-    return map
-  }, [filteredTransactions])
-
-  const transactionRefs = useRef<Record<string, HTMLDivElement | null>>({})
-  const transactionsWrapperRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (!selectedMonth || !transactionsWrapperRef.current) return
-    const txnsInMonth = transactionsByMonth.get(selectedMonth)
-
-    if (!txnsInMonth || txnsInMonth.length === 0) return
-    const lastTxnId = txnsInMonth[txnsInMonth.length - 1]
-    const lastTxnEl = transactionRefs.current[lastTxnId]
-
-    if (lastTxnEl && transactionsWrapperRef.current) {
-      const containerTop = transactionsWrapperRef.current.getBoundingClientRect().top
-      const elementTop = lastTxnEl.getBoundingClientRect().top
-      const scrollTop = transactionsWrapperRef.current.scrollTop
-      const offset = elementTop - containerTop + scrollTop
-
-      transactionsWrapperRef.current.scrollTo({ top: offset, behavior: 'smooth' })
-    }
-  }, [selectedMonth, transactionsByMonth])
-
-  if (loading) {
-    return <TransactionsSkeleton customerId={customerId} />
+  // Redirect if not authenticated or wrong user
+  if (!session || session.customerId !== customerId) {
+    redirect('/login')
   }
 
   return (
-    <PageLayoutWithSidebar customerId={customerId}>
-      <Dialog.Root onOpenChange={open => { if (!open) setSelectedTransaction(null) }}>
-        <div className={`${styles.PageGrid} page-gradient-background`}>
-          <div id="filters" className={styles.Header}>
-            <ArrowLeftIcon className="w-6 h-6" onClick={() => router.push(`/${customerId}/dashboard`)}/>
-            <h1 className="text-xl font-semibold mb-2">Transactions</h1>
-            <div className={styles.Filters}>
-              <TransactionsFilters
-                accounts={accounts || []}
-                filterAccountId={filterAccountId}
-                setFilterAccountId={setFilterAccountId}
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-              />
-            </div>
-          </div>
-
-          <TransactionMonthPills
-            months={months}
-            selectedMonth={selectedMonth}
-            setSelectedMonth={setSelectedMonth}
-          />
-
-          <div id="transaction-list" ref={transactionsWrapperRef} className={styles.TransactionsWrapper}>
-            {filteredTransactions.map(transaction => {
-              const isDebit = Number(transaction.amount) < 0
-              const amountClass = isDebit ? styles.DebitText : styles.CreditText
-              const Icon = isDebit ? UploadIcon : DownloadIcon
-
-              return (
-                <TransactionCard
-                  key={transaction.id}
-                  transaction={transaction}
-                  isDebit={isDebit}
-                  amountClass={amountClass}
-                  Icon={Icon}
-                  onClick={() => setSelectedTransaction(transaction)}
-                  cardRef={el => { transactionRefs.current[transaction.id] = el }}
-                />
-              )
-            })}
-          </div>
-          <Footer opacity={2} />
-        </div>
-
-        {selectedTransaction && (
-          <TransactionDetailsDialog
-            transaction={selectedTransaction}
-            onClose={() => setSelectedTransaction(null)}
-          />
-        )}
-      </Dialog.Root>
-    </PageLayoutWithSidebar>
+    <TransactionsClient
+      customerId={customerId}
+      accounts={accounts}
+      transactions={transactions}
+    />
   )
 }

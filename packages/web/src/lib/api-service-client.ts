@@ -58,11 +58,11 @@ async function fetchClient(endpoint: string, options: RequestInit = {}) {
 // ============================================================================
 
 export async function logoutClient() {
-  return fetchClient('/api/auth/logout', { method: 'POST' })
+  return logoutUser()
 }
 
 export async function logoutAllClient() {
-  return fetchClient('/api/auth/logout-all', { method: 'POST' })
+  return logoutAllSessions()
 }
 
 // ============================================================================
@@ -70,17 +70,11 @@ export async function logoutAllClient() {
 // ============================================================================
 
 export async function updateBudgetClient(customerId: string, data: any) {
-  return fetchClient(`/api/budget/${customerId}`, {
-    method: 'POST',
-    body: JSON.stringify(data),
-  })
+  return updateBudget(data)
 }
 
 export async function updateSettingsClient(customerId: string, data: any) {
-  return fetchClient(`/api/settings/${customerId}`, {
-    method: 'PATCH',
-    body: JSON.stringify(data),
-  })
+  return updateAppSettings(data)
 }
 
 export async function createTransactionClient(customerId: string, data: any) {
@@ -100,6 +94,49 @@ export async function updateTransactionClient(transactionId: string, data: any) 
 export async function deleteTransactionClient(transactionId: string) {
   return fetchClient(`/api/transactions/${transactionId}`, {
     method: 'DELETE',
+  })
+}
+
+// ============================================================================
+// MUTATIONS (Client-side only - invalidate cache via router.refresh())
+// ============================================================================
+
+export async function updateBudget(data: any) {
+  return fetchClient('/api/budget', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  })
+}
+
+export async function updateAppSettings(data: any) {
+  return fetchClient('/api/settings', {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  })
+}
+
+export async function updateUserProfile(data: any) {
+  return fetchClient('/api/user/profile', {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  })
+}
+
+export async function deleteUserAccount() {
+  return fetchClient('/api/user/account', {
+    method: 'DELETE',
+  })
+}
+
+export async function logoutUser() {
+  return fetchClient('/api/auth/logout', {
+    method: 'POST',
+  })
+}
+
+export async function logoutAllSessions() {
+  return fetchClient('/api/auth/logout-all', {
+    method: 'POST',
   })
 }
 
