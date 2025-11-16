@@ -2,6 +2,7 @@ import React, { Fragment } from 'react'
 import { Avatar, Separator } from '@radix-ui/themes'
 import { PlusIcon } from '@radix-ui/react-icons'
 import type { Account } from '@/types/account'
+import config from '@/config'
 import * as Styled from './styles'
 
 type AccountsRowProps = {
@@ -15,7 +16,7 @@ const AccountsRow = ({ accounts, onAccountSelect }: AccountsRowProps) => {
       <Styled.Button
         size="4"
         variant="soft"
-        onClick={() => window.open(process.env.NEXT_PUBLIC_ADD_ACCOUNT_URL, '_blank')}
+        onClick={() => window.open(config.ADD_ACCOUNT_URL, '_blank')}
         >
         <PlusIcon />
       </Styled.Button>

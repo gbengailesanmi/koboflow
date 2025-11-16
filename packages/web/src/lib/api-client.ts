@@ -1,6 +1,7 @@
 import { apiCacheManager } from './api-cache'
+import config from '../config'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+const BACKEND_URL = config.BACKEND_URL
 
 interface ApiResponse<T = any> {
   success: boolean
@@ -12,7 +13,7 @@ interface ApiResponse<T = any> {
 class ApiClient {
   private baseUrl: string
 
-  constructor(baseUrl: string = API_BASE_URL) {
+  constructor(baseUrl: string = BACKEND_URL) {
     this.baseUrl = baseUrl
   }
 

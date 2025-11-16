@@ -1,6 +1,7 @@
 
 
 import { cookies } from 'next/headers'
+import config from '../config'
 
 export interface SessionData {
   customerId: string
@@ -17,8 +18,8 @@ export async function getSession(): Promise<SessionData | null> {
       return null
     }
 
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
-    const response = await fetch(`${API_URL}/api/session`, {
+    const BACKEND_URL = config.BACKEND_URL
+    const response = await fetch(`${BACKEND_URL}/api/session`, {
       headers: {
         Cookie: `auth-token=${token}`,
       },

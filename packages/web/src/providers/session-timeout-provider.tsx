@@ -3,6 +3,7 @@
 import { useEffect, useRef, useCallback, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { clearAllAppSessionStorage } from '@/hooks/use-session-storage'
+import config from '@/config'
 
 const TIMEOUT_DURATION = 15 * 60 * 1000 // 15 minutes in milliseconds
 const WARNING_DURATION = 2 * 60 * 1000 // Show warning 2 minutes before timeout
@@ -42,8 +43,8 @@ export default function SessionTimeoutProvider({ children }: SessionTimeoutProvi
 
       setShowWarning(false)
 
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
-      await fetch(`${API_URL}/api/session`, { 
+      const BACKEND_URL = config.BACKEND_URL
+      await fetch(`${BACKEND_URL}/api/session`, { 
         method: 'DELETE',
         credentials: 'include', // Send cookies
       })

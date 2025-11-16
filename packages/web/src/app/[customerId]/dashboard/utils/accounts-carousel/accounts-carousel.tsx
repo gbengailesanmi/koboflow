@@ -11,6 +11,7 @@ import FormatCarouselContent from '../../utils/format-carousel-content/format-ca
 import generateHues from '@/helpers/generate-hues'
 import AccountsPills from '../../utils/account-pills/accounts-pills'
 import { useParams, useRouter } from 'next/navigation'
+import config from '@/config'
 import styles from './accounts-carousel.module.css'
 
 const HUE_LOCAL_STORAGE_KEY = 'accounts-carousel-slide-hue'
@@ -168,7 +169,7 @@ export default function AccountsCarousel({
             key: 'add',
             icon: <PlusIcon width="35" height="35" />,
             label: 'Add Account',
-            onClick: () => window.open(process.env.NEXT_PUBLIC_ADD_ACCOUNT_URL, '_blank'),
+            onClick: () => window.open(config.ADD_ACCOUNT_URL, '_blank'),
           },
           {
             key: 'details',

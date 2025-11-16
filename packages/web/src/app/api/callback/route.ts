@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import jwt from 'jsonwebtoken'
+import config from '@/config'
 
 export const dynamic = 'force-dynamic'
 
@@ -37,7 +38,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Forward the request to the backend
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+    const backendUrl = config.BACKEND_URL
     const backendResponse = await fetch(
       `${backendUrl}/api/callback?code=${code}${credentialsId ? `&credentialsId=${credentialsId}` : ''}`,
       {

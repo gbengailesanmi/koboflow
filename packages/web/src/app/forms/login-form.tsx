@@ -3,6 +3,7 @@
 import { useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { login } from '@/lib/api-service'
+import config from '@/config'
 
 export default function LoginForm({ isTimeout = false }: { isTimeout?: boolean }) {
   const [pending, setPending] = useState(false)
@@ -101,7 +102,7 @@ export default function LoginForm({ isTimeout = false }: { isTimeout?: boolean }
       <button
         type="button"
         onClick={() => {
-          const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+          const backendUrl = config.BACKEND_URL
           window.location.href = `${backendUrl}/api/auth/google`
         }}
         style={{

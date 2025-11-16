@@ -1,12 +1,13 @@
 import { DEFAULT_SETTINGS, SettingsUpdate } from './default-settings'
+import config from '../config'
 
 export type { SettingsUpdate }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+const BACKEND_URL = config.BACKEND_URL
 
 export async function getUserSettings(customerId: string) {
   try {
-    const response = await fetch(`${API_URL}/api/settings`, {
+    const response = await fetch(`${BACKEND_URL}/api/settings`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

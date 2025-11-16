@@ -4,6 +4,7 @@ import { useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { signup } from '@/lib/api-service'
 import { SignupFormSchema } from '@money-mapper/shared'
+import config from '@/config'
 
 export default function SignupForm() {
   const [pending, setPending] = useState(false)
@@ -158,7 +159,7 @@ export default function SignupForm() {
       <button
         type="button"
         onClick={() => {
-          const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+          const backendUrl = config.BACKEND_URL
           window.location.href = `${backendUrl}/api/auth/google`
         }}
         style={{

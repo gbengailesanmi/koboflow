@@ -14,8 +14,9 @@
 
 import { cookies } from 'next/headers'
 import type { UserProfile } from '@/types/user-profile'
+import config from '../config'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+const BACKEND_URL = config.BACKEND_URL
 
 // ============================================================================
 // TYPES
@@ -80,7 +81,7 @@ async function serverRequest<T>(
     const cookieStore = await cookies()
     const token = cookieStore.get('auth-token')?.value
 
-    const url = `${API_BASE_URL}${endpoint}`
+    const url = `${BACKEND_URL}${endpoint}`
     const config: RequestInit = {
       ...options,
       ...cacheStrategy, // Apply cache strategy

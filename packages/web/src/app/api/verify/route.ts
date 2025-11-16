@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
+import config from '@/config'
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+const BACKEND_URL = config.BACKEND_URL
 
 export async function GET(request: NextRequest) {
   const token = request.nextUrl.searchParams.get('token')
