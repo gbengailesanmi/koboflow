@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import jwt from 'jsonwebtoken'
-import config from '@/config'
+import { getSession, processTinkCallback } from '@/lib/api-service'
 
 export const dynamic = 'force-dynamic'
 
@@ -12,75 +11,56 @@ export async function GET(request: NextRequest) {
     const credentialsId = searchParams.get('credentialsId') || searchParams.get('credentials_id')
 
     if (!code) {
+      console.error('[Callback] Missing OAuth code')
       return NextResponse.redirect(new URL('/login?error=missing_code', request.url))
     }
 
-    // Get the auth token from cookies (note: cookie name is 'auth-token')
+    // Check if session cookie exists
     const cookieStore = await cookies()
-    const authToken = cookieStore.get('auth-token')?.value
+    const sessionId = cookieStore.get('session-id')?.value
 
-    if (!authToken) {
-      console.error('No auth-token cookie found. Available cookies:', cookieStore.getAll().map(c => c.name))
+    if (!sessionId) {
+      console.error('[Callback] No session-id cookie found. Available cookies:', cookieStore.getAll().map(c => c.name))
       return NextResponse.redirect(new URL('/login?error=not_authenticated', request.url))
     }
 
-    // Decode the JWT to get the customerId
-    let customerId: string | null = null
-    try {
-      const decoded = jwt.decode(authToken) as { customerId?: string }
-      customerId = decoded?.customerId || null
-    } catch (err) {
-      console.error('Failed to decode JWT:', err)
+    // ✅ Use existing api-service function to validate session
+    const session = await getSession()
+    
+    if (!session?.customerId) {
+      console.error('[Callback] Invalid or expired session')
+      return NextResponse.redirect(new URL('/login?error=invalid_session', request.url))
     }
 
-    if (!customerId) {
-      return NextResponse.redirect(new URL('/login?error=invalid_token', request.url))
-    }
+    console.log(`[Callback] Processing Tink callback for user: ${session.customerId}`)
 
-    // Forward the request to the backend
-    const backendUrl = config.BACKEND_URL
-    const backendResponse = await fetch(
-      `${backendUrl}/api/callback?code=${code}${credentialsId ? `&credentialsId=${credentialsId}` : ''}`,
-      {
-        method: 'GET',
-        headers: {
-          'Cookie': `auth-token=${authToken}`,
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-      }
-    )
+    // ✅ Use existing api-service function to process the callback
+    const result = await processTinkCallback(code)
 
-    const data = await backendResponse.json()
-
-    if (!backendResponse.ok) {
-      console.error('Backend callback error:', data)
+    if (!result.success) {
+      console.error('[Callback] Backend processing failed:', result.message)
       return NextResponse.redirect(
-        new URL(`/${customerId}/dashboard?error=import_failed`, request.url)
+        new URL(`/${session.customerId}/dashboard?error=import_failed&message=${encodeURIComponent(result.message || 'Unknown error')}`, request.url)
       )
     }
 
-    // Success! Redirect to dashboard with success message
+    // Success! Redirect to dashboard with import stats
+    console.log(`[Callback] Success - Accounts: ${result.accountsCount}, Transactions: ${result.transactionsCount}`)
+    
     return NextResponse.redirect(
-      new URL(`/${customerId}/dashboard?import=success&accounts=${data.accountsCount}&transactions=${data.transactionsCount}`, request.url)
+      new URL(
+        `/${session.customerId}/dashboard?import=success&accounts=${result.accountsCount || 0}&transactions=${result.transactionsCount || 0}`,
+        request.url
+      )
     )
   } catch (error) {
-    console.error('Callback proxy error:', error)
+    console.error('[Callback] Unexpected error:', error)
     
-    // Try to get customerId for redirect
-    const cookieStore = await cookies()
-    const authToken = cookieStore.get('auth-token')?.value
-    let customerId: string | null = null
+    // Try to get customerId from session for redirect
+    const session = await getSession().catch(() => null)
     
-    if (authToken) {
-      try {
-        const decoded = jwt.decode(authToken) as { customerId?: string }
-        customerId = decoded?.customerId || null
-      } catch {}
-    }
-    
-    const redirectUrl = customerId 
-      ? `/${customerId}/dashboard?error=callback_failed`
+    const redirectUrl = session?.customerId 
+      ? `/${session.customerId}/dashboard?error=callback_failed`
       : '/login?error=callback_failed'
     
     return NextResponse.redirect(new URL(redirectUrl, request.url))
