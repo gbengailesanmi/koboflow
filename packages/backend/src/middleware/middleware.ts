@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
-import { verify } from 'jsonwebtoken'
-import { connectDB } from '../db/mongo.js'
+import { getSession } from '../services/session'
 
 export interface AuthRequest extends Request {
   user?: {
@@ -10,46 +9,38 @@ export interface AuthRequest extends Request {
     firstName?: string
     lastName?: string
   }
+  sessionId?: string
 }
 
 export const authMiddleware = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const authHeader = req.headers.authorization
-    const token = authHeader?.startsWith("Bearer ")
-      ? authHeader.slice(7)
-      : req.cookies?.["auth-token"]
+    // Get session ID from cookie
+    const sessionId = req.cookies?.['session-id']
 
-    if (!token) {
+    if (!sessionId) {
       return res.status(401).json({ error: "Authentication required" })
     }
 
-    const secret = process.env.JWT_SECRET
-    if (!secret) throw new Error("JWT_SECRET not configured")
+    // Lookup session in database
+    const session = await getSession(sessionId)
 
-    const decoded = verify(token, secret) as {
-      userId: string
-      customerId: string
-      email: string
+    if (!session) {
+      return res.status(401).json({ error: "Invalid or expired session" })
     }
 
-    const db = await connectDB()
-    const user = await db.collection("users").findOne({ customerId: decoded.customerId })
-
-    if (!user) {
-      return res.status(401).json({ error: "User no longer exists" })
-    }
-
+    // Attach session data to request
     req.user = {
-      userId: user._id.toString(),
-      customerId: user.customerId,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName
+      userId: session.customerId, // Using customerId as userId for consistency
+      customerId: session.customerId,
+      email: session.email,
+      firstName: session.firstName,
+      lastName: session.lastName
     }
+    req.sessionId = sessionId
 
     next()
   } catch (err) {
     console.error("Auth error:", err)
-    return res.status(401).json({ error: "Invalid or expired token" })
+    return res.status(401).json({ error: "Authentication failed" })
   }
 }

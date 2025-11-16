@@ -8,7 +8,8 @@
     "dev": "nodemon --watch src --ext ts --exec ts-node src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "index:sessions": "ts-node src/db/indexes/session-indexer.ts"
   },
   "dependencies": {
     "@auth/mongodb-adapter": "^3.11.1",
@@ -19,7 +20,6 @@
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "jose": "^6.0.12",
-    "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.19.0",
     "mongoose": "^8.16.5",
     "resend": "^6.4.1",
@@ -32,7 +32,6 @@
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.3",
-    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^20",
     "@types/uuid": "^11.0.0",
     "nodemon": "^3.1.10",

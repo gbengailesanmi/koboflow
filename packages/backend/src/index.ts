@@ -2,6 +2,7 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
+import config from './config'
 import express, { Express, Request, Response } from 'express'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
@@ -13,11 +14,27 @@ import { settingsRoutes } from './routes/settings'
 import { categoryRoutes } from './routes/categories'
 import { sessionRoutes } from './routes/session'
 import { callbackRoutes } from './routes/callback'
+import { cleanupExpiredSessions } from './services/session'
 
 const app: Express = express()
-const PORT = process.env.PORT || 3001
+const BACKEND_PORT = config.BACKEND_PORT
 
-const allowedOrigins = (process.env.ALLOWED_ORIGINS)?.split(',').map(o => o.trim()) || ['http://localhost:3000']
+// Clean up expired sessions every hour
+setInterval(async () => {
+  try {
+    const deletedCount = await cleanupExpiredSessions()
+    console.log(`[Cleanup] Removed ${deletedCount} expired sessions`)
+  } catch (error) {
+    console.error('[Cleanup] Failed to clean up expired sessions:', error)
+  }
+}, 60 * 60 * 1000) // 1 hour in milliseconds
+
+// Run cleanup on startup
+cleanupExpiredSessions()
+  .then(count => console.log(`[Startup] Cleaned up ${count} expired sessions`))
+  .catch(err => console.error('[Startup] Failed to clean up sessions:', err))
+
+const allowedOrigins = config.ALLOWED_ORIGINS?.split(',').map(o => o.trim()) || ['http://localhost:3000']
 
 app.use(cors({
   origin: allowedOrigins,
@@ -61,12 +78,12 @@ app.use((err: any, _req: Request, res: Response, _next: any) => {
   console.error(err.stack)
   res.status(500).json({ 
     error: 'Something went wrong!',
-    message: process.env.NODE_ENV === 'development' ? err.message : undefined
+    message: config.IS_PRODUCTION ? undefined : err.message
   })
 })
 
-app.listen(PORT, () => {
-  console.log(`🚀 Backend server running on port ${PORT}`)
+app.listen(BACKEND_PORT, () => {
+  console.log(`🚀 Backend server running on port ${BACKEND_PORT}`)
 })
 
 export default app

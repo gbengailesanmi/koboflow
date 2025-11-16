@@ -1,7 +1,8 @@
 import { MongoClient } from 'mongodb'
+import config from '../config'
 
-const uri = process.env.MONGODB_URI
-const dbName = process.env.MONGO_DB_NAME
+const uri = config.MONGODB_URI
+const dbName = config.MONGO_DB_NAME
 
 if (!uri) {
   throw new Error('Missing MONGODB_URI')

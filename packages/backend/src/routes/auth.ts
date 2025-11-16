@@ -1,10 +1,12 @@
 import { Router } from 'express'
 import bcrypt from 'bcrypt'
-import jwt from 'jsonwebtoken'
 import { randomUUID } from 'crypto'
+import config from '../config'
 import { connectDB } from '../db/mongo'
 import { sendVerificationEmail } from '../services/email'
 import { createUserSettings } from '../services/settings'
+import { createSession, deleteSession, deleteAllUserSessions, getUserSessions } from '../services/session'
+import { authMiddleware, AuthRequest } from '../middleware/middleware'
 
 export const authRoutes = Router()
 
@@ -107,30 +109,29 @@ authRoutes.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Invalid credentials.' })
     }
 
-    const token = jwt.sign(
-      { 
-        userId: user._id.toString(),
-        customerId: user.customerId,
-        email: user.email 
-      },
-      process.env.JWT_SECRET!,
-      { expiresIn: '7d' }
+    // Create server-side session
+    const sessionId = await createSession(
+      user.customerId,
+      user.email,
+      user.firstName,
+      user.lastName,
+      req.headers['user-agent'],
+      req.ip
     )
 
-    const isProduction = process.env.NODE_ENV === 'production'
     const cookieOptions = {
       httpOnly: true,
-      secure: isProduction,
+      secure: config.IS_PRODUCTION,
       sameSite: 'lax' as const,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       path: '/'
     }
     
-    if (!isProduction) {
-      const cookieValue = `auth-token=${token}; Max-Age=604800; Path=/; Domain=localhost; HttpOnly; SameSite=Lax`
+    if (!config.IS_PRODUCTION) {
+      const cookieValue = `session-id=${sessionId}; Max-Age=604800; Path=/; Domain=localhost; HttpOnly; SameSite=Lax`
       res.setHeader('Set-Cookie', cookieValue)
     } else {
-      res.cookie('auth-token', token, cookieOptions)
+      res.cookie('session-id', sessionId, cookieOptions)
     }
 
     res.json({
@@ -148,19 +149,97 @@ authRoutes.post('/login', async (req, res) => {
   }
 })
 
-authRoutes.post('/logout', (req, res) => {
-  const isProduction = process.env.NODE_ENV === 'production'
-  res.clearCookie('auth-token', {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: 'lax',
-    path: '/'
-  })
-  
-  res.json({
-    success: true,
-    message: 'Logged out successfully'
-  })
+authRoutes.post('/logout', authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    const sessionId = req.sessionId
+
+    if (sessionId) {
+      // Delete session from database
+      await deleteSession(sessionId)
+    }
+
+    res.clearCookie('session-id', {
+      httpOnly: true,
+      secure: config.IS_PRODUCTION,
+      sameSite: 'lax',
+      path: '/'
+    })
+    
+    res.json({
+      success: true,
+      message: 'Logged out successfully'
+    })
+  } catch (error) {
+    console.error('Logout error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Logout failed'
+    })
+  }
+})
+
+// New endpoint: Logout from all devices
+authRoutes.post('/logout-all', authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    const customerId = req.user?.customerId
+
+    if (!customerId) {
+      return res.status(401).json({ message: 'Unauthorized' })
+    }
+
+    // Delete all sessions for this user
+    const deletedCount = await deleteAllUserSessions(customerId)
+
+    res.clearCookie('session-id', {
+      httpOnly: true,
+      secure: config.IS_PRODUCTION,
+      sameSite: 'lax',
+      path: '/'
+    })
+    
+    res.json({
+      success: true,
+      message: `Logged out from ${deletedCount} device(s)`
+    })
+  } catch (error) {
+    console.error('Logout all error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Logout failed'
+    })
+  }
+})
+
+// New endpoint: Get active sessions
+authRoutes.get('/sessions', authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    const customerId = req.user?.customerId
+
+    if (!customerId) {
+      return res.status(401).json({ message: 'Unauthorized' })
+    }
+
+    const sessions = await getUserSessions(customerId)
+    
+    res.json({
+      success: true,
+      sessions: sessions.map(session => ({
+        sessionId: session.sessionId,
+        createdAt: session.createdAt,
+        lastAccessedAt: session.lastAccessedAt,
+        expiresAt: session.expiresAt,
+        userAgent: session.userAgent,
+        ipAddress: session.ipAddress,
+        isCurrent: session.sessionId === req.sessionId
+      }))
+    })
+  } catch (error) {
+    console.error('Get sessions error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch sessions'
+    })
+  }
 })
 
 authRoutes.get('/verify-email', async (req, res) => {
@@ -589,13 +668,13 @@ authRoutes.patch('/user/:customerId', async (req, res) => {
 })
 
 authRoutes.get('/google', (req, res) => {
-  const clientId = process.env.GOOGLE_CLIENT_ID
-  const redirectUri = process.env.GOOGLE_REDIRECT_URI || 'http://localhost:3001/api/auth/google/callback'
+  const clientId = config.GOOGLE_CLIENT_ID
+  const redirectUri = config.GOOGLE_REDIRECT_URI
   
-  if (!clientId) {
+  if (!clientId || !redirectUri) {
     return res.status(500).json({ 
       success: false, 
-      message: 'Google OAuth not configured. Please set GOOGLE_CLIENT_ID in environment variables.' 
+      message: 'Google OAuth not configured. Please set GOOGLE_CLIENT_ID or GOOGLE_REDIRECT_URI in env config.' 
     })
   }
 
@@ -618,13 +697,21 @@ authRoutes.get('/google/callback', async (req, res) => {
     if (!code || typeof code !== 'string') {
       return res.redirect('/login?error=oauth_failed')
     }
+    
 
-    const clientId = process.env.GOOGLE_CLIENT_ID
-    const clientSecret = process.env.GOOGLE_CLIENT_SECRET
-    const redirectUri = process.env.GOOGLE_REDIRECT_URI || 'http://localhost:3001/api/auth/google/callback'
+    const clientId = config.GOOGLE_CLIENT_ID
+    const clientSecret = config.GOOGLE_CLIENT_SECRET
+    const redirectUri = config.GOOGLE_REDIRECT_URI
 
     if (!clientId || !clientSecret) {
       return res.redirect('/login?error=oauth_not_configured')
+    }
+
+    if (!redirectUri) {
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Set GOOGLE_REDIRECT_URI in environment config.' 
+      })
     }
 
     const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
@@ -686,33 +773,32 @@ authRoutes.get('/google/callback', async (req, res) => {
       user.emailVerified = true
     }
 
-    const token = jwt.sign(
-      { 
-        userId: user._id.toString(),
-        customerId: user.customerId,
-        email: user.email 
-      },
-      process.env.JWT_SECRET!,
-      { expiresIn: '7d' }
+    // Create server-side session for Google OAuth user
+    const sessionId = await createSession(
+      user.customerId,
+      user.email,
+      user.firstName,
+      user.lastName,
+      req.headers['user-agent'],
+      req.ip
     )
 
-    const isProduction = process.env.NODE_ENV === 'production'
     const cookieOptions = {
       httpOnly: true,
-      secure: isProduction,
+      secure: config.IS_PRODUCTION,
       sameSite: 'lax' as const,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       path: '/'
     }
 
-    if (!isProduction) {
-      const cookieValue = `auth-token=${token}; Max-Age=604800; Path=/; Domain=localhost; HttpOnly; SameSite=Lax`
+    if (!config.IS_PRODUCTION) {
+      const cookieValue = `session-id=${sessionId}; Max-Age=604800; Path=/; Domain=localhost; HttpOnly; SameSite=Lax`
       res.setHeader('Set-Cookie', cookieValue)
     } else {
-      res.cookie('auth-token', token, cookieOptions)
+      res.cookie('session-id', sessionId, cookieOptions)
     }
     
-    const frontendUrl = process.env.FRONTEND_URL
+    const frontendUrl = config.FRONTEND_URL
     
     res.send(`
       <!DOCTYPE html>
@@ -733,7 +819,7 @@ authRoutes.get('/google/callback', async (req, res) => {
     `)
   } catch (error) {
     console.error('Google OAuth callback error:', error)
-    const frontendUrl = process.env.FRONTEND_URL
+    const frontendUrl = config.FRONTEND_URL
     res.redirect(`${frontendUrl}/login?error=oauth_error`)
   }
 })

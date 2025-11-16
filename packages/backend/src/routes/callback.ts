@@ -4,6 +4,7 @@ import { getTinkTokens, getTinkAccountsData, getTinkTransactionsData } from '../
 import { bulkInsertTransactions } from '../db/helpers/insert-transactions'
 import { bulkInsertAccounts } from '../db/helpers/insert-accounts'
 import { connectDB } from '../db/mongo'
+import config from '../config'
 
 export const callbackRoutes = Router()
 
@@ -22,8 +23,8 @@ callbackRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
 
     const accessToken = await getTinkTokens({
       code,
-      uriBase: process.env.BASE_URI,
-      port: process.env.FRONTEND_PORT
+      uriBase: config.BASE_URI!,
+      port: config.FRONTEND_PORT!
     })
 
     const accounts = await getTinkAccountsData(accessToken, customerId)

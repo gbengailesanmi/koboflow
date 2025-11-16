@@ -1,17 +1,18 @@
 import { Resend } from 'resend'
+import config from '../config'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const resend = new Resend(config.RESEND_API_KEY)
 
 export async function sendVerificationEmail(
   email: string,
   name: string,
   verificationToken: string
 ) {
-  const verificationUrl = `${process.env.FRONTEND_URL}/api/verify?token=${verificationToken}`
+  const verificationUrl = `${config.FRONTEND_URL}/api/verify?token=${verificationToken}`
 
   try {
     const { data, error } = await resend.emails.send({
-      from: process.env.FROM_EMAIL || 'Money Mapper <onboarding@resend.dev>',
+      from: config.FROM_EMAIL || '',
       to: email,
       subject: 'Verify your Money Mapper account',
       html: `

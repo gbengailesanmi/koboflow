@@ -1,5 +1,6 @@
 import { formatAmount } from '../db/helpers/format-amount'
 import { getAccountUniqueId } from '../db/helpers/account-unique-id'
+import config from '../config'
 
 const tinkUrl = 'https://api.tink.com'
 
@@ -17,8 +18,8 @@ export async function getTinkTokens({ code, uriBase, port }: TinkTokenParams): P
       grant_type: 'authorization_code',
       code,
       redirect_uri: `${uriBase}:${port}/api/callback`,
-      client_id: process.env.TINK_CLIENT_ID!,
-      client_secret: process.env.TINK_CLIENT_SECRET!,
+      client_id: config.TINK_CLIENT_ID!,
+      client_secret: config.TINK_CLIENT_SECRET!,
     }),
   })
   

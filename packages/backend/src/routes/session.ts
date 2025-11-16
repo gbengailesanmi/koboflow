@@ -1,6 +1,8 @@
 import { Router } from 'express'
 import { authMiddleware, AuthRequest } from '../middleware/middleware'
 import { connectDB } from '../db/mongo'
+import { deleteSession } from '../services/session'
+import config from '../config'
 
 export const sessionRoutes = Router()
 
@@ -37,12 +39,17 @@ sessionRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
   }
 })
 
-sessionRoutes.delete('/', async (req, res) => {
+sessionRoutes.delete('/', authMiddleware, async (req: AuthRequest, res) => {
   try {
-    const isProduction = process.env.NODE_ENV === 'production'
-    res.clearCookie('auth-token', {
+    const sessionId = req.sessionId
+
+    if (sessionId) {
+      await deleteSession(sessionId)
+    }
+
+    res.clearCookie('session-id', {
       httpOnly: true,
-      secure: isProduction,
+      secure: config.IS_PRODUCTION,
       sameSite: 'lax',
       path: '/'
     })
