@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useMemo } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { apiClient } from '@/lib/api-client'
+import { getSession } from '@/lib/api-service'
 import { useEssentialData } from '@/hooks/use-data'
 import { usePageSelection } from '@/hooks/use-session-storage'
 import Header from '@/app/components/header/header'
@@ -16,13 +16,7 @@ import { MonthOnMonthChart } from '@/app/components/analytics/month-on-month-cha
 import { RecurringPayments } from '@/app/components/analytics/recurring-payments/recurring-payments'
 import { categorizeTransaction } from '@/app/components/analytics/utils/categorize-transaction'
 import { DashboardSkeleton } from '@/app/components/skeletons/dashboard-skeleton'
-
-type UserProfile = {
-  name: string
-  email: string
-  currency: string
-  totalBudgetLimit: number
-}
+import { UserProfile } from '@/types/user-profile'
 
 export default function Dashboard() {
   const params = useParams()
@@ -46,18 +40,18 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchSession = async () => {
       try {
-        const sessionRes: any = await apiClient.getSession()
+        const sessionRes: any = await getSession()
 
-        if (!sessionRes.success || sessionRes.user?.customerId !== customerId) {
+        if (!sessionRes || sessionRes.customerId !== customerId) {
           router.push('/login')
           return
         }
 
         const profileData = {
-          name: `${sessionRes.user.firstName} ${sessionRes.user.lastName}`,
-          email: sessionRes.user.email,
-          currency: sessionRes.user.currency || 'SEK',
-          totalBudgetLimit: sessionRes.user.totalBudgetLimit || 0,
+          name: `${sessionRes.firstName} ${sessionRes.lastName}`,
+          email: sessionRes.email,
+          currency: sessionRes.currency || 'SEK',
+          totalBudgetLimit: sessionRes.totalBudgetLimit || 0,
         }
         
         setProfile(profileData)

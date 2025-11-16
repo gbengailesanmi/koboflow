@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useMemo } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { apiClient } from '@/lib/api-client'
+import { getSession, getAccounts, getTransactions, getCategories } from '@/lib/api-service'
 import { usePageSelection } from '@/hooks/use-session-storage'
 import type { Account } from '@/types/account'
 import type { Transaction } from '@/types/transactions'
@@ -91,25 +91,25 @@ export default function AnalyticsPage() {
   useEffect(() => {
     async function loadData() {
       try {
-        const sessionRes: any = await apiClient.getSession()
-        if (!sessionRes.success || sessionRes.user.customerId !== customerId) {
+        const sessionRes: any = await getSession()
+        if (!sessionRes || sessionRes.customerId !== customerId) {
           router.push('/login')
           return
         }
 
         const [accountsRes, transactionsRes, categoriesRes]: any[] = await Promise.all([
-          apiClient.getAccounts(),
-          apiClient.getTransactions(),
-          apiClient.getCategories(),
+          getAccounts(),
+          getTransactions(),
+          getCategories(),
         ])
 
         const profileData = {
-          customerId: sessionRes.user.customerId,
-          email: sessionRes.user.email,
-          firstName: sessionRes.user.firstName,
-          lastName: sessionRes.user.lastName,
-          currency: sessionRes.user.currency || 'USD',
-          totalBudgetLimit: sessionRes.user.totalBudgetLimit || 0,
+          customerId: sessionRes.customerId,
+          email: sessionRes.email,
+          firstName: sessionRes.firstName,
+          lastName: sessionRes.lastName,
+          currency: sessionRes.currency || 'USD',
+          totalBudgetLimit: sessionRes.totalBudgetLimit || 0,
         }
 
         setProfile(profileData)

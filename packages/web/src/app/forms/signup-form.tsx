@@ -2,7 +2,7 @@
 
 import { useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
-import { apiClient } from '@/lib/api-client'
+import { signup } from '@/lib/api-service'
 import { SignupFormSchema } from '@money-mapper/shared'
 
 export default function SignupForm() {
@@ -39,7 +39,7 @@ export default function SignupForm() {
     }
 
     try {
-      const result: any = await apiClient.signup({
+      const result: any = await signup({
         firstName,
         lastName,
         email,

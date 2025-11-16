@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { apiClient } from '@/lib/api-client'
+import { getSession, getSettings, updateSettings, deleteAccount } from '@/lib/api-service'
 import { useLogout } from '@/hooks/use-zustand'
 import Sidebar from '@/app/components/sidebar/sidebar'
 import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
@@ -84,20 +84,20 @@ export default function SettingsPage() {
   useEffect(() => {
     async function loadData() {
       try {
-        const sessionRes: any = await apiClient.getSession()
-        if (!sessionRes.success || sessionRes.user.customerId !== customerId) {
+        const sessionRes: any = await getSession()
+        if (!sessionRes || sessionRes.customerId !== customerId) {
           router.push('/login')
           return
         }
 
-        const settingsRes: any = await apiClient.getSettings()
+        const settingsRes: any = await getSettings()
 
         const profile = {
-          customerId: sessionRes.user.customerId,
-          email: sessionRes.user.email,
-          firstName: sessionRes.user.firstName,
-          lastName: sessionRes.user.lastName,
-          currency: sessionRes.user.currency,
+          customerId: sessionRes.customerId,
+          email: sessionRes.email,
+          firstName: sessionRes.firstName,
+          lastName: sessionRes.lastName,
+          currency: sessionRes.currency,
         }
 
         const settings = settingsRes.settings || {}
@@ -152,7 +152,7 @@ export default function SettingsPage() {
   const savePreferences = async () => {
     setIsSaving(true)
     try {
-      await apiClient.updateSettings({
+      await updateSettings({
         customerId,
         theme,
         accentColor,
@@ -183,7 +183,7 @@ export default function SettingsPage() {
 
   const handleDeleteAccount = async () => {
     try {
-      await apiClient.deleteAccount(customerId)
+      await deleteAccount(customerId)
       router.push('/signup')
     } catch (error) {
       console.error('Failed to delete account:', error)

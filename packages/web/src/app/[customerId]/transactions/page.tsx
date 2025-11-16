@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useMemo, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { apiClient } from '@/lib/api-client'
+import { getSession } from '@/lib/api-service'
 import { useEssentialData } from '@/hooks/use-data'
 import { usePageSelection } from '@/hooks/use-session-storage'
 import type { Transaction } from '@/types/transactions'
@@ -57,8 +57,8 @@ export default function TransactionsPage() {
   useEffect(() => {
     async function loadSession() {
       try {
-        const sessionRes: any = await apiClient.getSession()
-        if (!sessionRes.success || sessionRes.user.customerId !== customerId) {
+        const sessionRes: any = await getSession()
+        if (!sessionRes || sessionRes.customerId !== customerId) {
           router.push('/login')
           return
         }

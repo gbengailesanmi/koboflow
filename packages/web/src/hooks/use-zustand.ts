@@ -1,6 +1,6 @@
 import { useEffect, useCallback } from 'react'
 import { useAppStore } from '@/store'
-import { apiClient } from '@/lib/api-client'
+import { getAccounts, getTransactions, getBudget, getCategories, getSession, logout as apiLogout, refreshAccounts as apiRefreshAccounts } from '@/lib/api-service'
 import { clearAllAppSessionStorage } from './use-session-storage'
 import type { Account } from '@/types/account'
 import type { Transaction } from '@/types/transactions'
@@ -23,7 +23,7 @@ export function useAccounts() {
     try {
       setLoading(true)
       setError(null)
-      const response = await apiClient.getAccounts() as { accounts: Account[] }
+      const response = await getAccounts() as { accounts: Account[] }
       setAccounts(response.accounts)
     } catch (err: any) {
       console.error('Failed to fetch accounts:', err)
@@ -68,7 +68,7 @@ export function useTransactions() {
     try {
       setLoading(true)
       setError(null)
-      const response = await apiClient.getTransactions() as { transactions: Transaction[] }
+      const response = await getTransactions() as { transactions: Transaction[] }
       setTransactions(response.transactions)
     } catch (err: any) {
       console.error('Failed to fetch transactions:', err)
@@ -113,7 +113,7 @@ export function useBudget() {
     try {
       setLoading(true)
       setError(null)
-      const response = await apiClient.getBudget() as Budget
+      const response = await getBudget() as Budget
       setBudget(response)
     } catch (err: any) {
       console.error('Failed to fetch budget:', err)
@@ -159,12 +159,9 @@ export function useSession() {
     try {
       setLoading(true)
       setError(null)
-      const response = await apiClient.getSession() as {
-        success: boolean
-        user: User
-      }
-      if (response.success && response.user) {
-        setUser(response.user)
+      const sessionData = await getSession()
+      if (sessionData) {
+        setUser(sessionData)
       }
     } catch (err: any) {
       console.error('Failed to fetch session:', err)
@@ -207,7 +204,7 @@ export function useLogout() {
 
   const logout = useCallback(async () => {
     try {
-      await apiClient.logout()
+      await apiLogout()
       
       // Clear all store data
       clearAccounts()
@@ -238,14 +235,14 @@ export function useRefreshAccounts() {
 
   const refreshAccounts = useCallback(async () => {
     try {
-      const response = await apiClient.refreshAccounts() as { accounts: Account[] }
+      const response = await apiRefreshAccounts() as { accounts: Account[] }
       setAccounts(response.accounts)
       
       // Also refetch transactions and budget since they may have changed
-      const transactionsResponse = await apiClient.getTransactions() as { transactions: Transaction[] }
+      const transactionsResponse = await getTransactions() as { transactions: Transaction[] }
       setTransactions(transactionsResponse.transactions)
       
-      const budgetResponse = await apiClient.getBudget() as Budget
+      const budgetResponse = await getBudget() as Budget
       setBudget(budgetResponse)
       
       return response

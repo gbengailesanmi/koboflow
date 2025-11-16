@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { apiClient } from '@/lib/api-client'
+import { getSession, getBudget, getSettings, updateProfile } from '@/lib/api-service'
 import Sidebar from '@/app/components/sidebar/sidebar'
 import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
 import { Pencil1Icon, CheckIcon, Cross2Icon, PersonIcon, EnvelopeClosedIcon } from '@radix-ui/react-icons'
@@ -67,23 +67,23 @@ export default function ProfilePage() {
   useEffect(() => {
     async function loadData() {
       try {
-        const sessionRes: any = await apiClient.getSession()
-        if (!sessionRes.success || sessionRes.user.customerId !== customerId) {
+        const sessionRes: any = await getSession()
+        if (!sessionRes || sessionRes.customerId !== customerId) {
           router.push('/login')
           return
         }
 
         const [budgetRes, settingsRes]: any[] = await Promise.all([
-          apiClient.getBudget(),
-          apiClient.getSettings(),
+          getBudget(),
+          getSettings(),
         ])
 
         const profile = {
-          customerId: sessionRes.user.customerId,
-          email: sessionRes.user.email,
-          firstName: sessionRes.user.firstName,
-          lastName: sessionRes.user.lastName,
-          currency: sessionRes.user.currency,
+          customerId: sessionRes.customerId,
+          email: sessionRes.email,
+          firstName: sessionRes.firstName,
+          lastName: sessionRes.lastName,
+          currency: sessionRes.currency,
         }
 
         setData({
@@ -154,7 +154,7 @@ export default function ProfilePage() {
     setSuccess('')
 
     try {
-      const result: any = await apiClient.updateProfile(customerId, {
+      const result: any = await updateProfile(customerId, {
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
         email: formData.email.trim(),

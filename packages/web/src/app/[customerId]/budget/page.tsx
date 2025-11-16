@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useMemo, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { apiClient } from '@/lib/api-client'
+import { getSession, getTransactions, getCategories, getBudget, getSettings, createBudget } from '@/lib/api-service'
 import Sidebar from '@/app/components/sidebar/sidebar'
 import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
 import { BudgetSkeleton } from '@/app/components/skeletons/budget-skeleton'
@@ -68,17 +68,17 @@ export default function BudgetPage() {
   useEffect(() => {
     async function loadData() {
       try {
-        const sessionRes: any = await apiClient.getSession()
-        if (!sessionRes.success || sessionRes.user.customerId !== customerId) {
+        const sessionRes: any = await getSession()
+        if (!sessionRes || sessionRes.customerId !== customerId) {
           router.push('/login')
           return
         }
 
         const [transactionsRes, categoriesRes, budgetRes, settingsRes]: any[] = await Promise.all([
-          apiClient.getTransactions(),
-          apiClient.getCategories(),
-          apiClient.getBudget(),
-          apiClient.getSettings(),
+          getTransactions(),
+          getCategories(),
+          getBudget(),
+          getSettings(),
         ])
 
         setData({
@@ -87,11 +87,11 @@ export default function BudgetPage() {
           budget: budgetRes || null,
           settings: settingsRes.settings || {},
           profile: {
-            customerId: sessionRes.user.customerId,
-            email: sessionRes.user.email,
-            firstName: sessionRes.user.firstName,
-            lastName: sessionRes.user.lastName,
-            currency: sessionRes.user.currency,
+            customerId: sessionRes.customerId,
+            email: sessionRes.email,
+            firstName: sessionRes.firstName,
+            lastName: sessionRes.lastName,
+            currency: sessionRes.currency,
           },
         })
         
@@ -127,7 +127,7 @@ export default function BudgetPage() {
   const saveBudget = useCallback(async (newBudget: BudgetData) => {
     try {
       setIsSaving(true)
-      await apiClient.createBudget({
+      await createBudget({
         totalBudgetLimit: newBudget.totalBudgetLimit,
         categories: newBudget.categories,
         period: newBudget.period

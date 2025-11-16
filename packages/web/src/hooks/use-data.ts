@@ -9,7 +9,7 @@
  */
 
 import { useEffect, useCallback } from 'react'
-import { apiClient } from '@/lib/api-client'
+import { getAccounts, getTransactions, getBudget, getCategories, getSettings } from '@/lib/api-service'
 import { useAppStore } from '@/store'
 import type { Account } from '@/types/account'
 import type { Transaction } from '@/types/transactions'
@@ -36,7 +36,7 @@ export function useAccountsData() {
     setError(null)
 
     try {
-      const response: any = await apiClient.getAccounts()
+      const response: any = await getAccounts()
       const accountsData = response.accounts || []
       setAccounts(accountsData)
       return accountsData
@@ -87,7 +87,7 @@ export function useTransactionsData() {
     setError(null)
 
     try {
-      const response: any = await apiClient.getTransactions()
+      const response: any = await getTransactions()
       const transactionsData = response.transactions || []
       setTransactions(transactionsData)
       return transactionsData
@@ -133,7 +133,7 @@ export function useBudgetData() {
     }
 
     try {
-      const response: any = await apiClient.getBudget()
+      const response: any = await getBudget()
       if (response.budget) {
         setBudget(response.budget)
         return response.budget
@@ -177,7 +177,7 @@ export function useCategoriesData() {
     }
 
     try {
-      const response: any = await apiClient.getCategories()
+      const response: any = await getCategories()
       if (response.categories) {
         setCategories(response.categories)
         return response.categories

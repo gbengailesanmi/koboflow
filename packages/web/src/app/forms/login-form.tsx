@@ -2,7 +2,7 @@
 
 import { useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
-import { apiClient } from '@/lib/api-client'
+import { login } from '@/lib/api-service'
 
 export default function LoginForm({ isTimeout = false }: { isTimeout?: boolean }) {
   const [pending, setPending] = useState(false)
@@ -25,7 +25,7 @@ export default function LoginForm({ isTimeout = false }: { isTimeout?: boolean }
     }
 
     try {
-      const result: any = await apiClient.login({ email, password })
+      const result: any = await login({ email, password })
       
       if (result.success) {
         router.push(`/${result.user.customerId}/dashboard`)
