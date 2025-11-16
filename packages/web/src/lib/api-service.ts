@@ -1,1 +1,744 @@
-/** * CENTRALIZED API SERVICE (Server-side only) *  * This file handles ALL backend communication for Server Components. * For Client Components, use api-service-client.ts *  * Features: * - Next.js automatic caching with revalidation tags * - Server-side cookie handling * - Type-safe API responses * - Cache invalidation after mutations *  * ARCHITECTURE: * - Server Components call these functions directly * - Client Components use api-service-client.ts wrapper * - Zustand stores UI state only (no API data) * - Next.js handles all data caching */'use server'import { cookies } from 'next/headers'import { revalidateTag } from 'next/cache'import { redirect } from 'next/navigation'import config from '../config'const BACKEND_URL = config.BACKEND_URL// ============================================================================// TYPES// ============================================================================interface ApiResponse<T = any> {  success: boolean  message?: string  data?: T  [key: string]: any}export interface SessionData {  customerId: string  email: string  firstName?: string  lastName?: string}// ============================================================================// CACHE STRATEGIES// ============================================================================const CACHE = {  // Session data - cache for 5 minutes  SESSION: { next: { revalidate: 300, tags: ['session'] } },    // User settings - cache for 10 minutes  SETTINGS: { next: { revalidate: 600, tags: ['settings'] } },    // Bank accounts - cache for 5 minutes  ACCOUNTS: { next: { revalidate: 300, tags: ['accounts'] } },    // Transactions - cache for 2 minutes (updates frequently)  TRANSACTIONS: { next: { revalidate: 120, tags: ['transactions'] } },    // Budget - cache for 5 minutes  BUDGET: { next: { revalidate: 300, tags: ['budget'] } },    // Categories - cache for 10 minutes (rarely changes)  CATEGORIES: { next: { revalidate: 600, tags: ['categories'] } },    // No cache for mutations and auth  NONE: { cache: 'no-store' as const },} as const// ============================================================================// CORE REQUEST FUNCTION// ============================================================================/** * Makes server-side API requests with authentication * Automatically includes session-id cookie */async function request<T = any>(  endpoint: string,  options: RequestInit = {},  cacheStrategy?: any): Promise<T> {  try {    const cookieStore = await cookies()    const sessionId = cookieStore.get('session-id')?.value    const response = await fetch(`${BACKEND_URL}${endpoint}`, {      ...options,      ...cacheStrategy,      headers: {        'Content-Type': 'application/json',        ...(sessionId && { Cookie: `session-id=${sessionId}` }),        ...options.headers,      },      credentials: 'include',    })    if (!response.ok) {      if (response.status === 401) {        console.warn('[API Service] Unauthorized - session invalid')        redirect('/login')      }            const errorData = await response.json().catch(() => ({}))      throw new Error(errorData.message || `API Error: ${response.status}`)    }    return await response.json()  } catch (error) {    console.error(`[API Service] Request failed [${endpoint}]:`, error)    throw error  }}// ============================================================================// AUTHENTICATION & SESSION// ============================================================================/** * Get current user session * Cached for 5 minutes with 'session' tag */export async function getSession() {  console.log('[API Service] getSession')  return request('/api/session', {}, CACHE.SESSION)}/** * Login with credentials * No caching */export async function login(email: string, password: string) {  console.log('[API Service] login')  const result = await request('/api/auth/login', {    method: 'POST',    body: JSON.stringify({ email, password }),  }, CACHE.NONE)    // Invalidate session cache  revalidateTag('session')    return result}/** * Signup new user * No caching */export async function signup(data: {  firstName: string  lastName: string  email: string  password: string  passwordConfirm: string}) {  console.log('[API Service] signup')  return request('/api/auth/signup', {    method: 'POST',    body: JSON.stringify(data),  }, CACHE.NONE)}/** * Logout current session * No caching */export async function logout() {  console.log('[API Service] logout')  const result = await request('/api/auth/logout', {    method: 'POST',  }, CACHE.NONE)    // Invalidate all caches  revalidateTag('session')  revalidateTag('accounts')  revalidateTag('transactions')  revalidateTag('budget')  revalidateTag('settings')    return result}/** * Logout from all devices * No caching */export async function logoutAll() {  console.log('[API Service] logoutAll')  const result = await request('/api/auth/logout-all', {    method: 'POST',  }, CACHE.NONE)    // Invalidate all caches  revalidateTag('session')  revalidateTag('accounts')  revalidateTag('transactions')  revalidateTag('budget')  revalidateTag('settings')    return result}/** * Get all active sessions for current user * No caching (real-time data) */export async function getSessions() {  console.log('[API Service] getSessions')  return request('/api/auth/sessions', {}, CACHE.NONE)}// ============================================================================// USER & SETTINGS// ============================================================================/** * Get user settings * Cached for 10 minutes with 'settings' tag */export async function getSettings(customerId: string) {  console.log('[API Service] getSettings')  return request(`/api/settings/${customerId}`, {}, CACHE.SETTINGS)}/** * Update user settings * No caching, invalidates settings cache */export async function updateSettings(customerId: string, data: any) {  console.log('[API Service] updateSettings')  const result = await request(`/api/settings/${customerId}`, {    method: 'PATCH',    body: JSON.stringify(data),  }, CACHE.NONE)    // Invalidate settings cache  revalidateTag('settings')    return result}/** * Get user profile * No caching */export async function getUserProfile(customerId: string) {  console.log('[API Service] getUserProfile')  return request(`/api/auth/user/${customerId}`, {}, CACHE.NONE)}/** * Update user profile * No caching */export async function updateUserProfile(customerId: string, data: any) {  console.log('[API Service] updateUserProfile')  const result = await request(`/api/auth/user/${customerId}`, {    method: 'PATCH',    body: JSON.stringify(data),  }, CACHE.NONE)    // Invalidate session cache (user data changed)  revalidateTag('session')    return result}// ============================================================================// ACCOUNTS// ============================================================================/** * Get all accounts for a user * Cached for 5 minutes with 'accounts' tag */export async function getAccounts(customerId: string) {  console.log('[API Service] getAccounts')  return request(`/api/accounts/${customerId}`, {}, CACHE.ACCOUNTS)}/** * Sync accounts with Tink * No caching, invalidates accounts and transactions cache */export async function syncAccounts(customerId: string) {  console.log('[API Service] syncAccounts')  const result = await request(`/api/accounts/sync/${customerId}`, {    method: 'POST',  }, CACHE.NONE)    // Invalidate accounts and transactions  revalidateTag('accounts')  revalidateTag('transactions')    return result}// ============================================================================// TRANSACTIONS// ============================================================================/** * Get all transactions for a user * Cached for 2 minutes with 'transactions' tag */export async function getTransactions(customerId: string) {  console.log('[API Service] getTransactions')  return request(`/api/transactions/${customerId}`, {}, CACHE.TRANSACTIONS)}/** * Create new transaction * No caching, invalidates transactions cache */export async function createTransaction(customerId: string, data: any) {  console.log('[API Service] createTransaction')  const result = await request(`/api/transactions/${customerId}`, {    method: 'POST',    body: JSON.stringify(data),  }, CACHE.NONE)    // Invalidate transactions cache  revalidateTag('transactions')    return result}/** * Update transaction * No caching, invalidates transactions cache */export async function updateTransaction(transactionId: string, data: any) {  console.log('[API Service] updateTransaction')  const result = await request(`/api/transactions/${transactionId}`, {    method: 'PATCH',    body: JSON.stringify(data),  }, CACHE.NONE)    // Invalidate transactions cache  revalidateTag('transactions')    return result}/** * Delete transaction * No caching, invalidates transactions cache */export async function deleteTransaction(transactionId: string) {  console.log('[API Service] deleteTransaction')  const result = await request(`/api/transactions/${transactionId}`, {    method: 'DELETE',  }, CACHE.NONE)    // Invalidate transactions cache  revalidateTag('transactions')    return result}// ============================================================================// BUDGET// ============================================================================/** * Get budget for a user * Cached for 5 minutes with 'budget' tag */export async function getBudget(customerId: string) {  console.log('[API Service] getBudget')  return request(`/api/budget/${customerId}`, {}, CACHE.BUDGET)}/** * Create or update budget * No caching, invalidates budget cache */export async function updateBudget(customerId: string, data: any) {  console.log('[API Service] updateBudget')  const result = await request(`/api/budget/${customerId}`, {    method: 'POST',    body: JSON.stringify(data),  }, CACHE.NONE)    // Invalidate budget cache  revalidateTag('budget')    return result}// ============================================================================// CATEGORIES// ============================================================================/** * Get all categories * Cached for 10 minutes with 'categories' tag */export async function getCategories(customerId: string) {  console.log('[API Service] getCategories')  return request(`/api/categories/${customerId}`, {}, CACHE.CATEGORIES)}/** * Create custom category * No caching, invalidates categories cache */export async function createCategory(customerId: string, data: any) {  console.log('[API Service] createCategory')  const result = await request(`/api/categories/${customerId}`, {    method: 'POST',    body: JSON.stringify(data),  }, CACHE.NONE)    // Invalidate categories cache  revalidateTag('categories')    return result}/** * Update category * No caching, invalidates categories cache */export async function updateCategory(categoryId: string, data: any) {  console.log('[API Service] updateCategory')  const result = await request(`/api/categories/${categoryId}`, {    method: 'PATCH',    body: JSON.stringify(data),  }, CACHE.NONE)    // Invalidate categories cache  revalidateTag('categories')    return result}/** * Delete category * No caching, invalidates categories cache */export async function deleteCategory(categoryId: string) {  console.log('[API Service] deleteCategory')  const result = await request(`/api/categories/${categoryId}`, {    method: 'DELETE',  }, CACHE.NONE)    // Invalidate categories cache  revalidateTag('categories')    return result}// ============================================================================// ANALYTICS// ============================================================================/** * Get analytics data * No caching (calculated from transactions) */export async function getAnalytics(customerId: string, params?: {  startDate?: string  endDate?: string  groupBy?: 'day' | 'week' | 'month'}) {  console.log('[API Service] getAnalytics')  const queryParams = new URLSearchParams(params as any).toString()  const endpoint = `/api/analytics/${customerId}${queryParams ? `?${queryParams}` : ''}`  return request(endpoint, {}, CACHE.NONE)}// ============================================================================// TINK INTEGRATION// ============================================================================/** * Handle Tink callback * No caching */export async function handleTinkCallback(code: string, credentialsId?: string) {  console.log('[API Service] handleTinkCallback')  const params = new URLSearchParams({ code })  if (credentialsId) params.append('credentialsId', credentialsId)    return request(`/api/callback?${params.toString()}`, {}, CACHE.NONE)}
+
+'use server'
+
+import { cookies } from 'next/headers'
+import { revalidateTag, revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
+import config from '../config'
+import type {
+  Account,
+  Transaction,
+  Budget,
+  CustomCategory,
+  CategoryBudget,
+  BudgetPeriod,
+} from '@money-mapper/shared'
+import type { UserSettings } from './default-settings'
+
+// Session user type (from backend GET /api/session response)
+export interface SessionUser {
+  customerId: string
+  email: string
+  firstName: string
+  lastName: string
+  name: string
+  currency: string
+  totalBudgetLimit: number
+}
+
+// Settings type alias
+export type Settings = UserSettings
+
+const BACKEND_URL = config.BACKEND_URL
+
+// ============================================================================
+// Helper Functions
+// ============================================================================
+
+/**
+ * Server-side fetch helper with session cookie forwarding
+ * Automatically includes session-id cookie from Next.js server context
+ */
+async function serverFetch(url: string, options: RequestInit = {}): Promise<Response> {
+  const cookieStore = await cookies()
+  const sessionId = cookieStore.get('session-id')?.value
+
+  const headers = new Headers(options.headers)
+  
+  if (sessionId) {
+    headers.set('Cookie', `session-id=${sessionId}`)
+  }
+
+  // Default to JSON content type if body is present
+  if (options.body && !headers.has('Content-Type')) {
+    headers.set('Content-Type', 'application/json')
+  }
+
+  return fetch(url, {
+    ...options,
+    headers,
+    credentials: 'include',
+    // Next.js 15 caching - default to cache with revalidation
+    cache: options.cache || 'force-cache',
+  })
+}
+
+/**
+ * Parse JSON response with error handling
+ */
+async function parseResponse<T>(response: Response): Promise<T> {
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({
+      message: `HTTP ${response.status}: ${response.statusText}`,
+    }))
+    throw new Error(errorData.message || `Request failed: ${response.status}`)
+  }
+  return response.json()
+}
+
+// ============================================================================
+// Session / Authentication (GET)
+// ============================================================================
+
+/**
+ * Get current session user
+ * Cache tag: 'session'
+ * Revalidates: After login, logout, profile updates
+ */
+export async function getSession(): Promise<SessionUser | null> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/session`, {
+      next: { tags: ['session'] },
+    })
+
+    if (!response.ok) {
+      return null
+    }
+
+    const data = await parseResponse<{ success: boolean; user: SessionUser }>(response)
+    return data.success ? data.user : null
+  } catch (error) {
+    console.error('getSession error:', error)
+    return null
+  }
+}
+
+/**
+ * Get all active sessions for current user
+ * Cache tag: 'sessions-list'
+ * Revalidates: After logout, logout-all
+ */
+export async function getActiveSessions(): Promise<any[]> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/auth/sessions`, {
+      next: { tags: ['sessions-list'] },
+    })
+
+    const data = await parseResponse<{ success: boolean; sessions: any[] }>(response)
+    return data.sessions || []
+  } catch (error) {
+    console.error('getActiveSessions error:', error)
+    return []
+  }
+}
+
+// ============================================================================
+// Accounts (GET)
+// ============================================================================
+
+/**
+ * Get all accounts for current user
+ * Cache tag: 'accounts'
+ * Revalidates: After Tink callback imports new accounts
+ */
+export async function getAccounts(): Promise<Account[]> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/accounts`, {
+      next: { tags: ['accounts'] },
+    })
+
+    const data = await parseResponse<{ success: boolean; accounts: Account[] }>(response)
+    return data.accounts || []
+  } catch (error) {
+    console.error('getAccounts error:', error)
+    return []
+  }
+}
+
+// ============================================================================
+// Transactions (GET)
+// ============================================================================
+
+/**
+ * Get all transactions for current user
+ * Cache tag: 'transactions'
+ * Revalidates: After create, update, delete transaction, or Tink callback
+ */
+export async function getTransactions(): Promise<Transaction[]> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/transactions`, {
+      next: { tags: ['transactions'] },
+    })
+
+    const data = await parseResponse<{ success: boolean; transactions: Transaction[] }>(response)
+    return data.transactions || []
+  } catch (error) {
+    console.error('getTransactions error:', error)
+    return []
+  }
+}
+
+// ============================================================================
+// Budget (GET)
+// ============================================================================
+
+/**
+ * Get budget for current user
+ * Cache tag: 'budget'
+ * Revalidates: After budget POST or PATCH
+ */
+export async function getBudget(): Promise<Budget | null> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/budget`, {
+      next: { tags: ['budget'] },
+    })
+
+    const data = await parseResponse<Budget>(response)
+    return data
+  } catch (error) {
+    console.error('getBudget error:', error)
+    return null
+  }
+}
+
+// ============================================================================
+// Settings (GET)
+// ============================================================================
+
+/**
+ * Get settings for current user
+ * Cache tag: 'settings'
+ * Revalidates: After settings POST
+ */
+export async function getSettings(): Promise<Settings | null> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/settings`, {
+      next: { tags: ['settings'] },
+    })
+
+    const data = await parseResponse<{ success: boolean; settings: Settings }>(response)
+    return data.settings || null
+  } catch (error) {
+    console.error('getSettings error:', error)
+    return null
+  }
+}
+
+// ============================================================================
+// Categories (GET)
+// ============================================================================
+
+/**
+ * Get custom categories for current user
+ * Cache tag: 'categories'
+ * Revalidates: After category POST, PATCH, DELETE
+ */
+export async function getCustomCategories(): Promise<CustomCategory[]> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/categories`, {
+      next: { tags: ['categories'] },
+    })
+
+    const data = await parseResponse<CustomCategory[]>(response)
+    return data || []
+  } catch (error) {
+    console.error('getCustomCategories error:', error)
+    return []
+  }
+}
+
+// ============================================================================
+// Authentication Mutations (Server Actions)
+// ============================================================================
+
+/**
+ * Login user
+ * Revalidates: 'session' tag
+ */
+export async function login(email: string, password: string): Promise<{
+  success: boolean
+  message?: string
+  requiresVerification?: boolean
+  user?: any
+}> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/auth/login`, {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+      cache: 'no-store',
+    })
+
+    const data = await response.json()
+
+    if (data.success) {
+      revalidateTag('session')
+    }
+
+    return data
+  } catch (error: any) {
+    console.error('login error:', error)
+    return {
+      success: false,
+      message: error.message || 'Login failed',
+    }
+  }
+}
+
+/**
+ * Signup new user
+ * No revalidation needed (user must verify email first)
+ */
+export async function signup(userData: {
+  firstName: string
+  lastName: string
+  email: string
+  password: string
+  passwordConfirm: string
+}): Promise<{
+  success: boolean
+  message?: string
+  requiresVerification?: boolean
+}> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/auth/signup`, {
+      method: 'POST',
+      body: JSON.stringify(userData),
+      cache: 'no-store',
+    })
+
+    return await response.json()
+  } catch (error: any) {
+    console.error('signup error:', error)
+    return {
+      success: false,
+      message: error.message || 'Signup failed',
+    }
+  }
+}
+
+/**
+ * Logout current session
+ * Revalidates: 'session', 'sessions-list' tags
+ */
+export async function logout(): Promise<{ success: boolean; message?: string }> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/auth/logout`, {
+      method: 'POST',
+      cache: 'no-store',
+    })
+
+    const data = await response.json()
+
+    if (data.success) {
+      revalidateTag('session')
+      revalidateTag('sessions-list')
+    }
+
+    return data
+  } catch (error: any) {
+    console.error('logout error:', error)
+    return {
+      success: false,
+      message: error.message || 'Logout failed',
+    }
+  }
+}
+
+/**
+ * Logout from all devices
+ * Revalidates: 'session', 'sessions-list' tags
+ */
+export async function logoutAll(): Promise<{ success: boolean; message?: string }> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/auth/logout-all`, {
+      method: 'POST',
+      cache: 'no-store',
+    })
+
+    const data = await response.json()
+
+    if (data.success) {
+      revalidateTag('session')
+      revalidateTag('sessions-list')
+    }
+
+    return data
+  } catch (error: any) {
+    console.error('logoutAll error:', error)
+    return {
+      success: false,
+      message: error.message || 'Logout all failed',
+    }
+  }
+}
+
+/**
+ * Verify email with token
+ * Revalidates: 'session' tag
+ */
+export async function verifyEmail(token: string): Promise<{
+  success: boolean
+  message?: string
+  customerId?: string
+}> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/auth/verify-email`, {
+      method: 'POST',
+      body: JSON.stringify({ token }),
+      cache: 'no-store',
+    })
+
+    const data = await response.json()
+
+    if (data.success) {
+      revalidateTag('session')
+    }
+
+    return data
+  } catch (error: any) {
+    console.error('verifyEmail error:', error)
+    return {
+      success: false,
+      message: error.message || 'Email verification failed',
+    }
+  }
+}
+
+/**
+ * Resend verification email
+ */
+export async function resendVerificationEmail(email: string): Promise<{
+  success: boolean
+  message?: string
+}> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/auth/resend-verification`, {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+      cache: 'no-store',
+    })
+
+    return await response.json()
+  } catch (error: any) {
+    console.error('resendVerificationEmail error:', error)
+    return {
+      success: false,
+      message: error.message || 'Failed to resend verification email',
+    }
+  }
+}
+
+// ============================================================================
+// Budget Mutations (Server Actions)
+// ============================================================================
+
+/**
+ * Create or fully replace budget
+ * Revalidates: 'budget', 'session' tags
+ */
+export async function updateBudget(
+  totalBudgetLimit: number,
+  categories: CategoryBudget[],
+  period?: BudgetPeriod
+): Promise<{ success: boolean; message?: string }> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/budget`, {
+      method: 'POST',
+      body: JSON.stringify({ totalBudgetLimit, categories, period }),
+      cache: 'no-store',
+    })
+
+    const data = await response.json()
+
+    if (data.success) {
+      revalidateTag('budget')
+      revalidateTag('session') // User's totalBudgetLimit may have changed
+    }
+
+    return data
+  } catch (error: any) {
+    console.error('updateBudget error:', error)
+    return {
+      success: false,
+      message: error.message || 'Failed to update budget',
+    }
+  }
+}
+
+/**
+ * Partially update budget (PATCH)
+ * Revalidates: 'budget', 'session' tags
+ */
+export async function patchBudget(updates: {
+  totalBudgetLimit?: number
+  categories?: CategoryBudget[]
+  period?: BudgetPeriod
+}): Promise<{ success: boolean; message?: string }> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/budget`, {
+      method: 'PATCH',
+      body: JSON.stringify(updates),
+      cache: 'no-store',
+    })
+
+    const data = await response.json()
+
+    if (data.success) {
+      revalidateTag('budget')
+      revalidateTag('session')
+    }
+
+    return data
+  } catch (error: any) {
+    console.error('patchBudget error:', error)
+    return {
+      success: false,
+      message: error.message || 'Failed to patch budget',
+    }
+  }
+}
+
+// ============================================================================
+// Settings Mutations (Server Actions)
+// ============================================================================
+
+/**
+ * Update user settings
+ * Revalidates: 'settings', 'session' tags
+ */
+export async function updateSettings(settings: Partial<Settings>): Promise<{
+  success: boolean
+  message?: string
+  settings?: Settings
+}> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/settings`, {
+      method: 'POST',
+      body: JSON.stringify(settings),
+      cache: 'no-store',
+    })
+
+    const data = await response.json()
+
+    if (data.success) {
+      revalidateTag('settings')
+      revalidateTag('session') // Currency may have changed
+    }
+
+    return data
+  } catch (error: any) {
+    console.error('updateSettings error:', error)
+    return {
+      success: false,
+      message: error.message || 'Failed to update settings',
+    }
+  }
+}
+
+/**
+ * Delete user account and all associated data
+ * Revalidates: All tags
+ */
+export async function deleteAccount(): Promise<{ success: boolean; message?: string }> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/settings/account`, {
+      method: 'DELETE',
+      cache: 'no-store',
+    })
+
+    const data = await response.json()
+
+    if (data.success) {
+      // Revalidate everything since user is deleted
+      revalidateTag('session')
+      revalidateTag('accounts')
+      revalidateTag('transactions')
+      revalidateTag('budget')
+      revalidateTag('settings')
+      revalidateTag('categories')
+      revalidateTag('sessions-list')
+    }
+
+    return data
+  } catch (error: any) {
+    console.error('deleteAccount error:', error)
+    return {
+      success: false,
+      message: error.message || 'Failed to delete account',
+    }
+  }
+}
+
+// ============================================================================
+// Category Mutations (Server Actions)
+// ============================================================================
+
+/**
+ * Create custom category
+ * Revalidates: 'categories' tag
+ */
+export async function createCustomCategory(categoryData: {
+  name: string
+  keywords: string[]
+  color?: string
+}): Promise<CustomCategory | null> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/categories`, {
+      method: 'POST',
+      body: JSON.stringify(categoryData),
+      cache: 'no-store',
+    })
+
+    const data = await parseResponse<CustomCategory>(response)
+    revalidateTag('categories')
+    return data
+  } catch (error: any) {
+    console.error('createCustomCategory error:', error)
+    return null
+  }
+}
+
+/**
+ * Update custom category
+ * Revalidates: 'categories' tag
+ */
+export async function updateCustomCategory(
+  categoryId: string,
+  updates: { name?: string; keywords?: string[]; color?: string }
+): Promise<{ success: boolean }> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/categories/${categoryId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(updates),
+      cache: 'no-store',
+    })
+
+    const data = await parseResponse<{ success: boolean }>(response)
+    
+    if (data.success) {
+      revalidateTag('categories')
+    }
+
+    return data
+  } catch (error: any) {
+    console.error('updateCustomCategory error:', error)
+    return { success: false }
+  }
+}
+
+/**
+ * Delete custom category
+ * Revalidates: 'categories' tag
+ */
+export async function deleteCustomCategory(categoryId: string): Promise<{ success: boolean }> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/categories/${categoryId}`, {
+      method: 'DELETE',
+      cache: 'no-store',
+    })
+
+    const data = await parseResponse<{ success: boolean }>(response)
+    
+    if (data.success) {
+      revalidateTag('categories')
+    }
+
+    return data
+  } catch (error: any) {
+    console.error('deleteCustomCategory error:', error)
+    return { success: false }
+  }
+}
+
+// ============================================================================
+// User Profile Mutations (Server Actions)
+// ============================================================================
+
+/**
+ * Update user profile
+ * Revalidates: 'session', 'budget' tags
+ */
+export async function updateUserProfile(
+  customerId: string,
+  updates: {
+    firstName?: string
+    lastName?: string
+    email?: string
+    currency?: string
+    totalBudgetLimit?: number
+  }
+): Promise<{ success: boolean; message?: string }> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/auth/user/${customerId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(updates),
+      cache: 'no-store',
+    })
+
+    const data = await response.json()
+
+    if (data.success) {
+      revalidateTag('session')
+      if (updates.totalBudgetLimit !== undefined) {
+        revalidateTag('budget')
+      }
+    }
+
+    return data
+  } catch (error: any) {
+    console.error('updateUserProfile error:', error)
+    return {
+      success: false,
+      message: error.message || 'Failed to update profile',
+    }
+  }
+}
+
+/**
+ * Get user by customerId (public endpoint - used for OAuth flows)
+ */
+export async function getUserByCustomerId(customerId: string): Promise<{
+  success: boolean
+  user?: any
+  message?: string
+}> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/auth/user/${customerId}`, {
+      cache: 'no-store',
+    })
+
+    return await response.json()
+  } catch (error: any) {
+    console.error('getUserByCustomerId error:', error)
+    return {
+      success: false,
+      message: error.message || 'Failed to fetch user',
+    }
+  }
+}
+
+// ============================================================================
+// Tink Callback (Server Action)
+// ============================================================================
+
+/**
+ * Process Tink OAuth callback to import accounts and transactions
+ * Revalidates: 'accounts', 'transactions' tags
+ */
+export async function processTinkCallback(code: string): Promise<{
+  success: boolean
+  message?: string
+  accountsCount?: number
+  transactionsCount?: number
+}> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/callback?code=${code}`, {
+      cache: 'no-store',
+    })
+
+    const data = await response.json()
+
+    if (data.success) {
+      revalidateTag('accounts')
+      revalidateTag('transactions')
+    }
+
+    return data
+  } catch (error: any) {
+    console.error('processTinkCallback error:', error)
+    return {
+      success: false,
+      message: error.message || 'Failed to process bank data',
+    }
+  }
+}
