@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { updateUserProfile } from '@/lib/api-service-client'
+import { updateUserProfile } from '@/lib/api-service'
 import { useToasts } from '@/store'
 import Sidebar from '@/app/components/sidebar/sidebar'
 import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
@@ -91,12 +91,12 @@ export default function ProfileClient({
     setSavingProfile(true)
 
     try {
-      const result = await updateUserProfile({
+      const result = await updateUserProfile(customerId, {
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
         email: formData.email.trim(),
         currency: formData.currency,
-        totalBudgetLimit: budgetValue
+        totalBudgetLimit: budgetValue,
       })
 
       if (!result.success) {
@@ -107,9 +107,8 @@ export default function ProfileClient({
       showToast('Profile updated successfully!', 'success')
       setIsEditing(false)
       
-      setTimeout(() => {
-        router.refresh()
-      }, 1000)
+      // Router refresh will get fresh data from revalidated cache
+      router.refresh()
 
     } catch (err: any) {
       showToast(err.message || 'An unexpected error occurred', 'error')

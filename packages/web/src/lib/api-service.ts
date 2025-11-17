@@ -1,4 +1,3 @@
-
 'use server'
 
 import { cookies } from 'next/headers'
@@ -646,7 +645,7 @@ export async function deleteCustomCategory(categoryId: string): Promise<{ succes
 
 /**
  * Update user profile
- * Revalidates: 'session', 'budget' tags
+ * Revalidates: 'session', 'settings', 'budget' tags
  */
 export async function updateUserProfile(
   customerId: string,
@@ -659,22 +658,51 @@ export async function updateUserProfile(
   }
 ): Promise<{ success: boolean; message?: string }> {
   try {
-    const response = await serverFetch(`${BACKEND_URL}/api/auth/user/${customerId}`, {
-      method: 'PATCH',
-      body: JSON.stringify(updates),
-      cache: 'no-store',
-    })
+    // Separate settings and budget updates
+    const { totalBudgetLimit, ...settingsUpdates } = updates
 
-    const data = await response.json()
+    // Update settings if there are any
+    if (Object.keys(settingsUpdates).length > 0) {
+      const settingsResponse = await serverFetch(`${BACKEND_URL}/api/settings`, {
+        method: 'POST',
+        body: JSON.stringify(settingsUpdates),
+        cache: 'no-store',
+      })
 
-    if (data.success) {
-      revalidateTag('session')
-      if (updates.totalBudgetLimit !== undefined) {
-        revalidateTag('budget')
+      const settingsData = await settingsResponse.json()
+      if (!settingsData.success) {
+        return {
+          success: false,
+          message: settingsData.message || 'Failed to update profile settings',
+        }
       }
     }
 
-    return data
+    // Update budget if totalBudgetLimit is provided (use PATCH to only update limit)
+    if (totalBudgetLimit !== undefined) {
+      const budgetResponse = await serverFetch(`${BACKEND_URL}/api/budget`, {
+        method: 'PATCH',
+        body: JSON.stringify({ totalBudgetLimit }),
+        cache: 'no-store',
+      })
+
+      const budgetData = await budgetResponse.json()
+      if (!budgetData.success) {
+        return {
+          success: false,
+          message: budgetData.message || 'Failed to update budget',
+        }
+      }
+    }
+
+    // Revalidate cache
+    revalidateTag('session')
+    revalidateTag('settings')
+    if (totalBudgetLimit !== undefined) {
+      revalidateTag('budget')
+    }
+
+    return { success: true, message: 'Profile updated successfully' }
   } catch (error: any) {
     console.error('updateUserProfile error:', error)
     return {
