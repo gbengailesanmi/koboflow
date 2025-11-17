@@ -144,8 +144,8 @@ export async function updateAppSettings(data: any) {
 }
 
 export async function updateUserProfile(data: any) {
-  return fetchClient('/api/user/profile', {
-    method: 'PATCH',
+  return fetchClient('/api/settings', {
+    method: 'POST',
     body: JSON.stringify(data),
   })
 }
