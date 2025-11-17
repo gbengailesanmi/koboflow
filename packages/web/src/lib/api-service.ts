@@ -2,7 +2,6 @@
 
 import { cookies } from 'next/headers'
 import { revalidateTag, revalidatePath } from 'next/cache'
-import { redirect } from 'next/navigation'
 import config from '../config'
 import type {
   Account,

@@ -2,7 +2,7 @@
 
 import { useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
-import { signupClient } from '@/lib/api-service-client'
+import { signupClient } from '@/lib/api-client'
 import { SignupFormSchema } from '@money-mapper/shared'
 import config from '@/config'
 
