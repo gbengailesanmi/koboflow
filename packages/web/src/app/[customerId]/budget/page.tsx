@@ -38,7 +38,7 @@ export default async function BudgetPage({ params }: PageProps) {
       initialBudget={initialBudget}
       transactions={transactions}
       customCategories={customCategories || []}
-      currency={session.currency}
+      currency="GBP"
     />
   )
 }

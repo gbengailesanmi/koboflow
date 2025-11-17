@@ -19,7 +19,6 @@ export interface SessionUser {
   firstName: string
   lastName: string
   name: string
-  currency: string
   totalBudgetLimit: number
 }
 
@@ -509,7 +508,7 @@ export async function updateSettings(settings: Partial<Settings>): Promise<{
 
     if (data.success) {
       revalidateTag('settings')
-      revalidateTag('session') // Currency may have changed
+      revalidateTag('session')
     }
 
     return data
@@ -651,7 +650,6 @@ export async function updateUserProfile(
     firstName?: string
     lastName?: string
     email?: string
-    currency?: string
     totalBudgetLimit?: number
   }
 ): Promise<{ success: boolean; message?: string }> {

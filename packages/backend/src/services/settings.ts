@@ -1,7 +1,6 @@
 import { connectDB } from '../db/mongo.js'
 
 const defaultSettings = {
-  currency: 'USD',
   dateFormat: 'MM/dd/yyyy',
   theme: 'light',
   notifications: {

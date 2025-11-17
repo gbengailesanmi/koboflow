@@ -28,7 +28,6 @@ export default async function ProfilePage({ params }: PageProps) {
       firstName={session.firstName}
       lastName={session.lastName}
       email={session.email}
-      currency={session.currency}
       totalBudgetLimit={budgetRes?.totalBudgetLimit || 0}
     />
   )

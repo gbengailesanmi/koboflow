@@ -20,25 +20,11 @@ import {
 } from '@radix-ui/themes'
 import styles from './profile.module.css'
 
-const currencies = [
-  { code: 'USD', name: 'US Dollar', symbol: '$' },
-  { code: 'EUR', name: 'Euro', symbol: '€' },
-  { code: 'GBP', name: 'British Pound', symbol: '£' },
-  { code: 'JPY', name: 'Japanese Yen', symbol: '¥' },
-  { code: 'AUD', name: 'Australian Dollar', symbol: 'A$' },
-  { code: 'CAD', name: 'Canadian Dollar', symbol: 'C$' },
-  { code: 'CHF', name: 'Swiss Franc', symbol: 'Fr' },
-  { code: 'CNY', name: 'Chinese Yuan', symbol: '¥' },
-  { code: 'INR', name: 'Indian Rupee', symbol: '₹' },
-  { code: 'NGN', name: 'Nigerian Naira', symbol: '₦' },
-]
-
 type ProfileClientProps = {
   customerId: string
   firstName: string
   lastName: string
   email: string
-  currency: string
   totalBudgetLimit: number
 }
 
@@ -47,7 +33,6 @@ export default function ProfileClient({
   firstName,
   lastName,
   email,
-  currency,
   totalBudgetLimit
 }: ProfileClientProps) {
   const router = useRouter()
@@ -61,7 +46,6 @@ export default function ProfileClient({
     firstName,
     lastName,
     email,
-    currency,
     totalBudgetLimit: totalBudgetLimit.toString()
   })
   const [savingProfile, setSavingProfile] = useState(false)
@@ -95,7 +79,6 @@ export default function ProfileClient({
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
         email: formData.email.trim(),
-        currency: formData.currency,
         totalBudgetLimit: budgetValue,
       })
 
@@ -122,7 +105,6 @@ export default function ProfileClient({
       firstName,
       lastName,
       email,
-      currency,
       totalBudgetLimit: totalBudgetLimit.toString()
     })
     setIsEditing(false)
@@ -207,33 +189,6 @@ export default function ProfileClient({
                 )}
               </Box>
 
-              <Box id="currency-settings" className={styles.fieldContainer}>
-                <Text as="label" size="2" weight="medium" className={styles.labelWithIcon}>
-                  💰 Preferred Currency
-                </Text>
-                {isEditing ? (
-                  <Select.Root
-                    value={formData.currency}
-                    onValueChange={(value) => setFormData({ ...formData, currency: value })}
-                  >
-                    <Select.Trigger className={styles.input} />
-                    <Select.Content>
-                      {currencies.map((currency) => (
-                        <Select.Item key={currency.code} value={currency.code}>
-                          {currency.symbol} {currency.name} ({currency.code})
-                        </Select.Item>
-                      ))}
-                    </Select.Content>
-                  </Select.Root>
-                ) : (
-                  <div className={styles.displayField}>
-                    <Text className={styles.displayText}>
-                      {currencies.find(c => c.code === formData.currency)?.symbol} {currencies.find(c => c.code === formData.currency)?.name} ({formData.currency})
-                    </Text>
-                  </div>
-                )}
-              </Box>
-
               <Box className={styles.emailFieldContainer}>
                 <Text as="label" size="2" weight="medium" className={styles.labelWithIcon}>
                   📊 Monthly Budget
@@ -250,7 +205,7 @@ export default function ProfileClient({
                 ) : (
                   <div className={styles.displayField}>
                     <Text className={styles.displayText}>
-                      {currencies.find(c => c.code === formData.currency)?.symbol}{parseFloat(formData.totalBudgetLimit).toLocaleString()}
+                      £{parseFloat(formData.totalBudgetLimit).toLocaleString()}
                     </Text>
                   </div>
                 )}

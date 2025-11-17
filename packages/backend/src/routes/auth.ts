@@ -576,7 +576,7 @@ authRoutes.get('/user/:customerId', async (req, res) => {
 authRoutes.patch('/user/:customerId', async (req, res) => {
   try {
     const { customerId } = req.params
-    const { firstName, lastName, email, currency, totalBudgetLimit } = req.body
+    const { firstName, lastName, email, totalBudgetLimit } = req.body
 
     if (!customerId) {
       return res.status(400).json({
@@ -614,9 +614,6 @@ authRoutes.patch('/user/:customerId', async (req, res) => {
       updatedAt: new Date()
     }
 
-    if (currency) {
-      updateData.currency = currency
-    }
     if (totalBudgetLimit !== undefined && totalBudgetLimit >= 0) {
       updateData.totalBudgetLimit = totalBudgetLimit
     }

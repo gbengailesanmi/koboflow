@@ -28,7 +28,6 @@ export const DEFAULT_SETTINGS = {
   },
   
   display: {
-    currency: 'GBP' as string,
     dateFormat: 'DD/MM/YYYY' as string,
     timeFormat: '24h' as '12h' | '24h',
     compactView: false,

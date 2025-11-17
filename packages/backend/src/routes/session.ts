@@ -18,7 +18,6 @@ sessionRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
     const { customerId, email, firstName, lastName } = req.user
     
     const db = await connectDB()
-    const settings = await db.collection('settings').findOne({ customerId })
     const budget = await db.collection('budgets').findOne({ customerId })
     
     res.json({
@@ -29,7 +28,6 @@ sessionRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
         firstName: firstName || '',
         lastName: lastName || '',
         name: `${firstName || ''} ${lastName || ''}`.trim(),
-        currency: settings?.currency || 'SEK',
         totalBudgetLimit: budget?.totalBudgetLimit || 0
       }
     })
