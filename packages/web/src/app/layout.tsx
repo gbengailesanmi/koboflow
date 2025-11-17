@@ -1,4 +1,4 @@
-import AppProviders from '@/providers/app-providers'
+import ThemeProviders from '@/providers/theme-providers'
 import { Open_Sans } from 'next/font/google'
 
 import './globals.css'
@@ -10,13 +10,13 @@ const openSans = Open_Sans({
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={openSans.variable}>
-      <body suppressHydrationWarning>
-        <AppProviders>
+    <html lang="en" className={openSans.variable} suppressHydrationWarning>
+      <body>
+        <ThemeProviders>
           <div style={{ minHeight: '100vh', width: '100%' }}>
             {children}
           </div>
-        </AppProviders>
+        </ThemeProviders>
       </body>
     </html>
   )
