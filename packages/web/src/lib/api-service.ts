@@ -14,7 +14,6 @@ import type {
 } from '@money-mapper/shared'
 import type { UserSettings } from './default-settings'
 
-// Session user type (from backend GET /api/session response)
 export interface SessionUser {
   customerId: string
   email: string
