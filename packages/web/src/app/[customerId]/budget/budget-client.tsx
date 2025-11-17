@@ -15,6 +15,7 @@ import { formatCurrency } from '@/app/components/analytics/utils/format-currency
 import { getCategoryConfig } from '@/app/components/analytics/utils/category-config'
 import type { BudgetPeriod, BudgetPeriodType } from '@/types/budget'
 import { useBaseColor } from '@/providers/base-colour-provider'
+import { Dialog, Button, Flex, Text } from '@radix-ui/themes'
 import styles from './budget.module.css'
 
 type CategoryBudget = {
@@ -57,7 +58,7 @@ export default function BudgetClient({
   const [isRenamingCategory, setIsRenamingCategory] = useState<string | null>(null)
   const [renameValue, setRenameValue] = useState('')
   
-  const [isEditingPeriod, setIsEditingPeriod] = useState(false)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [periodType, setPeriodType] = useState<BudgetPeriodType>(initialBudget.period?.type || 'current-month')
   const [startDate, setStartDate] = useState(
     initialBudget.period?.startDate 
@@ -297,7 +298,7 @@ export default function BudgetClient({
     }
     setBudgetData(newBudget)
     saveBudget(newBudget)
-    setIsEditingPeriod(false)
+    setIsEditModalOpen(false)
     setIsEditing(null)
     setEditValue('')
   }
@@ -390,39 +391,41 @@ export default function BudgetClient({
 
   return (
     <Sidebar customerId={customerId}>
-      <div className={`${styles.container} page-gradient-background`}>
-        <div className={styles.wrapper}>
-          <div>
-            <PageHeader 
-              title="Budget" 
-              subtitle="Set spending limits and track your progress"
-            />
+      <Dialog.Root open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <div className={`${styles.container} page-gradient-background`}>
+          <div className={styles.wrapper}>
+            <div>
+              <PageHeader 
+                title="Budget" 
+                subtitle="Set spending limits and track your progress"
+              />
 
-            {/* Monthly Budget Card */}
-            <div id="monthly-budget" className={styles.card} style={{ margin: '0 16px 32px 16px' }}>
-              <div className={styles.cardHeader}>
-                <div className={styles.cardHeaderFlex}>
-                  <div className={styles.cardTitleSection}>
-                    <div className={styles.iconWrapper}>
-                      <span style={{ fontSize: '24px' }}>🎯</span>
+              {/* Monthly Budget Card */}
+              <div id="monthly-budget" className={styles.card} style={{ margin: '0 16px 32px 16px' }}>
+                <div className={styles.cardHeader}>
+                  <div className={styles.cardHeaderFlex}>
+                    <div className={styles.cardTitleSection}>
+                      <div className={styles.iconWrapper}>
+                        <span style={{ fontSize: '24px' }}>🎯</span>
+                      </div>
+                      <div>
+                        <h2 className={styles.cardTitle}>Budget</h2>
+                        <p className={styles.cardDescription}>{formatPeriod(budgetData.period)}</p>
+                      </div>
                     </div>
-                    <div>
-                      <h2 className={styles.cardTitle}>Budget</h2>
-                      <p className={styles.cardDescription}>{formatPeriod(budgetData.period)}</p>
-                    </div>
+                    <Dialog.Trigger>
+                      <button 
+                        className={styles.editButton}
+                        onClick={() => {
+                          setIsEditing('monthly')
+                          setEditValue(budgetData.totalBudgetLimit.toString())
+                        }}
+                      >
+                        ✏️ Edit
+                      </button>
+                    </Dialog.Trigger>
                   </div>
-                  <button 
-                    className={styles.editButton}
-                    onClick={() => {
-                      setIsEditing('monthly')
-                      setIsEditingPeriod(true)
-                      setEditValue(budgetData.totalBudgetLimit.toString())
-                    }}
-                  >
-                    ✏️ Edit
-                  </button>
                 </div>
-              </div>
               <div className={styles.cardContent}>
                 <div className={styles.budgetOverview}>
                   <div className={styles.budgetSection}>
@@ -479,6 +482,132 @@ export default function BudgetClient({
                 </div>
               </div>
             </div>
+
+            {/* Edit Budget Modal */}
+            <Dialog.Content maxWidth="500px">
+              <Dialog.Title>Edit Budget</Dialog.Title>
+              <Dialog.Description size="2" mb="4">
+                Update your budget amount and period settings
+              </Dialog.Description>
+
+              <Flex direction="column" gap="3">
+                {/* Budget Amount */}
+                <label>
+                  <Text as="div" size="2" mb="1" weight="bold">
+                    Budget Amount
+                  </Text>
+                  <input
+                    type="number"
+                    value={editValue}
+                    onChange={(e) => setEditValue(e.target.value)}
+                    placeholder="Enter budget amount"
+                    className={styles.formInput}
+                    autoFocus
+                  />
+                </label>
+
+                {/* Budget Period Type */}
+                <label>
+                  <Text as="div" size="2" mb="1" weight="bold">
+                    Budget Period
+                  </Text>
+                  <select
+                    value={periodType}
+                    onChange={(e) => setPeriodType(e.target.value as BudgetPeriodType)}
+                    className={styles.formSelect}
+                  >
+                    <option value="current-month">Current Month</option>
+                    <option value="custom-date">Custom Date Range</option>
+                    <option value="recurring">Recurring</option>
+                  </select>
+                </label>
+
+                {/* Custom Date Range */}
+                {periodType === 'custom-date' && (
+                  <>
+                    <label>
+                      <Text as="div" size="2" mb="1" weight="bold">
+                        Start Date
+                      </Text>
+                      <input
+                        type="date"
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                        className={styles.formInput}
+                      />
+                    </label>
+                    <label>
+                      <Text as="div" size="2" mb="1" weight="bold">
+                        End Date
+                      </Text>
+                      <input
+                        type="date"
+                        value={endDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                        className={styles.formInput}
+                      />
+                    </label>
+                  </>
+                )}
+
+                {/* Recurring Period */}
+                {periodType === 'recurring' && (
+                  <>
+                    <label>
+                      <Text as="div" size="2" mb="1" weight="bold">
+                        Start Date
+                      </Text>
+                      <input
+                        type="date"
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                        className={styles.formInput}
+                      />
+                    </label>
+                    <label>
+                      <Text as="div" size="2" mb="1" weight="bold">
+                        Repeat Every
+                      </Text>
+                      <Flex gap="2">
+                        <input
+                          type="number"
+                          value={recurringInterval}
+                          onChange={(e) => setRecurringInterval(e.target.value)}
+                          placeholder="1"
+                          min="1"
+                          className={styles.formInput}
+                          style={{ flex: 1 }}
+                        />
+                        <select
+                          value={recurringUnit}
+                          onChange={(e) => setRecurringUnit(e.target.value as 'days' | 'months' | 'years')}
+                          className={styles.formSelect}
+                          style={{ flex: 1 }}
+                        >
+                          <option value="days">Days</option>
+                          <option value="months">Months</option>
+                          <option value="years">Years</option>
+                        </select>
+                      </Flex>
+                    </label>
+                  </>
+                )}
+              </Flex>
+
+              <Flex gap="3" mt="4" justify="end">
+                <Dialog.Close>
+                  <Button variant="soft" color="gray" disabled={isSaving}>
+                    Cancel
+                  </Button>
+                </Dialog.Close>
+                <Button 
+                  onClick={handleUpdateBudgetWithPeriod}
+                  disabled={isSaving}
+                >
+                  {isSaving ? 'Saving...' : 'Save Budget'}
+                </Button>
+              </Flex>
+            </Dialog.Content>
 
             {/* Category Budgets */}
             {allCategoriesWithBudget.length > 0 && (
@@ -679,6 +808,7 @@ export default function BudgetClient({
         
         <Footer buttonColor='#222222' opacity={50} />
       </div>
+      </Dialog.Root>
     </Sidebar>
   )
 }
