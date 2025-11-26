@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { getSession, getAccounts, getTransactions, getBudget } from '@/lib/api-service'
+import { getSession, getAccounts, getTransactions, getBudget } from '@/app/api/api-service'
 import DashboardClient from './dashboard-client'
 import DashboardThemeWrapper from './utils/dashboard-theme'
 

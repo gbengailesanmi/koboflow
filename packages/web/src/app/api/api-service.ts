@@ -2,7 +2,7 @@
 
 import { cookies } from 'next/headers'
 import { revalidateTag, revalidatePath } from 'next/cache'
-import config from '../config'
+import config from '../../config'
 import type {
   Account,
   Transaction,
@@ -11,7 +11,7 @@ import type {
   CategoryBudget,
   BudgetPeriod,
 } from '@money-mapper/shared'
-import type { UserSettings } from './default-settings'
+import type { UserSettings } from '../../lib/default-settings'
 
 export interface SessionUser {
   customerId: string

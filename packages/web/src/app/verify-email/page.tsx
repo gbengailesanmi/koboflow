@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState, Suspense } from 'react'
-import { resendVerificationEmail } from '@/lib/api-service'
+import { resendVerificationEmail } from '@/app/api/api-service'
 import styles from './verify-email.module.css'
 
 function VerifyEmailContent() {

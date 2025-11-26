@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { updateAppSettings, deleteUserAccount, logoutUser } from '@/lib/api-client'
+import { updateAppSettings, deleteUserAccount, logoutUser } from '@/app/api/api-client'
 import { useToasts } from '@/store'
 import Sidebar from '@/app/components/sidebar/sidebar'
 import { PAGE_COLORS } from '@/app/components/page-background/page-colors'

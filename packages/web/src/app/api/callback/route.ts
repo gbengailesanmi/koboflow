@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import { getSession, processTinkCallback } from '@/lib/api-service'
+import { getSession, processTinkCallback } from '@/app/api/api-service'
 
 export const dynamic = 'force-dynamic'
 

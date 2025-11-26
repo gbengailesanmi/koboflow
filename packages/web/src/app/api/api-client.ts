@@ -10,7 +10,7 @@
 
 'use client'
 
-import config from '../config'
+import config from '../../config'
 
 const BACKEND_URL = config.BACKEND_URL
 

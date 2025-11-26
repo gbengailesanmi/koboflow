@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { getSession, getTransactions, getCustomCategories, getBudget } from '@/lib/api-service'
+import { getSession, getTransactions, getCustomCategories, getBudget } from '@/app/api/api-service'
 import { BudgetSkeleton } from '@/app/components/skeletons/budget-skeleton'
 import BudgetClient from './budget-client'
 

@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { getSession, getAccounts, getTransactions } from '@/lib/api-service'
+import { getSession, getAccounts, getTransactions } from '@/app/api/api-service'
 import { TransactionsSkeleton } from '@/app/components/skeletons/transactions-skeleton'
 import TransactionsClient from './transactions-client'
 

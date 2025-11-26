@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { getSession } from '@/lib/api-service'
+import { getSession } from '@/app/api/api-service'
 import ProfileClient from './profile-client'
 
 type PageProps = {

@@ -2,7 +2,7 @@
 
 import { useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
-import { loginClient } from '@/lib/api-client'
+import { loginClient } from '@/app/api/api-client'
 import config from '@/config'
 
 export default function LoginForm({ isTimeout = false }: { isTimeout?: boolean }) {

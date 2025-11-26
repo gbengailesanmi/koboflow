@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { getSession, getSettings } from '@/lib/api-service'
+import { getSession, getSettings } from '@/app/api/api-service'
 import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
 import SettingsClient from './settings-client'
 
