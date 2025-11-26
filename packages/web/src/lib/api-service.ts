@@ -437,7 +437,7 @@ export async function updateBudget(
 
     if (data.success) {
       revalidateTag('budget')
-      revalidateTag('session') // User's totalBudgetLimit may have changed
+      revalidateTag('session')
     }
 
     return data

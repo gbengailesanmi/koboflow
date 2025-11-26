@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { updateBudget } from '@/lib/api-client'
+import { updateBudget } from '@/lib/api-service'
 import { useToasts } from '@/store'
 import Sidebar from '@/app/components/sidebar/sidebar'
 import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
@@ -87,13 +87,18 @@ export default function BudgetClient({
   const saveBudget = useCallback(async (newBudget: BudgetData) => {
     try {
       setIsSaving(true)
-      await updateBudget({
-        totalBudgetLimit: newBudget.totalBudgetLimit,
-        categories: newBudget.categories,
-        period: newBudget.period
-      })
-      showToast('Budget saved successfully', 'success')
-      router.refresh()
+      const result = await updateBudget(
+        newBudget.totalBudgetLimit,
+        newBudget.categories,
+        newBudget.period
+      )
+      
+      if (result.success) {
+        showToast('Budget saved successfully', 'success')
+        router.refresh()
+      } else {
+        showToast(result.message || 'Failed to save budget', 'error')
+      }
     } catch (error) {
       console.error('Failed to save budget:', error)
       showToast('Failed to save budget. Please try again.', 'error')
