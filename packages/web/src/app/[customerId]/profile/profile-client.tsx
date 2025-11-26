@@ -25,15 +25,13 @@ type ProfileClientProps = {
   firstName: string
   lastName: string
   email: string
-  totalBudgetLimit: number
 }
 
 export default function ProfileClient({
   customerId,
   firstName,
   lastName,
-  email,
-  totalBudgetLimit
+  email
 }: ProfileClientProps) {
   const router = useRouter()
   const { setBaseColor } = useBaseColor()
@@ -45,8 +43,7 @@ export default function ProfileClient({
   const [formData, setFormData] = useState({
     firstName,
     lastName,
-    email,
-    totalBudgetLimit: totalBudgetLimit.toString()
+    email
   })
   const [savingProfile, setSavingProfile] = useState(false)
 
@@ -66,12 +63,6 @@ export default function ProfileClient({
       return
     }
 
-    const budgetValue = parseFloat(formData.totalBudgetLimit)
-    if (isNaN(budgetValue) || budgetValue < 0) {
-      showToast('Please enter a valid total budget limit', 'error')
-      return
-    }
-
     setSavingProfile(true)
 
     try {
@@ -79,7 +70,6 @@ export default function ProfileClient({
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
         email: formData.email.trim(),
-        totalBudgetLimit: budgetValue,
       })
 
       if (!result.success) {
@@ -104,8 +94,7 @@ export default function ProfileClient({
     setFormData({
       firstName,
       lastName,
-      email,
-      totalBudgetLimit: totalBudgetLimit.toString()
+      email
     })
     setIsEditing(false)
   }
@@ -189,31 +178,6 @@ export default function ProfileClient({
                 )}
               </Box>
 
-              <Box className={styles.emailFieldContainer}>
-                <Text as="label" size="2" weight="medium" className={styles.labelWithIcon}>
-                  📊 Monthly Budget
-                </Text>
-                {isEditing ? (
-                  <TextField.Root
-                    type='number'
-                    step='0.01'
-                    min='0'
-                    value={formData.totalBudgetLimit}
-                    onChange={(e) => setFormData({ ...formData, totalBudgetLimit: e.target.value })}
-                    placeholder='Enter your monthly budget'
-                  />
-                ) : (
-                  <div className={styles.displayField}>
-                    <Text className={styles.displayText}>
-                      £{parseFloat(formData.totalBudgetLimit).toLocaleString()}
-                    </Text>
-                  </div>
-                )}
-                <Text size="2" color="gray" className={styles.helpText}>
-                  Set a monthly spending limit to track your budget
-                </Text>
-              </Box>
-
               <Flex className={styles.buttonContainer} gap="3">
                 {isEditing ? (
                   <>
@@ -244,21 +208,6 @@ export default function ProfileClient({
                   </Button>
                 )}
               </Flex>
-            </div>
-
-            {/* About Section */}
-            <div id="about" className={styles.profileCard}>
-              <h2 className={styles.aboutTitle}>About Money Mapper</h2>
-              <p className={styles.aboutSubtitle}>Personal finance tracking made simple</p>
-              <div className={styles.aboutContent}>
-                <p className={styles.aboutText}>
-                  Money Mapper helps you track your income and expenses, visualize spending patterns,
-                  and make informed financial decisions.
-                </p>
-                <p className={styles.aboutText}>
-                  All your data is stored securely and privately, ensuring complete control over your financial information.
-                </p>
-              </div>
             </div>
           </div>
         </div>

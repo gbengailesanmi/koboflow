@@ -35,7 +35,6 @@ export default function DashboardClient({
   const router = useRouter()
   const [hasNavigated, setHasNavigated] = useState(false)
   
-  // ✅ Use UI store for account selection
   const { selectedAccountId, setSelectedAccount } = useSelectedItems()
 
   const filteredTransactions = selectedAccountId
@@ -109,10 +108,10 @@ export default function DashboardClient({
           />
         </Grid>
         <Grid className={styles.Grid2}>
-          <h2 className="text-xl font-semibold mb-2">Ads</h2>
+          <h2 className="text-sm font-semibold mb-2">Ads</h2>
         </Grid>
         <Grid className={styles.Grid2}>
-          <h2 className="text-xl font-semibold mb-2">Upcoming bills</h2>
+          <h2 className="text-sm font-semibold mb-2">Upcoming bills</h2>
           <RecurringPayments 
             transactions={processedTransactions}
             currency={profile.currency}
@@ -122,7 +121,7 @@ export default function DashboardClient({
         </Grid>
         <Grid rows='3' className={styles.TransactionsGrid} style={{ gridTemplateRows: '2.5rem 1fr 2.5rem' }}>
           <div style={{ display: 'flex', height: '100%', padding: '.3rem' }}>
-            <span><h2 className="text-xl font-semibold mb-2">Transactions</h2></span>
+            <span><h2 className="text-sm font-semibold mb-2">Transactions</h2></span>
           </div>
           <div className={styles.TransactionsListWrapper}>
             <TransactionsColumn transactions={filteredTransactions.slice(0, 10)} />
@@ -132,7 +131,7 @@ export default function DashboardClient({
           </div>
         </Grid>        
         <Grid className={styles.Grid4}>
-          <h2 className="text-xl font-semibold mb-2">This Month vs Last Month</h2>
+          <h2 className="text-sm font-semibold mb-2">This Month vs Last Month</h2>
           <div style={{ width: '100%', height: '350px', minHeight: '350px' }}>
             {processedTransactions.length > 0 && (monthOnMonthData.currentMonth.expense > 0 || monthOnMonthData.prevMonth.expense > 0) ? (
               <MonthOnMonthChart data={monthOnMonthData} currency={profile.currency} transactions={processedTransactions} />
@@ -145,7 +144,7 @@ export default function DashboardClient({
           </div>
         </Grid>
         <Grid className={styles.Grid6}>
-          <h2 className="text-xl font-semibold mb-2">My top receivers</h2>
+          <h2 className="text-sm font-semibold mb-2">My top receivers</h2>
         </Grid>
       </main>
       <Footer opacity={2} />

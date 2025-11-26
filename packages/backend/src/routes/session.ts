@@ -1,6 +1,5 @@
 import { Router } from 'express'
 import { authMiddleware, AuthRequest } from '../middleware/middleware'
-import { connectDB } from '../db/mongo'
 import { deleteSession } from '../services/session'
 import config from '../config'
 
@@ -17,9 +16,6 @@ sessionRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
     
     const { customerId, email, firstName, lastName } = req.user
     
-    const db = await connectDB()
-    const budget = await db.collection('budgets').findOne({ customerId })
-    
     res.json({
       success: true,
       user: {
@@ -27,8 +23,7 @@ sessionRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
         email,
         firstName: firstName || '',
         lastName: lastName || '',
-        name: `${firstName || ''} ${lastName || ''}`.trim(),
-        totalBudgetLimit: budget?.totalBudgetLimit || 0
+        name: `${firstName || ''} ${lastName || ''}`.trim()
       }
     })
   } catch (error) {
