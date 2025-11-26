@@ -315,9 +315,9 @@ export default function AnalyticsClient({
         </div>
       ) : (
         <>
-          <Grid id="expense-breakdown" className={styles.analyticsCard}>
+          <Grid id="expense-breakdown">
                 <AnalyticsCard
-                  title="📊 Expense Breakdown"
+                  title="Expense Breakdown"
                   description="Visual breakdown of your spending by category"
                 >
                   {categoryData.length === 0 ? (
@@ -337,9 +337,9 @@ export default function AnalyticsClient({
                 </AnalyticsCard>
               </Grid>
 
-              <Grid id="daily-comparison" className={styles.analyticsCard}>
+              <Grid id="daily-comparison">
                 <AnalyticsCard
-                  title="📈 Daily Expense Comparison"
+                  title="Daily Expense Comparison"
                   description="Compare daily expenses for the entire month between current and previous month"
                 >
                   {(monthOnMonthData.currentMonth.expense === 0 && monthOnMonthData.prevMonth.expense === 0) ? (
@@ -368,9 +368,9 @@ export default function AnalyticsClient({
                 </AnalyticsCard>
               </Grid>
 
-              <Grid id="spending-category" className={styles.analyticsCard}>
+              <Grid id="spending-category">
                 <AnalyticsCard
-                  title="🏷️ Spending by Category"
+                  title="Spending by Category"
                   description="Detailed breakdown of your expenses across different categories"
                 >
                   <CategoryBreakdown 
@@ -383,9 +383,9 @@ export default function AnalyticsClient({
                 </AnalyticsCard>
               </Grid>
 
-              <Grid id="recurring-payments" className={styles.analyticsCard}>
+              <Grid id="recurring-payments">
                 <AnalyticsCard
-                  title="🔄 Recurring Payments"
+                  title="Recurring Payments"
                   description="Track your recurring expenses and upcoming payment predictions"
                 >
                   <RecurringPayments 
@@ -393,19 +393,6 @@ export default function AnalyticsClient({
                     currency={currency}
                     maxItems={5}
                     showSeeMore={false}
-                  />
-                </AnalyticsCard>
-              </Grid>
-
-              <Grid id="budget-overview" className={styles.analyticsCard}>
-                <AnalyticsCard
-                  title="💰 Monthly Budget Overview"
-                  description="Track your progress against your monthly spending budget (current month)"
-                >
-                  <BudgetOverview
-                    monthlyExpense={monthlyExpense}
-                    totalBudgetLimit={totalBudgetLimit}
-                    currency={currency}
                   />
                 </AnalyticsCard>
               </Grid>

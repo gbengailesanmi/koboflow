@@ -57,18 +57,19 @@
   padding-right: 16px;
   padding-top: 10px;
   margin: 0 auto;
+  max-width: 1400px;
 }
 
 @media (min-width: 768px) {
   .headerSection {
-    padding: 24px;
+    /* padding: 24px; */
     padding-top: 50px;
   }
 }
 
 @media (min-width: 1024px) {
   .headerSection {
-    padding: 32px;
+    /* padding: 32px; */
     padding-top: 60px;
   }
 }
@@ -78,8 +79,10 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
+  max-width: 1400px;
   margin: 0 auto;
   overflow: hidden;
+  width: 100%;
 }
 
 /* Sticky Section */
@@ -87,6 +90,7 @@
   flex-shrink: 0;
   z-index: 100;
   background: transparent;
+  width: 100%;
 }
 
 .statsGrid {
@@ -98,10 +102,10 @@
 .main {
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  padding: 16px;
+  padding: 8px;
   padding-top: 0;
   width: 100%;
+  margin: 0 auto;
   overflow-y: auto;
   overflow-x: hidden;
   flex: 1;
@@ -120,28 +124,6 @@
     padding: 32px;
     padding-top: 0;
     gap: 40px;
-  }
-}
-
-.analyticsCard {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 20px;
-  padding: 24px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  width: 100%;
-  flex-shrink: 0;
-}
-
-@media (min-width: 768px) {
-  .analyticsCard {
-    width: 100%;
-  }
-}
-
-@media (min-width: 1024px) {
-  .analyticsCard {
-    width: 100%;
+    border-radius: 16px;
   }
 }
