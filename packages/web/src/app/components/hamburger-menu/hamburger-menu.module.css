@@ -1,21 +1,34 @@
-/* Hamburger Menu Button - Fixed to Top Right */
+/* Hamburger Button - Used in Page Header */
 .hamburgerButton {
-  position: fixed !important;
-  top: 1.5rem !important;
-  right: 1.5rem !important;
-  z-index: 1000 !important;
-  cursor: pointer !important;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
-  border-radius: 8px !important;
-  padding: 0.5rem !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
 }
 
 .hamburgerButton:hover {
-  transform: scale(1.05) !important;
-  transition: transform 0.2s ease !important;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+/* Expand Button */
+.expandButton {
+  background: transparent;
+  border: none;
+  padding: 0.25rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+}
+
+.expandButton:hover {
+  opacity: 0.7;
 }
 
 /* Menu Content */

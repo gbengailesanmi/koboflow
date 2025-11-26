@@ -2,15 +2,17 @@
 
 import React, { useState, useMemo, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { Dialog } from '@radix-ui/themes'
 import { useSelectedItems, useToasts } from '@/store'
 import type { Account } from '@/types/account'
 import type { Transaction } from '@/types/transactions'
 import type { CustomCategory } from '@/types/custom-category'
 import { createCustomCategory, deleteCustomCategory } from '@/app/api/api-client'
 import PageLayoutWithSidebar from '@/app/components/sidebar/sidebar'
+import { PageHeader } from '@/app/components/page-header/page-header'
+import AccountFilterMenu from '@/app/components/account-filter-menu/account-filter-menu'
 import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
 import Footer from '@/app/components/footer/footer'
-import { PageHeader } from '@/app/components/page-header/page-header'
 import { useBaseColor } from '@/providers/base-colour-provider'
 import { categorizeTransaction } from '@/app/components/analytics/utils/categorize-transaction'
 import { formatCurrency } from '@/app/components/analytics/utils/format-currency'
@@ -25,7 +27,6 @@ import { DailySpendingComparison } from '@/app/components/analytics/daily-spendi
 import { AnalyticsCard } from '@/app/components/analytics/analytics-card/analytics-card'
 import { 
   Grid, 
-  Select, 
   Tabs,
   Text,
   Flex,
@@ -58,6 +59,7 @@ export default function AnalyticsClient({
   const { showToast } = useToasts()
 
   const [timePeriod, setTimePeriod] = useState<'day' | 'month' | 'year'>('month')
+  const [showAccountFilter, setShowAccountFilter] = useState(false)
   
   const effectiveAccountId = selectedAccountId || 'all'
 
@@ -245,29 +247,22 @@ export default function AnalyticsClient({
   const renderHeaderSection = () => (
     <div className={styles.headerSection}>
       <PageHeader 
-        title="Insights" 
+        title="Insights"
         subtitle="Look into your spending patterns and trends"
+        showOptionsIcon={true}
+        onOptionsClick={() => setShowAccountFilter(true)}
       />
 
-      <Flex className={styles.accountSelectorContainer} direction="column" gap="2">
-        <Text as="label" size="2" weight="medium">
-          Filter by Account:
-        </Text>
-        <Select.Root
-          value={effectiveAccountId}
-          onValueChange={(value) => setSelectedAccount(value === 'all' ? null : value)}
-        >
-          <Select.Trigger className={styles.accountSelector} />
-          <Select.Content>
-            <Select.Item value="all">All Accounts</Select.Item>
-            {accounts.map((account) => (
-              <Select.Item key={account.id} value={account.uniqueId}>
-                {account.name} — {currency === 'GBP' ? '£' : formatCurrency(0, currency).charAt(0)}{Number(account.balance).toFixed(2)}
-              </Select.Item>
-            ))}
-          </Select.Content>
-        </Select.Root>
-      </Flex>
+      {/* Account Filter Dialog */}
+      <Dialog.Root open={showAccountFilter} onOpenChange={setShowAccountFilter}>
+        <AccountFilterMenu 
+          accounts={accounts} 
+          currency={currency} 
+          asDialogContent={true}
+          open={showAccountFilter}
+          onOpenChange={setShowAccountFilter}
+        />
+      </Dialog.Root>
 
       <Box className={styles.timeRangeContainer}>
         <Tabs.Root value={timePeriod} onValueChange={(value) => setTimePeriod(value as 'day' | 'month' | 'year')}>

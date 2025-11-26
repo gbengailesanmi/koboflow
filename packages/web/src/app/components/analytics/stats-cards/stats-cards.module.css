@@ -39,7 +39,7 @@
   flex-direction: column;
   aspect-ratio: 4 / 1;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
   position: relative;
   box-sizing: border-box;
 }
@@ -52,14 +52,14 @@
 .statsCardContent {
   @apply space-y-0;
   margin-bottom: 1px;
-  text-align: left;
+  text-align: center;
   width: 100%;
 }
 
 .statsCardFooter {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   gap: 6px;
   width: 100%;
 }
@@ -102,7 +102,7 @@
 }
 
 .statsValue {
-  @apply text-base font-bold;
+  @apply text-sm font-bold;
 }
 
 .incomeColor {
@@ -150,7 +150,7 @@
   }
 
   .statsValue {
-    @apply text-lg;
+    @apply text-base;
   }
 }
 
@@ -191,6 +191,6 @@
   }
 
   .statsValue {
-    @apply text-xl;
+    @apply text-lg;
   }
 }

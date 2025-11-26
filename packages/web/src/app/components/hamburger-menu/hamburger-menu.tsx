@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { HamburgerMenuIcon, ChevronDownIcon, ChevronRightIcon } from '@radix-ui/react-icons'
-import { Dialog, Button, Flex, Text, Box, ScrollArea } from '@radix-ui/themes'
+import { Dialog, Flex, Text, Box, ScrollArea } from '@radix-ui/themes'
 import styles from './hamburger-menu.module.css'
 
 type NavSection = {
@@ -133,14 +133,12 @@ export default function HamburgerMenu({ customerId }: HamburgerMenuProps) {
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger>
-        <Button 
-          size="3" 
-          variant="soft"
+        <button
           className={styles.hamburgerButton}
           aria-label="Open navigation menu"
         >
-          <HamburgerMenuIcon width="20" height="20" />
-        </Button>
+          <HamburgerMenuIcon width="15" height="15" />
+        </button>
       </Dialog.Trigger>
 
       <Dialog.Content 
@@ -178,9 +176,8 @@ export default function HamburgerMenu({ customerId }: HamburgerMenuProps) {
                     >
                       {section.label}
                     </Text>
-                    <Button
-                      size="1"
-                      variant="ghost"
+                    <button
+                      className={styles.expandButton}
                       onClick={(e: React.MouseEvent) => {
                         e.stopPropagation()
                         toggleSection(section.id)
@@ -191,7 +188,7 @@ export default function HamburgerMenu({ customerId }: HamburgerMenuProps) {
                       ) : (
                         <ChevronRightIcon width="16" height="16" />
                       )}
-                    </Button>
+                    </button>
                   </Flex>
 
                   {isExpanded && (

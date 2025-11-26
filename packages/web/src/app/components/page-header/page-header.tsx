@@ -1,20 +1,25 @@
 'use client'
 
 import React from 'react'
-import { ArrowLeftIcon } from '@radix-ui/react-icons'
+import { ArrowLeftIcon, MixerVerticalIcon, HamburgerMenuIcon } from '@radix-ui/react-icons'
 import { useRouter, useParams } from 'next/navigation'
+import HamburgerMenu from '@/app/components/hamburger-menu/hamburger-menu'
 import styles from './page-header.module.css'
 
 type PageHeaderProps = {
   title: string
   subtitle?: string
   backTo?: string
+  showOptionsIcon?: boolean
+  onOptionsClick?: () => void
 }
 
 export const PageHeader: React.FC<PageHeaderProps> = ({ 
   title, 
   subtitle,
-  backTo 
+  backTo,
+  showOptionsIcon = false,
+  onOptionsClick
 }) => {
   const router = useRouter()
   const params = useParams()
@@ -31,22 +36,39 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
   return (
     <>
       <div className={styles.header}>
-        <div className={styles.backButton}>
-          <ArrowLeftIcon
-            className={styles.backIcon}
-            onClick={handleBack}
-            style={{ color: '#fff' }}
-          />
-        </div>
-        <div className={styles.headerCenter}>
-          <h1 className={styles.title}>{title}</h1>
+        {/* Back Button - Far Left */}
+        <button 
+          onClick={handleBack}
+          className={styles.backButton}
+          aria-label="Go back"
+        >
+          <ArrowLeftIcon width="20" height="20" />
+        </button>
+
+        {/* Right Icons - Far Right */}
+        <div className={styles.rightIcons}>
+          {showOptionsIcon && onOptionsClick && (
+            <button
+              onClick={onOptionsClick}
+              className={styles.optionsButton}
+              aria-label="Options"
+            >
+              <MixerVerticalIcon width="20" height="20" />
+            </button>
+          )}
+          <div className={styles.hamburgerWrapper}>
+            <HamburgerMenu customerId={customerId} />
+          </div>
         </div>
       </div>
-      {subtitle && (
-        <div className={styles.subtitle}>
+      
+      {/* Title and Subtitle - Left Aligned */}
+      <div className={styles.titleSection}>
+        <h1 className={styles.title}>{title}</h1>
+        {subtitle && (
           <p className={styles.subtitleText}>{subtitle}</p>
-        </div>
-      )}
+        )}
+      </div>
     </>
   )
 }
