@@ -169,6 +169,30 @@ export async function logoutAllSessions() {
 }
 
 // ============================================================================
+// CUSTOM CATEGORIES (Client-side)
+// ============================================================================
+
+export async function createCustomCategory(data: { name: string; keywords: string[]; color?: string }) {
+  return fetchClient('/api/categories', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  })
+}
+
+export async function updateCustomCategory(id: string, data: { name?: string; keywords?: string[]; color?: string }) {
+  return fetchClient(`/api/categories/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  })
+}
+
+export async function deleteCustomCategory(id: string) {
+  return fetchClient(`/api/categories/${id}`, {
+    method: 'DELETE',
+  })
+}
+
+// ============================================================================
 // REAL-TIME DATA (When you need fresh data in a client component)
 // ============================================================================
 

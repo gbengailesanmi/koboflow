@@ -6,6 +6,7 @@ import { useSelectedItems, useToasts } from '@/store'
 import type { Account } from '@/types/account'
 import type { Transaction } from '@/types/transactions'
 import type { CustomCategory } from '@/types/custom-category'
+import { createCustomCategory, deleteCustomCategory } from '@/app/api/api-client'
 import PageLayoutWithSidebar from '@/app/components/sidebar/sidebar'
 import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
 import Footer from '@/app/components/footer/footer'
@@ -52,16 +53,12 @@ export default function AnalyticsClient({
   const router = useRouter()
   const { setBaseColor } = useBaseColor()
   
-  // ✅ Use UI store for account selection
   const { selectedAccountId, setSelectedAccount } = useSelectedItems()
   
-  // ✅ Use UI store for toast notifications
   const { showToast } = useToasts()
 
-  // Local state for time period (specific to analytics page)
   const [timePeriod, setTimePeriod] = useState<'day' | 'month' | 'year'>('month')
   
-  // Use 'all' as default if no account is selected
   const effectiveAccountId = selectedAccountId || 'all'
 
   const categoryConfig = useMemo(() => getCategoryConfig(customCategories), [customCategories])
@@ -76,18 +73,14 @@ export default function AnalyticsClient({
       const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316']
       const randomColor = colors[Math.floor(Math.random() * colors.length)]
       
-      const response = await fetch('/api/custom-categories', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, keywords, color: randomColor })
+      await createCustomCategory({ 
+        name, 
+        keywords, 
+        color: randomColor 
       })
       
-      if (response.ok) {
-        showToast('Category added successfully', 'success')
-        router.refresh()
-      } else {
-        showToast('Failed to add category', 'error')
-      }
+      showToast('Category added successfully', 'success')
+      router.refresh()
     } catch (error) {
       console.error('Failed to add category:', error)
       showToast('Failed to add category', 'error')
@@ -96,16 +89,10 @@ export default function AnalyticsClient({
 
   const handleDeleteCategory = async (id: string) => {
     try {
-      const response = await fetch(`/api/custom-categories?id=${id}`, {
-        method: 'DELETE'
-      })
+      await deleteCustomCategory(id)
       
-      if (response.ok) {
-        showToast('Category deleted successfully', 'success')
-        router.refresh()
-      } else {
-        showToast('Failed to delete category', 'error')
-      }
+      showToast('Category deleted successfully', 'success')
+      router.refresh()
     } catch (error) {
       console.error('Failed to delete category:', error)
       showToast('Failed to delete category', 'error')
