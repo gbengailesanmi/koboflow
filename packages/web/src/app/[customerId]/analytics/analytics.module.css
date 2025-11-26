@@ -6,178 +6,8 @@
   overflow-y: auto;
 }
 
-.wrapper {
-  @apply px-4 py-8;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.header {
-  @apply flex items-center mb-6 relative;
-}
-
-.backButton {
-  @apply absolute left-0 z-10;
-}
-
-.headerCenter {
-  @apply flex-1 flex justify-center;
-}
-
-/* Icon Bar - Fixed at top with all three icons */
-.iconBar {
-  position: fixed;
-  top: 1.5rem;
-  left: 1.5rem;
-  right: 1.5rem;
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  pointer-events: none;
-}
-
-.rightIcons {
-  display: flex;
-  align-items: center;
-  gap: 2rem;
-  pointer-events: none;
-}
-
-.backButton {
-  background: transparent;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  pointer-events: auto;
-}
-
-.backButton:hover {
-  opacity: 0.7;
-  transition: opacity 0.2s ease;
-}
-
-.title {
-  @apply text-4xl font-bold text-white text-center;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.titleContainer {
-  @apply mb-6 px-4;
-  margin-top: 4rem;
-}
-
-.pageTitle {
-  @apply text-3xl font-bold text-white mb-2;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.pageSubtitle {
-  @apply text-white/70 text-base;
-}
-
-.subtitle {
-  @apply text-center mb-8;
-}
-
-.subtitleText {
-  @apply text-white/80 text-lg;
-}
-
-.backIcon {
-  @apply w-7 h-7 cursor-pointer text-white hover:text-white/80;
-}
-
 .timeRangeContainer {
   @apply flex justify-center mb-8;
-}
-
-.timeRangeTabs {
-  @apply flex rounded-2xl p-1 gap-1;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.timeRangeTab {
-  @apply px-6 py-3 text-sm font-medium rounded-xl;
-  @apply text-white/70;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-  cursor: pointer;
-  border: none;
-  background: transparent;
-}
-
-.timeRangeTab:hover {
-  @apply text-white;
-  background: rgba(255, 255, 255, 0.1);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
-}
-
-.timeRangeTab::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.6s;
-}
-
-.timeRangeTab:hover::before {
-  left: 100%;
-}
-
-.timeRangeTab:focus {
-  outline: none;
-}
-
-.timeRangeTabActive {
-  @apply bg-white text-gray-800;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.1);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  animation: buttonActivate 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.timeRangeTabActive::before {
-  display: none;
-}
-
-@keyframes buttonActivate {
-  0% {
-    transform: translateY(0) scale(1);
-  }
-  50% {
-    transform: translateY(-3px) scale(1.02);
-  }
-  100% {
-    transform: translateY(-2px) scale(1);
-  }
-}
-
-.accountSelectorContainer {
-  @apply flex justify-center mb-8;
-}
-
-.accountSelectorLabel {
-  @apply text-sm font-medium text-white/90 mr-4 self-center;
-}
-
-.accountSelector {
-  @apply px-4 py-3 text-sm font-medium rounded-xl border-0;
-  @apply text-gray-700 focus:ring-2 focus:ring-white/50 focus:outline-none;
-  @apply cursor-pointer;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(10px);
 }
 
 .emptyState {
@@ -211,37 +41,14 @@
   @apply flex flex-col;
   width: 100%;
   max-width: 100%;
-  overflow: hidden; /* Prevent overflow */
-  padding: 0 8px; /* Add some padding */
+  overflow: hidden;
+  padding: 0 8px;
 }
 
 .comparisonStats {
   @apply mt-6;
   width: 100%;
   max-width: 100%;
-}
-
-/* Recharts Tooltip Styles */
-.rechartTooltip {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 12px;
-  padding: 12px 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.rechartTooltipLabel {
-  font-weight: 600;
-  color: #374151;
-  font-size: 14px;
-  margin: 0 0 8px 0;
-}
-
-.rechartTooltipValue {
-  font-weight: 500;
-  font-size: 13px;
-  margin: 4px 0;
 }
 
 /* Grid Layout Styles */
@@ -266,14 +73,20 @@
   }
 }
 
+/* Content Container - wraps both sticky and scrollable sections */
+.contentContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
 /* Sticky Section */
 .stickySection {
-  position: sticky;
-  top: 0;
+  flex-shrink: 0;
   z-index: 100;
   padding: 16px;
-  max-width: 1400px;
-  margin: 0 auto;
   background: transparent;
   padding-bottom: 24px;
 }
@@ -304,10 +117,10 @@
   gap: 24px;
   padding: 16px;
   padding-top: 0;
-  min-height: calc(100vh - 300px);
   width: 100%;
-  max-width: 1400px;
-  margin: 0 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1;
 }
 
 @media (min-width: 768px) {
@@ -348,11 +161,3 @@
     width: 100%;
   }
 }
-
-@media (min-width: 1440px) {
-  .analyticsCard {
-    width: 100%;
-  }
-}
-
-/* Removed scroll hint - not needed for vertical layout */

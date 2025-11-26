@@ -427,8 +427,10 @@ export default function AnalyticsClient({
     <PageLayoutWithSidebar customerId={customerId}>
       <div className={`${styles.container} page-gradient-background`}>
         {renderHeaderSection()}
-        {renderStickySection()}
-        {renderBodySection()}
+        <div className={styles.contentContainer}>
+          {renderStickySection()}
+          {renderBodySection()}
+        </div>
       </div>
       {renderFooterSection()}
     </PageLayoutWithSidebar>
