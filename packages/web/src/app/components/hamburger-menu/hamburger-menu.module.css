@@ -1,0 +1,97 @@
+/* Hamburger Menu Button - Fixed to Top Right */
+.hamburgerButton {
+  position: fixed !important;
+  top: 1.5rem !important;
+  right: 1.5rem !important;
+  z-index: 1000 !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+  border-radius: 8px !important;
+  padding: 0.5rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.hamburgerButton:hover {
+  transform: scale(1.05) !important;
+  transition: transform 0.2s ease !important;
+}
+
+/* Menu Content */
+.menuContent {
+  padding: 0 !important;
+}
+
+.menuTitle {
+  padding: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--gray-a5);
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+/* Section Styles */
+.section {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.sectionHeader {
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.sectionHeader:hover {
+  background-color: var(--gray-a3);
+}
+
+.sectionHeaderActive {
+  background-color: var(--accent-a3);
+}
+
+.sectionHeaderActive:hover {
+  background-color: var(--accent-a4);
+}
+
+.sectionLabel {
+  user-select: none;
+  letter-spacing: 0.5px;
+  color: var(--gray-12);
+}
+
+.sectionHeaderActive .sectionLabel {
+  color: var(--accent-11);
+}
+
+/* Item Styles */
+.item {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  color: var(--gray-11);
+}
+
+.item:hover {
+  background-color: var(--gray-a3);
+  color: var(--gray-12);
+}
+
+.item:active {
+  background-color: var(--gray-a4);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .hamburgerButton {
+    top: 1rem;
+    right: 1rem;
+  }
+}

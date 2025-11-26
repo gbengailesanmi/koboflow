@@ -1,6 +1,6 @@
 'use client'
 
-import SidebarNav from '@/app/components/sidebar/sidebar-nav/sidebar-nav'
+import HamburgerMenu from '@/app/components/hamburger-menu/hamburger-menu'
 import styles from './sidebar.module.css'
 
 type SidebarProps = {
@@ -11,7 +11,7 @@ type SidebarProps = {
 export default function Sidebar({ customerId, children }: SidebarProps) {
   return (
     <div className={styles.layout}>
-      <SidebarNav customerId={customerId} />
+      <HamburgerMenu customerId={customerId} />
       <main className={styles.content}>
         {children}
       </main>
