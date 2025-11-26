@@ -41,8 +41,8 @@
   @apply flex flex-col;
   width: 100%;
   max-width: 100%;
-  overflow: hidden;
-  padding: 0 8px;
+  overflow: visible;
+  padding: 0;
 }
 
 .comparisonStats {

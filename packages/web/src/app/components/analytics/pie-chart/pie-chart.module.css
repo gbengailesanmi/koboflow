@@ -2,108 +2,138 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 24px;
+  justify-content: center;
+  gap: 16px;
   width: 100%;
+  padding: 0;
 }
 
-.pieChartContainer {
-  position: relative;
-  width: 100%;
-  height: 300px;
-  min-height: 300px;
-}
-
-.pieTooltipContent {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 12px;
-  padding: 12px 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.pieTooltipTitle {
-  font-weight: 500;
-  color: #374151;
-  font-size: 14px;
-}
-
-.pieTooltipValue {
-  font-weight: bold;
-  font-size: 18px;
-  color: #111827;
-}
-
-.pieTooltipPercentage {
-  font-size: 14px;
-  color: #6b7280;
-}
-
-.pieLegend {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 12px;
-  width: 100%;
-  max-width: 100%;
-  padding: 0 8px;
-}
-
-@media (min-width: 640px) {
-  .pieLegend {
-    grid-template-columns: repeat(2, 1fr);
-    max-width: 600px;
-  }
-}
-
-@media (min-width: 768px) {
-  .pieLegend {
-    max-width: 700px;
-  }
-}
-
-.pieLegendItem {
+.chartCenter {
   display: flex;
   align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 300px;
+}
+
+.responsiveContainer {
+  max-width: 400px;
+}
+
+/* Tablet */
+@media (min-width: 640px) {
+  .chartCenter {
+    height: 350px;
+  }
+  
+  .responsiveContainer {
+    max-width: 500px;
+  }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+  .pieChartWrapper {
+    gap: 24px;
+    padding: 40px 0;
+  }
+  
+  .chartCenter {
+    height: 450px;
+  }
+  
+  .responsiveContainer {
+    max-width: 650px;
+  }
+}
+
+.pieChartCenterText {
+  font-size: 1.5rem;
+  font-weight: 300;
+}
+
+.pieChartLabel {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.pieChartPercentage {
+  font-size: 12px;
+}
+
+/* Category Buttons */
+.categoryButtons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 12px;
-  padding: 12px;
-  border-radius: 12px;
+  width: 100%;
+  max-width: 650px;
+  margin-top: 16px;
+}
+
+.categoryButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
   transition: all 0.2s ease;
-  min-width: 0; /* Allow flex items to shrink below content size */
+  width: 100%;
+  min-width: 0;
 }
 
-.pieLegendItem:hover,
-.pieLegendItemHover {
-  transform: scale(1.02);
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.pieLegendColor {
-  width: 16px;
-  height: 16px;
+.categoryButtonDot {
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   flex-shrink: 0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.pieLegendLabel {
-  font-size: 14px;
-  font-weight: 500;
-  color: #374151;
+.categoryButtonLabel {
+  font-size: 13px;
+  font-weight: 400;
   flex: 1;
-  min-width: 0; /* Allow text to shrink */
+  text-align: left;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.pieLegendPercentage {
-  font-size: 14px;
-  font-weight: bold;
-  color: #111827;
-  flex-shrink: 0; /* Prevent percentage from wrapping */
+.categoryButtonValue {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  display: none;
+}
+
+.categoryButtonPercent {
+  font-size: 12px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+@media (min-width: 640px) {
+  .categoryButtons {
+    gap: 14px;
+  }
+  
+  .categoryButton {
+    padding: 10px 14px;
+  }
+  
+  .categoryButtonValue {
+    display: block;
+    margin-right: 6px;
+  }
+  
+  .categoryButtonLabel {
+    font-size: 14px;
+  }
+  
+  .categoryButtonPercent {
+    font-size: 13px;
+  }
 }

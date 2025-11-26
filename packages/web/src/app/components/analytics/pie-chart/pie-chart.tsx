@@ -1,10 +1,29 @@
 'use client'
 
-import React, { useState } from 'react'
-import { PieChart as RechartsPie, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts'
+import React from 'react'
+import { PieChart as RechartsPie, Pie, Sector, SectorProps, Tooltip, Cell, ResponsiveContainer } from 'recharts'
 import { CategoryData } from '../types/analytics-types'
 import { formatCurrency } from '../utils/format-currency'
 import styles from './pie-chart.module.css'
+
+type Coordinate = {
+  x: number
+  y: number
+}
+
+type PieSectorData = {
+  percent?: number
+  name?: string | number
+  midAngle?: number
+  middleRadius?: number
+  tooltipPosition?: Coordinate
+  value?: number
+  paddingAngle?: number
+  dataKey?: string
+  payload?: any
+}
+
+type PieSectorDataItem = React.SVGProps<SVGPathElement> & Partial<SectorProps> & PieSectorData
 
 type PieChartProps = {
   data: CategoryData[]
@@ -13,96 +32,123 @@ type PieChartProps = {
 }
 
 export const PieChart: React.FC<PieChartProps> = ({ data, categoryConfig, currency }) => {
-  const [activeIndex, setActiveIndex] = useState<number | null>(null)
-
   const chartData = data.map((item) => ({
     name: categoryConfig[item.category]?.label || 'Other',
     value: item.amount,
     percentage: item.percentage,
-    category: item.category
+    category: item.category,
+    color: categoryConfig[item.category]?.color || '#8884d8'
   }))
 
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      const data = payload[0].payload
-      return (
-        <div className={styles.pieTooltipContent}>
-          <div className={styles.pieTooltipTitle}>{data.name}</div>
-          <div className={styles.pieTooltipValue}>
-            {formatCurrency(data.value, currency)}
-          </div>
-          <div className={styles.pieTooltipPercentage}>
-            {data.percentage.toFixed(1)}%
-          </div>
-        </div>
-      )
-    }
-    return null
-  }
+  const renderActiveShape = ({
+    cx,
+    cy,
+    midAngle,
+    innerRadius,
+    outerRadius,
+    startAngle,
+    endAngle,
+    fill,
+    payload,
+    percent,
+    value,
+  }: PieSectorDataItem) => {
+    const RADIAN = Math.PI / 180
+    const sin = Math.sin(-RADIAN * (midAngle ?? 1))
+    const cos = Math.cos(-RADIAN * (midAngle ?? 1))
+    const sx = (cx ?? 0) + ((outerRadius ?? 0) + 10) * cos
+    const sy = (cy ?? 0) + ((outerRadius ?? 0) + 10) * sin
+    const mx = (cx ?? 0) + ((outerRadius ?? 0) + 30) * cos
+    const my = (cy ?? 0) + ((outerRadius ?? 0) + 30) * sin
+    const ex = mx + (cos >= 0 ? 1 : -1) * 22
+    const ey = my
+    const textAnchor = cos >= 0 ? 'start' : 'end'
 
-  const renderLegend = () => {
     return (
-      <div className={styles.pieLegend}>
-        {chartData.map((item, index) => {
-          const config = categoryConfig[item.category] || categoryConfig.other
-          return (
-            <div
-              key={item.category}
-              className={`${styles.pieLegendItem} ${activeIndex === index ? styles.pieLegendItemHover : ''}`}
-              onMouseEnter={() => setActiveIndex(index)}
-              onMouseLeave={() => setActiveIndex(null)}
-            >
-              <div
-                className={styles.pieLegendColor}
-                style={{ backgroundColor: config.color }}
-              />
-              <span className={styles.pieLegendLabel}>{config.label}</span>
-              <span className={styles.pieLegendPercentage}>
-                {item.percentage.toFixed(1)}%
-              </span>
-            </div>
-          )
-        })}
-      </div>
+      <g>
+        <text x={cx} y={cy} dy={8} textAnchor="middle" fill={fill} className={styles.pieChartCenterText}>
+          {payload.name}
+        </text>
+        <Sector
+          cx={cx}
+          cy={cy}
+          innerRadius={innerRadius}
+          outerRadius={outerRadius}
+          startAngle={startAngle}
+          endAngle={endAngle}
+          fill={fill}
+        />
+        <Sector
+          cx={cx}
+          cy={cy}
+          startAngle={startAngle}
+          endAngle={endAngle}
+          innerRadius={(outerRadius ?? 0) + 6}
+          outerRadius={(outerRadius ?? 0) + 10}
+          fill={fill}
+        />
+        <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={fill} fill="none" />
+        <circle cx={ex} cy={ey} r={2} fill={fill} stroke="none" />
+        <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor} fill="#333" className={styles.pieChartLabel}>
+          {formatCurrency(value ?? 0, currency)}
+        </text>
+        <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} dy={18} textAnchor={textAnchor} fill="#999" className={styles.pieChartPercentage}>
+          {`${((percent ?? 0) * 100).toFixed(1)}%`}
+        </text>
+      </g>
     )
   }
 
   return (
     <div className={styles.pieChartWrapper}>
-      <div className={styles.pieChartContainer}>
-        <ResponsiveContainer width="100%" height={300}>
+      <div className={styles.chartCenter}>
+        <ResponsiveContainer width="100%" height="100%" className={styles.responsiveContainer}>
           <RechartsPie>
             <Pie
+              activeShape={renderActiveShape}
               data={chartData}
               cx="50%"
               cy="50%"
-              labelLine={false}
-              outerRadius={100}
-              fill="#8884d8"
+              innerRadius="35%"
+              outerRadius="55%"
               dataKey="value"
-              onMouseEnter={(_, index) => setActiveIndex(index)}
-              onMouseLeave={() => setActiveIndex(null)}
+              isAnimationActive={true}
+              stroke="none"
             >
-              {chartData.map((entry, index) => {
-                const config = categoryConfig[entry.category] || categoryConfig.other
-                return (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={config.color}
-                    opacity={activeIndex === null || activeIndex === index ? 1 : 0.6}
-                    stroke={activeIndex === index ? config.color : 'none'}
-                    strokeWidth={activeIndex === index ? 3 : 0}
-                  />
-                )
-              })}
-            </Pie>
-            <Tooltip content={<CustomTooltip />} />
-          </RechartsPie>
+            {chartData.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
+            ))}
+          </Pie>
+          <Tooltip content={() => null} />
+        </RechartsPie>
         </ResponsiveContainer>
       </div>
 
-      {}
-      {renderLegend()}
+      {/* Category Buttons */}
+      <div className={styles.categoryButtons}>
+        {chartData.map((item, index) => (
+          <button
+            key={item.category}
+            className={styles.categoryButton}
+            style={{
+              borderColor: item.color,
+              backgroundColor: `${item.color}15`,
+            }}
+          >
+            <span 
+              className={styles.categoryButtonDot}
+              style={{ backgroundColor: item.color }}
+            />
+            <span className={styles.categoryButtonLabel}>{item.name}</span>
+            <span className={styles.categoryButtonValue}>
+              {formatCurrency(item.value, currency)}
+            </span>
+            <span className={styles.categoryButtonPercent}>
+              {item.percentage.toFixed(1)}%
+            </span>
+          </button>
+        ))}
+      </div>
     </div>
   )
 }
