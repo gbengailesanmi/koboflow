@@ -1,0 +1,34 @@
+@reference "../../globals.css";
+
+.main {
+  @apply flex flex-col gap-4 p-4 min-h-screen overflow-y-visible w-[100%];
+}
+
+.AccountsGrid {
+  @apply h-[45dvh] grid items-center justify-items-center;
+  
+}
+ /* border-2 border-solid border-amber- 600 */
+.Grid2 {
+  @apply h-40 rounded-lg grid;
+}
+
+.TransactionsGrid {
+  @apply h-[40dvh] rounded-2xl grid;
+}
+
+.TransactionsListWrapper {
+  @apply overflow-auto max-h-[100%]
+}
+
+.Grid4 {
+  @apply h-[50dvh] rounded-lg grid;
+}
+
+.Grid5 {
+  @apply h-[50dvh] rounded-lg grid;
+}
+
+.Grid6 {
+  @apply h-[50dvh] rounded-lg grid;
+}

@@ -1,0 +1,30 @@
+@reference "../../globals.css";
+
+.header {
+  @apply flex items-center mb-6 relative;
+}
+
+.backButton {
+  @apply absolute left-0 z-10;
+}
+
+.headerCenter {
+  @apply flex-1 flex justify-center;
+}
+
+.title {
+  @apply text-4xl font-bold text-white text-center;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.subtitle {
+  @apply text-center mb-8;
+}
+
+.subtitleText {
+  @apply text-white/80 text-lg;
+}
+
+.backIcon {
+  @apply w-7 h-7 cursor-pointer text-white hover:text-white/80;
+}

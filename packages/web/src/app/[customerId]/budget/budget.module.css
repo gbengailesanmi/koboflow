@@ -1,0 +1,566 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.wrapper {
+  flex: 1;
+  padding-bottom: 80px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  position: relative;
+}
+
+.backButton {
+  position: absolute;
+  left: 16px;
+}
+
+.backIcon {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.backIcon:hover {
+  transform: translateX(-2px);
+}
+
+.headerCenter {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #222222;
+}
+
+.subtitle {
+  padding: 0 16px 24px;
+  text-align: center;
+}
+
+.subtitleText {
+  color: #374151;
+  font-size: 14px;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.cardHeader {
+  margin-bottom: 24px;
+}
+
+.cardHeaderFlex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cardTitleSection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.iconWrapper {
+  padding: 12px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+}
+
+.cardTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.cardDescription {
+  font-size: 14px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.editButton {
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.editButton:hover {
+  background: #f9fafb;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.cardContent {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.budgetOverview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.budgetSection {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.budgetLabel {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.budgetValue {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.budgetValueNormal {
+  color: #111827;
+}
+
+.budgetValueOver {
+  color: #ef4444;
+}
+
+.budgetValueMuted {
+  color: #9ca3af;
+}
+
+.progressSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.progressLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+.progressLabelText {
+  color: #6b7280;
+}
+
+.progressPercentage {
+  font-weight: 600;
+}
+
+.progressBar {
+  height: 12px;
+  background: #f3f4f6;
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  transition: width 0.3s ease;
+  border-radius: 99px;
+}
+
+.statusAlert {
+  display: flex;
+  align-items: start;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.statusIcon {
+  font-size: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.statusContent {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.statusTitle {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.statusMessage {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.categoryGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.categoryItem {
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.categoryHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.categoryLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.categoryIconWrapper {
+  padding: 8px;
+  border-radius: 8px;
+  background: #f9fafb;
+}
+
+.categoryDetails {
+  display: flex;
+  flex-direction: column;
+}
+
+.categoryName {
+  font-weight: 500;
+  font-size: 14px;
+  color: #111827;
+}
+
+.categorySpent {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.categoryActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.badge {
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badgeSecondary {
+  background: #10b981;
+  color: white;
+}
+
+.badgeWarning {
+  background: #f59e0b;
+  color: white;
+}
+
+.badgeDanger {
+  background: #ef4444;
+  color: white;
+}
+
+.iconButton {
+  padding: 8px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: #6b7280;
+  transition: all 0.2s ease;
+  border-radius: 6px;
+}
+
+.iconButton:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.addCategorySection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.addCategoryItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.addCategoryItem:hover {
+  background: rgba(0, 0, 0, 0.02);
+  transform: translateY(-1px);
+}
+
+.addButton {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.addButton:hover {
+  background: #667eea;
+  color: white;
+  border-color: #667eea;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 16px;
+  text-align: center;
+}
+
+.emptyStateIcon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  color: #9ca3af;
+}
+
+.emptyStateTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 8px;
+}
+
+.emptyStateText {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* Grid Layout Styles */
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 16px;
+  min-height: 100vh;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .main {
+    padding: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .main {
+    padding: 32px;
+  }
+}
+
+.budgetCard {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.categoryBudgetsCard {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.addCategoryCard {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Modal Styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.modalContent {
+  background: white;
+  border-radius: 20px;
+  padding: 32px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modalTitle {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 24px 0;
+}
+
+.modalForm {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.formLabel {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.formInput {
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.formInput:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.formSelect {
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  font-size: 16px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.formSelect:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.modalActions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  justify-content: flex-end;
+}
+
+.modalCancelButton {
+  padding: 12px 24px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #374151;
+}
+
+.modalCancelButton:hover {
+  background: #f9fafb;
+}
+
+.modalCancelButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.modalSaveButton {
+  padding: 12px 24px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modalSaveButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.modalSaveButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}

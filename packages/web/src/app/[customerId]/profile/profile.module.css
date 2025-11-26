@@ -1,0 +1,217 @@
+/* Grid Layout Styles */
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 16px;
+  min-height: 100vh;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .main {
+    padding: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .main {
+    padding: 32px;
+  }
+}
+
+.profileCard {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+@reference "../../globals.css";
+
+.container {
+  @apply min-h-screen;
+}
+
+.wrapper {
+  @apply px-6 py-6;
+}
+
+.header {
+  @apply flex items-center mb-2 relative;
+}
+
+.backButton {
+  @apply absolute left-0;
+}
+
+.headerCenter {
+  @apply flex-1 flex justify-center;
+}
+
+.title {
+  @apply text-3xl font-bold text-gray-900 text-center;
+}
+
+.subtitle {
+  @apply text-center mb-4;
+}
+
+.subtitleText {
+  @apply text-gray-500;
+}
+
+.profileCard {
+  @apply bg-white rounded-xl shadow-lg;
+  padding: 24px;
+  margin: 0 16px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.customerIdSection {
+  @apply bg-gray-50 rounded-lg;
+  margin-bottom: 24px;
+  padding: 16px;
+}
+
+.label {
+  @apply block text-sm font-medium text-gray-700;
+  margin-bottom: 4px;
+}
+
+.labelWithIcon {
+  @apply block text-sm font-medium text-gray-700;
+  margin-bottom: 8px;
+}
+
+.customerIdText {
+  @apply text-sm text-gray-500 font-mono;
+}
+
+.alertError {
+  @apply bg-red-50 border border-red-200 rounded-lg;
+  margin-bottom: 16px;
+  padding: 16px;
+}
+
+.alertSuccess {
+  @apply bg-green-50 border border-green-200 rounded-lg;
+  margin-bottom: 16px;
+  padding: 16px;
+}
+
+.alertText {
+  @apply text-sm;
+}
+
+.alertTextError {
+  @apply text-red-700;
+}
+
+.alertTextSuccess {
+  @apply text-green-700;
+}
+
+.fieldContainer {
+  margin-bottom: 24px;
+}
+
+.emailFieldContainer {
+  @apply mb-8;
+}
+
+.input {
+  @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200;
+}
+
+.displayField {
+  @apply px-4 py-3 bg-gray-50 rounded-lg border;
+}
+
+.displayText {
+  @apply text-gray-900;
+}
+
+.buttonContainer {
+  @apply flex gap-4;
+}
+
+.button {
+  @apply flex items-center gap-2 px-6 py-3 rounded-lg focus:ring-2 focus:ring-offset-2 transition-all duration-200;
+}
+
+.buttonPrimary {
+  @apply bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500;
+}
+
+.buttonSecondary {
+  @apply bg-gray-500 text-white hover:bg-gray-600 focus:ring-gray-500;
+}
+
+.buttonDisabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+.icon {
+  @apply w-4 h-4;
+}
+
+.iconWithMargin {
+  @apply inline w-4 h-4 mr-1;
+}
+
+.backIcon {
+  @apply w-6 h-6 cursor-pointer;
+}
+
+.helpText {
+  @apply text-xs text-gray-500 mt-1;
+}
+
+.aboutTitle {
+  @apply text-lg font-semibold text-gray-900 mb-1;
+}
+
+.aboutSubtitle {
+  @apply text-sm text-gray-500 mb-4;
+}
+
+.aboutContent {
+  @apply space-y-3;
+}
+
+.aboutText {
+  @apply text-sm text-gray-600 leading-relaxed;
+}
+
+/* Grid Layout Styles */
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 16px;
+  min-height: 100vh;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .main {
+    padding: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .main {
+    padding: 32px;
+  }
+}

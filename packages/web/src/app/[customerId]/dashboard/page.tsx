@@ -1,0 +1,38 @@
+import { redirect } from 'next/navigation'
+import { getSession, getAccounts, getTransactions, getBudget } from '@/lib/api-service'
+import DashboardClient from './dashboard-client'
+
+interface DashboardPageProps {
+  params: Promise<{ customerId: string }>
+}
+
+export default async function DashboardPage({ params }: DashboardPageProps) {
+  const { customerId } = await params
+
+  const [session, accounts, transactions, budgetRes] = await Promise.all([
+    getSession(),
+    getAccounts(),
+    getTransactions(),
+    getBudget()
+  ])
+
+  if (!session || session.customerId !== customerId) {
+    redirect('/login')
+  }
+
+  const profile = {
+    name: `${session.firstName} ${session.lastName}`,
+    email: session.email,
+    currency: 'GBP',
+    totalBudgetLimit: budgetRes?.totalBudgetLimit || 0,
+  }
+
+  return (
+    <DashboardClient
+      customerId={customerId}
+      accounts={accounts}
+      transactions={transactions}
+      profile={profile}
+    />
+  )
+}

@@ -1,0 +1,41 @@
+{
+  "name": "@money-mapper/backend",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "dev": "nodemon --watch src --ext ts --exec ts-node src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "clean": "rm -rf dist",
+    "index:sessions": "ts-node src/db/indexes/session-indexer.ts"
+  },
+  "dependencies": {
+    "@auth/mongodb-adapter": "^3.11.1",
+    "@money-mapper/shared": "*",
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "jose": "^6.0.12",
+    "mongodb": "^6.19.0",
+    "mongoose": "^8.16.5",
+    "resend": "^6.4.1",
+    "uuid": "^13.0.0",
+    "uuid-base62": "^0.1.0",
+    "zod": "^4.0.13"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.3",
+    "@types/node": "^20",
+    "@types/uuid": "^11.0.0",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}
