@@ -239,47 +239,53 @@ export default function AnalyticsClient({
     }
   }, [processedTransactions])
 
-  return (
-    <PageLayoutWithSidebar customerId={customerId}>
-      <div className={`${styles.container} page-gradient-background`}>
-        <div className={styles.headerSection}>
-          <PageHeader 
-            title="Insights" 
-            subtitle="Look into your spending patterns and trends"
-          />
+  // ============================================================================
+  // RENDER - HEADER SECTION
+  // ============================================================================
+  const renderHeaderSection = () => (
+    <div className={styles.headerSection}>
+      <PageHeader 
+        title="Insights" 
+        subtitle="Look into your spending patterns and trends"
+      />
 
-          <Flex className={styles.accountSelectorContainer} direction="column" gap="2">
-            <Text as="label" size="2" weight="medium">
-              Filter by Account:
-            </Text>
-            <Select.Root
-              value={effectiveAccountId}
-              onValueChange={(value) => setSelectedAccount(value === 'all' ? null : value)}
-            >
-              <Select.Trigger className={styles.accountSelector} />
-              <Select.Content>
-                <Select.Item value="all">All Accounts</Select.Item>
-                {accounts.map((account) => (
-                  <Select.Item key={account.id} value={account.uniqueId}>
-                    {account.name} — {currency === 'GBP' ? '£' : formatCurrency(0, currency).charAt(0)}{Number(account.balance).toFixed(2)}
-                  </Select.Item>
-                ))}
-              </Select.Content>
-            </Select.Root>
-          </Flex>
+      <Flex className={styles.accountSelectorContainer} direction="column" gap="2">
+        <Text as="label" size="2" weight="medium">
+          Filter by Account:
+        </Text>
+        <Select.Root
+          value={effectiveAccountId}
+          onValueChange={(value) => setSelectedAccount(value === 'all' ? null : value)}
+        >
+          <Select.Trigger className={styles.accountSelector} />
+          <Select.Content>
+            <Select.Item value="all">All Accounts</Select.Item>
+            {accounts.map((account) => (
+              <Select.Item key={account.id} value={account.uniqueId}>
+                {account.name} — {currency === 'GBP' ? '£' : formatCurrency(0, currency).charAt(0)}{Number(account.balance).toFixed(2)}
+              </Select.Item>
+            ))}
+          </Select.Content>
+        </Select.Root>
+      </Flex>
 
-          <Box className={styles.timeRangeContainer}>
-            <Tabs.Root value={timePeriod} onValueChange={(value) => setTimePeriod(value as 'day' | 'month' | 'year')}>
-              <Tabs.List>
-                <Tabs.Trigger value="day">Day</Tabs.Trigger>
-                <Tabs.Trigger value="month">Month</Tabs.Trigger>
-                <Tabs.Trigger value="year">Year</Tabs.Trigger>
-              </Tabs.List>
-            </Tabs.Root>
-          </Box>
-        </div>
+      <Box className={styles.timeRangeContainer}>
+        <Tabs.Root value={timePeriod} onValueChange={(value) => setTimePeriod(value as 'day' | 'month' | 'year')}>
+          <Tabs.List>
+            <Tabs.Trigger value="day">Day</Tabs.Trigger>
+            <Tabs.Trigger value="month">Month</Tabs.Trigger>
+            <Tabs.Trigger value="year">Year</Tabs.Trigger>
+          </Tabs.List>
+        </Tabs.Root>
+      </Box>
+    </div>
+  )
 
-        <main className={styles.main}>
+  // ============================================================================
+  // RENDER - BODY SECTION
+  // ============================================================================
+  const renderBodySection = () => (
+    <main className={styles.main}>
           {processedTransactions.length === 0 ? (
             <div className={styles.emptyState}>
               <div className={styles.emptyStateContent}>
@@ -400,9 +406,25 @@ export default function AnalyticsClient({
             </>
           )}
         </main>
+  )
+
+  // ============================================================================
+  // RENDER - FOOTER SECTION
+  // ============================================================================
+  const renderFooterSection = () => (
+    <Footer buttonColor='#222222' opacity={50} />
+  )
+
+  // ============================================================================
+  // MAIN RENDER
+  // ============================================================================
+  return (
+    <PageLayoutWithSidebar customerId={customerId}>
+      <div className={`${styles.container} page-gradient-background`}>
+        {renderHeaderSection()}
+        {renderBodySection()}
       </div>
-      
-      <Footer buttonColor='#222222' opacity={50} />
+      {renderFooterSection()}
     </PageLayoutWithSidebar>
   )
 }

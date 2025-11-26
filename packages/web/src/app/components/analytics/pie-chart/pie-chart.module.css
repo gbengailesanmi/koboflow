@@ -41,10 +41,24 @@
 
 .pieLegend {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 12px;
   width: 100%;
-  max-width: 384px;
+  max-width: 100%;
+  padding: 0 8px;
+}
+
+@media (min-width: 640px) {
+  .pieLegend {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 600px;
+  }
+}
+
+@media (min-width: 768px) {
+  .pieLegend {
+    max-width: 700px;
+  }
 }
 
 .pieLegendItem {
@@ -57,11 +71,13 @@
   background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.2s ease;
+  min-width: 0; /* Allow flex items to shrink below content size */
 }
 
 .pieLegendItem:hover,
 .pieLegendItemHover {
-  transform: scale(1.05);
+  transform: scale(1.02);
   background: rgba(255, 255, 255, 0.9);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
@@ -79,10 +95,15 @@
   font-weight: 500;
   color: #374151;
   flex: 1;
+  min-width: 0; /* Allow text to shrink */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .pieLegendPercentage {
   font-size: 14px;
   font-weight: bold;
   color: #111827;
+  flex-shrink: 0; /* Prevent percentage from wrapping */
 }
