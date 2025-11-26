@@ -53,23 +53,23 @@
 
 /* Grid Layout Styles */
 .headerSection {
-  padding: 16px;
-  padding-top: 80px;
-  max-width: 1400px;
+  padding-left: 16px;    
+  padding-right: 16px;
+  padding-top: 10px;
   margin: 0 auto;
 }
 
 @media (min-width: 768px) {
   .headerSection {
     padding: 24px;
-    padding-top: 80px;
+    padding-top: 50px;
   }
 }
 
 @media (min-width: 1024px) {
   .headerSection {
     padding: 32px;
-    padding-top: 80px;
+    padding-top: 60px;
   }
 }
 
@@ -86,23 +86,7 @@
 .stickySection {
   flex-shrink: 0;
   z-index: 100;
-  padding: 16px;
   background: transparent;
-  padding-bottom: 24px;
-}
-
-@media (min-width: 768px) {
-  .stickySection {
-    padding: 24px;
-    padding-bottom: 24px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .stickySection {
-    padding: 32px;
-    padding-bottom: 24px;
-  }
 }
 
 .statsGrid {
