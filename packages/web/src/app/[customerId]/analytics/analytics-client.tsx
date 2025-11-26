@@ -60,6 +60,7 @@ export default function AnalyticsClient({
 
   const [timePeriod, setTimePeriod] = useState<'day' | 'month' | 'year'>('month')
   const [showAccountFilter, setShowAccountFilter] = useState(false)
+  const mainRef = React.useRef<HTMLElement>(null)
   
   const effectiveAccountId = selectedAccountId || 'all'
 
@@ -301,7 +302,7 @@ export default function AnalyticsClient({
   // RENDER - BODY SECTION
   // ============================================================================
   const renderBodySection = () => (
-    <main className={styles.main}>
+    <main ref={mainRef} className={styles.main}>
       {processedTransactions.length === 0 ? (
         <div className={styles.emptyState}>
           <div className={styles.emptyStateContent}>
@@ -417,7 +418,11 @@ export default function AnalyticsClient({
   // RENDER - FOOTER SECTION
   // ============================================================================
   const renderFooterSection = () => (
-    <Footer buttonColor='#222222' opacity={50} />
+    <Footer 
+      buttonColor='#222222' 
+      opacity={50} 
+      scrollContainerRef={mainRef}
+    />
   )
 
   // ============================================================================
