@@ -278,6 +278,20 @@ export default function AnalyticsClient({
           </Tabs.List>
         </Tabs.Root>
       </Box>
+
+      {/* Stats Cards */}
+      {processedTransactions.length > 0 && (
+        <Grid id="stats-cards" className={styles.statsGrid}>
+          <StatsCards 
+            totalIncome={totalIncome}
+            totalExpense={totalExpense}
+            netBalance={netBalance}
+            incomeTransactionCount={filteredTransactions.filter(t => t.type === 'income').length}
+            expenseTransactionCount={filteredTransactions.filter(t => t.type === 'expense').length}
+            currency={currency}
+          />
+        </Grid>
+      )}
     </div>
   )
 
@@ -286,30 +300,19 @@ export default function AnalyticsClient({
   // ============================================================================
   const renderBodySection = () => (
     <main className={styles.main}>
-          {processedTransactions.length === 0 ? (
-            <div className={styles.emptyState}>
-              <div className={styles.emptyStateContent}>
-                <div className={styles.emptyStateIcon}>📊</div>
-                <h3 className={styles.emptyStateTitle}>No data to analyze yet</h3>
-                <p className={styles.emptyStateText}>
-                  Add some transactions to see analytics and insights
-                </p>
-              </div>
-            </div>
-          ) : (
-            <>
-              <Grid id="stats-cards" className={styles.statsGrid}>
-                <StatsCards 
-                  totalIncome={totalIncome}
-                  totalExpense={totalExpense}
-                  netBalance={netBalance}
-                  incomeTransactionCount={filteredTransactions.filter(t => t.type === 'income').length}
-                  expenseTransactionCount={filteredTransactions.filter(t => t.type === 'expense').length}
-                  currency={currency}
-                />
-              </Grid>
-
-              <Grid id="expense-breakdown" className={styles.analyticsCard}>
+      {processedTransactions.length === 0 ? (
+        <div className={styles.emptyState}>
+          <div className={styles.emptyStateContent}>
+            <div className={styles.emptyStateIcon}>📊</div>
+            <h3 className={styles.emptyStateTitle}>No data to analyze yet</h3>
+            <p className={styles.emptyStateText}>
+              Add some transactions to see analytics and insights
+            </p>
+          </div>
+        </div>
+      ) : (
+        <>
+          <Grid id="expense-breakdown" className={styles.analyticsCard}>
                 <AnalyticsCard
                   title="📊 Expense Breakdown"
                   description="Visual breakdown of your spending by category"

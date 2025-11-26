@@ -210,6 +210,12 @@
   }
 }
 
+.statsGrid {
+  width: 100%;
+  flex-shrink: 0;
+  margin-top: 24px;
+}
+
 .main {
   display: flex;
   flex-direction: column;
@@ -235,11 +241,6 @@
   }
 }
 
-.statsGrid {
-  width: 100%;
-  flex-shrink: 0;
-}
-
 .analyticsCard {
   background: rgba(255, 255, 255, 0.95);
   border-radius: 20px;
@@ -252,21 +253,18 @@
 }
 
 @media (min-width: 768px) {
-  .statsGrid,
   .analyticsCard {
     width: 100%;
   }
 }
 
 @media (min-width: 1024px) {
-  .statsGrid,
   .analyticsCard {
     width: 100%;
   }
 }
 
 @media (min-width: 1440px) {
-  .statsGrid,
   .analyticsCard {
     width: 100%;
   }
