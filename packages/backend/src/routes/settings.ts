@@ -75,6 +75,33 @@ settingsRoutes.post('/', authMiddleware, async (req: AuthRequest, res) => {
   }
 })
 
+settingsRoutes.patch('/', authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    const customerId = req.user?.customerId
+    
+    if (!customerId) {
+      return res.status(401).json({ error: 'Unauthorized' })
+    }
+
+    const { customerId: bodyCustomerId, ...updates } = req.body
+
+    if (bodyCustomerId && bodyCustomerId !== customerId) {
+      return res.status(401).json({ error: 'Unauthorized' })
+    }
+
+    const updatedSettings = await updateUserSettings(customerId, updates)
+
+    res.json({ 
+      success: true,
+      message: 'Settings updated successfully',
+      settings: updatedSettings
+    })
+  } catch (error) {
+    console.error('Error updating settings:', error)
+    res.status(500).json({ error: 'Failed to update settings' })
+  }
+})
+
 settingsRoutes.delete('/account', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
