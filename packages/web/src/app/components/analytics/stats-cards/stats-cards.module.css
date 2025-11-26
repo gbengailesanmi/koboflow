@@ -52,16 +52,18 @@
 .statsCardContent {
   @apply space-y-0;
   margin-bottom: 1px;
-  text-align: center;
+  text-align: left;
   width: 100%;
+  padding-left: 25%;
 }
 
 .statsCardFooter {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 6px;
   width: 100%;
+  padding-left: 25%;
 }
 
 .transactionBadge {
