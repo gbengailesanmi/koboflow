@@ -263,7 +263,14 @@ export default function AnalyticsClient({
           onOpenChange={setShowAccountFilter}
         />
       </Dialog.Root>
+    </div>
+  )
 
+  // ============================================================================
+  // RENDER - STICKY SECTION (Time Range + Stats Cards)
+  // ============================================================================
+  const renderStickySection = () => (
+    <div className={styles.stickySection}>
       <Box className={styles.timeRangeContainer}>
         <Tabs.Root value={timePeriod} onValueChange={(value) => setTimePeriod(value as 'day' | 'month' | 'year')}>
           <Tabs.List>
@@ -420,6 +427,7 @@ export default function AnalyticsClient({
     <PageLayoutWithSidebar customerId={customerId}>
       <div className={`${styles.container} page-gradient-background`}>
         {renderHeaderSection()}
+        {renderStickySection()}
         {renderBodySection()}
       </div>
       {renderFooterSection()}

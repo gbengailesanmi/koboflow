@@ -2,6 +2,8 @@
 
 .container {
   @apply min-h-screen;
+  height: 100vh;
+  overflow-y: auto;
 }
 
 .wrapper {
@@ -245,6 +247,7 @@
 /* Grid Layout Styles */
 .headerSection {
   padding: 16px;
+  padding-top: 80px;
   max-width: 1400px;
   margin: 0 auto;
 }
@@ -252,12 +255,40 @@
 @media (min-width: 768px) {
   .headerSection {
     padding: 24px;
+    padding-top: 80px;
   }
 }
 
 @media (min-width: 1024px) {
   .headerSection {
     padding: 32px;
+    padding-top: 80px;
+  }
+}
+
+/* Sticky Section */
+.stickySection {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 16px;
+  max-width: 1400px;
+  margin: 0 auto;
+  background: transparent;
+  padding-bottom: 24px;
+}
+
+@media (min-width: 768px) {
+  .stickySection {
+    padding: 24px;
+    padding-bottom: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .stickySection {
+    padding: 32px;
+    padding-bottom: 24px;
   }
 }
 
@@ -272,6 +303,7 @@
   flex-direction: column;
   gap: 24px;
   padding: 16px;
+  padding-top: 0;
   min-height: calc(100vh - 300px);
   width: 100%;
   max-width: 1400px;
@@ -281,6 +313,7 @@
 @media (min-width: 768px) {
   .main {
     padding: 24px;
+    padding-top: 0;
     gap: 32px;
   }
 }
@@ -288,6 +321,7 @@
 @media (min-width: 1024px) {
   .main {
     padding: 32px;
+    padding-top: 0;
     gap: 40px;
   }
 }
