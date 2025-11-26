@@ -13,9 +13,10 @@ import type { CustomCategory } from '@/types/custom-category'
 import { categorizeTransaction } from '@/app/components/analytics/utils/categorize-transaction'
 import { formatCurrency } from '@/app/components/analytics/utils/format-currency'
 import { getCategoryConfig } from '@/app/components/analytics/utils/category-config'
+import { BudgetProgress } from '@/app/components/budget-progress'
 import type { BudgetPeriod, BudgetPeriodType } from '@/types/budget'
 import { useBaseColor } from '@/providers/base-colour-provider'
-import { Dialog, Button, Flex, Text } from '@radix-ui/themes'
+import { Dialog, Button, Flex, Text, Progress } from '@radix-ui/themes'
 import styles from './budget.module.css'
 
 type CategoryBudget = {
@@ -206,6 +207,14 @@ export default function BudgetClient({
 
   const monthlyProgress = (monthlyExpenses / budgetData.totalBudgetLimit) * 100
   const isOverBudget = monthlyExpenses > budgetData.totalBudgetLimit
+
+  // Calculate total allocated to category budgets
+  const totalCategoryBudget = useMemo(() => {
+    return budgetData.categories.reduce((sum, cat) => sum + cat.limit, 0)
+  }, [budgetData.categories])
+
+  const categoryBudgetProgress = (totalCategoryBudget / budgetData.totalBudgetLimit) * 100
+  const isCategoryBudgetOver = totalCategoryBudget > budgetData.totalBudgetLimit
 
   const formatPeriod = (period?: BudgetPeriod): string => {
     if (!period || period.type === 'current-month') {
@@ -447,25 +456,14 @@ export default function BudgetClient({
                   </div>
                 </div>
 
-                <div className={styles.progressSection}>
-                  <div className={styles.progressLabel}>
-                    <span className={styles.progressLabelText}>Spending Progress</span>
-                    <span className={`${styles.progressPercentage} ${isOverBudget ? styles.budgetValueOver : ''}`}>
-                      {monthlyProgress.toFixed(1)}%
-                    </span>
-                  </div>
-                  <div className={styles.progressBar}>
-                    <div 
-                      className={styles.progressFill}
-                      style={{ 
-                        width: `${Math.min(monthlyProgress, 100)}%`,
-                        background: isOverBudget 
-                          ? 'linear-gradient(90deg, #ef4444, #dc2626)' 
-                          : 'linear-gradient(90deg, #10b981, #059669)'
-                      }}
-                    />
-                  </div>
-                </div>
+                <BudgetProgress
+                  value={monthlyProgress}
+                  label="Spending Progress"
+                  percentage={monthlyProgress}
+                  color={isOverBudget ? 'red' : monthlyProgress >= 80 ? 'orange' : 'green'}
+                  size="3"
+                  className={styles.progressSection}
+                />
 
                 <div className={styles.statusAlert}>
                   <div className={styles.statusIcon}>
@@ -621,90 +619,128 @@ export default function BudgetClient({
                   <h2 className={styles.cardTitle}>Category Budgets</h2>
                   <p className={styles.cardDescription}>Track spending limits for specific categories</p>
                 </div>
+
+                {/* Category Budget Allocation Progress */}
+                <div className={styles.cardContent} style={{ paddingBottom: '16px' }}>
+                  <BudgetProgress
+                    value={categoryBudgetProgress}
+                    label="Budget Allocation"
+                    percentage={categoryBudgetProgress}
+                    color={isCategoryBudgetOver ? 'red' : categoryBudgetProgress >= 80 ? 'orange' : 'blue'}
+                    size="3"
+                    className={styles.progressSection}
+                  />
+
+                  {isCategoryBudgetOver && (
+                    <div className={styles.statusAlert} style={{ marginTop: '12px' }}>
+                      <div className={styles.statusIcon}>⚠️</div>
+                      <div className={styles.statusContent}>
+                        <div className={styles.statusTitle} style={{ color: '#ef4444' }}>
+                          Over-allocated
+                        </div>
+                        <div className={styles.statusMessage}>
+                          Category budgets exceed total budget by {formatCurrency(totalCategoryBudget - budgetData.totalBudgetLimit, currency)}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  {!isCategoryBudgetOver && categoryBudgetProgress >= 80 && (
+                    <div className={styles.statusAlert} style={{ marginTop: '12px' }}>
+                      <div className={styles.statusIcon}>⚡</div>
+                      <div className={styles.statusContent}>
+                        <div className={styles.statusTitle} style={{ color: '#f59e0b' }}>
+                          Nearly Full
+                        </div>
+                        <div className={styles.statusMessage}>
+                          You have {formatCurrency(budgetData.totalBudgetLimit - totalCategoryBudget, currency)} remaining to allocate
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 <div className={styles.categoryGrid}>
                   {allCategoriesWithBudget.map(({ category, spent, limit, customName }) => {
                     const config = categoryConfig[category] || categoryConfig.other
                     const progress = (spent / limit) * 100
                     const isOver = spent > limit
                     const itemKey = customName ? `${category}-${customName}` : category
-
+                  
                     return (
-                      <div key={itemKey} className={styles.categoryItem}>
-                        <div className={styles.categoryHeader}>
-                          <div className={styles.categoryLeft}>
-                            <div 
-                              className={styles.categoryIconWrapper}
-                              style={{ backgroundColor: config?.color ? config.color + '20' : '#00000020' }}
-                            >
-                              <span style={{ fontSize: '20px' }}>
-                                {category === 'food' ? '🍔' :
-                                 category === 'transport' ? '🚗' :
-                                 category === 'dining' ? '🍽️' :
-                                 category === 'shopping' ? '🛍️' :
-                                 category === 'utilities' ? '⚡' :
-                                 category === 'housing' ? '🏠' :
-                                 category === 'healthcare' ? '⚕️' :
-                                 category === 'entertainment' ? '🎮' : '💳'}
+                      <React.Fragment key={itemKey}>
+                        <div className={styles.categoryItem}>
+                          <div className={styles.categoryHeader}>
+                            <div className={styles.categoryLeft}>
+                              <div 
+                                className={styles.categoryIconWrapper}
+                                style={{ backgroundColor: config?.color ? config.color + '20' : '#00000020' }}
+                              >
+                                <span style={{ fontSize: '20px' }}>
+                                  {category === 'food' ? '🍔' :
+                                   category === 'transport' ? '🚗' :
+                                   category === 'dining' ? '🍽️' :
+                                   category === 'shopping' ? '🛍️' :
+                                   category === 'utilities' ? '⚡' :
+                                   category === 'housing' ? '🏠' :
+                                   category === 'healthcare' ? '⚕️' :
+                                   category === 'entertainment' ? '🎮' : '💳'}
+                                </span>
+                              </div>
+                              <div className={styles.categoryDetails}>
+                                <div className={styles.categoryName}>
+                                  {customName || getCategoryDisplayName(category)}
+                                </div>
+                                <div className={styles.categorySpent}>
+                                  {formatCurrency(spent, currency)} of {formatCurrency(limit, currency)}
+                                </div>
+                              </div>
+                            </div>
+                            <div className={styles.categoryActions}>
+                              <span className={`${styles.badge} ${
+                                isOver ? styles.badgeDanger : 
+                                progress >= 80 ? styles.badgeWarning : 
+                                styles.badgeSecondary
+                              }`}>
+                                {progress.toFixed(0)}%
                               </span>
-                            </div>
-                            <div className={styles.categoryDetails}>
-                              <div className={styles.categoryName}>
-                                {customName || getCategoryDisplayName(category)}
-                              </div>
-                              <div className={styles.categorySpent}>
-                                {formatCurrency(spent, currency)} of {formatCurrency(limit, currency)}
-                              </div>
-                            </div>
-                          </div>
-                          <div className={styles.categoryActions}>
-                            <span className={`${styles.badge} ${
-                              isOver ? styles.badgeDanger : 
-                              progress >= 80 ? styles.badgeWarning : 
-                              styles.badgeSecondary
-                            }`}>
-                              {progress.toFixed(0)}%
-                            </span>
-                            <button 
-                              className={styles.iconButton}
-                              onClick={() => startEdit(itemKey, limit)}
-                            >
-                              ✏️
-                            </button>
-                            <button 
-                              className={styles.iconButton}
-                              onClick={() => {
-                                if (customName) {
-                                  const newBudget = {
-                                    ...budgetData,
-                                    categories: budgetData.categories.filter(b => 
-                                      !(b.category === category && b.customName === customName)
-                                    )
+                              <button 
+                                className={styles.iconButton}
+                                onClick={() => startEdit(itemKey, limit)}
+                              >
+                                ✏️
+                              </button>
+                              <button 
+                                className={styles.iconButton}
+                                onClick={() => {
+                                  if (customName) {
+                                    const newBudget = {
+                                      ...budgetData,
+                                      categories: budgetData.categories.filter(b => 
+                                        !(b.category === category && b.customName === customName)
+                                      )
+                                    }
+                                    setBudgetData(newBudget)
+                                    saveBudget(newBudget)
+                                  } else {
+                                    handleRemoveCategoryBudget(category)
                                   }
-                                  setBudgetData(newBudget)
-                                  saveBudget(newBudget)
-                                } else {
-                                  handleRemoveCategoryBudget(category)
-                                }
-                              }}
-                            >
-                              ✕
-                            </button>
+                                }}
+                              >
+                                ✕
+                              </button>
+                            </div>
                           </div>
-                        </div>
-                        <div className={styles.progressBar}>
-                          <div 
-                            className={styles.progressFill}
-                            style={{ 
-                              width: `${Math.min(progress, 100)}%`,
-                              background: isOver 
-                                ? 'linear-gradient(90deg, #ef4444, #dc2626)' 
-                                : progress >= 80
-                                ? 'linear-gradient(90deg, #f59e0b, #d97706)'
-                                : 'linear-gradient(90deg, #10b981, #059669)'
-                            }}
+                          <BudgetProgress 
+                            value={progress}
+                            label=""
+                            percentage={progress}
+                            color={isOver ? 'red' : progress >= 80 ? 'orange' : 'green'}
+                            size="2"
+                            showPercentage={false}
+                            style={{ marginTop: '8px' }}
                           />
                         </div>
-                      </div>
+                      </React.Fragment>
                     )
                   })}
                 </div>
@@ -729,7 +765,7 @@ export default function BudgetClient({
                     const config = categoryConfig[category] || categoryConfig.other
 
                     return (
-                      <div key={category}>
+                      <React.Fragment key={category}>
                         <div className={styles.addCategoryItem}>
                           <div className={styles.categoryLeft}>
                             <div 
@@ -802,7 +838,7 @@ export default function BudgetClient({
                             </div>
                           </div>
                         )}
-                      </div>
+                      </React.Fragment>
                     )
                   })}
                 </div>
