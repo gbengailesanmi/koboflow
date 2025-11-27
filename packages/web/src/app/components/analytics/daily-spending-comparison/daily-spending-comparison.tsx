@@ -26,7 +26,7 @@ export const DailySpendingComparison: React.FC<DailySpendingComparisonProps> = (
   
   return (
     <div className={styles.comparisonStat}>
-      <div style={{ fontSize: '16px', fontWeight: '600', color: '#374151', marginBottom: '12px' }}>
+      <div style={{ fontSize: '16px', fontWeight: '600', color: 'var(--gray-12)', marginBottom: '12px' }}>
         Average Daily Spending
       </div>
       <div style={{ 
@@ -39,15 +39,15 @@ export const DailySpendingComparison: React.FC<DailySpendingComparisonProps> = (
         justifyContent: 'center'
       }}>
         <div style={{ flex: '1', minWidth: '120px', textAlign: 'center' }}>
-          <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>Current Month</div>
-          <div style={{ fontSize: '20px', fontWeight: '700', color: '#1f2937' }}>
+          <div style={{ fontSize: '12px', color: 'var(--gray-11)', marginBottom: '4px' }}>Current Month</div>
+          <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--gray-12)' }}>
             {formatCurrency(Math.round(currentMonthAverage), currency)}/day
           </div>
         </div>
-        <div style={{ fontSize: '20px', color: '#d1d5db' }}>→</div>
+        <div style={{ fontSize: '20px', color: 'var(--gray-8)' }}>→</div>
         <div style={{ flex: '1', minWidth: '120px', textAlign: 'center' }}>
-          <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>Previous Month</div>
-          <div style={{ fontSize: '20px', fontWeight: '700', color: '#6b7280' }}>
+          <div style={{ fontSize: '12px', color: 'var(--gray-11)', marginBottom: '4px' }}>Previous Month</div>
+          <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--gray-11)' }}>
             {formatCurrency(Math.round(prevMonthAverage), currency)}/day
           </div>
         </div>

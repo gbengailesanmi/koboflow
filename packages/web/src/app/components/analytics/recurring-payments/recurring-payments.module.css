@@ -5,7 +5,7 @@
   align-items: center;
   justify-content: center;
   height: 150px;
-  color: #6b7280;
+  color: var(--gray-11);
   font-size: 14px;
 }
 
@@ -28,15 +28,37 @@
   justify-content: space-between;
   align-items: center;
   padding: 12px;
-  background: rgba(223, 253, 255, 0.034);
   border-radius: 12px;
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(100, 93, 93, 0.3);
   transition: all 0.2s ease;
   cursor: pointer;
 }
 
-.recurringItem:hover {
+/* Light mode recurring item */
+:root .recurringItem,
+.light .recurringItem,
+.light-theme .recurringItem {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+:root .recurringItem:hover,
+.light .recurringItem:hover,
+.light-theme .recurringItem:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.8);
+}
+
+/* Dark mode recurring item */
+.dark .recurringItem,
+.dark-theme .recurringItem {
+  background: rgba(223, 253, 255, 0.034);
+  border: 1px solid rgba(100, 93, 93, 0.3);
+}
+
+.dark .recurringItem:hover,
+.dark-theme .recurringItem:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
@@ -60,7 +82,7 @@
 .itemName {
   font-weight: 600;
   font-size: 14px;
-  color: #ffffff;
+  color: var(--gray-12);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -69,7 +91,7 @@
 
 .itemFrequency {
   font-size: 12px;
-  color: #6b7280;
+  color: var(--gray-11);
 }
 
 .recurringItemRight {
@@ -81,23 +103,23 @@
 .itemAmount {
   font-weight: 700;
   font-size: 14px;
-  color: #ef4444;
+  color: var(--red-11);
 }
 
 .itemDate {
   font-size: 11px;
-  color: #6b7280;
+  color: var(--gray-11);
 }
 
 .seeMore {
   text-align: center;
   padding: 8px;
-  color: #6b7280;
+  color: var(--gray-11);
   font-size: 13px;
   cursor: pointer;
   transition: color 0.2s ease;
 }
 
 .seeMore:hover {
-  color: #374151;
+  color: var(--gray-12);
 }

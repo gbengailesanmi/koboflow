@@ -2,22 +2,36 @@
 
 .comparisonStat {
   @apply mt-6 p-6 rounded-xl;
-  background: rgba(255, 255, 255, 0.5);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
   width: 100%;
+}
+
+/* Light mode comparison stat */
+:root .comparisonStat,
+.light .comparisonStat,
+.light-theme .comparisonStat {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Dark mode comparison stat */
+.dark .comparisonStat,
+.dark-theme .comparisonStat {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .comparisonValue {
   @apply font-semibold;
+  color: var(--gray-12);
 }
 
 .incomeColor {
-  @apply text-green-600;
+  color: var(--green-11);
 }
 
 .expenseColor {
-  @apply text-red-600;
+  color: var(--red-11);
 }
 
 @media (max-width: 768px) {

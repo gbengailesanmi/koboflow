@@ -1,5 +1,6 @@
 import React from 'react'
 import { ChevronLeftIcon, ChevronRightIcon } from '@radix-ui/react-icons'
+import { Heading, Text } from '@radix-ui/themes'
 import styles from './analytics-card.module.css'
 
 type AnalyticsCardProps = {
@@ -23,8 +24,8 @@ export const AnalyticsCard: React.FC<AnalyticsCardProps> = ({
     <div className={styles.cardWrapper}>
       <div className={styles.card}>
         <div className={styles.cardHeader}>
-          <h2 className={styles.cardTitle}>{title}</h2>
-          <p className={styles.cardDescription}>{description}</p>
+          <Heading as="h2" size="4" mb="1">{title}</Heading>
+          <Text size="2" color="gray">{description}</Text>
         </div>
         <div className={styles.cardContent}>
           {children}

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo } from 'react'
+import React, { useMemo, useEffect, useState } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts'
 import { formatCurrency } from '../utils/format-currency'
 import styles from './month-on-month-chart.module.css'
@@ -15,6 +15,49 @@ type MonthOnMonthChartProps = {
 }
 
 export const MonthOnMonthChart: React.FC<MonthOnMonthChartProps> = ({ data, currency, transactions }) => {
+  const [isDarkMode, setIsDarkMode] = useState(false)
+  const [accentColor, setAccentColor] = useState('#3b82f6')
+  const [grayColor, setGrayColor] = useState('#6b7280')
+
+  useEffect(() => {
+    // Check if dark mode is enabled
+    const checkDarkMode = () => {
+      const isDark = document.documentElement.classList.contains('dark') || 
+                     document.documentElement.classList.contains('dark-theme')
+      setIsDarkMode(isDark)
+    }
+
+    const getAccentColor = () => {
+      const color = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim()
+      if (color) {
+        setAccentColor(color)
+      }
+    }
+
+    const getGrayColor = () => {
+      const color = getComputedStyle(document.documentElement).getPropertyValue('--gray-11').trim()
+      if (color) {
+        setGrayColor(color)
+      }
+    }
+
+    checkDarkMode()
+    getAccentColor()
+    getGrayColor()
+
+    // Watch for theme changes
+    const observer = new MutationObserver(() => {
+      checkDarkMode()
+      getAccentColor()
+      getGrayColor()
+    })
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class', 'style', 'data-theme']
+    })
+
+    return () => observer.disconnect()
+  }, [])
   const today = new Date()
   const currentDay = today.getDate()
   const currentMonth = today.getMonth()
@@ -75,13 +118,13 @@ export const MonthOnMonthChart: React.FC<MonthOnMonthChartProps> = ({ data, curr
           <p className={styles.rechartTooltipLabel}>{`Day ${label}`}</p>
           
           {currentValue !== null && currentValue !== undefined && (
-            <p style={{ color: '#1f2937' }} className={styles.rechartTooltipValue}>
+            <p style={{ color: isDarkMode ? '#ffffff' : accentColor }} className={styles.rechartTooltipValue}>
               {data.currentMonth.name}: {formatCurrency(currentValue, currency)}
             </p>
           )}
           
           {previousValue !== null && previousValue !== undefined && (
-            <p style={{ color: '#6b7280' }} className={styles.rechartTooltipValue}>
+            <p style={{ color: grayColor }} className={styles.rechartTooltipValue}>
               {data.prevMonth.name}: {formatCurrency(previousValue, currency)}
             </p>
           )}
@@ -90,6 +133,11 @@ export const MonthOnMonthChart: React.FC<MonthOnMonthChartProps> = ({ data, curr
     }
     return null
   }
+
+  const axisColor = isDarkMode ? '#9ca3af' : '#6b7280'
+  const currentLineColor = isDarkMode ? '#ffffff' : accentColor
+  const prevLineColor = grayColor
+  const referenceLineColor = isDarkMode ? '#64676e' : '#9ca3af'
 
   return (
     <div style={{ width: '100%', height: 'auto', minHeight: '200px', position: 'relative' }}>
@@ -107,14 +155,14 @@ export const MonthOnMonthChart: React.FC<MonthOnMonthChartProps> = ({ data, curr
             dataKey="day" 
             axisLine={false}
             tickLine={false}
-            tick={{ fontSize: 10, fill: '#6b7280' }}
+            tick={{ fontSize: 10, fill: axisColor }}
             ticks={['1', '15', maxDays.toString()]}
           />
           
           <YAxis 
             axisLine={false}
             tickLine={false}
-            tick={{ fontSize: 10, fill: '#6b7280' }}
+            tick={{ fontSize: 10, fill: axisColor }}
             tickFormatter={(value) => formatCurrency(value, currency)}
             domain={[0, 'auto']}
           />
@@ -124,16 +172,16 @@ export const MonthOnMonthChart: React.FC<MonthOnMonthChartProps> = ({ data, curr
           {/* Vertical line at current day */}
           <ReferenceLine 
             x={currentDay.toString()} 
-            stroke="#64676e" 
+            stroke={referenceLineColor}
             strokeDasharray="1 1"
             strokeWidth={1}
-            label={{ value: `Today ${currentDay}/${currentMonth + 1}`, position: 'top', fill: '#6b7280', fontSize: 10 }}
+            label={{ value: `Today ${currentDay}/${currentMonth + 1}`, position: 'top', fill: axisColor, fontSize: 10 }}
           />
           
           <Line 
             type="bump"
             dataKey="previousMonth" 
-            stroke="#bd8751" 
+            stroke={prevLineColor}
             strokeWidth={1}
             strokeDasharray="3 3"
             dot={false}
@@ -144,8 +192,8 @@ export const MonthOnMonthChart: React.FC<MonthOnMonthChartProps> = ({ data, curr
           <Line 
             type="bump" 
             dataKey="currentMonth" 
-            stroke="#ffffff" 
-            strokeWidth={1}
+            stroke={currentLineColor}
+            strokeWidth={2}
             dot={false}
             connectNulls={true}
             name={data.currentMonth.name}
@@ -155,11 +203,29 @@ export const MonthOnMonthChart: React.FC<MonthOnMonthChartProps> = ({ data, curr
       
       <div className={styles.legend}>
         <div className={styles.legendItem}>
-          <div className={`${styles.legendLine} ${styles.legendLineSolid}`} />
+          <div 
+            className={styles.legendLine}
+            style={{ 
+              backgroundColor: currentLineColor,
+              border: `1px solid ${currentLineColor}`
+            }} 
+          />
           <span>{data.currentMonth.name}</span>
         </div>
         <div className={styles.legendItem}>
-          <div className={`${styles.legendLine} ${styles.legendLineDashed}`} />
+          <div 
+            className={styles.legendLine}
+            style={{ 
+              background: `repeating-linear-gradient(
+                to right,
+                ${prevLineColor} 0,
+                ${prevLineColor} 4px,
+                transparent 4px,
+                transparent 8px
+              )`,
+              height: '2px'
+            }} 
+          />
           <span>{data.prevMonth.name}</span>
         </div>
       </div>

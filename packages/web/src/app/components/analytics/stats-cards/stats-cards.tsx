@@ -1,5 +1,5 @@
 import React from 'react'
-import { Separator } from '@radix-ui/themes'
+import { Separator, Text } from '@radix-ui/themes'
 import { ValueIcon } from '@radix-ui/react-icons'
 import { formatCurrency } from '../utils/format-currency'
 import styles from './stats-cards.module.css'
@@ -25,14 +25,14 @@ export const StatsCards: React.FC<StatsCardsProps> = ({
     <div className={styles.statsGrid}>
       <div className={styles.statsCard}>
         <div className={styles.statsCardContent}>
-          <div className={`${styles.statsValue} ${netBalance >= 0 ? styles.incomeColor : styles.expenseColor}`}>
+          <Text className={`${styles.statsValue} ${netBalance >= 0 ? styles.incomeColor : styles.expenseColor}`}>
             {formatCurrency(netBalance, currency)}
-          </div>
+          </Text>
         </div>
         <div className={styles.statsCardFooter}>
-          <div className={styles.statsCardTitle}>
+          <Text className={styles.statsCardTitle} size="1">
             Net Balance
-          </div>
+          </Text>
           <div className={styles.transactionBadge}>
             <ValueIcon className={styles.badgeIcon} />
             <span className={styles.badgeNumber}>{incomeTransactionCount + expenseTransactionCount}</span>
@@ -44,14 +44,14 @@ export const StatsCards: React.FC<StatsCardsProps> = ({
 
       <div className={styles.statsCard}>
         <div className={styles.statsCardContent}>
-          <div className={`${styles.statsValue} ${styles.incomeColor}`}>
+          <Text className={`${styles.statsValue} ${styles.incomeColor}`}>
             {formatCurrency(totalIncome, currency)}
-          </div>
+          </Text>
         </div>
         <div className={styles.statsCardFooter}>
-          <div className={styles.statsCardTitle}>
+          <Text className={styles.statsCardTitle} size="1">
             Total Income
-          </div>
+          </Text>
           <div className={styles.transactionBadge}>
             <ValueIcon className={styles.badgeIcon} />
             <span className={styles.badgeNumber}>{incomeTransactionCount}</span>
@@ -63,14 +63,14 @@ export const StatsCards: React.FC<StatsCardsProps> = ({
 
       <div className={styles.statsCard}>
         <div className={styles.statsCardContent}>
-          <div className={`${styles.statsValue} ${styles.expenseColor}`}>
+          <Text className={`${styles.statsValue} ${styles.expenseColor}`}>
             {formatCurrency(totalExpense, currency)}
-          </div>
+          </Text>
         </div>
         <div className={styles.statsCardFooter}>
-          <div className={styles.statsCardTitle}>
+          <Text className={styles.statsCardTitle} size="1">
             Total Spend
-          </div>
+          </Text>
           <div className={styles.transactionBadge}>
             <ValueIcon className={styles.badgeIcon} />
             <span className={styles.badgeNumber}>{expenseTransactionCount}</span>

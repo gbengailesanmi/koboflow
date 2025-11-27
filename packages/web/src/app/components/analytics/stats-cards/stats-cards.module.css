@@ -98,21 +98,22 @@
 .statsCardTitle {
   font-size: 0.40rem;
   font-weight: 500;
-  color: #6b7280;
+  color: var(--gray-11);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 .statsValue {
   @apply text-sm font-bold;
+  color: var(--gray-12);
 }
 
 .incomeColor {
-  color: #ffffff;
+  color: var(--gray-12);
 }
 
 .expenseColor {
-  color: #bda7977d;
+  color: var(--gray-10);
 }
 
 /* Tablet and up */

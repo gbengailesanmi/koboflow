@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { HamburgerMenuIcon, ChevronDownIcon, ChevronRightIcon } from '@radix-ui/react-icons'
-import { Dialog, Flex, Text, Box, ScrollArea } from '@radix-ui/themes'
+import { Dialog, Flex, Text, Box, ScrollArea, Switch } from '@radix-ui/themes'
 import styles from './hamburger-menu.module.css'
 
 type NavSection = {
@@ -25,6 +25,7 @@ export default function HamburgerMenu({ customerId }: HamburgerMenuProps) {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
   const [expandedSections, setExpandedSections] = useState<string[]>([])
+  const [switchChecked, setSwitchChecked] = useState(false)
 
   const navSections: NavSection[] = [
     {
@@ -145,9 +146,16 @@ export default function HamburgerMenu({ customerId }: HamburgerMenuProps) {
         className={styles.menuContent}
         style={{ maxWidth: '400px', padding: '0' }}
       >
-        <Dialog.Title className={styles.menuTitle}>
-          Navigation
-        </Dialog.Title>
+        <Flex align="center" justify="between" px="4" pt="4" pb="2" className={styles.titleWrapper}>
+          <Dialog.Title className={styles.menuTitle}>
+            Navigation
+          </Dialog.Title>
+          <Switch 
+            checked={switchChecked} 
+            onCheckedChange={setSwitchChecked}
+            size="2"
+          />
+        </Flex>
 
         <ScrollArea 
           type="auto" 

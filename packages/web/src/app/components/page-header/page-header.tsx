@@ -2,6 +2,7 @@
 
 import React from 'react'
 import { ArrowLeftIcon, MixerVerticalIcon, HamburgerMenuIcon } from '@radix-ui/react-icons'
+import { Heading, Text } from '@radix-ui/themes'
 import { useRouter, useParams } from 'next/navigation'
 import HamburgerMenu from '@/app/components/hamburger-menu/hamburger-menu'
 import styles from './page-header.module.css'
@@ -64,9 +65,13 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
       
       {/* Title and Subtitle - Left Aligned */}
       <div className={styles.titleSection}>
-        <h1 className={styles.title}>{title}</h1>
+        <Heading as="h1" size="8" weight="bold" mb="2">
+          {title}
+        </Heading>
         {subtitle && (
-          <p className={styles.subtitleText}>{subtitle}</p>
+          <Text size="3" color="gray">
+            {subtitle}
+          </Text>
         )}
       </div>
     </>

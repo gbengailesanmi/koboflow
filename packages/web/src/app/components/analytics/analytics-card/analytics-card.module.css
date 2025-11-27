@@ -9,26 +9,33 @@
 /* Mobile-first base styles */
 .card {
   @apply rounded-md overflow-visible mx-0 mb-8;
-  background: rgba(65, 64, 64, 0.178);
   backdrop-filter: blur(10px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), 0 0 32px rgba(0, 0, 0, 0.215);
   transition: all 0.3s ease;
+  /* Light mode card styles (default) */
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 0 32px rgba(0, 0, 0, 0.04);
 }
 
 .card:hover {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 0 48px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 0 48px rgba(0, 0, 0, 0.06);
+}
+
+/* Dark mode card styles - override light mode */
+:global(.dark) .card,
+:global(.dark-theme) .card,
+:global([data-theme="dark"]) .card {
+  background: rgba(30, 30, 30, 0.85) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 0 32px rgba(0, 0, 0, 0.3) !important;
+}
+
+:global(.dark) .card:hover,
+:global(.dark-theme) .card:hover,
+:global([data-theme="dark"]) .card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 48px rgba(0, 0, 0, 0.35) !important;
 }
 
 .cardHeader {
   @apply p-3;
-}
-
-.cardTitle {
-  @apply text-sm;
-}
-
-.cardDescription {
-  @apply text-xs text-gray-600;
 }
 
 .cardContent {
@@ -45,14 +52,6 @@
   
   .cardHeader {
     @apply p-6 pb-4;
-  }
-  
-  .cardTitle {
-    @apply text-lg;
-  }
-  
-  .cardDescription {
-    @apply text-sm;
   }
   
   .cardContent {
