@@ -19,6 +19,7 @@ import { formatCurrency } from '@/app/components/analytics/utils/format-currency
 import { getCategoryConfig } from '@/app/components/analytics/utils/category-config'
 import { PieChart } from '@/app/components/analytics/pie-chart/pie-chart'
 import { TreemapChart } from '@/app/components/analytics/treemap-chart/treemap-chart'
+import { BubbleChart } from '@/app/components/analytics/bubble-chart/bubble-chart'
 import { MonthOnMonthChart } from '@/app/components/analytics/month-on-month-chart/month-on-month-chart'
 import { RecurringPayments } from '@/app/components/analytics/recurring-payments/recurring-payments'
 import { StatsCards } from '@/app/components/analytics/stats-cards/stats-cards'
@@ -104,11 +105,11 @@ export default function AnalyticsClient({
   }
 
   const handleNextChart = () => {
-    setCurrentChartIndex((prev) => (prev + 1) % 3) // Cycle through 0, 1, 2
+    setCurrentChartIndex((prev) => (prev + 1) % 4) // Cycle through 0, 1, 2, 3
   }
 
   const handlePrevChart = () => {
-    setCurrentChartIndex((prev) => (prev - 1 + 3) % 3) // Cycle through 0, 1, 2
+    setCurrentChartIndex((prev) => (prev - 1 + 4) % 4) // Cycle through 0, 1, 2, 3
   }
 
   const processedTransactions = useMemo(() => {
@@ -342,19 +343,26 @@ export default function AnalyticsClient({
                       <div className={styles.chartWrapper}>
                         {currentChartIndex === 0 && (
                           <PieChart 
-                            data={categoryData.slice(0, 6)} 
+                            data={categoryData.slice(0, 9)} 
                             categoryConfig={categoryConfig}
                             currency={currency}
                           />
                         )}
                         {currentChartIndex === 1 && (
                           <TreemapChart 
-                            data={categoryData.slice(0, 6)} 
+                            data={categoryData.slice(0, 10)} 
                             categoryConfig={categoryConfig}
                             currency={currency}
                           />
                         )}
                         {currentChartIndex === 2 && (
+                          <BubbleChart 
+                            data={categoryData.slice(0, 9)} 
+                            categoryConfig={categoryConfig}
+                            currency={currency}
+                          />
+                        )}
+                        {currentChartIndex === 3 && (
                           <div className={styles.comingSoon}>
                             <div style={{ fontSize: '48px', marginBottom: '16px' }}>📊</div>
                             More chart types coming soon!

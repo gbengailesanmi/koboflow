@@ -1,0 +1,134 @@
+.bubbleWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  gap: 16px;
+  padding: 0;
+}
+
+.chartContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 70%;
+  position: relative;
+  max-width: 100%;
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+  .bubbleWrapper {
+    gap: 24px;
+  }
+  
+  .chartContainer {
+    max-width: 900px;
+  }
+}
+
+.tooltip {
+  background-color: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.tooltipLabel {
+  margin: 0;
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.tooltipValue {
+  margin: 0;
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.tooltipValue:last-child {
+  margin-bottom: 0;
+}
+
+/* Category Buttons - Matching pie chart style */
+.categoryButtons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  width: 100%;
+  max-width: 650px;
+  margin-top: 16px;
+}
+
+.categoryButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  min-width: 0;
+}
+
+.categoryButtonDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.categoryButtonLabel {
+  font-size: 11px;
+  font-weight: 400;
+  flex: 1;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #999;
+}
+
+.categoryButtonPercent {
+  font-size: 11px;
+  font-weight: 600;
+  color: #999;
+  flex-shrink: 0;
+}
+
+.categoryButton:hover {
+  transform: translateY(-2px);
+}
+
+.categoryButton:hover .categoryButtonLabel,
+.categoryButton:hover .categoryButtonPercent {
+  color: #666;
+}
+
+@media (min-width: 640px) {
+  .categoryButtonLabel,
+  .categoryButtonPercent {
+    font-size: 12px;
+  }
+  
+  .categoryButtonDot {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+@media (min-width: 768px) {
+  .categoryButtons {
+    gap: 16px;
+  }
+}
