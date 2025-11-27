@@ -63,7 +63,7 @@
 /* Navigation Chevrons */
 .navigationChevrons {
   position: absolute;
-  top: 40%;
+  top: 45%;
   left: 50%;
   transform: translate(-50%, -50%);
   display: flex;
@@ -85,7 +85,7 @@
 }
 
 .chevronButton svg {
-  color: #ffffff05;
+  color: #6564647a;
   width: 5rem;
   height: 5rem;
   transition: filter 0.2s ease;

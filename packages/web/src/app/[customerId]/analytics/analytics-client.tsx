@@ -18,11 +18,11 @@ import { categorizeTransaction } from '@/app/components/analytics/utils/categori
 import { formatCurrency } from '@/app/components/analytics/utils/format-currency'
 import { getCategoryConfig } from '@/app/components/analytics/utils/category-config'
 import { PieChart } from '@/app/components/analytics/pie-chart/pie-chart'
+import { TreemapChart } from '@/app/components/analytics/treemap-chart/treemap-chart'
 import { MonthOnMonthChart } from '@/app/components/analytics/month-on-month-chart/month-on-month-chart'
 import { RecurringPayments } from '@/app/components/analytics/recurring-payments/recurring-payments'
 import { StatsCards } from '@/app/components/analytics/stats-cards/stats-cards'
 import { CategoryBreakdown } from '@/app/components/analytics/category-breakdown/category-breakdown'
-import { BudgetOverview } from '@/app/components/analytics/budget-overview/budget-overview'
 import { DailySpendingComparison } from '@/app/components/analytics/daily-spending-comparison/daily-spending-comparison'
 import { AnalyticsCard } from '@/app/components/analytics/analytics-card/analytics-card'
 import { 
@@ -339,11 +339,28 @@ export default function AnalyticsClient({
                     </div>
                   ) : (
                     <div className={styles.chartContainer}>
-                      <PieChart 
-                        data={categoryData.slice(0, 6)} 
-                        categoryConfig={categoryConfig}
-                        currency={currency}
-                      />
+                      <div className={styles.chartWrapper}>
+                        {currentChartIndex === 0 && (
+                          <PieChart 
+                            data={categoryData.slice(0, 6)} 
+                            categoryConfig={categoryConfig}
+                            currency={currency}
+                          />
+                        )}
+                        {currentChartIndex === 1 && (
+                          <TreemapChart 
+                            data={categoryData.slice(0, 6)} 
+                            categoryConfig={categoryConfig}
+                            currency={currency}
+                          />
+                        )}
+                        {currentChartIndex === 2 && (
+                          <div className={styles.comingSoon}>
+                            <div style={{ fontSize: '48px', marginBottom: '16px' }}>📊</div>
+                            More chart types coming soon!
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
                 </AnalyticsCard>
