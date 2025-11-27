@@ -140,9 +140,6 @@ export const PieChart: React.FC<PieChartProps> = ({ data, categoryConfig, curren
               style={{ backgroundColor: item.color }}
             />
             <span className={styles.categoryButtonLabel}>{item.name}</span>
-            <span className={styles.categoryButtonValue}>
-              {formatCurrency(item.value, currency)}
-            </span>
             <span className={styles.categoryButtonPercent}>
               {item.percentage.toFixed(1)}%
             </span>

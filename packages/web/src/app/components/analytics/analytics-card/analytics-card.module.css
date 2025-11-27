@@ -34,6 +34,7 @@
 .cardContent {
   @apply p-2 pb-8;
   overflow: visible;
+  position: relative;
 }
 
 /* Tablet and larger screens */
@@ -59,59 +60,61 @@
   }
 }
 
-/* Optional Navigation Buttons */
-.navigationButtons {
+/* Navigation Chevrons */
+.navigationChevrons {
   position: absolute;
-  top: calc(46% - 20px);
-  left: 0;
-  right: 0;
-  transform: translateY(-50%);
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   display: flex;
   justify-content: space-between;
+  align-items: center;
   pointer-events: none;
   z-index: 5;
-  padding: 0 -1rem;
+  width: 400px;
+  max-width: 95%;
 }
 
-.navButton {
+.chevronButton {
   pointer-events: auto;
-  width: 8rem;
-  height: 8rem;
-  border-radius: 50%;
   background: transparent;
   border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
+  padding: 0;
+  transition: transform 0.2s ease;
 }
 
-.navButton:hover {
-  background: transparent;
+.chevronButton svg {
+  color: #ffffff05;
+  width: 5rem;
+  height: 5rem;
+  transition: filter 0.2s ease;
+}
+
+.chevronButton:hover {
   transform: scale(1.1);
 }
 
-.navButton:active {
-  transform: scale(0.95);
+.chevronButton:hover svg {
+  filter: brightness(3);
 }
 
-.navButton svg {
-  color: #333;
-  width: 25rem;
-  height: 25rem;
+.chevronButton:active {
+  transform: scale(1.8);
+}
+
+.chevronButton:active svg {
+  filter: brightness(5);
 }
 
 @media (min-width: 768px) {
-  .navigationButtons {
-    padding: 0 5rem;
-    top: calc(50% - 3rem);
+  .navigationChevrons {
+    width: 500px;
   }
 }
 
 @media (min-width: 1024px) {
-  .navigationButtons {
-    padding: 0 5rem;
-    top: calc(50% - 4rem);
+  .navigationChevrons {
+    width: 650px;
   }
 }

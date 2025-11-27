@@ -32,10 +32,10 @@ export const AnalyticsCard: React.FC<AnalyticsCardProps> = ({
       </div>
       
       {showNavigation && (onPrevChart || onNextChart) && (
-        <div className={styles.navigationButtons}>
+        <div className={styles.navigationChevrons}>
           {onPrevChart && (
             <button 
-              className={styles.navButton}
+              className={styles.chevronButton}
               onClick={onPrevChart}
               aria-label="Previous chart"
             >
@@ -44,7 +44,7 @@ export const AnalyticsCard: React.FC<AnalyticsCardProps> = ({
           )}
           {onNextChart && (
             <button 
-              className={styles.navButton}
+              className={styles.chevronButton}
               onClick={onNextChart}
               aria-label="Next chart"
             >

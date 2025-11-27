@@ -14,6 +14,7 @@
   justify-content: center;
   width: 100%;
   height: 300px;
+  position: relative;
 }
 
 .responsiveContainer {
@@ -102,13 +103,6 @@
   white-space: nowrap;
 }
 
-.categoryButtonValue {
-  font-size: 12px;
-  font-weight: 600;
-  color: #6b7280;
-  display: none;
-}
-
 .categoryButtonPercent {
   font-size: 10px;
   font-weight: 500;
@@ -122,11 +116,6 @@
   
   .categoryButton {
     padding: 10px 14px;
-  }
-  
-  .categoryButtonValue {
-    display: block;
-    margin-right: 6px;
   }
   
   .categoryButtonLabel {
