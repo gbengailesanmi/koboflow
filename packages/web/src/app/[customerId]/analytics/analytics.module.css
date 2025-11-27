@@ -133,7 +133,8 @@
 .main {
   display: flex;
   flex-direction: column;
-  padding: 0 8px;
+  padding-left: 0.6rem;
+  padding-right: 0.8rem;
   width: 100%;
   margin: 0 auto;
   overflow-y: auto;

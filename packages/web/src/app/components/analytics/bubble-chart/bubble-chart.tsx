@@ -71,7 +71,7 @@ export const BubbleChart: React.FC<BubbleChartProps> = ({ data, categoryConfig, 
       } else {
         // Try to place bubble using a systematic grid search
         const gridSize = 2 // Search every 2 units
-        const maxRadius = 45 // Maximum distance from center
+        const maxRadius = 40 // Maximum distance from center
         
         searchLoop: for (let distance = 5; distance <= maxRadius; distance += gridSize) {
           // Try different angles at this distance

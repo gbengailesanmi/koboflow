@@ -139,7 +139,7 @@ export const BalanceHistoryChart: React.FC<BalanceHistoryChartProps> = ({ data, 
             stroke="#64676e" 
             strokeDasharray="1 1"
             strokeWidth={1}
-            label={{ value: 'Today', position: 'top', fill: '#6b7280', fontSize: 10 }}
+            label={{ value: `Today ${currentDay}/${currentMonth + 1}`, position: 'top', fill: '#6b7280', fontSize: 10 }}
           />
           
           <Line

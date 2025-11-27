@@ -11,12 +11,12 @@
   @apply rounded-md overflow-visible mx-0 mb-8;
   background: rgba(65, 64, 64, 0.178);
   backdrop-filter: blur(10px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.897);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), 0 0 32px rgba(0, 0, 0, 0.215);
   transition: all 0.3s ease;
 }
 
 .card:hover {
-  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 0 48px rgba(0, 0, 0, 0.2);
 }
 
 .cardHeader {

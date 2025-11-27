@@ -19,7 +19,7 @@ export const MonthOnMonthChart: React.FC<MonthOnMonthChartProps> = ({ data, curr
   const currentDay = today.getDate()
   const currentMonth = today.getMonth()
   const currentYear = today.getFullYear()
-  
+
   const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1
   const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear
 
@@ -127,7 +127,7 @@ export const MonthOnMonthChart: React.FC<MonthOnMonthChartProps> = ({ data, curr
             stroke="#64676e" 
             strokeDasharray="1 1"
             strokeWidth={1}
-            label={{ value: 'Today', position: 'top', fill: '#6b7280', fontSize: 10 }}
+            label={{ value: `Today ${currentDay}/${currentMonth + 1}`, position: 'top', fill: '#6b7280', fontSize: 10 }}
           />
           
           <Line 
