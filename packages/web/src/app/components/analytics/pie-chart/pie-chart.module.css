@@ -54,6 +54,37 @@
   font-size: 12px;
 }
 
+/* Tooltip */
+.tooltip {
+  background-color: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.tooltipLabel {
+  margin: 0;
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.tooltipValue {
+  margin: 0;
+  font-size: 13px;
+  color: #666;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.tooltipPercent {
+  margin: 0;
+  font-size: 12px;
+  color: #999;
+}
+
 /* Category Buttons */
 .categoryButtons {
   display: grid;

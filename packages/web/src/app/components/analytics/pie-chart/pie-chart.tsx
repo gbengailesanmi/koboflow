@@ -21,6 +21,24 @@ export const PieChart: React.FC<PieChartProps> = ({ data, categoryConfig, curren
     color: categoryConfig[item.category]?.color || '#8884d8'
   }))
 
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0]
+      return (
+        <div className={styles.tooltip}>
+          <p className={styles.tooltipLabel}>{data.name}</p>
+          <p className={styles.tooltipValue}>
+            {formatCurrency(data.value, currency)}
+          </p>
+          <p className={styles.tooltipPercent}>
+            {data.payload.percentage.toFixed(1)}%
+          </p>
+        </div>
+      )
+    }
+    return null
+  }
+
   return (
     <div className={styles.pieChartWrapper}>
       <div className={styles.chartCenter}>
@@ -42,7 +60,7 @@ export const PieChart: React.FC<PieChartProps> = ({ data, categoryConfig, curren
               <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
             ))}
           </Pie>
-          <Tooltip content={() => null} />
+          <Tooltip content={<CustomTooltip />} />
         </RechartsPie>
         </ResponsiveContainer>
       </div>
