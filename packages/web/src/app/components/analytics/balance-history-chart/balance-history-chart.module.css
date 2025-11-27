@@ -1,0 +1,58 @@
+.rechartTooltip {
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.rechartTooltipLabel {
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #1f2937;
+  font-size: 14px;
+}
+
+.rechartTooltipValue {
+  margin: 4px 0;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.legend {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 16px;
+  padding: 0 16px;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.legendLine {
+  width: 24px;
+  height: 2px;
+  border-radius: 2px;
+}
+
+.legendLineSolid {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+}
+
+.legendLineDashed {
+  background: repeating-linear-gradient(
+    to right,
+    #94a3b8 0,
+    #94a3b8 4px,
+    transparent 4px,
+    transparent 8px
+  );
+  height: 2px;
+}

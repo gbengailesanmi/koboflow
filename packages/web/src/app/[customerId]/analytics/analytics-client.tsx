@@ -20,6 +20,7 @@ import { getCategoryConfig } from '@/app/components/analytics/utils/category-con
 import { PieChart } from '@/app/components/analytics/pie-chart/pie-chart'
 import { TreemapChart } from '@/app/components/analytics/treemap-chart/treemap-chart'
 import { BubbleChart } from '@/app/components/analytics/bubble-chart/bubble-chart'
+import { BalanceHistoryChart } from '@/app/components/analytics/balance-history-chart/balance-history-chart'
 import { MonthOnMonthChart } from '@/app/components/analytics/month-on-month-chart/month-on-month-chart'
 import { RecurringPayments } from '@/app/components/analytics/recurring-payments/recurring-payments'
 import { StatsCards } from '@/app/components/analytics/stats-cards/stats-cards'
@@ -400,6 +401,28 @@ export default function AnalyticsClient({
                           currency={currency}
                         />
                       </div>
+                    </div>
+                  )}
+                </AnalyticsCard>
+              </Grid>
+
+              <Grid id="balance-history">
+                <AnalyticsCard
+                  title={`${monthOnMonthData.currentMonth.name} vs ${monthOnMonthData.prevMonth.name}`}
+                  description="Track your cumulative balance over time"
+                >
+                  {(monthOnMonthData.currentMonth.expense === 0 && monthOnMonthData.prevMonth.expense === 0) ? (
+                    <div className={styles.noData}>
+                      <div style={{ fontSize: '48px', marginBottom: '16px' }}>💰</div>
+                      No balance data for comparison
+                    </div>
+                  ) : (
+                    <div className={styles.chartContainer}>
+                      <BalanceHistoryChart 
+                        data={monthOnMonthData}
+                        currency={currency}
+                        transactions={processedTransactions}
+                      />
                     </div>
                   )}
                 </AnalyticsCard>
