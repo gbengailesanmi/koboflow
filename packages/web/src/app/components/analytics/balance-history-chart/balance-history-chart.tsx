@@ -29,11 +29,10 @@ export const BalanceHistoryChart: React.FC<BalanceHistoryChartProps> = ({ data, 
 
   const chartData = useMemo(() => {
     const dailyData = []
-    let currentBalance = 0
-    let prevBalance = 0
+    let currentExpenses = 0
+    let prevExpenses = 0
     
     for (let day = 1; day <= maxDays; day++) {
-      // Calculate current month balance
       if (day <= daysInCurrentMonth) {
         const dayTransactions = transactions.filter((t: any) => {
           const tDate = t.date
@@ -42,18 +41,14 @@ export const BalanceHistoryChart: React.FC<BalanceHistoryChartProps> = ({ data, 
                  tDate.getFullYear() === currentYear
         })
         
-        const dayIncome = dayTransactions
-          .filter((t: any) => t.type === 'income')
-          .reduce((sum: number, t: any) => sum + t.numericAmount, 0)
-        
         const dayExpense = dayTransactions
           .filter((t: any) => t.type === 'expense')
           .reduce((sum: number, t: any) => sum + t.numericAmount, 0)
         
-        currentBalance += dayIncome - dayExpense
+        currentExpenses += dayExpense
       }
 
-      // Calculate previous month balance
+      // Calculate previous month cumulative expenses
       if (day <= daysInPrevMonth) {
         const dayTransactions = transactions.filter((t: any) => {
           const tDate = t.date
@@ -62,21 +57,17 @@ export const BalanceHistoryChart: React.FC<BalanceHistoryChartProps> = ({ data, 
                  tDate.getFullYear() === prevYear
         })
         
-        const dayIncome = dayTransactions
-          .filter((t: any) => t.type === 'income')
-          .reduce((sum: number, t: any) => sum + t.numericAmount, 0)
-        
         const dayExpense = dayTransactions
           .filter((t: any) => t.type === 'expense')
           .reduce((sum: number, t: any) => sum + t.numericAmount, 0)
         
-        prevBalance += dayIncome - dayExpense
+        prevExpenses += dayExpense
       }
 
       dailyData.push({
         day: day.toString(),
-        currentMonth: day <= daysInCurrentMonth ? currentBalance : null,
-        previousMonth: day <= daysInPrevMonth ? prevBalance : null,
+        currentMonth: day <= daysInCurrentMonth ? currentExpenses : null,
+        previousMonth: day <= daysInPrevMonth ? prevExpenses : null,
       })
     }
     
@@ -137,6 +128,7 @@ export const BalanceHistoryChart: React.FC<BalanceHistoryChartProps> = ({ data, 
             tickLine={false}
             tick={{ fontSize: 10, fill: '#6b7280' }}
             tickFormatter={(value) => formatCurrency(value, currency)}
+            domain={[0, 'auto']}
           />
           
           <Tooltip content={<CustomTooltip />} />

@@ -409,7 +409,7 @@ export default function AnalyticsClient({
               <Grid id="balance-history">
                 <AnalyticsCard
                   title={`${monthOnMonthData.currentMonth.name} vs ${monthOnMonthData.prevMonth.name}`}
-                  description="Track your cumulative balance over time"
+                  description="Track your cumulative spending against last month"
                 >
                   {(monthOnMonthData.currentMonth.expense === 0 && monthOnMonthData.prevMonth.expense === 0) ? (
                     <div className={styles.noData}>
