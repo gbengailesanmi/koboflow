@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useMemo } from 'react'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts'
 import { formatCurrency } from '../utils/format-currency'
 import styles from './month-on-month-chart.module.css'
 
@@ -64,14 +64,27 @@ export const MonthOnMonthChart: React.FC<MonthOnMonthChartProps> = ({ data, curr
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
+      const currentData = payload.find((p: any) => p.dataKey === 'currentMonth')
+      const previousData = payload.find((p: any) => p.dataKey === 'previousMonth')
+      
+      const currentValue = currentData?.value
+      const previousValue = previousData?.value
+      
       return (
         <div className={styles.rechartTooltip}>
           <p className={styles.rechartTooltipLabel}>{`Day ${label}`}</p>
-          {payload.map((entry: any, index: number) => (
-            <p key={index} style={{ color: entry.color }} className={styles.rechartTooltipValue}>
-              💸 {entry.dataKey === 'currentMonth' ? data.currentMonth.name : data.prevMonth.name}: {formatCurrency(entry.value, currency)}
+          
+          {currentValue !== null && currentValue !== undefined && (
+            <p style={{ color: '#1f2937' }} className={styles.rechartTooltipValue}>
+              {data.currentMonth.name}: {formatCurrency(currentValue, currency)}
             </p>
-          ))}
+          )}
+          
+          {previousValue !== null && previousValue !== undefined && (
+            <p style={{ color: '#6b7280' }} className={styles.rechartTooltipValue}>
+              {data.prevMonth.name}: {formatCurrency(previousValue, currency)}
+            </p>
+          )}
         </div>
       )
     }
@@ -80,7 +93,7 @@ export const MonthOnMonthChart: React.FC<MonthOnMonthChartProps> = ({ data, curr
 
   return (
     <div style={{ width: '100%', height: 'auto', minHeight: '200px', position: 'relative' }}>
-      <ResponsiveContainer width="100%" height={300}>
+      <ResponsiveContainer width="100%" height={400}>
         <LineChart
           data={chartData}
           margin={{
@@ -90,46 +103,66 @@ export const MonthOnMonthChart: React.FC<MonthOnMonthChartProps> = ({ data, curr
             bottom: 5,
           }}
         >
-          {}
           <XAxis 
             dataKey="day" 
             axisLine={false}
             tickLine={false}
             tick={{ fontSize: 10, fill: '#6b7280' }}
-            interval={Math.floor(maxDays / 4)}
+            ticks={['1', '15', maxDays.toString()]}
           />
+          
           <YAxis 
             axisLine={false}
             tickLine={false}
             tick={{ fontSize: 10, fill: '#6b7280' }}
             tickFormatter={(value) => formatCurrency(value, currency)}
+            domain={[0, 'auto']}
           />
+          
           <Tooltip content={<CustomTooltip />} />
-          <Legend 
-            wrapperStyle={{ paddingTop: '20px' }}
-            iconType="line"
-          />
-          <Line 
-            type="monotone" 
-            dataKey="currentMonth" 
-            stroke="#856624" 
+          
+          {/* Vertical line at current day */}
+          <ReferenceLine 
+            x={currentDay.toString()} 
+            stroke="#64676e" 
+            strokeDasharray="1 1"
             strokeWidth={1}
-            dot={false}
-            connectNulls={false}
-            name={`${data.currentMonth.name}`}
+            label={{ value: 'Today', position: 'top', fill: '#6b7280', fontSize: 10 }}
           />
+          
           <Line 
-            type="monotone" 
+            type="bump"
             dataKey="previousMonth" 
-            stroke="#f97316" 
+            stroke="#bd8751" 
+            strokeWidth={1}
+            strokeDasharray="3 3"
+            dot={false}
+            connectNulls={true}
+            name={data.prevMonth.name}
+          />
+          
+          <Line 
+            type="bump" 
+            dataKey="currentMonth" 
+            stroke="#ffffff" 
             strokeWidth={1}
             dot={false}
-            strokeDasharray="2 5"
-            connectNulls={false}
-            name={`${data.prevMonth.name}`}
+            connectNulls={true}
+            name={data.currentMonth.name}
           />
         </LineChart>
       </ResponsiveContainer>
+      
+      <div className={styles.legend}>
+        <div className={styles.legendItem}>
+          <div className={`${styles.legendLine} ${styles.legendLineSolid}`} />
+          <span>{data.currentMonth.name}</span>
+        </div>
+        <div className={styles.legendItem}>
+          <div className={`${styles.legendLine} ${styles.legendLineDashed}`} />
+          <span>{data.prevMonth.name}</span>
+        </div>
+      </div>
     </div>
   )
 }

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useMemo } from 'react'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts'
 import { formatCurrency } from '../utils/format-currency'
 import styles from './balance-history-chart.module.css'
 
@@ -16,6 +16,7 @@ type BalanceHistoryChartProps = {
 
 export const BalanceHistoryChart: React.FC<BalanceHistoryChartProps> = ({ data, currency, transactions }) => {
   const today = new Date()
+  const currentDay = today.getDate()
   const currentMonth = today.getMonth()
   const currentYear = today.getFullYear()
   
@@ -133,24 +134,30 @@ export const BalanceHistoryChart: React.FC<BalanceHistoryChartProps> = ({ data, 
           
           <Tooltip content={<CustomTooltip />} />
           
-          {/* Previous month line - always visible */}
+          <ReferenceLine 
+            x={currentDay.toString()} 
+            stroke="#64676e" 
+            strokeDasharray="1 1"
+            strokeWidth={1}
+            label={{ value: 'Today', position: 'top', fill: '#6b7280', fontSize: 10 }}
+          />
+          
           <Line
-            type="monotone"
+            type="bump"
             dataKey="previousMonth"
-            stroke="#94a3b8"
-            strokeWidth={2}
-            strokeDasharray="5 5"
+            stroke="#bd8751"
+            strokeWidth={1}
+            strokeDasharray="3 3"
             dot={false}
             connectNulls={true}
             name={data.prevMonth.name}
           />
           
-          {/* Current month line - always visible */}
           <Line
-            type="monotone"
+            type="bump"
             dataKey="currentMonth"
             stroke="#ffffff"
-            strokeWidth={3}
+            strokeWidth={1}
             dot={false}
             connectNulls={true}
             name={data.currentMonth.name}
