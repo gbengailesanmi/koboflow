@@ -1,5 +1,11 @@
 @reference "../../../globals.css";
 
+/* Card Wrapper for navigation positioning */
+.cardWrapper {
+  position: relative;
+  width: 100%;
+}
+
 /* Mobile-first base styles */
 .card {
   @apply rounded-md overflow-visible mx-0 mb-8;
@@ -50,5 +56,62 @@
   
   .cardContent {
     @apply p-2 pb-10;
+  }
+}
+
+/* Optional Navigation Buttons */
+.navigationButtons {
+  position: absolute;
+  top: calc(46% - 20px);
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+  z-index: 5;
+  padding: 0 -1rem;
+}
+
+.navButton {
+  pointer-events: auto;
+  width: 8rem;
+  height: 8rem;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.navButton:hover {
+  background: transparent;
+  transform: scale(1.1);
+}
+
+.navButton:active {
+  transform: scale(0.95);
+}
+
+.navButton svg {
+  color: #333;
+  width: 25rem;
+  height: 25rem;
+}
+
+@media (min-width: 768px) {
+  .navigationButtons {
+    padding: 0 5rem;
+    top: calc(50% - 3rem);
+  }
+}
+
+@media (min-width: 1024px) {
+  .navigationButtons {
+    padding: 0 5rem;
+    top: calc(50% - 4rem);
   }
 }

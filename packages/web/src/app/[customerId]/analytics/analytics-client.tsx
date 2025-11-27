@@ -60,6 +60,7 @@ export default function AnalyticsClient({
 
   const [timePeriod, setTimePeriod] = useState<'day' | 'month' | 'year'>('month')
   const [showAccountFilter, setShowAccountFilter] = useState(false)
+  const [currentChartIndex, setCurrentChartIndex] = useState(0)
   const mainRef = React.useRef<HTMLElement>(null)
   
   const effectiveAccountId = selectedAccountId || 'all'
@@ -100,6 +101,14 @@ export default function AnalyticsClient({
       console.error('Failed to delete category:', error)
       showToast('Failed to delete category', 'error')
     }
+  }
+
+  const handleNextChart = () => {
+    setCurrentChartIndex((prev) => (prev + 1) % 3) // Cycle through 0, 1, 2
+  }
+
+  const handlePrevChart = () => {
+    setCurrentChartIndex((prev) => (prev - 1 + 3) % 3) // Cycle through 0, 1, 2
   }
 
   const processedTransactions = useMemo(() => {
@@ -319,6 +328,9 @@ export default function AnalyticsClient({
                 <AnalyticsCard
                   title="Expense Breakdown"
                   description="Visual breakdown of your spending by category"
+                  showNavigation={categoryData.length > 0}
+                  onNextChart={handleNextChart}
+                  onPrevChart={handlePrevChart}
                 >
                   {categoryData.length === 0 ? (
                     <div className={styles.noData}>
