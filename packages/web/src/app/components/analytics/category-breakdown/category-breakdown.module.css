@@ -106,8 +106,8 @@
 .cancelBtn {
   width: 28px;
   height: 28px;
-  background: #ef4444;
-  color: white;
+  background: var(--red-9);
+  color: var(--red-contrast);
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -118,7 +118,7 @@
 }
 
 .cancelBtn:hover:not(:disabled) {
-  background: #dc2626;
+  background: var(--red-10);
 }
 
 .cancelBtn:disabled {

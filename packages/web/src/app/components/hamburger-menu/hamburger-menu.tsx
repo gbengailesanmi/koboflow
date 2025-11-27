@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
+import { useTheme } from 'next-themes'
 import { HamburgerMenuIcon, ChevronDownIcon, ChevronRightIcon } from '@radix-ui/react-icons'
 import { Dialog, Flex, Text, Box, ScrollArea, Switch } from '@radix-ui/themes'
 import styles from './hamburger-menu.module.css'
@@ -23,9 +24,21 @@ type HamburgerMenuProps = {
 export default function HamburgerMenu({ customerId }: HamburgerMenuProps) {
   const router = useRouter()
   const pathname = usePathname()
+  const { theme, setTheme } = useTheme()
   const [open, setOpen] = useState(false)
   const [expandedSections, setExpandedSections] = useState<string[]>([])
-  const [switchChecked, setSwitchChecked] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  // Wait until mounted to avoid hydration mismatch
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  const isDarkMode = mounted && theme === 'dark'
+
+  const handleThemeToggle = (checked: boolean) => {
+    setTheme(checked ? 'dark' : 'light')
+  }
 
   const navSections: NavSection[] = [
     {
@@ -150,11 +163,13 @@ export default function HamburgerMenu({ customerId }: HamburgerMenuProps) {
           <Dialog.Title className={styles.menuTitle}>
             Navigation
           </Dialog.Title>
-          <Switch 
-            checked={switchChecked} 
-            onCheckedChange={setSwitchChecked}
-            size="2"
-          />
+          {mounted && (
+            <Switch 
+              checked={isDarkMode} 
+              onCheckedChange={handleThemeToggle}
+              size="2"
+            />
+          )}
         </Flex>
 
         <ScrollArea 

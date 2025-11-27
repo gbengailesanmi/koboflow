@@ -18,6 +18,8 @@ export const MonthOnMonthChart: React.FC<MonthOnMonthChartProps> = ({ data, curr
   const [isDarkMode, setIsDarkMode] = useState(false)
   const [accentColor, setAccentColor] = useState('#3b82f6')
   const [grayColor, setGrayColor] = useState('#6b7280')
+  const [axisColor, setAxisColor] = useState('#6b7280')
+  const [referenceLineColor, setReferenceLineColor] = useState('#9ca3af')
 
   useEffect(() => {
     // Check if dark mode is enabled
@@ -41,15 +43,33 @@ export const MonthOnMonthChart: React.FC<MonthOnMonthChartProps> = ({ data, curr
       }
     }
 
+    const getAxisColor = () => {
+      const color = getComputedStyle(document.documentElement).getPropertyValue('--gray-10').trim()
+      if (color) {
+        setAxisColor(color)
+      }
+    }
+
+    const getRefLineColor = () => {
+      const color = getComputedStyle(document.documentElement).getPropertyValue('--gray-7').trim()
+      if (color) {
+        setReferenceLineColor(color)
+      }
+    }
+
     checkDarkMode()
     getAccentColor()
     getGrayColor()
+    getAxisColor()
+    getRefLineColor()
 
     // Watch for theme changes
     const observer = new MutationObserver(() => {
       checkDarkMode()
       getAccentColor()
       getGrayColor()
+      getAxisColor()
+      getRefLineColor()
     })
     observer.observe(document.documentElement, {
       attributes: true,
@@ -134,10 +154,8 @@ export const MonthOnMonthChart: React.FC<MonthOnMonthChartProps> = ({ data, curr
     return null
   }
 
-  const axisColor = isDarkMode ? '#9ca3af' : '#6b7280'
   const currentLineColor = isDarkMode ? '#ffffff' : accentColor
   const prevLineColor = grayColor
-  const referenceLineColor = isDarkMode ? '#64676e' : '#9ca3af'
 
   return (
     <div style={{ width: '100%', height: 'auto', minHeight: '200px', position: 'relative' }}>

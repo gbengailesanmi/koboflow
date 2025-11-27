@@ -104,7 +104,7 @@ export default function SettingsClient({
         pageColors
       })
 
-      document.documentElement.setAttribute('data-theme', theme)
+      // Set accent color CSS variable
       document.documentElement.style.setProperty('--accent-color', accentColors.find(c => c.value === accentColor)?.color || '#3b82f6')
       showToast('Settings saved successfully', 'success')
       router.refresh()

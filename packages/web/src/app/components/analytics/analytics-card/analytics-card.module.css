@@ -21,16 +21,12 @@
 }
 
 /* Dark mode card styles - override light mode */
-:global(.dark) .card,
-:global(.dark-theme) .card,
-:global([data-theme="dark"]) .card {
+:global(.dark) .card {
   background: rgba(30, 30, 30, 0.85) !important;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 0 32px rgba(0, 0, 0, 0.3) !important;
 }
 
-:global(.dark) .card:hover,
-:global(.dark-theme) .card:hover,
-:global([data-theme="dark"]) .card:hover {
+:global(.dark) .card:hover {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 48px rgba(0, 0, 0, 0.35) !important;
 }
 
@@ -84,7 +80,7 @@
 }
 
 .chevronButton svg {
-  color: #6564647a;
+  color: var(--gray-8);
   width: 5rem;
   height: 5rem;
   transition: filter 0.2s ease;
