@@ -11,23 +11,12 @@
   @apply rounded-md overflow-visible mx-0 mb-8;
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
-  /* Light mode card styles (default) */
-  background: rgba(255, 255, 255, 0.7);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 0 32px rgba(0, 0, 0, 0.04);
+  background: var(--card-bg);
+  box-shadow: var(--card-shadow);
 }
 
 .card:hover {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 0 48px rgba(0, 0, 0, 0.06);
-}
-
-/* Dark mode card styles - override light mode */
-:global(.dark) .card {
-  background: rgba(30, 30, 30, 0.85) !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 0 32px rgba(0, 0, 0, 0.3) !important;
-}
-
-:global(.dark) .card:hover {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 48px rgba(0, 0, 0, 0.35) !important;
+  box-shadow: var(--card-shadow-hover);
 }
 
 .cardHeader {
