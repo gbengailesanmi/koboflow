@@ -136,6 +136,13 @@ export async function updateBudget(data: any) {
   })
 }
 
+// ============================================================================
+// SETTINGS MUTATIONS
+// ============================================================================
+
+/**
+ * Update app settings (theme, notifications, page colors, etc.)
+ */
 export async function updateAppSettings(data: any) {
   return fetchClient('/api/settings', {
     method: 'PATCH',
@@ -143,6 +150,18 @@ export async function updateAppSettings(data: any) {
   })
 }
 
+/**
+ * Delete user account and all associated data
+ */
+export async function deleteUserAccount() {
+  return fetchClient('/api/settings/account', {
+    method: 'DELETE',
+  })
+}
+
+/**
+ * @deprecated Use updateAppSettings instead
+ */
 export async function updateUserProfile(data: any) {
   return fetchClient('/api/settings', {
     method: 'POST',
@@ -150,11 +169,72 @@ export async function updateUserProfile(data: any) {
   })
 }
 
-export async function deleteUserAccount() {
-  return fetchClient('/api/user/account', {
-    method: 'DELETE',
+// ============================================================================
+// PIN MANAGEMENT
+// ============================================================================
+
+/**
+ * Set a new PIN (first-time setup)
+ * @param pin - 4-6 digit PIN
+ * @param password - User's account password for encryption
+ */
+export async function setUserPIN(pin: string, password: string) {
+  return fetchClient('/api/settings/pin/set', {
+    method: 'POST',
+    body: JSON.stringify({ pin, password }),
   })
 }
+
+/**
+ * Change existing PIN
+ * @param oldPin - Current PIN
+ * @param newPin - New 4-6 digit PIN
+ * @param password - User's account password
+ */
+export async function changeUserPIN(oldPin: string, newPin: string, password: string) {
+  return fetchClient('/api/settings/pin/change', {
+    method: 'POST',
+    body: JSON.stringify({ oldPin, newPin, password }),
+  })
+}
+
+/**
+ * Verify if a PIN is correct
+ * @param pin - PIN to verify
+ * @param password - User's account password
+ * @returns Object with valid: boolean
+ */
+export async function verifyUserPIN(pin: string, password: string) {
+  return fetchClient('/api/settings/pin/verify', {
+    method: 'POST',
+    body: JSON.stringify({ pin, password }),
+  })
+}
+
+// ============================================================================
+// PASSWORD MANAGEMENT
+// ============================================================================
+
+/**
+ * Change user password (re-encrypts PIN if set)
+ * @param currentPassword - Current password
+ * @param newPassword - New password (min 8 characters)
+ * @param confirmPassword - Confirmation of new password
+ */
+export async function changeUserPassword(
+  currentPassword: string,
+  newPassword: string,
+  confirmPassword: string
+) {
+  return fetchClient('/api/settings/password/change', {
+    method: 'POST',
+    body: JSON.stringify({ currentPassword, newPassword, confirmPassword }),
+  })
+}
+
+// ============================================================================
+// AUTHENTICATION
+// ============================================================================
 
 export async function logoutUser() {
   return fetchClient('/api/auth/logout', {
@@ -218,4 +298,12 @@ export async function getAccountsClient(customerId: string) {
  */
 export async function getTransactionsClient(customerId: string) {
   return fetchClient(`/api/transactions/${customerId}`)
+}
+
+/**
+ * Get fresh settings (not cached)
+ * Prefer server-side getSettings() from api-service.ts
+ */
+export async function getSettingsClient() {
+  return fetchClient('/api/settings')
 }

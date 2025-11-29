@@ -10,8 +10,8 @@ import type {
   CustomCategory,
   CategoryBudget,
   BudgetPeriod,
+  UserSettings,
 } from '@money-mapper/shared'
-import type { UserSettings } from '../../lib/default-settings'
 
 export interface SessionUser {
   customerId: string
@@ -550,6 +550,152 @@ export async function deleteAccount(): Promise<{ success: boolean; message?: str
     return {
       success: false,
       message: error.message || 'Failed to delete account',
+    }
+  }
+}
+
+// ============================================================================
+// PIN Management (Server Actions)
+// ============================================================================
+
+/**
+ * Set a new PIN (first-time setup)
+ * Revalidates: 'settings' tag
+ * @param pin - 4-6 digit PIN
+ * @param password - User's account password for encryption
+ */
+export async function setUserPIN(pin: string, password: string): Promise<{
+  success: boolean
+  message?: string
+}> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/settings/pin/set`, {
+      method: 'POST',
+      body: JSON.stringify({ pin, password }),
+      cache: 'no-store',
+    })
+
+    const data = await response.json()
+
+    if (data.success) {
+      revalidateTag('settings')
+    }
+
+    return data
+  } catch (error: any) {
+    console.error('setUserPIN error:', error)
+    return {
+      success: false,
+      message: error.message || 'Failed to set PIN',
+    }
+  }
+}
+
+/**
+ * Change existing PIN
+ * Revalidates: 'settings' tag
+ * @param oldPin - Current PIN
+ * @param newPin - New 4-6 digit PIN
+ * @param password - User's account password
+ */
+export async function changeUserPIN(
+  oldPin: string,
+  newPin: string,
+  password: string
+): Promise<{
+  success: boolean
+  message?: string
+}> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/settings/pin/change`, {
+      method: 'POST',
+      body: JSON.stringify({ oldPin, newPin, password }),
+      cache: 'no-store',
+    })
+
+    const data = await response.json()
+
+    if (data.success) {
+      revalidateTag('settings')
+    }
+
+    return data
+  } catch (error: any) {
+    console.error('changeUserPIN error:', error)
+    return {
+      success: false,
+      message: error.message || 'Failed to change PIN',
+    }
+  }
+}
+
+/**
+ * Verify if a PIN is correct
+ * No revalidation needed (read-only operation)
+ * @param pin - PIN to verify
+ * @param password - User's account password
+ */
+export async function verifyUserPIN(pin: string, password: string): Promise<{
+  success: boolean
+  valid?: boolean
+  message?: string
+}> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/settings/pin/verify`, {
+      method: 'POST',
+      body: JSON.stringify({ pin, password }),
+      cache: 'no-store',
+    })
+
+    return await response.json()
+  } catch (error: any) {
+    console.error('verifyUserPIN error:', error)
+    return {
+      success: false,
+      message: error.message || 'Failed to verify PIN',
+    }
+  }
+}
+
+// ============================================================================
+// Password Management (Server Actions)
+// ============================================================================
+
+/**
+ * Change user password (automatically re-encrypts PIN if set)
+ * Revalidates: 'settings', 'session' tags
+ * @param currentPassword - Current password
+ * @param newPassword - New password (min 8 characters)
+ * @param confirmPassword - Confirmation of new password
+ */
+export async function changeUserPassword(
+  currentPassword: string,
+  newPassword: string,
+  confirmPassword: string
+): Promise<{
+  success: boolean
+  message?: string
+}> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/settings/password/change`, {
+      method: 'POST',
+      body: JSON.stringify({ currentPassword, newPassword, confirmPassword }),
+      cache: 'no-store',
+    })
+
+    const data = await response.json()
+
+    if (data.success) {
+      revalidateTag('settings')
+      revalidateTag('session')
+    }
+
+    return data
+  } catch (error: any) {
+    console.error('changeUserPassword error:', error)
+    return {
+      success: false,
+      message: error.message || 'Failed to change password',
     }
   }
 }
