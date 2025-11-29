@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, FormEvent } from 'react'
+import { useState, useEffect, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTheme } from 'next-themes'
 import { 
   updateSettings, 
   deleteAccount,
@@ -43,6 +44,7 @@ export default function SettingsClient({
 }: SettingsClientProps) {
   const router = useRouter()
   const { showToast } = useToasts()
+  const { theme: currentTheme, setTheme: setNextTheme } = useTheme()
 
   // Settings state
   const [theme, setTheme] = useState<Theme>(initialSettings?.appearance?.theme || 'system')
@@ -57,6 +59,13 @@ export default function SettingsClient({
   const [showBalance, setShowBalance] = useState(initialSettings?.privacy?.showBalance ?? true)
   const [faceId, setFaceId] = useState(initialSettings?.security?.faceId ?? false)
   const [givePermission, setGivePermission] = useState(initialSettings?.security?.givePermission ?? false)
+
+  // Sync next-themes with user's saved theme preference
+  useEffect(() => {
+    if (currentTheme !== theme) {
+      setNextTheme(theme)
+    }
+  }, [theme, currentTheme, setNextTheme])
   
   // Modal states
   const [showPinModal, setShowPinModal] = useState(false)
@@ -86,7 +95,6 @@ export default function SettingsClient({
 
   const userName = `${firstName} ${lastName}` || ''
 
-  // Save settings - accepts override values to handle async state updates
   const saveSettings = async (overrides?: Partial<{
     theme: Theme
     emailChannel: boolean
@@ -102,6 +110,7 @@ export default function SettingsClient({
     givePermission: boolean
   }>) => {
     setIsSaving(true)
+    
     try {
       const settingsData = {
         appearance: {
@@ -291,6 +300,7 @@ export default function SettingsClient({
                   onValueChange={(value) => {
                     const newTheme = value as Theme
                     setTheme(newTheme)
+                    setNextTheme(newTheme) // Immediately apply theme to next-themes
                     saveSettings({ theme: newTheme })
                   }}
                   columns="3"
