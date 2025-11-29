@@ -60,12 +60,12 @@ export default function SettingsClient({
   const [faceId, setFaceId] = useState(initialSettings?.security?.faceId ?? false)
   const [givePermission, setGivePermission] = useState(initialSettings?.security?.givePermission ?? false)
 
-  // Sync next-themes with user's saved theme preference
+  // Sync settings page theme state when next-themes changes (from hamburger menu or elsewhere)
   useEffect(() => {
-    if (currentTheme !== theme) {
-      setNextTheme(theme)
+    if (currentTheme && currentTheme !== 'system' && currentTheme !== theme) {
+      setTheme(currentTheme as Theme)
     }
-  }, [theme, currentTheme, setNextTheme])
+  }, [currentTheme, theme])
   
   // Modal states
   const [showPinModal, setShowPinModal] = useState(false)

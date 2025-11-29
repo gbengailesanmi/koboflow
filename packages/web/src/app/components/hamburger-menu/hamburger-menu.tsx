@@ -5,6 +5,9 @@ import { useRouter, usePathname } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import { HamburgerMenuIcon, ChevronDownIcon, ChevronRightIcon } from '@radix-ui/react-icons'
 import { Dialog, Flex, Text, Box, ScrollArea, Switch } from '@radix-ui/themes'
+import { updateSettings } from '@/app/api/api-service'
+import { useToasts } from '@/store'
+import type { UserSettings } from '@money-mapper/shared'
 import styles from './hamburger-menu.module.css'
 
 type NavSection = {
@@ -24,7 +27,8 @@ type HamburgerMenuProps = {
 export default function HamburgerMenu({ customerId }: HamburgerMenuProps) {
   const router = useRouter()
   const pathname = usePathname()
-  const { theme, setTheme } = useTheme()
+  const { setTheme, resolvedTheme } = useTheme()
+  const { showToast } = useToasts()
   const [open, setOpen] = useState(false)
   const [expandedSections, setExpandedSections] = useState<string[]>([])
   const [mounted, setMounted] = useState(false)
@@ -34,10 +38,23 @@ export default function HamburgerMenu({ customerId }: HamburgerMenuProps) {
     setMounted(true)
   }, [])
 
-  const isDarkMode = mounted && theme === 'dark'
+  const isDarkMode = mounted && (resolvedTheme === 'dark')
 
-  const handleThemeToggle = (checked: boolean) => {
-    setTheme(checked ? 'dark' : 'light')
+  const handleThemeToggle = async (checked: boolean) => {
+    const newTheme = checked ? 'dark' : 'light'
+    
+    // Immediately apply visual theme
+    setTheme(newTheme)
+    
+    // Save to database
+    try {
+      await updateSettings({
+        appearance: { theme: newTheme }
+      } as Partial<UserSettings>)
+    } catch (error) {
+      console.error('Failed to save theme:', error)
+      showToast('Failed to save theme preference', 'error')
+    }
   }
 
   const navSections: NavSection[] = [
