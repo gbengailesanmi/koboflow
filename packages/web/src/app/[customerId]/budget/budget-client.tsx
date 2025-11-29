@@ -13,10 +13,11 @@ import { categorizeTransaction } from '@/app/components/analytics/utils/categori
 import { formatCurrency } from '@/app/components/analytics/utils/format-currency'
 import { getCategoryConfig } from '@/app/components/analytics/utils/category-config'
 import { BudgetProgress } from '@/app/components/budget-progress'
+import { EmptyState } from '@/app/components/empty-state'
+import { StatusAlert } from '@/app/components/status-alert'
 import type { BudgetPeriod, BudgetPeriodType } from '@/types/budget'
 import { Dialog, Button, Flex, Text, Progress, Grid } from '@radix-ui/themes'
 import styles from './budget.module.css'
-import analyticsStyles from '../analytics/analytics.module.css'
 
 type CategoryBudget = {
   category: string
@@ -464,24 +465,17 @@ export default function BudgetClient({
                 className={styles.progressSection}
               />
 
-              <div className={styles.statusAlert}>
-                <div className={styles.statusIcon}>
-                  {isOverBudget ? '⚠️' : monthlyProgress >= 80 ? '⚡' : '✅'}
-                </div>
-                <div className={styles.statusContent}>
-                  <div className={styles.statusTitle} style={{ 
-                    color: isOverBudget ? '#ef4444' : monthlyProgress >= 80 ? '#f59e0b' : '#10b981' 
-                  }}>
-                    {isOverBudget ? 'Over Budget' : monthlyProgress >= 80 ? 'Approaching Limit' : 'On Track'}
-                  </div>
-                  <div className={styles.statusMessage}>
-                    {isOverBudget 
-                      ? `You've exceeded your budget by ${formatCurrency(monthlyExpenses - budgetData.totalBudgetLimit, currency)}`
-                      : `You have ${formatCurrency(budgetData.totalBudgetLimit - monthlyExpenses, currency)} remaining ${getPeriodText(budgetData.period)}`
-                    }
-                  </div>
-                </div>
-              </div>
+              <StatusAlert
+                icon={isOverBudget ? '⚠️' : monthlyProgress >= 80 ? '⚡' : '✅'}
+                title={isOverBudget ? 'Over Budget' : monthlyProgress >= 80 ? 'Approaching Limit' : 'On Track'}
+                message={
+                  isOverBudget 
+                    ? `You've exceeded your budget by ${formatCurrency(monthlyExpenses - budgetData.totalBudgetLimit, currency)}`
+                    : `You have ${formatCurrency(budgetData.totalBudgetLimit - monthlyExpenses, currency)} remaining ${getPeriodText(budgetData.period)}`
+                }
+                type={isOverBudget ? 'danger' : monthlyProgress >= 80 ? 'warning' : 'success'}
+                className={styles.statusAlert}
+              />
             </div>
           </div>
         </Grid>
@@ -495,15 +489,11 @@ export default function BudgetClient({
   const renderBodyContent = () => (
     <>
       {processedTransactions.length === 0 ? (
-        <div className={analyticsStyles.emptyState}>
-          <div className={analyticsStyles.emptyStateContent}>
-            <div className={analyticsStyles.emptyStateIcon}>💰</div>
-            <h3 className={analyticsStyles.emptyStateTitle}>No transactions yet</h3>
-            <p className={analyticsStyles.emptyStateText}>
-              Add some transactions to start tracking your budget
-            </p>
-          </div>
-        </div>
+        <EmptyState
+          icon="💰"
+          title="No transactions yet"
+          description="Add some transactions to start tracking your budget"
+        />
       ) : (
         <>
           {/* Edit Budget Modal */}
@@ -655,30 +645,22 @@ export default function BudgetClient({
                   />
 
                   {isCategoryBudgetOver && (
-                    <div className={styles.statusAlert} style={{ marginTop: '12px' }}>
-                      <div className={styles.statusIcon}>⚠️</div>
-                      <div className={styles.statusContent}>
-                        <div className={styles.statusTitle} style={{ color: '#ef4444' }}>
-                          Over-allocated
-                        </div>
-                        <div className={styles.statusMessage}>
-                          Category budgets exceed total budget by {formatCurrency(totalCategoryBudget - budgetData.totalBudgetLimit, currency)}
-                        </div>
-                      </div>
-                    </div>
+                    <StatusAlert
+                      icon="⚠️"
+                      title="Over-allocated"
+                      message={`Category budgets exceed total budget by ${formatCurrency(totalCategoryBudget - budgetData.totalBudgetLimit, currency)}`}
+                      type="danger"
+                      style={{ marginTop: '12px' }}
+                    />
                   )}
                   {!isCategoryBudgetOver && categoryBudgetProgress >= 80 && (
-                    <div className={styles.statusAlert} style={{ marginTop: '12px' }}>
-                      <div className={styles.statusIcon}>⚡</div>
-                      <div className={styles.statusContent}>
-                        <div className={styles.statusTitle} style={{ color: '#f59e0b' }}>
-                          Nearly Full
-                        </div>
-                        <div className={styles.statusMessage}>
-                          You have {formatCurrency(budgetData.totalBudgetLimit - totalCategoryBudget, currency)} remaining to allocate
-                        </div>
-                      </div>
-                    </div>
+                    <StatusAlert
+                      icon="⚡"
+                      title="Nearly Full"
+                      message={`You have ${formatCurrency(budgetData.totalBudgetLimit - totalCategoryBudget, currency)} remaining to allocate`}
+                      type="warning"
+                      style={{ marginTop: '12px' }}
+                    />
                   )}
                 </div>
 
@@ -779,11 +761,11 @@ export default function BudgetClient({
                   <p className={styles.cardDescription}>Set spending limits for individual expense categories</p>
                 </div>
               {categoriesWithoutBudget.length === 0 ? (
-                <div className={styles.emptyState}>
-                  <div className={styles.emptyStateIcon}>📈</div>
-                  <h3 className={styles.emptyStateTitle}>All categories have budgets</h3>
-                  <p className={styles.emptyStateText}>You've set budget limits for all expense categories</p>
-                </div>
+                <EmptyState
+                  icon="📈"
+                  title="All categories have budgets"
+                  description="You've set budget limits for all expense categories"
+                />
               ) : (
                 <div className={styles.addCategorySection}>
                   {categoriesWithoutBudget.map(({ category, spent }) => {

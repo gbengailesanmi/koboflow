@@ -1,0 +1,30 @@
+.statusAlert {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.statusIcon {
+  font-size: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.statusContent {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.statusTitle {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.statusMessage {
+  font-size: 14px;
+  color: #6b7280;
+}

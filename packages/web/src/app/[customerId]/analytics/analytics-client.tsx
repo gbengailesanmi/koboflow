@@ -23,6 +23,8 @@ import { StatsCards } from '@/app/components/analytics/stats-cards/stats-cards'
 import { CategoryBreakdown } from '@/app/components/analytics/category-breakdown/category-breakdown'
 import { DailySpendingComparison } from '@/app/components/analytics/daily-spending-comparison/daily-spending-comparison'
 import { AnalyticsCard } from '@/app/components/analytics/analytics-card/analytics-card'
+import { EmptyState } from '@/app/components/empty-state'
+import { ChartPlaceholder } from '@/app/components/chart-placeholder'
 import { 
   Grid, 
   Tabs,
@@ -304,15 +306,11 @@ export default function AnalyticsClient({
   const renderBodyContent = () => (
     <>
       {processedTransactions.length === 0 ? (
-        <div className={styles.emptyState}>
-          <div className={styles.emptyStateContent}>
-            <div className={styles.emptyStateIcon}>📊</div>
-            <h3 className={styles.emptyStateTitle}>No data to analyze yet</h3>
-            <p className={styles.emptyStateText}>
-              Add some transactions to see analytics and insights
-            </p>
-          </div>
-        </div>
+        <EmptyState
+          icon="📊"
+          title="No data to analyze yet"
+          description="Add some transactions to see analytics and insights"
+        />
       ) : (
         <>
           <Grid id="expense-breakdown">
@@ -324,10 +322,11 @@ export default function AnalyticsClient({
               onPrevChart={handlePrevChart}
             >
               {categoryData.length === 0 ? (
-                <div className={styles.noData}>
-                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>📈</div>
-                  No expense data for this period
-                </div>
+                <ChartPlaceholder
+                  icon="📈"
+                  message="No expense data for this period"
+                  type="no-data"
+                />
               ) : (
                 <div className={styles.chartContainer}>
                   <div className={styles.chartWrapper}>
@@ -353,10 +352,11 @@ export default function AnalyticsClient({
                       />
                     )}
                     {currentChartIndex === 3 && (
-                      <div className={styles.comingSoon}>
-                        <div style={{ fontSize: '48px', marginBottom: '16px' }}>📊</div>
-                        More chart types coming soon!
-                      </div>
+                      <ChartPlaceholder
+                        icon="📊"
+                        message="More chart types coming soon!"
+                        type="coming-soon"
+                      />
                     )}
                   </div>
                 </div>
@@ -370,10 +370,11 @@ export default function AnalyticsClient({
               description="Compare daily expenses for the entire month between current and previous month"
             >
               {(monthOnMonthData.currentMonth.expense === 0 && monthOnMonthData.prevMonth.expense === 0) ? (
-                <div className={styles.noData}>
-                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>📈</div>
-                  No expense data for comparison
-                </div>
+                <ChartPlaceholder
+                  icon="📈"
+                  message="No expense data for comparison"
+                  type="no-data"
+                />
               ) : (
                 <div className={styles.chartContainer}>
                   <MonthOnMonthChart 
@@ -401,10 +402,11 @@ export default function AnalyticsClient({
               description="Track your cumulative spending against last month"
             >
               {(monthOnMonthData.currentMonth.expense === 0 && monthOnMonthData.prevMonth.expense === 0) ? (
-                <div className={styles.noData}>
-                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>💰</div>
-                  No balance data for comparison
-                </div>
+                <ChartPlaceholder
+                  icon="💰"
+                  message="No balance data for comparison"
+                  type="no-data"
+                />
               ) : (
                 <div className={styles.chartContainer}>
                   <BalanceHistoryChart 
