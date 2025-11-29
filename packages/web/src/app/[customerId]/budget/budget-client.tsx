@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation'
 import { updateBudget } from '@/app/api/api-service'
 import { useToasts } from '@/store'
 import Sidebar from '@/app/components/sidebar/sidebar'
-import Footer from '@/app/components/footer/footer'
 import { PageHeader } from '@/app/components/page-header/page-header'
+import { PageLayout } from '@/app/components/page-layout/page-layout'
 import type { Transaction } from '@/types/transactions'
 import type { CustomCategory } from '@/types/custom-category'
 import { categorizeTransaction } from '@/app/components/analytics/utils/categorize-transaction'
@@ -14,8 +14,9 @@ import { formatCurrency } from '@/app/components/analytics/utils/format-currency
 import { getCategoryConfig } from '@/app/components/analytics/utils/category-config'
 import { BudgetProgress } from '@/app/components/budget-progress'
 import type { BudgetPeriod, BudgetPeriodType } from '@/types/budget'
-import { Dialog, Button, Flex, Text, Progress } from '@radix-ui/themes'
+import { Dialog, Button, Flex, Text, Progress, Grid } from '@radix-ui/themes'
 import styles from './budget.module.css'
+import analyticsStyles from '../analytics/analytics.module.css'
 
 type CategoryBudget = {
   category: string
@@ -395,90 +396,118 @@ export default function BudgetClient({
   
   const allCategoriesWithBudget = [...categoriesWithBudget, ...customBudgetCategories]
 
-  return (
-    <Sidebar customerId={customerId}>
-      <Dialog.Root open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <div className={`${styles.container}`}>
-          <div className={styles.wrapper}>
-            <div>
-              <PageHeader 
-                title="Budget" 
-                subtitle="Set spending limits and track your progress"
+  // ============================================================================
+  // RENDER - HEADER CONTENT
+  // ============================================================================
+  const renderHeader = () => (
+    <PageHeader 
+      title="Budget" 
+      subtitle="Set spending limits and track your progress"
+    />
+  )
+
+  // ============================================================================
+  // RENDER - STICKY CONTENT (Budget Card)
+  // ============================================================================
+  const renderStickyContent = () => (
+    <>
+      {processedTransactions.length > 0 && (
+        <Grid id="budget-overview" style={{ padding: '0 16px', marginTop: '24px' }}>
+          <div className={styles.card}>
+            <div className={styles.cardHeader}>
+              <div className={styles.cardHeaderFlex}>
+                <div className={styles.cardTitleSection}>
+                  <div className={styles.iconWrapper}>
+                    <span style={{ fontSize: '24px' }}>🎯</span>
+                  </div>
+                  <div>
+                    <h2 className={styles.cardTitle}>Budget</h2>
+                    <p className={styles.cardDescription}>{formatPeriod(budgetData.period)}</p>
+                  </div>
+                </div>
+                <Dialog.Trigger>
+                  <button 
+                    className={styles.editButton}
+                    onClick={() => {
+                      setIsEditing('monthly')
+                      setEditValue(budgetData.totalBudgetLimit.toString())
+                      setIsEditModalOpen(true)
+                    }}
+                  >
+                    ✏️ Edit
+                  </button>
+                </Dialog.Trigger>
+              </div>
+            </div>
+            <div className={styles.cardContent}>
+              <div className={styles.budgetOverview}>
+                <div className={styles.budgetSection}>
+                  <div className={styles.budgetLabel}>Spent {getPeriodText(budgetData.period)}</div>
+                  <div className={`${styles.budgetValue} ${isOverBudget ? styles.budgetValueOver : styles.budgetValueNormal}`}>
+                    {formatCurrency(monthlyExpenses, currency)}
+                  </div>
+                </div>
+                <div className={styles.budgetSection} style={{ alignItems: 'flex-end' }}>
+                  <div className={styles.budgetLabel}>Budget limit</div>
+                  <div className={`${styles.budgetValue} ${styles.budgetValueMuted}`}>
+                    {formatCurrency(budgetData.totalBudgetLimit, currency)}
+                  </div>
+                </div>
+              </div>
+
+              <BudgetProgress
+                value={monthlyProgress}
+                label="Spending Progress"
+                percentage={monthlyProgress}
+                color={isOverBudget ? 'red' : monthlyProgress >= 80 ? 'orange' : 'green'}
+                size="3"
+                className={styles.progressSection}
               />
 
-              {/* Monthly Budget Card */}
-              <div id="monthly-budget" className={styles.card} style={{ margin: '0 16px 32px 16px' }}>
-                <div className={styles.cardHeader}>
-                  <div className={styles.cardHeaderFlex}>
-                    <div className={styles.cardTitleSection}>
-                      <div className={styles.iconWrapper}>
-                        <span style={{ fontSize: '24px' }}>🎯</span>
-                      </div>
-                      <div>
-                        <h2 className={styles.cardTitle}>Budget</h2>
-                        <p className={styles.cardDescription}>{formatPeriod(budgetData.period)}</p>
-                      </div>
-                    </div>
-                    <Dialog.Trigger>
-                      <button 
-                        className={styles.editButton}
-                        onClick={() => {
-                          setIsEditing('monthly')
-                          setEditValue(budgetData.totalBudgetLimit.toString())
-                        }}
-                      >
-                        ✏️ Edit
-                      </button>
-                    </Dialog.Trigger>
-                  </div>
+              <div className={styles.statusAlert}>
+                <div className={styles.statusIcon}>
+                  {isOverBudget ? '⚠️' : monthlyProgress >= 80 ? '⚡' : '✅'}
                 </div>
-              <div className={styles.cardContent}>
-                <div className={styles.budgetOverview}>
-                  <div className={styles.budgetSection}>
-                    <div className={styles.budgetLabel}>Spent {getPeriodText(budgetData.period)}</div>
-                    <div className={`${styles.budgetValue} ${isOverBudget ? styles.budgetValueOver : styles.budgetValueNormal}`}>
-                      {formatCurrency(monthlyExpenses, currency)}
-                    </div>
+                <div className={styles.statusContent}>
+                  <div className={styles.statusTitle} style={{ 
+                    color: isOverBudget ? '#ef4444' : monthlyProgress >= 80 ? '#f59e0b' : '#10b981' 
+                  }}>
+                    {isOverBudget ? 'Over Budget' : monthlyProgress >= 80 ? 'Approaching Limit' : 'On Track'}
                   </div>
-                  <div className={styles.budgetSection} style={{ alignItems: 'flex-end' }}>
-                    <div className={styles.budgetLabel}>Budget limit</div>
-                    <div className={`${styles.budgetValue} ${styles.budgetValueMuted}`}>
-                      {formatCurrency(budgetData.totalBudgetLimit, currency)}
-                    </div>
-                  </div>
-                </div>
-
-                <BudgetProgress
-                  value={monthlyProgress}
-                  label="Spending Progress"
-                  percentage={monthlyProgress}
-                  color={isOverBudget ? 'red' : monthlyProgress >= 80 ? 'orange' : 'green'}
-                  size="3"
-                  className={styles.progressSection}
-                />
-
-                <div className={styles.statusAlert}>
-                  <div className={styles.statusIcon}>
-                    {isOverBudget ? '⚠️' : monthlyProgress >= 80 ? '⚡' : '✅'}
-                  </div>
-                  <div className={styles.statusContent}>
-                    <div className={styles.statusTitle} style={{ 
-                      color: isOverBudget ? '#ef4444' : monthlyProgress >= 80 ? '#f59e0b' : '#10b981' 
-                    }}>
-                      {isOverBudget ? 'Over Budget' : monthlyProgress >= 80 ? 'Approaching Limit' : 'On Track'}
-                    </div>
-                    <div className={styles.statusMessage}>
-                      {isOverBudget 
-                        ? `You've exceeded your budget by ${formatCurrency(monthlyExpenses - budgetData.totalBudgetLimit, currency)}`
-                        : `You have ${formatCurrency(budgetData.totalBudgetLimit - monthlyExpenses, currency)} remaining ${getPeriodText(budgetData.period)}`
-                      }
-                    </div>
+                  <div className={styles.statusMessage}>
+                    {isOverBudget 
+                      ? `You've exceeded your budget by ${formatCurrency(monthlyExpenses - budgetData.totalBudgetLimit, currency)}`
+                      : `You have ${formatCurrency(budgetData.totalBudgetLimit - monthlyExpenses, currency)} remaining ${getPeriodText(budgetData.period)}`
+                    }
                   </div>
                 </div>
               </div>
             </div>
+          </div>
+        </Grid>
+      )}
+    </>
+  )
 
-            {/* Edit Budget Modal */}
+  // ============================================================================
+  // RENDER - BODY CONTENT
+  // ============================================================================
+  const renderBodyContent = () => (
+    <>
+      {processedTransactions.length === 0 ? (
+        <div className={analyticsStyles.emptyState}>
+          <div className={analyticsStyles.emptyStateContent}>
+            <div className={analyticsStyles.emptyStateIcon}>💰</div>
+            <h3 className={analyticsStyles.emptyStateTitle}>No transactions yet</h3>
+            <p className={analyticsStyles.emptyStateText}>
+              Add some transactions to start tracking your budget
+            </p>
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Edit Budget Modal */}
+          <Grid>
             <Dialog.Content maxWidth="500px">
               <Dialog.Title>Edit Budget</Dialog.Title>
               <Dialog.Description size="2" mb="4">
@@ -603,10 +632,12 @@ export default function BudgetClient({
                 </Button>
               </Flex>
             </Dialog.Content>
+          </Grid>
 
-            {/* Category Budgets */}
-            {allCategoriesWithBudget.length > 0 && (
-              <div id="category-budgets" className={styles.card} style={{ margin: '0 16px 32px 16px' }}>
+          {/* Category Budgets */}
+          {allCategoriesWithBudget.length > 0 && (
+            <Grid id="category-budgets">
+                <div className={styles.card} style={{ margin: '0 16px 32px 16px' }}>
                 <div className={styles.cardHeader}>
                   <h2 className={styles.cardTitle}>Category Budgets</h2>
                   <p className={styles.cardDescription}>Track spending limits for specific categories</p>
@@ -737,14 +768,16 @@ export default function BudgetClient({
                   })}
                 </div>
               </div>
-            )}
+            </Grid>
+          )}
 
             {/* Add Category Section */}
-            <div id="add-category" className={styles.card} style={{ margin: '0 16px 32px 16px' }}>
-              <div className={styles.cardHeader}>
-                <h2 className={styles.cardTitle}>Add Category Budget</h2>
-                <p className={styles.cardDescription}>Set spending limits for individual expense categories</p>
-              </div>
+            <Grid id="add-category">
+              <div className={styles.card} style={{ margin: '0 16px 32px 16px' }}>
+                <div className={styles.cardHeader}>
+                  <h2 className={styles.cardTitle}>Add Category Budget</h2>
+                  <p className={styles.cardDescription}>Set spending limits for individual expense categories</p>
+                </div>
               {categoriesWithoutBudget.length === 0 ? (
                 <div className={styles.emptyState}>
                   <div className={styles.emptyStateIcon}>📈</div>
@@ -836,11 +869,25 @@ export default function BudgetClient({
                 </div>
               )}
             </div>
-          </div>
-        </div>
-        
-        <Footer buttonColor='#222222' opacity={50} />
-      </div>
+          </Grid>
+        </>
+      )}
+    </>
+  )
+
+  // ============================================================================
+  // MAIN RENDER
+  // ============================================================================
+  return (
+    <Sidebar customerId={customerId}>
+      <Dialog.Root open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <PageLayout
+          header={renderHeader()}
+          stickySection={renderStickyContent()}
+          footer={{ buttonColor: '#222222', opacity: 50 }}
+        >
+          {renderBodyContent()}
+        </PageLayout>
       </Dialog.Root>
     </Sidebar>
   )
