@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import { updateBudget } from '@/app/api/api-service'
 import { useToasts } from '@/store'
 import Sidebar from '@/app/components/sidebar/sidebar'
-import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
 import Footer from '@/app/components/footer/footer'
 import { PageHeader } from '@/app/components/page-header/page-header'
 import type { Transaction } from '@/types/transactions'
@@ -15,7 +14,6 @@ import { formatCurrency } from '@/app/components/analytics/utils/format-currency
 import { getCategoryConfig } from '@/app/components/analytics/utils/category-config'
 import { BudgetProgress } from '@/app/components/budget-progress'
 import type { BudgetPeriod, BudgetPeriodType } from '@/types/budget'
-import { useBaseColor } from '@/providers/base-colour-provider'
 import { Dialog, Button, Flex, Text, Progress } from '@radix-ui/themes'
 import styles from './budget.module.css'
 
@@ -47,7 +45,6 @@ export default function BudgetClient({
   currency
 }: BudgetClientProps) {
   const router = useRouter()
-  const { setBaseColor } = useBaseColor()
   
   // ✅ Use UI store for toast notifications
   const { showToast } = useToasts()
@@ -77,11 +74,6 @@ export default function BudgetClient({
   const [recurringUnit, setRecurringUnit] = useState<'days' | 'months' | 'years'>(
     initialBudget.period?.recurringUnit || 'months'
   )
-
-  useEffect(() => {
-    const colorWithTransparency = `${PAGE_COLORS.budget}4D`
-    setBaseColor(colorWithTransparency)
-  }, [setBaseColor])
 
   const categoryConfig = useMemo(() => getCategoryConfig(customCategories), [customCategories])
 
@@ -406,7 +398,7 @@ export default function BudgetClient({
   return (
     <Sidebar customerId={customerId}>
       <Dialog.Root open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <div className={`${styles.container} page-gradient-background`}>
+        <div className={`${styles.container}`}>
           <div className={styles.wrapper}>
             <div>
               <PageHeader 

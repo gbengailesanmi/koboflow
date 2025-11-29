@@ -8,14 +8,10 @@ import type { Account } from '@/types/account'
 import type { Transaction } from '@/types/transactions'
 import type { CustomCategory } from '@/types/custom-category'
 import { createCustomCategory, deleteCustomCategory } from '@/app/api/api-client'
-import PageLayoutWithSidebar from '@/app/components/sidebar/sidebar'
 import { PageHeader } from '@/app/components/page-header/page-header'
 import AccountFilterMenu from '@/app/components/account-filter-menu/account-filter-menu'
-import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
 import Footer from '@/app/components/footer/footer'
-import { useBaseColor } from '@/providers/base-colour-provider'
 import { categorizeTransaction } from '@/app/components/analytics/utils/categorize-transaction'
-import { formatCurrency } from '@/app/components/analytics/utils/format-currency'
 import { getCategoryConfig } from '@/app/components/analytics/utils/category-config'
 import { PieChart } from '@/app/components/analytics/pie-chart/pie-chart'
 import { TreemapChart } from '@/app/components/analytics/treemap-chart/treemap-chart'
@@ -54,7 +50,6 @@ export default function AnalyticsClient({
   totalBudgetLimit
 }: AnalyticsClientProps) {
   const router = useRouter()
-  const { setBaseColor } = useBaseColor()
   
   const { selectedAccountId, setSelectedAccount } = useSelectedItems()
   
@@ -68,11 +63,6 @@ export default function AnalyticsClient({
   const effectiveAccountId = selectedAccountId || 'all'
 
   const categoryConfig = useMemo(() => getCategoryConfig(customCategories), [customCategories])
-
-  useEffect(() => {
-    const colorWithTransparency = `${PAGE_COLORS.analytics}4D`
-    setBaseColor(colorWithTransparency)
-  }, [setBaseColor])
 
   const handleAddCategory = async (name: string, keywords: string[]) => {
     try {
@@ -476,8 +466,8 @@ export default function AnalyticsClient({
   // MAIN RENDER
   // ============================================================================
   return (
-    <PageLayoutWithSidebar customerId={customerId}>
-      <div className={`${styles.container} page-gradient-background`}>
+    <div>
+      <div className={`${styles.container}`}>
         {renderHeaderSection()}
         <div className={styles.contentContainer}>
           {renderStickySection()}
@@ -485,6 +475,6 @@ export default function AnalyticsClient({
         </div>
       </div>
       {renderFooterSection()}
-    </PageLayoutWithSidebar>
+    </div>
   )
 }

@@ -15,6 +15,7 @@ sessionRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
     }
     
     const { customerId, email, firstName, lastName } = req.user
+    const sessionId = req.sessionId
     
     res.json({
       success: true,
@@ -23,7 +24,8 @@ sessionRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
         email,
         firstName: firstName || '',
         lastName: lastName || '',
-        name: `${firstName || ''} ${lastName || ''}`.trim()
+        name: `${firstName || ''} ${lastName || ''}`.trim(),
+        sessionId: sessionId || ''
       }
     })
   } catch (error) {

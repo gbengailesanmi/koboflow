@@ -5,11 +5,9 @@ import { useRouter } from 'next/navigation'
 import { updateUserProfile } from '@/app/api/api-service'
 import { useToasts } from '@/store'
 import Sidebar from '@/app/components/sidebar/sidebar'
-import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
 import { Pencil1Icon, CheckIcon, Cross2Icon, PersonIcon, EnvelopeClosedIcon } from '@radix-ui/react-icons'
 import Footer from '@/app/components/footer/footer'
 import { PageHeader } from '@/app/components/page-header/page-header'
-import { useBaseColor } from '@/providers/base-colour-provider'
 import { 
   Button, 
   TextField, 
@@ -34,9 +32,7 @@ export default function ProfileClient({
   email
 }: ProfileClientProps) {
   const router = useRouter()
-  const { setBaseColor } = useBaseColor()
   
-  // ✅ Use UI store for toast notifications
   const { showToast } = useToasts()
 
   const [isEditing, setIsEditing] = useState(false)
@@ -46,11 +42,6 @@ export default function ProfileClient({
     email
   })
   const [savingProfile, setSavingProfile] = useState(false)
-
-  useEffect(() => {
-    const colorWithTransparency = `${PAGE_COLORS.profile}4D`
-    setBaseColor(colorWithTransparency)
-  }, [setBaseColor])
 
   const handleSave = async () => {
     if (!formData.firstName?.trim() || !formData.lastName?.trim() || !formData.email?.trim()) {
@@ -101,7 +92,7 @@ export default function ProfileClient({
 
   return (
     <Sidebar customerId={customerId}>
-      <div className={`${styles.container} page-gradient-background`}>
+      <div className={`${styles.container}`}>
         <div className={styles.wrapper}>
           <div>
             <PageHeader 

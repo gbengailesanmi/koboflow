@@ -2,7 +2,6 @@
 
 import React, { useCallback, useEffect, useState } from 'react'
 import type { Account } from '@/types/account'
-import { useBaseColor } from '@/providers/base-colour-provider'
 import useEmblaCarousel from 'embla-carousel-react'
 import { Box } from '@radix-ui/themes'
 import { PlusIcon, ListBulletIcon, BarChartIcon } from '@radix-ui/react-icons'
@@ -31,7 +30,7 @@ export default function AccountsCarousel({
 }: AccountsCarouselProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false })
   const hues = generateHues(10)
-  const { setBaseColor } = useBaseColor()
+  // const { setBaseColor } = useBaseColor()
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [slideHue, setSlideHue] = useState<Record<number, string>>({ 0: hues[0] })
   const [hasInitialized, setHasInitialized] = useState(false)
@@ -97,7 +96,7 @@ export default function AccountsCarousel({
       }
 
       const hue = slideHue[index] ?? hues[index % hues.length]
-      setBaseColor?.(hue)
+      // setBaseColor?.(hue)
     }
 
     emblaApi.on('select', onSelect)
@@ -106,14 +105,14 @@ export default function AccountsCarousel({
     return () => {
       emblaApi.off('select', onSelect)
     }
-  }, [emblaApi, accounts, setSelectedAccount, setBaseColor, hues, slideHue])
+  }, [emblaApi, accounts, setSelectedAccount, hues, slideHue])
 
   const handleSetHue = (hue: string) => {
     setSlideHue((prev) => ({
       ...prev,
       [selectedIndex]: hue,
     }))
-    setBaseColor?.(hue)
+    // setBaseColor?.(hue)
   }
 
   const totalBalance = accounts.reduce(

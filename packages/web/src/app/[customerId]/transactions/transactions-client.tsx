@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import { useSelectedItems, useFilters } from '@/store'
 import type { Transaction, Account } from '@money-mapper/shared'
 import PageLayoutWithSidebar from '@/app/components/sidebar/sidebar'
-import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
 import { Dialog } from '@radix-ui/themes'
 import { DownloadIcon, UploadIcon, ArrowLeftIcon } from '@radix-ui/react-icons'
 import styles from './transactions.module.css'
@@ -14,7 +13,6 @@ import TransactionMonthPills from '@/app/components/transactions/transaction-mon
 import TransactionDetailsDialog from '@/app/components/transactions/transaction-details-dialog/transaction-details-dialog'
 import TransactionCard from '@/app/components/transactions/transaction-card/transaction-card'
 import TransactionsFilters from '@/app/components/transactions/transactions-filters/transactions-filters'
-import { useBaseColor } from '@/providers/base-colour-provider'
 
 interface TransactionsClientProps {
   customerId: string
@@ -28,23 +26,17 @@ export default function TransactionsClient({
   transactions,
 }: TransactionsClientProps) {
   const router = useRouter()
-  const { setBaseColor } = useBaseColor()
 
-  // ✅ Use UI store for transaction selection
   const { selectedTransactionId, setSelectedTransaction } = useSelectedItems()
   
-  // ✅ Use UI store for filters
   const { accountFilter, searchQuery, setSearchQuery, addAccountFilter, removeAccountFilter } = useFilters()
   
-  // Local state for selected month (specific to transactions page)
   const [selectedMonth, setSelectedMonth] = useState<string | null>(null)
   
-  // Get the actual transaction object from ID
   const selectedTransaction = selectedTransactionId 
     ? transactions.find(txn => txn.id === selectedTransactionId) || null
     : null
   
-  // Get the filter account ID (use first account in filter array)
   const filterAccountId = accountFilter.length > 0 ? accountFilter[0] : ''
   
   const setFilterAccountId = (accountId: string) => {
@@ -57,11 +49,6 @@ export default function TransactionsClient({
       accountFilter.forEach(id => removeAccountFilter(id))
     }
   }
-
-  useEffect(() => {
-    const colorWithTransparency = `${PAGE_COLORS.transactions}4D`
-    setBaseColor(colorWithTransparency)
-  }, [setBaseColor])
 
   const months = useMemo(() => {
     const monthSet = new Set<string>()
@@ -115,7 +102,7 @@ export default function TransactionsClient({
   return (
     <PageLayoutWithSidebar customerId={customerId}>
       <Dialog.Root onOpenChange={open => { if (!open) setSelectedTransaction(null) }}>
-        <div className={`${styles.PageGrid} page-gradient-background`}>
+        <div className={`${styles.PageGrid}`}>
           <div id="filters" className={styles.Header}>
             <ArrowLeftIcon className="w-6 h-6" onClick={() => router.push(`/${customerId}/dashboard`)}/>
             <h1 className="text-xl font-semibold mb-2">Transactions</h1>

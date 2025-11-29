@@ -1,14 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { updateAppSettings, deleteUserAccount, logoutUser } from '@/app/api/api-client'
 import { useToasts } from '@/store'
 import Sidebar from '@/app/components/sidebar/sidebar'
-import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
 import { PageHeader } from '@/app/components/page-header/page-header'
 import Footer from '@/app/components/footer/footer'
-import { useBaseColor } from '@/providers/base-colour-provider'
 import { 
   Grid, 
   Button, 
@@ -61,7 +59,6 @@ export default function SettingsClient({
   initialPageColors
 }: SettingsClientProps) {
   const router = useRouter()
-  const { setBaseColor } = useBaseColor()
   
   // ✅ Use UI store for toast notifications
   const { showToast } = useToasts()
@@ -75,11 +72,6 @@ export default function SettingsClient({
   const [isSaving, setIsSaving] = useState(false)
   const [isAccentColorsExpanded, setIsAccentColorsExpanded] = useState(false)
   const [pageColors, setPageColors] = useState<AccentColours>(initialPageColors)
-
-  useEffect(() => {
-    const colorWithTransparency = `${pageColors.settings}4D`
-    setBaseColor(colorWithTransparency)
-  }, [pageColors.settings, setBaseColor])
 
   const accentColors = [
     { name: 'Blue', value: 'blue', color: '#3b82f6' },
@@ -143,7 +135,7 @@ export default function SettingsClient({
   return (
     <Sidebar customerId={customerId}>
       <>
-        <div className={`${styles.container} page-gradient-background`}>
+        <div className={`${styles.container}`}>
           <main className={styles.main}>
             <PageHeader 
               title="Settings" 
@@ -242,7 +234,6 @@ export default function SettingsClient({
                           }}
                           onBlur={() => savePreferences()}
                           className={styles.hexInput}
-                          placeholder={PAGE_COLORS[page as keyof typeof PAGE_COLORS]}
                           maxLength={7}
                         />
                       </div>

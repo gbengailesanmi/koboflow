@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { ArrowLeftIcon, MixerVerticalIcon, HamburgerMenuIcon } from '@radix-ui/react-icons'
+import { ArrowLeftIcon, MixerVerticalIcon } from '@radix-ui/react-icons'
 import { Heading, Text } from '@radix-ui/themes'
 import { useRouter, useParams } from 'next/navigation'
 import HamburgerMenu from '@/app/components/hamburger-menu/hamburger-menu'

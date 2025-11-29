@@ -36,7 +36,7 @@ authRoutes.post('/signup', async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10)
-        const customerId = randomUUID()
+    const customerId = randomUUID()
     const verificationToken = randomUUID()
     const verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
 

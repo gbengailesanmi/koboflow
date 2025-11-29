@@ -8,7 +8,7 @@ export function DashboardSkeleton() {
   return (
     <>
       <Header />
-      <main className={`${styles.main} page-gradient-background`}>
+      <main className={`${styles.main}`}>
         {/* Accounts */}
         <Grid className={styles.AccountsGrid}>
           <Skeleton height="180px" />

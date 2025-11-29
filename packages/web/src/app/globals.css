@@ -9,11 +9,25 @@ html, body {
 	--default-font-family: var(--font-open-sans);
 }
 
+/* Page gradient background utility class */
+/* .page-gradient-background {
+  background:
+    linear-gradient(
+      to bottom,
+      var(--bg-colour) 0%,
+      var(--page-bg-via-color) var(--page-bg-via-stop),
+      var(--page-bg-bottom-color) var(--page-bg-bottom-stop)
+    ) no-repeat,
+    var(--page-bg-bottom-color);
+  background-size: 100% 100vh;
+  background-repeat: no-repeat;
+} */
+
 /* ============================================
    LIGHT MODE (DEFAULT)
    ============================================ */
 :root {
-  --page-bg-via-color: color-mix(in srgb, var(--baseColor) 15%, #f8f9fa 85%);
+  --page-bg-via-color: color-mix(in srgb, var(--bg-colour) 15%, #f8f9fa 85%);
   --page-bg-via-stop: 30%;
   --page-bg-bottom-color: #ffffff;
   --page-bg-bottom-stop: 80%;
@@ -59,25 +73,13 @@ html, body {
   --red-a3: #ff636910;
 }
 
-/* Page gradient background utility class */
-.page-gradient-background {
-  background:
-    linear-gradient(
-      to bottom,
-      var(--baseColor) 0%,
-      var(--page-bg-via-color) var(--page-bg-via-stop),
-      var(--page-bg-bottom-color) var(--page-bg-bottom-stop)
-    ) no-repeat,
-    var(--page-bg-bottom-color);
-  background-size: 100% 100vh;
-  background-repeat: no-repeat;
-}
+
 
 /* ============================================
    DARK MODE
    ============================================ */
 .dark {
-  --page-bg-via-color: color-mix(in srgb, var(--baseColor) 10%, #040914 90%);
+  --page-bg-via-color: color-mix(in srgb, var(--bg-colour) 10%, #040914 90%);
   --page-bg-via-stop: 40%;
   --page-bg-bottom-color: #040914;
   --page-bg-bottom-stop: 90%;

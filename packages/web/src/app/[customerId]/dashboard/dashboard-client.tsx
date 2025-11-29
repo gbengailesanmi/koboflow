@@ -98,7 +98,7 @@ export default function DashboardClient({
   return (
     <>
       <Header />
-      <main className={`${styles.main} page-gradient-background`}>
+      <main className={`${styles.main}`}>
         <Grid className={styles.AccountsGrid}>
           <AccountsCarousel
             accounts={accounts}
