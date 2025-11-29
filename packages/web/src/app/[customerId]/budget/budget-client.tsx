@@ -2,13 +2,20 @@
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { updateBudget } from '@/app/api/api-service'
+import { 
+  updateBudgetById, 
+  createNewBudget, 
+  setActiveBudget as setActiveBudgetApi,
+  deleteBudgetById 
+} from '@/app/api/api-service'
 import { useToasts } from '@/store'
 import Sidebar from '@/app/components/sidebar/sidebar'
 import { PageHeader } from '@/app/components/page-header/page-header'
 import { PageLayout } from '@/app/components/page-layout/page-layout'
+import { BudgetSwitcher } from '@/app/components/budget-switcher'
 import type { Transaction } from '@/types/transactions'
 import type { CustomCategory } from '@/types/custom-category'
+import type { Budget } from '@money-mapper/shared'
 import { categorizeTransaction } from '@/app/components/analytics/utils/categorize-transaction'
 import { formatCurrency } from '@/app/components/analytics/utils/format-currency'
 import { getCategoryConfig } from '@/app/components/analytics/utils/category-config'
@@ -26,6 +33,8 @@ type CategoryBudget = {
 }
 
 type BudgetData = {
+  _id?: string
+  name?: string
   totalBudgetLimit: number
   period?: BudgetPeriod
   categories: CategoryBudget[]
@@ -33,6 +42,7 @@ type BudgetData = {
 
 type BudgetClientProps = {
   customerId: string
+  allBudgets: Budget[]
   initialBudget: BudgetData
   transactions: Transaction[]
   customCategories: CustomCategory[]
@@ -41,6 +51,7 @@ type BudgetClientProps = {
 
 export default function BudgetClient({
   customerId,
+  allBudgets,
   initialBudget,
   transactions,
   customCategories,
@@ -51,7 +62,8 @@ export default function BudgetClient({
   // ✅ Use UI store for toast notifications
   const { showToast } = useToasts()
 
-  const [budgetData, setBudgetData] = useState<BudgetData>(initialBudget)
+  // Use initialBudget directly as source of truth
+  const budgetData = initialBudget
   const [isSaving, setIsSaving] = useState(false)
   const [isEditing, setIsEditing] = useState<string | null>(null)
   const [editValue, setEditValue] = useState('')
@@ -79,14 +91,20 @@ export default function BudgetClient({
 
   const categoryConfig = useMemo(() => getCategoryConfig(customCategories), [customCategories])
 
-  const saveBudget = useCallback(async (newBudget: BudgetData) => {
+  const saveBudget = useCallback(async (updates: Partial<BudgetData>) => {
+    if (!budgetData._id) {
+      showToast('No active budget to update', 'error')
+      return
+    }
+
     try {
       setIsSaving(true)
-      const result = await updateBudget(
-        newBudget.totalBudgetLimit,
-        newBudget.categories,
-        newBudget.period
-      )
+      const result = await updateBudgetById(budgetData._id, {
+        name: updates.name,
+        totalBudgetLimit: updates.totalBudgetLimit,
+        categories: updates.categories,
+        period: updates.period
+      })
       
       if (result.success) {
         showToast('Budget saved successfully', 'success')
@@ -99,6 +117,58 @@ export default function BudgetClient({
       showToast('Failed to save budget. Please try again.', 'error')
     } finally {
       setIsSaving(false)
+    }
+  }, [budgetData._id, router, showToast])
+
+  const handleSwitchBudget = useCallback(async (budgetId: string) => {
+    try {
+      const result = await setActiveBudgetApi(budgetId)
+      if (result.success) {
+        showToast('Budget switched successfully', 'success')
+        router.refresh()
+      } else {
+        showToast(result.message || 'Failed to switch budget', 'error')
+      }
+    } catch (error) {
+      console.error('Failed to switch budget:', error)
+      showToast('Failed to switch budget. Please try again.', 'error')
+    }
+  }, [router, showToast])
+
+  const handleCreateBudget = useCallback(async (name: string) => {
+    try {
+      const result = await createNewBudget(
+        name,
+        0, // Default budget limit
+        [], // Empty categories
+        { type: 'current-month' }, // Default period
+        false // Don't set as active yet
+      )
+      
+      if (result.success) {
+        showToast('Budget created successfully', 'success')
+        router.refresh()
+      } else {
+        showToast(result.message || 'Failed to create budget', 'error')
+      }
+    } catch (error) {
+      console.error('Failed to create budget:', error)
+      showToast('Failed to create budget. Please try again.', 'error')
+    }
+  }, [router, showToast])
+
+  const handleDeleteBudget = useCallback(async (budgetId: string) => {
+    try {
+      const result = await deleteBudgetById(budgetId)
+      if (result.success) {
+        showToast('Budget deleted successfully', 'success')
+        router.refresh()
+      } else {
+        showToast(result.message || 'Failed to delete budget', 'error')
+      }
+    } catch (error) {
+      console.error('Failed to delete budget:', error)
+      showToast('Failed to delete budget. Please try again.', 'error')
     }
   }, [router, showToast])
 
@@ -249,12 +319,7 @@ export default function BudgetClient({
   }
 
   const handleUpdateMonthlyBudget = (newAmount: number) => {
-    const newBudget = {
-      ...budgetData,
-      totalBudgetLimit: newAmount
-    }
-    setBudgetData(newBudget)
-    saveBudget(newBudget)
+    saveBudget({ totalBudgetLimit: newAmount })
     setIsEditing(null)
     setEditValue('')
   }
@@ -299,13 +364,10 @@ export default function BudgetClient({
       return
     }
     
-    const newBudget = {
-      ...budgetData,
+    saveBudget({
       totalBudgetLimit: amount,
       period: period
-    }
-    setBudgetData(newBudget)
-    saveBudget(newBudget)
+    })
     setIsEditModalOpen(false)
     setIsEditing(null)
     setEditValue('')
@@ -335,36 +397,29 @@ export default function BudgetClient({
       return
     }
 
-    const newBudget = {
-      ...budgetData,
-      categories: (() => {
-        const existing = budgetData.categories.find(b => b.category === category && !b.customName)
-        if (existing) {
-          return budgetData.categories.map(b => 
-            b.category === category && !b.customName ? { ...b, limit, ...(customName ? { customName } : {}) } : b
-          )
-        }
-        return [...budgetData.categories, { 
-          category, 
-          limit,
-          ...(customName ? { customName } : {})
-        }]
-      })()
-    }
-    setBudgetData(newBudget)
-    saveBudget(newBudget)
+    const newCategories = (() => {
+      const existing = budgetData.categories.find(b => b.category === category && !b.customName)
+      if (existing) {
+        return budgetData.categories.map(b => 
+          b.category === category && !b.customName ? { ...b, limit, ...(customName ? { customName } : {}) } : b
+        )
+      }
+      return [...budgetData.categories, { 
+        category, 
+        limit,
+        ...(customName ? { customName } : {})
+      }]
+    })()
+    
+    saveBudget({ categories: newCategories })
     setIsEditing(null)
     setEditValue('')
     setRenameValue('')
   }
 
   const handleRemoveCategoryBudget = (category: string) => {
-    const newBudget = {
-      ...budgetData,
-      categories: budgetData.categories.filter(b => b.category !== category)
-    }
-    setBudgetData(newBudget)
-    saveBudget(newBudget)
+    const newCategories = budgetData.categories.filter(b => b.category !== category)
+    saveBudget({ categories: newCategories })
   }
 
   const startEdit = (type: string, currentValue?: number) => {
@@ -401,10 +456,22 @@ export default function BudgetClient({
   // RENDER - HEADER CONTENT
   // ============================================================================
   const renderHeader = () => (
-    <PageHeader 
-      title="Budget" 
-      subtitle="Set spending limits and track your progress"
-    />
+    <div>
+      <PageHeader 
+        title="Budget" 
+        subtitle="Set spending limits and track your progress"
+      />
+      <div style={{ padding: '0 16px', marginTop: '16px' }}>
+        <BudgetSwitcher
+          budgets={allBudgets}
+          activeBudget={allBudgets.find(b => b.isActive) || null}
+          onSwitch={handleSwitchBudget}
+          onCreate={handleCreateBudget}
+          onDelete={handleDeleteBudget}
+          disabled={isSaving}
+        />
+      </div>
+    </div>
   )
 
   // ============================================================================
@@ -718,14 +785,10 @@ export default function BudgetClient({
                                 className={styles.iconButton}
                                 onClick={() => {
                                   if (customName) {
-                                    const newBudget = {
-                                      ...budgetData,
-                                      categories: budgetData.categories.filter(b => 
-                                        !(b.category === category && b.customName === customName)
-                                      )
-                                    }
-                                    setBudgetData(newBudget)
-                                    saveBudget(newBudget)
+                                    const newCategories = budgetData.categories.filter(b => 
+                                      !(b.category === category && b.customName === customName)
+                                    )
+                                    saveBudget({ categories: newCategories })
                                   } else {
                                     handleRemoveCategoryBudget(category)
                                   }

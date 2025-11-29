@@ -168,9 +168,28 @@ export async function getTransactions(): Promise<Transaction[]> {
 // ============================================================================
 
 /**
- * Get budget for current user
+ * Get all budgets for current user
+ * Cache tag: 'budgets'
+ * Revalidates: After budget create, update, delete, activate
+ */
+export async function getBudgets(): Promise<Budget[]> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/budget/all`, {
+      next: { tags: ['budgets'] },
+    })
+
+    const data = await parseResponse<{ success: boolean; budgets: Budget[] }>(response)
+    return data.budgets || []
+  } catch (error) {
+    console.error('getBudgets error:', error)
+    return []
+  }
+}
+
+/**
+ * Get active budget for current user
  * Cache tag: 'budget'
- * Revalidates: After budget POST or PATCH
+ * Revalidates: After budget POST or PATCH, or activate
  */
 export async function getBudget(): Promise<Budget | null> {
   try {
@@ -182,6 +201,24 @@ export async function getBudget(): Promise<Budget | null> {
     return data
   } catch (error) {
     console.error('getBudget error:', error)
+    return null
+  }
+}
+
+/**
+ * Get specific budget by ID
+ * Cache tag: 'budgets'
+ */
+export async function getBudgetById(budgetId: string): Promise<Budget | null> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/budget/${budgetId}`, {
+      next: { tags: ['budgets'] },
+    })
+
+    const data = await parseResponse<Budget>(response)
+    return data
+  } catch (error) {
+    console.error('getBudgetById error:', error)
     return null
   }
 }
@@ -418,7 +455,135 @@ export async function resendVerificationEmail(email: string): Promise<{
 // ============================================================================
 
 /**
- * Create or fully replace budget
+ * Create a new budget
+ * Revalidates: 'budgets', 'budget' tags
+ */
+export async function createNewBudget(
+  name: string,
+  totalBudgetLimit: number,
+  categories: CategoryBudget[],
+  period?: BudgetPeriod,
+  setAsActive?: boolean
+): Promise<{ success: boolean; message?: string; budgetId?: string }> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/budget/create`, {
+      method: 'POST',
+      body: JSON.stringify({ name, totalBudgetLimit, categories, period, setAsActive }),
+      cache: 'no-store',
+    })
+
+    const data = await response.json()
+
+    if (data.success) {
+      revalidateTag('budgets')
+      revalidateTag('budget')
+    }
+
+    return data
+  } catch (error: any) {
+    console.error('createNewBudget error:', error)
+    return {
+      success: false,
+      message: error.message || 'Failed to create budget',
+    }
+  }
+}
+
+/**
+ * Update specific budget by ID
+ * Revalidates: 'budgets', 'budget' tags
+ */
+export async function updateBudgetById(
+  budgetId: string,
+  updates: {
+    name?: string
+    totalBudgetLimit?: number
+    categories?: CategoryBudget[]
+    period?: BudgetPeriod
+  }
+): Promise<{ success: boolean; message?: string }> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/budget/${budgetId}`, {
+      method: 'PUT',
+      body: JSON.stringify(updates),
+      cache: 'no-store',
+    })
+
+    const data = await response.json()
+
+    if (data.success) {
+      revalidateTag('budgets')
+      revalidateTag('budget')
+    }
+
+    return data
+  } catch (error: any) {
+    console.error('updateBudgetById error:', error)
+    return {
+      success: false,
+      message: error.message || 'Failed to update budget',
+    }
+  }
+}
+
+/**
+ * Set a budget as active
+ * Revalidates: 'budgets', 'budget' tags
+ */
+export async function setActiveBudget(budgetId: string): Promise<{ success: boolean; message?: string }> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/budget/${budgetId}/activate`, {
+      method: 'POST',
+      cache: 'no-store',
+    })
+
+    const data = await response.json()
+
+    if (data.success) {
+      revalidateTag('budgets')
+      revalidateTag('budget')
+    }
+
+    return data
+  } catch (error: any) {
+    console.error('setActiveBudget error:', error)
+    return {
+      success: false,
+      message: error.message || 'Failed to set active budget',
+    }
+  }
+}
+
+/**
+ * Delete a budget
+ * Revalidates: 'budgets', 'budget' tags
+ */
+export async function deleteBudgetById(budgetId: string): Promise<{ success: boolean; message?: string }> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/budget/${budgetId}`, {
+      method: 'DELETE',
+      cache: 'no-store',
+    })
+
+    const data = await response.json()
+
+    if (data.success) {
+      revalidateTag('budgets')
+      revalidateTag('budget')
+    }
+
+    return data
+  } catch (error: any) {
+    console.error('deleteBudgetById error:', error)
+    return {
+      success: false,
+      message: error.message || 'Failed to delete budget',
+    }
+  }
+}
+
+/**
+ * Create or fully replace budget (backwards compatibility)
  * Revalidates: 'budget', 'session' tags
  */
 export async function updateBudget(
@@ -437,6 +602,7 @@ export async function updateBudget(
 
     if (data.success) {
       revalidateTag('budget')
+      revalidateTag('budgets')
       revalidateTag('session')
     }
 
