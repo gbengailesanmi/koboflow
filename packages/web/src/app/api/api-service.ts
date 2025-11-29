@@ -491,14 +491,14 @@ export async function patchBudget(updates: {
  * Update user settings
  * Revalidates: 'settings', 'session' tags
  */
-export async function updateSettings(settings: Partial<Settings>): Promise<{
+export async function updateSettings(settings: Partial<UserSettings>): Promise<{
   success: boolean
   message?: string
-  settings?: Settings
+  settings?: UserSettings
 }> {
   try {
     const response = await serverFetch(`${BACKEND_URL}/api/settings`, {
-      method: 'POST',
+      method: 'PATCH',
       body: JSON.stringify(settings),
       cache: 'no-store',
     })

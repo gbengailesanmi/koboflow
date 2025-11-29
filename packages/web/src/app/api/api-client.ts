@@ -23,8 +23,9 @@ const BACKEND_URL = config.BACKEND_URL
  * Redirects to login on 401 Unauthorized
  */
 async function fetchClient(endpoint: string, options: RequestInit = {}) {
+  const fullUrl = `${BACKEND_URL}${endpoint}`
   try {
-    const response = await fetch(`${BACKEND_URL}${endpoint}`, {
+    const response = await fetch(fullUrl, {
       ...options,
       headers: {
         'Content-Type': 'application/json',

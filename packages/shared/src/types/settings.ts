@@ -7,16 +7,16 @@ export interface UserSettings {
     reducedMotion: boolean
   }
   notifications: {
-    email: boolean
     budgetAlerts: boolean
-    phone?: string
-    phoneNotifications: boolean
-  }
-  alerts: {
-    weeklyReports: boolean
+    weeklyBudgetReports: boolean
     monthlyReports: boolean
-    transactionUpdates: boolean
-    budgetAlerts: boolean
+    weeklyTransactionReports: boolean
+    transactionAlerts: boolean
+    weeklyInsightReports: boolean
+  }
+  receiveOn: {
+    email: boolean
+    sms: boolean
   }
   currency: string
   security: {
@@ -35,7 +35,7 @@ export interface SettingsUpdate {
   dateFormat?: string
   appearance?: Partial<UserSettings['appearance']>
   notifications?: Partial<UserSettings['notifications']>
-  alerts?: Partial<UserSettings['alerts']>
+  receiveOn?: Partial<UserSettings['receiveOn']>
   currency?: 'GBP'
   security?: Partial<UserSettings['security']>
   privacy?: Partial<UserSettings['privacy']>
@@ -62,15 +62,16 @@ export const DEFAULT_SETTINGS: Omit<UserSettings, 'customerId' | 'createdAt' | '
     reducedMotion: false,
   },
   notifications: {
-    email: true,
     budgetAlerts: true,
-    phoneNotifications: false,
+    weeklyBudgetReports: false,
+    monthlyReports: false,
+    weeklyTransactionReports: false,
+    transactionAlerts: true,
+    weeklyInsightReports: false,
   },
-  alerts: {
-    weeklyReports: true,
-    monthlyReports: true,
-    transactionUpdates: true,
-    budgetAlerts: true,
+  receiveOn: {
+    email: true,
+    sms: false,
   },
   currency: 'GBP',
   security: {
