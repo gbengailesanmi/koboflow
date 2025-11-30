@@ -1,5 +1,7 @@
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
+export * from './default-categories'
+
 export const TRANSACTION_CATEGORIES = [
   'Food & Dining',
   'Shopping',

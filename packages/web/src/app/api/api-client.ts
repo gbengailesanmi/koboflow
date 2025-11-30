@@ -24,6 +24,8 @@ const BACKEND_URL = config.BACKEND_URL
  */
 async function fetchClient(endpoint: string, options: RequestInit = {}) {
   const fullUrl = `${BACKEND_URL}${endpoint}`
+  console.log('[API Client] Request:', options.method || 'GET', fullUrl)
+  
   try {
     const response = await fetch(fullUrl, {
       ...options,
@@ -35,6 +37,8 @@ async function fetchClient(endpoint: string, options: RequestInit = {}) {
       cache: 'no-store', // Never cache client-side requests
     })
 
+    console.log('[API Client] Response:', response.status, response.statusText)
+
     if (!response.ok) {
       if (response.status === 401) {
         // Session expired or invalid
@@ -44,12 +48,17 @@ async function fetchClient(endpoint: string, options: RequestInit = {}) {
       }
       
       const errorData = await response.json().catch(() => ({}))
+      console.error('[API Client] Error response:', errorData)
       throw new Error(errorData.message || `API Error: ${response.status}`)
     }
 
     return response.json()
   } catch (error) {
     console.error('[API Client] Request failed:', endpoint, error)
+    if (error instanceof TypeError && error.message === 'Failed to fetch') {
+      console.error('[API Client] Network error - is the backend running?', BACKEND_URL)
+      console.error('[API Client] Check CORS configuration and ensure backend is accessible')
+    }
     throw error
   }
 }

@@ -5,6 +5,8 @@ export async function createUserSettings(customerId: string): Promise<{ success:
   try {
     const db = await connectDB()
     
+    console.log(`[Settings] Creating settings for user: ${customerId}`)
+    
     const settings: UserSettings = {
       customerId,
       ...DEFAULT_SETTINGS,
@@ -13,10 +15,15 @@ export async function createUserSettings(customerId: string): Promise<{ success:
     }
 
     const result = await db.collection('settings').insertOne(settings)
+    
+    console.log(`[Settings] ✅ Settings created with ID: ${result.insertedId}`)
+    console.log(`[Settings]    - Theme: ${DEFAULT_SETTINGS.appearance.theme}`)
+    console.log(`[Settings]    - Email notifications: ${DEFAULT_SETTINGS.receiveOn.email}`)
+    console.log(`[Settings]    - Budget alerts: ${DEFAULT_SETTINGS.notifications.budgetAlerts}`)
 
     return { success: true, settingsId: result.insertedId }
   } catch (error) {
-    console.error('Error creating user settings:', error)
+    console.error('[Settings] ❌ Error creating user settings:', error)
     return { success: false, error }
   }
 }

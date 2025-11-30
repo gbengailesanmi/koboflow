@@ -7,6 +7,7 @@ import { sendVerificationEmail } from '../services/email'
 import { createUserSettings } from '../services/settings'
 import { createSession, deleteSession, deleteAllUserSessions, getUserSessions } from '../services/session'
 import { authMiddleware, AuthRequest } from '../middleware/middleware'
+import { initializeUserCategories } from '../db/helpers/spending-categories-helpers'
 
 export const authRoutes = Router()
 
@@ -57,7 +58,19 @@ authRoutes.post('/signup', async (req, res) => {
       return res.status(500).json({ message: 'Failed to create user.' })
     }
 
+    console.log(`[Signup] ✅ User created: ${customerId}`)
+    console.log(`[Signup]    - Name: ${firstName} ${lastName}`)
+    console.log(`[Signup]    - Email: ${normalizedEmail}`)
+
+    // Initialize user settings
     await createUserSettings(customerId)
+    console.log(`[Signup] ✅ User settings created`)
+    
+    // Initialize user categories (default + empty custom categories array)
+    const userCategories = await initializeUserCategories(customerId)
+    console.log(`[Signup] ✅ User categories initialized`)
+    console.log(`[Signup]    - Default categories: ${userCategories.categories.filter(c => c.isDefault).length}`)
+    console.log(`[Signup]    - Custom categories: ${userCategories.categories.filter(c => !c.isDefault).length}`)
 
     const emailResult = await sendVerificationEmail(
       normalizedEmail,
@@ -69,6 +82,12 @@ authRoutes.post('/signup', async (req, res) => {
       await db.collection('users').deleteOne({ _id: insertResult.insertedId })
       return res.status(500).json({ message: 'Failed to send verification email. Please try again.' })
     }
+
+    console.log(`[Signup] ✅ Verification email sent to ${normalizedEmail}`)
+    console.log(`[Signup] 📦 User initialization complete!`)
+    console.log(`[Signup]    ✓ User document`)
+    console.log(`[Signup]    ✓ Settings document`)
+    console.log(`[Signup]    ✓ Categories document (${userCategories.categories.length} categories)`)
 
     res.status(201).json({
       success: true,

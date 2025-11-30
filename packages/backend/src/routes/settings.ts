@@ -72,30 +72,44 @@ settingsRoutes.delete('/account', authMiddleware, async (req: AuthRequest, res) 
       return res.status(401).json({ error: 'Unauthorized' })
     }
 
-    const { customerId: bodyCustomerId } = req.body
-
-    if (bodyCustomerId && bodyCustomerId !== customerId) {
-      return res.status(401).json({ error: 'Unauthorized' })
-    }
+    console.log('[Delete Account] Deleting account for customerId:', customerId)
 
     const db = await connectDB()
     
-    await Promise.all([
+    // Delete all user data across all collections
+    const results = await Promise.all([
       db.collection('users').deleteOne({ customerId }),
       db.collection('accounts').deleteMany({ customerId }),
       db.collection('transactions').deleteMany({ customerId }),
-      db.collection('budgets').deleteOne({ customerId }),
+      db.collection('budgets').deleteMany({ customerId }),
       db.collection('spending_categories').deleteMany({ customerId }),
-      db.collection('settings').deleteOne({ customerId })
+      db.collection('settings').deleteOne({ customerId }),
+      db.collection('spending_categories').deleteOne({ customerId }),
+      db.collection('custom_categories').deleteMany({ customerId }),
+      db.collection('sessions').deleteMany({ customerId })
     ])
+
+    console.log('[Delete Account] Deletion results:', {
+      users: results[0].deletedCount,
+      accounts: results[1].deletedCount,
+      transactions: results[2].deletedCount,
+      budgets: results[3].deletedCount,
+      spending_categories: results[4].deletedCount,
+      settings: results[5].deletedCount,
+      custom_categories: results[7].deletedCount,
+      sessions: results[8].deletedCount
+    })
 
     res.json({ 
       success: true,
       message: 'Account deleted successfully' 
     })
   } catch (error) {
-    console.error('Error deleting account:', error)
-    res.status(500).json({ error: 'Failed to delete account' })
+    console.error('[Delete Account] Error deleting account:', error)
+    res.status(500).json({ 
+      error: 'Failed to delete account',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    })
   }
 })
 

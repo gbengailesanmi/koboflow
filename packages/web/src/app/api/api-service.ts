@@ -251,11 +251,11 @@ export async function getSettings(): Promise<Settings | null> {
 // ============================================================================
 
 /**
- * Get custom categories for current user
+ * Get all categories for current user (default + custom)
  * Cache tag: 'categories'
  * Revalidates: After category POST, PATCH, DELETE
  */
-export async function getCustomCategories(): Promise<CustomCategory[]> {
+export async function getCategories(): Promise<CustomCategory[]> {
   try {
     const response = await serverFetch(`${BACKEND_URL}/api/categories`, {
       next: { tags: ['categories'] },
@@ -263,6 +263,21 @@ export async function getCustomCategories(): Promise<CustomCategory[]> {
 
     const data = await parseResponse<CustomCategory[]>(response)
     return data || []
+  } catch (error) {
+    console.error('getCategories error:', error)
+    return []
+  }
+}
+
+/**
+ * Get only custom categories (filters out default ones)
+ * Cache tag: 'categories'
+ * Revalidates: After category POST, PATCH, DELETE
+ */
+export async function getCustomCategories(): Promise<CustomCategory[]> {
+  try {
+    const categories = await getCategories()
+    return categories.filter(cat => !cat.isDefault)
   } catch (error) {
     console.error('getCustomCategories error:', error)
     return []

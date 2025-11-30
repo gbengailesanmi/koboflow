@@ -14,11 +14,13 @@ export default function ThemeProviders({ children, initialTheme = 'system' }: Th
     <ThemeProvider 
       attribute="class"
       defaultTheme={initialTheme}
-      enableSystem={true}
+      enableSystem
       disableTransitionOnChange
       storageKey="money-mapper-theme"
     >
-      <Theme>{children}</Theme>
+      <Theme appearance='inherit'>
+        {children}
+      </Theme>
     </ThemeProvider>
   )
 }

@@ -8,6 +8,7 @@ import type { Account } from '@/types/account'
 import type { Transaction } from '@/types/transactions'
 import type { CustomCategory } from '@/types/custom-category'
 import { createCustomCategory, deleteCustomCategory } from '@/app/api/api-client'
+import { updateCategoryAction } from '@/app/actions/category-actions'
 import { PageHeader } from '@/app/components/page-header/page-header'
 import { PageLayout } from '@/app/components/page-layout/page-layout'
 import AccountFilterMenu from '@/app/components/account-filter-menu/account-filter-menu'
@@ -93,6 +94,22 @@ export default function AnalyticsClient({
     } catch (error) {
       console.error('Failed to delete category:', error)
       showToast('Failed to delete category', 'error')
+    }
+  }
+
+  const handleUpdateCategory = async (id: string, updates: { name?: string; keywords?: string[]; color?: string }) => {
+    try {
+      const result = await updateCategoryAction(id, updates)
+      
+      if (result.success) {
+        showToast('Category updated successfully', 'success')
+        router.refresh()
+      } else {
+        showToast(result.error || 'Failed to update category', 'error')
+      }
+    } catch (error) {
+      console.error('Failed to update category:', error)
+      showToast('Failed to update category', 'error')
     }
   }
 
@@ -269,9 +286,6 @@ export default function AnalyticsClient({
     </>
   )
 
-  // ============================================================================
-  // RENDER - STICKY CONTENT (Time Range + Stats Cards)
-  // ============================================================================
   const renderStickyContent = () => (
     <>
       <Box className={styles.timeRangeContainer}>
@@ -300,9 +314,6 @@ export default function AnalyticsClient({
     </>
   )
 
-  // ============================================================================
-  // RENDER - BODY CONTENT
-  // ============================================================================
   const renderBodyContent = () => (
     <>
       {processedTransactions.length === 0 ? (
@@ -429,6 +440,7 @@ export default function AnalyticsClient({
                 currency={currency}
                 customCategories={customCategories}
                 onAddCategory={handleAddCategory}
+                onUpdateCategory={handleUpdateCategory}
                 onDeleteCategory={handleDeleteCategory}
               />
             </AnalyticsCard>
@@ -452,9 +464,6 @@ export default function AnalyticsClient({
     </>
   )
 
-  // ============================================================================
-  // MAIN RENDER
-  // ============================================================================
   return (
     <PageLayout
       header={renderHeader()}

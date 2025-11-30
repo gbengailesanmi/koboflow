@@ -5,10 +5,10 @@ import { useRouter } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import { 
   updateSettings, 
-  deleteAccount,
   changeUserPIN,
   changeUserPassword
 } from '@/app/api/api-service'
+import { deleteUserAccount } from '@/app/api/api-client'
 import { useToasts } from '@/store'
 import Sidebar from '@/app/components/sidebar/sidebar'
 import { PageHeader } from '@/app/components/page-header/page-header'
@@ -241,7 +241,7 @@ export default function SettingsClient({
   // Handle account deletion
   const handleDeleteAccount = async () => {
     try {
-      const result = await deleteAccount()
+      const result = await deleteUserAccount()
       if (result.success) {
         showToast('Account deleted successfully', 'success')
         router.push('/signup')

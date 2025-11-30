@@ -39,46 +39,14 @@ export async function createBudgetIndexes() {
   )
 }
 
-export async function migrateBudgetPeriod() {
-  const db = await connectDB()
-  const budgetsCollection = db.collection('budgets')
-  
-  // Add default period to budgets without one
-  await budgetsCollection.updateMany(
-    { period: { $exists: false } },
-    {
-      $set: {
-        period: {
-          type: 'current-month'
-        },
-        updatedAt: new Date()
-      }
-    }
-  )
-  
-  // Add name and isActive to existing budgets
-  await budgetsCollection.updateMany(
-    { name: { $exists: false } },
-    {
-      $set: {
-        name: 'My Budget',
-        isActive: true,
-        updatedAt: new Date()
-      }
-    }
-  )
-}
-
 if (require.main === module) {
-  Promise.all([
-    createBudgetIndexes(),
-    migrateBudgetPeriod()
-  ])
+  createBudgetIndexes()
     .then(() => {
+      console.log('✅ Budget indexes created successfully')
       process.exit(0)
     })
     .catch((error) => {
-      console.error('❌ Failed:', error)
+      console.error('❌ Failed to create budget indexes:', error)
       process.exit(1)
     })
 }
