@@ -1,5 +1,13 @@
 import { connectDB } from '../mongo'
-import { UserCategories, Category, CategoryInput } from '@money-mapper/shared'
+import { 
+  UserSpendingCategories, 
+  SpendingCategory, 
+  SpendingCategoryInput,
+  // Legacy aliases for backwards compatibility
+  UserCategories,
+  Category,
+  CategoryInput
+} from '@money-mapper/shared'
 import { DEFAULT_CATEGORIES } from '@money-mapper/shared'
 import { randomUUID } from 'crypto'
 

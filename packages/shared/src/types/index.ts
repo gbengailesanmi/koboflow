@@ -1,6 +1,6 @@
 export * from './account'
 export * from './transaction'
 export * from './budget'
-export * from './custom-category'
+export * from './spending-category'
 export * from './auth'
 export * from './settings'
