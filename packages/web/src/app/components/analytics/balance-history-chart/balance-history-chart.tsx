@@ -2,6 +2,7 @@
 
 import React, { useMemo, useEffect, useState } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts'
+import { Select, Flex, Text } from '@radix-ui/themes'
 import { formatCurrency } from '../utils/format-currency'
 import styles from './balance-history-chart.module.css'
 
@@ -20,6 +21,30 @@ export const BalanceHistoryChart: React.FC<BalanceHistoryChartProps> = ({ data, 
   const [grayColor, setGrayColor] = useState('#6b7280')
   const [axisColor, setAxisColor] = useState('#6b7280')
   const [referenceLineColor, setReferenceLineColor] = useState('#9ca3af')
+  
+  // Custom date comparison state
+  const today = new Date()
+  const actualCurrentMonth = today.getMonth()
+  const actualCurrentYear = today.getFullYear()
+  const actualPrevMonth = actualCurrentMonth === 0 ? 11 : actualCurrentMonth - 1
+  const actualPrevYear = actualCurrentMonth === 0 ? actualCurrentYear - 1 : actualCurrentYear
+  
+  const [useCustomDates, setUseCustomDates] = useState(false)
+  const [startMonth, setStartMonth] = useState(actualCurrentMonth.toString())
+  const [startYear, setStartYear] = useState(actualCurrentYear.toString())
+  const [endMonth, setEndMonth] = useState(actualPrevMonth.toString())
+  const [endYear, setEndYear] = useState(actualPrevYear.toString())
+  
+  // Detect if user has changed from default
+  useEffect(() => {
+    const isDefaultComparison = 
+      parseInt(startMonth) === actualCurrentMonth &&
+      parseInt(startYear) === actualCurrentYear &&
+      parseInt(endMonth) === actualPrevMonth &&
+      parseInt(endYear) === actualPrevYear
+    
+    setUseCustomDates(!isDefaultComparison)
+  }, [startMonth, startYear, endMonth, endYear, actualCurrentMonth, actualCurrentYear, actualPrevMonth, actualPrevYear])
 
   useEffect(() => {
     // Check if dark mode is enabled
@@ -78,18 +103,22 @@ export const BalanceHistoryChart: React.FC<BalanceHistoryChartProps> = ({ data, 
 
     return () => observer.disconnect()
   }, [])
-  const today = new Date()
-  const currentDay = today.getDate()
-  const currentMonth = today.getMonth()
-  const currentYear = today.getFullYear()
   
-  const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1
-  const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear
+  // Use custom dates if enabled, otherwise use current vs previous month
+  const currentMonth = useCustomDates ? parseInt(startMonth) : actualCurrentMonth
+  const currentYear = useCustomDates ? parseInt(startYear) : actualCurrentYear
+  const currentDay = today.getDate()
+  
+  const prevMonth = useCustomDates ? parseInt(endMonth) : actualPrevMonth
+  const prevYear = useCustomDates ? parseInt(endYear) : actualPrevYear
 
   const daysInCurrentMonth = new Date(currentYear, currentMonth + 1, 0).getDate()
   const daysInPrevMonth = new Date(prevYear, prevMonth + 1, 0).getDate()
   
   const maxDays = Math.max(daysInCurrentMonth, daysInPrevMonth)
+  
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+  const years = ['2024', '2025', '2026']
 
   const chartData = useMemo(() => {
     const dailyData = []
@@ -170,19 +199,73 @@ export const BalanceHistoryChart: React.FC<BalanceHistoryChartProps> = ({ data, 
   const currentLineColor = isDarkMode ? '#ffffff' : accentColor
   const prevLineColor = grayColor
 
-
   return (
-    <div style={{ width: '100%', height: 'auto', minHeight: '200px', position: 'relative' }}>
-      <ResponsiveContainer width="100%" height={400}>
-        <LineChart
-          data={chartData}
-          margin={{
-            top: 20,
-            right: 10,
-            left: 0,
-            bottom: 5,
-          }}
-        >
+    <div style={{ width: '100%' }}>
+      {/* Custom Date Comparison Controls */}
+      <div className={styles.controls}>
+        <Flex align="center" gap="2">
+          <div className={styles.datePill}>
+            <Select.Root value={startMonth} onValueChange={setStartMonth}>
+              <Select.Trigger className={styles.select} />
+              <Select.Content>
+                {monthNames.map((month, index) => (
+                  <Select.Item key={index} value={index.toString()}>
+                    {month}
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select.Root>
+            <Select.Root value={startYear} onValueChange={setStartYear}>
+              <Select.Trigger className={styles.select} />
+              <Select.Content>
+                {years.map((year) => (
+                  <Select.Item key={year} value={year}>
+                    {year}
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select.Root>
+          </div>
+          <Text size="2" className={styles.vsText}>
+            vs
+          </Text>
+          <div className={styles.datePill}>
+            <Select.Root value={endMonth} onValueChange={setEndMonth}>
+              <Select.Trigger className={styles.select} />
+              <Select.Content>
+                {monthNames.map((month, index) => (
+                  <Select.Item key={index} value={index.toString()}>
+                    {month}
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select.Root>
+            <Select.Root value={endYear} onValueChange={setEndYear}>
+              <Select.Trigger className={styles.select} />
+              <Select.Content>
+                {years.map((year) => (
+                  <Select.Item key={year} value={year}>
+                    {year}
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select.Root>
+          </div>
+        </Flex>
+      </div>
+
+      {/* Chart */}
+      <div style={{ width: '100%', height: 'auto', minHeight: '200px', position: 'relative' }}>
+        <ResponsiveContainer width="100%" height={400}>
+          <LineChart
+            data={chartData}
+            margin={{
+              top: 20,
+              right: 10,
+              left: 0,
+              bottom: 5,
+            }}
+          >
           <XAxis 
             dataKey="day" 
             axisLine={false}
@@ -259,6 +342,7 @@ export const BalanceHistoryChart: React.FC<BalanceHistoryChartProps> = ({ data, 
           />
           <span>{data.prevMonth.name}</span>
         </div>
+      </div>
       </div>
     </div>
   )
