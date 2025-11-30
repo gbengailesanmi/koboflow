@@ -71,8 +71,16 @@ export async function addCategory(
   customerId: string, 
   input: CategoryInput
 ): Promise<Category> {
+  // Ensure user categories document exists first
+  await getUserCategories(customerId)
+  
   const db = await connectDB()
   const collection = db.collection(COLLECTION)
+  
+  console.log(`[Categories] Adding custom category for user: ${customerId}`)
+  console.log(`[Categories]    - Name: ${input.name}`)
+  console.log(`[Categories]    - Keywords: ${input.keywords.join(', ')}`)
+  console.log(`[Categories]    - Color: ${input.color || '#6b7280'}`)
   
   const now = new Date()
   const newCategory: Category = {
@@ -86,13 +94,15 @@ export async function addCategory(
     updatedAt: now
   }
   
-  await collection.updateOne(
+  const result = await collection.updateOne(
     { customerId },
     { 
       $push: { categories: newCategory },
       $set: { updatedAt: now }
     }
   )
+  
+  console.log(`[Categories] ✅ Category added. Modified count: ${result.modifiedCount}`)
   
   return newCategory
 }

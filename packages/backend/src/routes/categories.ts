@@ -59,12 +59,16 @@ categoryRoutes.post('/', authMiddleware, async (req: AuthRequest, res) => {
     }
 
     const { name, keywords, color } = req.body
+    
+    console.log('[Categories POST] Received request:', { customerId, name, keywords, color })
 
     if (!name?.trim()) {
+      console.log('[Categories POST] ❌ Validation failed: Category name is required')
       return res.status(400).json({ error: 'Category name is required' })
     }
 
     if (!Array.isArray(keywords) || keywords.length === 0) {
+      console.log('[Categories POST] ❌ Validation failed: At least one keyword is required')
       return res.status(400).json({ error: 'At least one keyword is required' })
     }
 
@@ -74,9 +78,10 @@ categoryRoutes.post('/', authMiddleware, async (req: AuthRequest, res) => {
       color: color || '#6b7280'
     })
 
+    console.log('[Categories POST] ✅ Category created successfully:', category.id)
     res.json(category)
   } catch (error) {
-    console.error('Error creating category:', error)
+    console.error('[Categories POST] ❌ Error creating category:', error)
     res.status(500).json({ error: 'Failed to create category' })
   }
 })
