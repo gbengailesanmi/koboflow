@@ -245,7 +245,7 @@ export default function AnalyticsClient({
     const prevIncome = prevMonthTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.numericAmount, 0)
     const prevExpense = prevMonthTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.numericAmount, 0)
     
-    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
     
     const currentDayOfMonth = now.getDate()
     const daysInPrevMonth = new Date(prevYear, prevMonth + 1, 0).getDate()
@@ -387,7 +387,7 @@ export default function AnalyticsClient({
 
           <Grid id="daily-comparison">
             <AnalyticsCard
-              title="Daily Expense Comparison"
+              title="Daily Expense"
               description="Compare daily expenses for the entire month between current and previous month"
             >
               {(monthOnMonthData.currentMonth.expense === 0 && monthOnMonthData.prevMonth.expense === 0) ? (
@@ -421,7 +421,7 @@ export default function AnalyticsClient({
             <AnalyticsCard
               title={currentComparisonIndex === 0 
                 ? `${monthOnMonthData.currentMonth.name} vs ${monthOnMonthData.prevMonth.name}`
-                : "Custom Month Comparison"
+                : "Month Comparison"
               }
               description={currentComparisonIndex === 0
                 ? "Track your cumulative spending against last month"
