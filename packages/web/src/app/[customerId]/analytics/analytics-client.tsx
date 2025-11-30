@@ -23,6 +23,7 @@ import { RecurringPayments } from '@/app/components/analytics/recurring-payments
 import { StatsCards } from '@/app/components/analytics/stats-cards/stats-cards'
 import { CategoryBreakdown } from '@/app/components/analytics/category-breakdown/category-breakdown'
 import { DailySpendingComparison } from '@/app/components/analytics/daily-spending-comparison/daily-spending-comparison'
+import { CustomDateComparison } from '@/app/components/analytics/custom-date-comparison/custom-date-comparison'
 import { AnalyticsCard } from '@/app/components/analytics/analytics-card/analytics-card'
 import { EmptyState } from '@/app/components/empty-state'
 import { ChartPlaceholder } from '@/app/components/chart-placeholder'
@@ -61,6 +62,7 @@ export default function AnalyticsClient({
   const [timePeriod, setTimePeriod] = useState<'day' | 'month' | 'year'>('month')
   const [showAccountFilter, setShowAccountFilter] = useState(false)
   const [currentChartIndex, setCurrentChartIndex] = useState(0)
+  const [currentComparisonIndex, setCurrentComparisonIndex] = useState(0)
   
   const effectiveAccountId = selectedAccountId || 'all'
 
@@ -119,6 +121,14 @@ export default function AnalyticsClient({
 
   const handlePrevChart = () => {
     setCurrentChartIndex((prev) => (prev - 1 + 4) % 4) // Cycle through 0, 1, 2, 3
+  }
+
+  const handleNextComparison = () => {
+    setCurrentComparisonIndex((prev) => (prev + 1) % 2) // Cycle through 0, 1
+  }
+
+  const handlePrevComparison = () => {
+    setCurrentComparisonIndex((prev) => (prev - 1 + 2) % 2) // Cycle through 0, 1
   }
 
   const processedTransactions = useMemo(() => {
@@ -409,8 +419,17 @@ export default function AnalyticsClient({
 
           <Grid id="balance-history">
             <AnalyticsCard
-              title={`${monthOnMonthData.currentMonth.name} vs ${monthOnMonthData.prevMonth.name}`}
-              description="Track your cumulative spending against last month"
+              title={currentComparisonIndex === 0 
+                ? `${monthOnMonthData.currentMonth.name} vs ${monthOnMonthData.prevMonth.name}`
+                : "Custom Month Comparison"
+              }
+              description={currentComparisonIndex === 0
+                ? "Track your cumulative spending against last month"
+                : "Compare spending between any two months"
+              }
+              showNavigation={true}
+              onNextChart={handleNextComparison}
+              onPrevChart={handlePrevComparison}
             >
               {(monthOnMonthData.currentMonth.expense === 0 && monthOnMonthData.prevMonth.expense === 0) ? (
                 <ChartPlaceholder
@@ -420,11 +439,19 @@ export default function AnalyticsClient({
                 />
               ) : (
                 <div className={styles.chartContainer}>
-                  <BalanceHistoryChart 
-                    data={monthOnMonthData}
-                    currency={currency}
-                    transactions={processedTransactions}
-                  />
+                  {currentComparisonIndex === 0 && (
+                    <BalanceHistoryChart 
+                      data={monthOnMonthData}
+                      currency={currency}
+                      transactions={processedTransactions}
+                    />
+                  )}
+                  {currentComparisonIndex === 1 && (
+                    <CustomDateComparison
+                      transactions={processedTransactions}
+                      currency={currency}
+                    />
+                  )}
                 </div>
               )}
             </AnalyticsCard>

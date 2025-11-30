@@ -32,19 +32,6 @@
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   z-index: 10;
-}
-
-/* Light mode form */
-:root .addForm,
-.light .addForm,
-.light-theme .addForm {
-  background: var(--gray-2);
-  border: 1px solid var(--gray-4);
-}
-
-/* Dark mode form */
-.dark .addForm,
-.dark-theme .addForm {
   background: var(--gray-2);
   border: 1px solid var(--gray-4);
 }
@@ -139,31 +126,11 @@
   padding: 16px;
   border-radius: 12px;
   transition: all 0.2s ease;
+  background: var(--gray-a2);
 }
 
-/* Light mode category item */
-:root .categoryItem,
-.light .categoryItem,
-.light-theme .categoryItem {
-  background: rgba(249, 250, 251, 0.5);
-}
-
-:root .categoryItem:hover,
-.light .categoryItem:hover,
-.light-theme .categoryItem:hover {
-  background: rgba(249, 250, 251, 0.8);
-  transform: translateX(4px);
-}
-
-/* Dark mode category item */
-.dark .categoryItem,
-.dark-theme .categoryItem {
-  background: rgba(255, 255, 255, 0.03);
-}
-
-.dark .categoryItem:hover,
-.dark-theme .categoryItem:hover {
-  background: rgba(255, 255, 255, 0.06);
+.categoryItem:hover {
+  background: var(--gray-a3);
   transform: translateX(4px);
 }
 
@@ -191,27 +158,35 @@
 .categoryItemRight {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 6px;
+  flex-shrink: 0;
+  justify-content: flex-start;
 }
 
 .categoryPercentage {
   font-size: 14px;
   font-weight: 600;
   color: var(--gray-11);
+  min-width: 45px;
+  text-align: left;
+  white-space: nowrap;
 }
 
 .categoryAmount {
   font-size: 16px;
   font-weight: 700;
   color: var(--gray-12);
+  min-width: 80px;
+  text-align: left;
+  white-space: nowrap;
 }
 
 .deleteBtn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   padding: 0;
   margin: 0;
   background: transparent;
@@ -265,7 +240,7 @@
   align-items: center;
   gap: 8px;
   padding: 6px 12px;
-  background: var(--blue-a3);
+  background: var(--gray-a3);
   color: var(--gray-12);
   border-radius: 6px;
   font-size: 13px;
@@ -303,21 +278,6 @@
 
 .keywordDeleteBtn:active {
   transform: scale(0.95);
-}
-
-/* Light mode keyword chip */
-:root .keywordChip,
-.light .keywordChip,
-.light-theme .keywordChip {
-  background: rgba(255, 255, 255, 0.8);
-  border-color: var(--gray-4);
-}
-
-/* Dark mode keyword chip */
-.dark .keywordChip,
-.dark-theme .keywordChip {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: var(--gray-6);
 }
 
 .noData {

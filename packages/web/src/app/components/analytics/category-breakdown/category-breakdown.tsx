@@ -280,17 +280,16 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({
                 <span className={styles.categoryAmount}>
                   {formatCurrency(cat.amount, currency)}
                 </span>
-                {isCustom && (
-                  <button 
-                    onClick={() => handleDelete(cat.category)}
-                    className={styles.deleteBtn}
-                    disabled={loading}
-                    title="Delete category"
-                    type="button"
-                  >
-                    <Cross2Icon width="14" height="14" />
-                  </button>
-                )}
+                <button 
+                  onClick={() => isCustom ? handleDelete(cat.category) : undefined}
+                  className={styles.deleteBtn}
+                  disabled={loading || !isCustom}
+                  title={isCustom ? "Delete category" : ""}
+                  type="button"
+                  style={{ visibility: isCustom ? 'visible' : 'hidden' }}
+                >
+                  <Cross2Icon width="14" height="14" />
+                </button>
               </div>
             </div>
           )

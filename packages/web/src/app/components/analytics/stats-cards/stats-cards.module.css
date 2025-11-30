@@ -130,8 +130,15 @@
     @apply p-2;
   }
 
+  .statsCardContent {
+    padding-left: 0;
+    text-align: center;
+  }
+
   .statsCardFooter {
     gap: 8px;
+    padding-left: 0;
+    justify-content: center;
   }
 
   .transactionBadge {
@@ -171,8 +178,15 @@
     @apply p-3;
   }
 
+  .statsCardContent {
+    padding-left: 0;
+    text-align: center;
+  }
+
   .statsCardFooter {
     gap: 12px;
+    padding-left: 0;
+    justify-content: center;
   }
 
   .transactionBadge {

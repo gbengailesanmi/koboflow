@@ -48,15 +48,15 @@
 .navigationChevrons {
   position: absolute;
   top: 45%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
   display: flex;
   justify-content: space-between;
   align-items: center;
   pointer-events: none;
   z-index: 5;
-  width: 400px;
-  max-width: 95%;
+  padding: 0 8px;
 }
 
 .chevronButton {
@@ -93,12 +93,12 @@
 
 @media (min-width: 768px) {
   .navigationChevrons {
-    width: 500px;
+    padding: 0 16px;
   }
 }
 
 @media (min-width: 1024px) {
   .navigationChevrons {
-    width: 650px;
+    padding: 0 24px;
   }
 }

@@ -12,9 +12,21 @@ type MonthOnMonthChartProps = {
   }
   currency: string
   transactions: any[]
+  customStartMonth?: number
+  customStartYear?: number
+  customEndMonth?: number
+  customEndYear?: number
 }
 
-export const MonthOnMonthChart: React.FC<MonthOnMonthChartProps> = ({ data, currency, transactions }) => {
+export const MonthOnMonthChart: React.FC<MonthOnMonthChartProps> = ({ 
+  data, 
+  currency, 
+  transactions,
+  customStartMonth,
+  customStartYear,
+  customEndMonth,
+  customEndYear
+}) => {
   const [isDarkMode, setIsDarkMode] = useState(false)
   const [accentColor, setAccentColor] = useState('#3b82f6')
   const [grayColor, setGrayColor] = useState('#6b7280')
@@ -79,12 +91,12 @@ export const MonthOnMonthChart: React.FC<MonthOnMonthChartProps> = ({ data, curr
     return () => observer.disconnect()
   }, [])
   const today = new Date()
-  const currentDay = today.getDate()
-  const currentMonth = today.getMonth()
-  const currentYear = today.getFullYear()
+  const currentDay = customStartMonth !== undefined ? new Date(customStartYear!, customStartMonth!, today.getDate()).getDate() : today.getDate()
+  const currentMonth = customStartMonth !== undefined ? customStartMonth : today.getMonth()
+  const currentYear = customStartYear !== undefined ? customStartYear : today.getFullYear()
 
-  const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1
-  const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear
+  const prevMonth = customEndMonth !== undefined ? customEndMonth : (currentMonth === 0 ? 11 : currentMonth - 1)
+  const prevYear = customEndYear !== undefined ? customEndYear : (currentMonth === 0 ? currentYear - 1 : currentYear)
 
   const daysInCurrentMonth = new Date(currentYear, currentMonth + 1, 0).getDate()
   const daysInPrevMonth = new Date(prevYear, prevMonth + 1, 0).getDate()
@@ -187,14 +199,16 @@ export const MonthOnMonthChart: React.FC<MonthOnMonthChartProps> = ({ data, curr
           
           <Tooltip content={<CustomTooltip />} />
           
-          {/* Vertical line at current day */}
-          <ReferenceLine 
-            x={currentDay.toString()} 
-            stroke={referenceLineColor}
-            strokeDasharray="1 1"
-            strokeWidth={1}
-            label={{ value: `Today ${currentDay}/${currentMonth + 1}`, position: 'top', fill: axisColor, fontSize: 10 }}
-          />
+          {/* Vertical line at current day - only show for current month comparisons */}
+          {customStartMonth === undefined && (
+            <ReferenceLine 
+              x={currentDay.toString()} 
+              stroke={referenceLineColor}
+              strokeDasharray="1 1"
+              strokeWidth={1}
+              label={{ value: `Today ${currentDay}/${currentMonth + 1}`, position: 'top', fill: axisColor, fontSize: 10 }}
+            />
+          )}
           
           <Line 
             type="bump"
