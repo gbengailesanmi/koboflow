@@ -123,3 +123,34 @@ html, body {
   --red-10: #f2555a;
   --red-11: #ff6369;
 }
+
+/* ============================================
+   REUSABLE LAYOUT UTILITIES
+   ============================================ */
+
+/* Main content container - used across all pages */
+.page-main {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 0.6rem 1rem 0.8rem;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1;
+}
+
+@media (min-width: 768px) {
+  .page-main {
+    padding: 2rem 1.5rem;
+    gap: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page-main {
+    padding: 3rem 2rem;
+    gap: 2.5rem;
+  }
+}

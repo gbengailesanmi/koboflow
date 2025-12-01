@@ -1,7 +1,11 @@
+@reference "../../globals.css";
+
 .container {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  height: 100vh;
+  overflow-y: auto;
 }
 
 .wrapper {
@@ -39,7 +43,7 @@
 .title {
   font-size: 24px;
   font-weight: 700;
-  color: #222222;
+  color: var(--gray-12);
 }
 
 .subtitle {
@@ -48,17 +52,21 @@
 }
 
 .subtitleText {
-  color: #374151;
+  color: var(--gray-11);
   font-size: 14px;
 }
 
 .card {
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--card-bg);
   border-radius: 20px;
   padding: 24px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--card-shadow);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: var(--card-shadow-hover);
 }
 
 .cardHeader {
@@ -86,31 +94,32 @@
 .cardTitle {
   font-size: 20px;
   font-weight: 600;
-  color: #111827;
+  color: var(--gray-12);
   margin: 0;
 }
 
 .cardDescription {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--gray-11);
   margin-top: 4px;
 }
 
 .editButton {
   padding: 8px 16px;
   border-radius: 10px;
-  border: 1px solid #e5e7eb;
-  background: white;
+  border: 1px solid var(--gray-6);
+  background: var(--gray-1);
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+  color: var(--gray-11);
 }
 
 .editButton:hover {
-  background: #f9fafb;
+  background: var(--gray-2);
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--card-shadow);
 }
 
 .cardContent {
@@ -133,7 +142,7 @@
 
 .budgetLabel {
   font-size: 12px;
-  color: #6b7280;
+  color: var(--gray-11);
 }
 
 .budgetValue {
@@ -142,7 +151,7 @@
 }
 
 .budgetValueNormal {
-  color: #111827;
+  color: var(--gray-12);
 }
 
 .budgetValueOver {
@@ -150,7 +159,7 @@
 }
 
 .budgetValueMuted {
-  color: #9ca3af;
+  color: var(--gray-10);
 }
 
 .progressSection {
@@ -167,7 +176,7 @@
 }
 
 .progressLabelText {
-  color: #6b7280;
+  color: var(--gray-11);
 }
 
 .progressPercentage {
@@ -176,7 +185,7 @@
 
 .progressBar {
   height: 12px;
-  background: #f3f4f6;
+  background: var(--gray-3);
   border-radius: 99px;
   overflow: hidden;
 }
@@ -193,7 +202,7 @@
   gap: 12px;
   padding: 16px;
   border-radius: 12px;
-  background: rgba(0, 0, 0, 0.02);
+  background: var(--gray-a3);
 }
 
 .statusIcon {
@@ -215,7 +224,7 @@
 
 .statusMessage {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--gray-11);
 }
 
 .categoryGrid {
@@ -227,11 +236,16 @@
 .categoryItem {
   padding: 16px;
   border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  background: white;
+  border: 1px solid var(--gray-6);
+  background: var(--card-bg);
   display: flex;
   flex-direction: column;
   gap: 12px;
+  transition: all 0.2s ease;
+}
+
+.categoryItem:hover {
+  box-shadow: var(--card-shadow);
 }
 
 .categoryHeader {
@@ -249,7 +263,7 @@
 .categoryIconWrapper {
   padding: 8px;
   border-radius: 8px;
-  background: #f9fafb;
+  background: var(--gray-a3);
 }
 
 .categoryDetails {
@@ -260,12 +274,12 @@
 .categoryName {
   font-weight: 500;
   font-size: 14px;
-  color: #111827;
+  color: var(--gray-12);
 }
 
 .categorySpent {
   font-size: 12px;
-  color: #6b7280;
+  color: var(--gray-11);
 }
 
 .categoryActions {
@@ -301,14 +315,14 @@
   border: none;
   background: none;
   cursor: pointer;
-  color: #6b7280;
+  color: var(--gray-10);
   transition: all 0.2s ease;
   border-radius: 6px;
 }
 
 .iconButton:hover {
-  background: #f3f4f6;
-  color: #111827;
+  background: var(--gray-a3);
+  color: var(--gray-12);
 }
 
 .addCategorySection {
@@ -323,22 +337,23 @@
   justify-content: space-between;
   padding: 12px;
   border-radius: 10px;
-  border: 1px solid #e5e7eb;
-  background: white;
+  border: 1px solid var(--gray-6);
+  background: var(--card-bg);
   transition: all 0.2s ease;
   cursor: pointer;
 }
 
 .addCategoryItem:hover {
-  background: rgba(0, 0, 0, 0.02);
+  background: var(--gray-a3);
   transform: translateY(-1px);
+  box-shadow: var(--card-shadow);
 }
 
 .addButton {
   padding: 6px 12px;
   border-radius: 8px;
-  border: 1px solid #e5e7eb;
-  background: white;
+  border: 1px solid var(--gray-6);
+  background: var(--gray-1);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
@@ -346,6 +361,7 @@
   align-items: center;
   gap: 6px;
   transition: all 0.2s ease;
+  color: var(--gray-11);
 }
 
 .addButton:hover {
@@ -366,19 +382,19 @@
 .emptyStateIcon {
   font-size: 48px;
   margin-bottom: 16px;
-  color: #9ca3af;
+  color: var(--gray-10);
 }
 
 .emptyStateTitle {
   font-size: 18px;
   font-weight: 600;
-  color: #111827;
+  color: var(--gray-12);
   margin-bottom: 8px;
 }
 
 .emptyStateText {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--gray-11);
 }
 
 /* Grid Layout Styles */
@@ -406,30 +422,42 @@
 }
 
 .budgetCard {
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--card-bg);
   border-radius: 20px;
   padding: 24px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--card-shadow);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.budgetCard:hover {
+  box-shadow: var(--card-shadow-hover);
 }
 
 .categoryBudgetsCard {
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--card-bg);
   border-radius: 20px;
   padding: 24px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--card-shadow);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.categoryBudgetsCard:hover {
+  box-shadow: var(--card-shadow-hover);
 }
 
 .addCategoryCard {
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--card-bg);
   border-radius: 20px;
   padding: 24px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--card-shadow);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.addCategoryCard:hover {
+  box-shadow: var(--card-shadow-hover);
 }
 
 /* Modal Styles */
@@ -448,7 +476,7 @@
 }
 
 .modalContent {
-  background: white;
+  background: var(--gray-1);
   border-radius: 20px;
   padding: 32px;
   max-width: 500px;
@@ -461,7 +489,7 @@
 .modalTitle {
   font-size: 24px;
   font-weight: 700;
-  color: #111827;
+  color: var(--gray-12);
   margin: 0 0 24px 0;
 }
 
@@ -480,16 +508,17 @@
 .formLabel {
   font-size: 14px;
   font-weight: 500;
-  color: #374151;
+  color: var(--gray-11);
 }
 
 .formInput {
   padding: 12px 16px;
   border-radius: 12px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--gray-6);
   font-size: 16px;
   transition: all 0.2s ease;
-  background: white;
+  background: var(--gray-1);
+  color: var(--gray-12);
 }
 
 .formInput:focus {
@@ -501,9 +530,10 @@
 .formSelect {
   padding: 12px 16px;
   border-radius: 12px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--gray-6);
   font-size: 16px;
-  background: white;
+  background: var(--gray-1);
+  color: var(--gray-12);
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -524,17 +554,17 @@
 .modalCancelButton {
   padding: 12px 24px;
   border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  background: white;
+  border: 1px solid var(--gray-6);
+  background: var(--gray-1);
   font-size: 16px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  color: #374151;
+  color: var(--gray-11);
 }
 
 .modalCancelButton:hover {
-  background: #f9fafb;
+  background: var(--gray-2);
 }
 
 .modalCancelButton:disabled {

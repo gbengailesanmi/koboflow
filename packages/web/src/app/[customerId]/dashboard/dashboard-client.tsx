@@ -98,7 +98,7 @@ export default function DashboardClient({
   return (
     <>
       <Header />
-      <main className={`${styles.main}`}>
+      <main className={`${styles.main} page-main`}>
         <Grid className={styles.AccountsGrid}>
           <AccountsCarousel
             accounts={accounts}

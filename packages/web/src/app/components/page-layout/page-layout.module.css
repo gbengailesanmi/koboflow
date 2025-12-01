@@ -46,35 +46,6 @@
   width: 100%;
 }
 
-/* Main Scrollable Body */
-.main {
-  display: flex;
-  flex-direction: column;
-  padding-left: 0.6rem;
-  padding-right: 0.8rem;
-  padding-top: 1rem;
-  width: 100%;
-  margin: 0 auto;
-  overflow-y: auto;
-  overflow-x: hidden;
-  flex: 1;
-}
-
-@media (min-width: 768px) {
-  .main {
-    padding: 2rem 0;
-    gap: 32px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .main {
-    padding: 3rem 7rem;
-    gap: 40px;
-    border-radius: 16px;
-  }
-}
-
 /* Empty State Styles */
 .emptyState {
   @apply rounded-2xl shadow-xl mx-4;

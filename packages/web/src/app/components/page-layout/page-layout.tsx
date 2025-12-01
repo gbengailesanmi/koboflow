@@ -47,7 +47,7 @@ export function PageLayout({
           )}
 
           {/* Main Scrollable Body */}
-          <main ref={mainRef} className={styles.main}>
+          <main ref={mainRef} className={`${styles.main} page-main`}>
             {children}
           </main>
         </div>
