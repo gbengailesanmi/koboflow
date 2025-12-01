@@ -1,17 +1,28 @@
 import type { CustomCategory } from '@/types/custom-category'
+import { DEFAULT_CATEGORIES } from '@money-mapper/shared'
 
-// Default category keywords
-const defaultCategoryKeywords: Record<string, string[]> = {
-  food: ['grocery', 'supermarket', 'food', 'tesco', 'sainsbury', 'asda', 'aldi', 'lidl', 'waitrose', 'morrisons'],
-  transport: ['gas', 'fuel', 'petrol', 'diesel', 'shell', 'bp', 'esso', 'train', 'bus', 'tube', 'uber', 'taxi'],
-  dining: ['restaurant', 'cafe', 'dining', 'mcdonald', 'kfc', 'nando', 'pizza', 'starbucks', 'costa', 'pret'],
-  shopping: ['shop', 'store', 'retail', 'amazon', 'ebay', 'argos', 'john lewis', 'next', 'h&m', 'm&s', 'primark', 'zara'],
-  utilities: ['utility', 'electric', 'water', 'internet', 'british gas', 'edf', 'eon', 'virgin', 'sky', 'bt'],
-  housing: ['rent', 'mortgage', 'housing', 'council tax', 'estate agent'],
-  healthcare: ['medical', 'hospital', 'pharmacy', 'boots', 'superdrug', 'nhs', 'doctor', 'dentist'],
-  entertainment: ['entertainment', 'movie', 'game', 'cinema', 'netflix', 'spotify', 'apple music', 'disney', 'gym'],
-  other: []
+// Generate category key mapping
+const DEFAULT_CATEGORY_KEYS: Record<string, string> = {
+  'Food & Groceries': 'food',
+  'Transport': 'transport',
+  'Dining & Restaurants': 'dining',
+  'Shopping': 'shopping',
+  'Utilities': 'utilities',
+  'Housing': 'housing',
+  'Healthcare': 'healthcare',
+  'Entertainment': 'entertainment',
+  'Other': 'other'
 }
+
+// Build default category keywords from shared package
+const defaultCategoryKeywords: Record<string, string[]> = 
+  DEFAULT_CATEGORIES.reduce((acc, category) => {
+    const key = DEFAULT_CATEGORY_KEYS[category.name]
+    if (key) {
+      acc[key] = category.keywords
+    }
+    return acc
+  }, {} as Record<string, string[]>)
 
 /**
  * Get the keywords for a specific category

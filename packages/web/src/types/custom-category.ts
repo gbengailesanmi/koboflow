@@ -1,4 +1,3 @@
-// Re-export types from shared package
 export type { 
   SpendingCategory,
   SpendingCategoryInput,

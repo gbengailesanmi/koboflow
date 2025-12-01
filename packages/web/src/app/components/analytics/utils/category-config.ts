@@ -1,16 +1,30 @@
 import type { CustomCategory } from '@/types/custom-category'
+import { DEFAULT_CATEGORIES } from '@money-mapper/shared'
 
-export const categoryConfig: Record<string, { label: string; color: string }> = {
-  food: { label: 'Food & Groceries', color: '#10b981' },
-  transport: { label: 'Transportation', color: '#3b82f6' },
-  dining: { label: 'Dining Out', color: '#f59e0b' },
-  shopping: { label: 'Shopping', color: '#ef4444' },
-  utilities: { label: 'Utilities', color: '#8b5cf6' },
-  housing: { label: 'Housing', color: '#06b6d4' },
-  healthcare: { label: 'Healthcare', color: '#ec4899' },
-  entertainment: { label: 'Entertainment', color: '#84cc16' },
-  other: { label: 'Other', color: '#6b7280' }
+// Generate category config from DEFAULT_CATEGORIES in shared package
+const DEFAULT_CATEGORY_KEYS: Record<string, string> = {
+  'Food & Groceries': 'food',
+  'Transport': 'transport',
+  'Dining & Restaurants': 'dining',
+  'Shopping': 'shopping',
+  'Utilities': 'utilities',
+  'Housing': 'housing',
+  'Healthcare': 'healthcare',
+  'Entertainment': 'entertainment',
+  'Other': 'other'
 }
+
+export const categoryConfig: Record<string, { label: string; color: string }> = 
+  DEFAULT_CATEGORIES.reduce((acc, category) => {
+    const key = DEFAULT_CATEGORY_KEYS[category.name]
+    if (key) {
+      acc[key] = {
+        label: category.name,
+        color: category.color
+      }
+    }
+    return acc
+  }, {} as Record<string, { label: string; color: string }>)
 
 export function getCategoryConfig(customCategories?: CustomCategory[]) {
   const config = { ...categoryConfig }

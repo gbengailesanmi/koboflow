@@ -1,32 +1,17 @@
 import type { CustomCategory } from '@/types/custom-category'
+import { DEFAULT_CATEGORIES } from '@money-mapper/shared'
 
-const DEFAULT_CATEGORY_KEYWORDS_MAP: Record<string, string> = {
-  'grocery': 'Food',
-  'supermarket': 'Food',
-  'food': 'Food',
-  'gas': 'Transport',
-  'fuel': 'Transport',
-  'petrol': 'Transport',
-  'restaurant': 'Dining',
-  'cafe': 'Dining',
-  'dining': 'Dining',
-  'shop': 'Shopping',
-  'store': 'Shopping',
-  'retail': 'Shopping',
-  'utility': 'Utilities',
-  'electric': 'Utilities',
-  'water': 'Utilities',
-  'internet': 'Utilities',
-  'rent': 'Housing',
-  'mortgage': 'Housing',
-  'housing': 'Housing',
-  'medical': 'Healthcare',
-  'hospital': 'Healthcare',
-  'pharmacy': 'Healthcare',
-  'entertainment': 'Entertainment',
-  'movie': 'Entertainment',
-  'game': 'Entertainment'
-}
+// Build keyword to category name mapping from shared package
+const DEFAULT_CATEGORY_KEYWORDS_MAP: Record<string, string> = 
+  DEFAULT_CATEGORIES.reduce((acc, category) => {
+    // Skip "Other" as it has no keywords
+    if (category.name === 'Other') return acc
+    
+    category.keywords.forEach(keyword => {
+      acc[keyword.toLowerCase()] = category.name
+    })
+    return acc
+  }, {} as Record<string, string>)
 
 type KeywordConflict = {
   keyword: string
@@ -43,6 +28,7 @@ export function validateKeywords(
   
   const normalizedNewKeywords = newKeywords.map(k => k.toLowerCase().trim())
   
+  // Check against default category keywords
   for (const keyword of normalizedNewKeywords) {
     const categoryName = DEFAULT_CATEGORY_KEYWORDS_MAP[keyword]
     if (categoryName) {

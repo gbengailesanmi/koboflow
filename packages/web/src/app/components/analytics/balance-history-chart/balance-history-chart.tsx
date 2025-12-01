@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useMemo, useEffect, useState } from 'react'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts'
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts'
 import { Select, Flex, Text } from '@radix-ui/themes'
 import { formatCurrency } from '../utils/format-currency'
 import styles from './balance-history-chart.module.css'
@@ -205,7 +205,7 @@ export const BalanceHistoryChart: React.FC<BalanceHistoryChartProps> = ({ data, 
       <div className={styles.controls}>
         <Flex align="center" gap="2">
           <div className={styles.datePill}>
-            <Select.Root value={startMonth} onValueChange={setStartMonth}>
+            <Select.Root value={endMonth} onValueChange={setEndMonth}>
               <Select.Trigger className={styles.select} />
               <Select.Content>
                 {monthNames.map((month, index) => (
@@ -215,7 +215,7 @@ export const BalanceHistoryChart: React.FC<BalanceHistoryChartProps> = ({ data, 
                 ))}
               </Select.Content>
             </Select.Root>
-            <Select.Root value={startYear} onValueChange={setStartYear}>
+            <Select.Root value={endYear} onValueChange={setEndYear}>
               <Select.Trigger className={styles.select} />
               <Select.Content>
                 {years.map((year) => (
@@ -230,7 +230,7 @@ export const BalanceHistoryChart: React.FC<BalanceHistoryChartProps> = ({ data, 
             vs
           </Text>
           <div className={styles.datePill}>
-            <Select.Root value={endMonth} onValueChange={setEndMonth}>
+            <Select.Root value={startMonth} onValueChange={setStartMonth}>
               <Select.Trigger className={styles.select} />
               <Select.Content>
                 {monthNames.map((month, index) => (
@@ -240,7 +240,7 @@ export const BalanceHistoryChart: React.FC<BalanceHistoryChartProps> = ({ data, 
                 ))}
               </Select.Content>
             </Select.Root>
-            <Select.Root value={endYear} onValueChange={setEndYear}>
+            <Select.Root value={startYear} onValueChange={setStartYear}>
               <Select.Trigger className={styles.select} />
               <Select.Content>
                 {years.map((year) => (
