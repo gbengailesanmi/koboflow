@@ -84,10 +84,15 @@ settingsRoutes.delete('/account', authMiddleware, async (req: AuthRequest, res) 
       db.collection('budgets').deleteMany({ customerId }),
       db.collection('spending_categories').deleteMany({ customerId }),
       db.collection('settings').deleteOne({ customerId }),
-      db.collection('spending_categories').deleteOne({ customerId }),
-      db.collection('custom_categories').deleteMany({ customerId }),
       db.collection('sessions').deleteMany({ customerId })
     ])
+
+    res.clearCookie('session-id', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax'
+    })
+
 
     console.log('[Delete Account] Deletion results:', {
       users: results[0].deletedCount,
@@ -96,8 +101,7 @@ settingsRoutes.delete('/account', authMiddleware, async (req: AuthRequest, res) 
       budgets: results[3].deletedCount,
       spending_categories: results[4].deletedCount,
       settings: results[5].deletedCount,
-      custom_categories: results[7].deletedCount,
-      sessions: results[8].deletedCount
+      sessions: results[6].deletedCount,
     })
 
     res.json({ 
