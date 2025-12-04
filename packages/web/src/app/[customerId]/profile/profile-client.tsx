@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { updateUserProfile } from '@/app/api/api-service'
+import { updateUserProfileAction } from '@/app/actions/update-user-profile-action'
 import { useToasts } from '@/store'
 import Sidebar from '@/app/components/sidebar/sidebar'
 import { Pencil1Icon, CheckIcon, Cross2Icon, PersonIcon, EnvelopeClosedIcon } from '@radix-ui/react-icons'
@@ -57,7 +57,7 @@ export default function ProfileClient({
     setSavingProfile(true)
 
     try {
-      const result = await updateUserProfile(customerId, {
+      const result = await updateUserProfileAction(customerId, {
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
         email: formData.email.trim(),

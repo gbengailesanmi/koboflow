@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState, Suspense } from 'react'
-import { resendVerificationEmail } from '@/app/api/api-service'
+import { resendVerificationEmailAction } from '@/app/actions/resend-verification-email-action'
 import styles from './verify-email.module.css'
 
 function VerifyEmailContent() {
@@ -42,11 +42,11 @@ function VerifyEmailContent() {
 
     setResending(true)
     try {
-      const data: any = await resendVerificationEmail(email)
-      if (data.success) {
+      const result = await resendVerificationEmailAction(email)
+      if (result.success) {
         alert('Verification email sent! Please check your inbox.')
       } else {
-        alert(data.message || 'Failed to send verification email')
+        alert(result.message || 'Failed to send verification email')
       }
     } catch (error) {
       alert('An error occurred. Please try again.')

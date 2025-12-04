@@ -3,12 +3,10 @@
 import { useState, useEffect, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTheme } from 'next-themes'
-import { 
-  updateSettings, 
-  changeUserPIN,
-  changeUserPassword
-} from '@/app/api/api-service'
-import { deleteUserAccount } from '@/app/api/api-client'
+import { updateSettingsAction } from '@/app/actions/update-settings-action'
+import { changeUserPINAction } from '@/app/actions/change-user-pin-action'
+import { changeUserPasswordAction } from '@/app/actions/change-user-password-action'
+import { deleteAccountAction } from '@/app/actions/delete-account-action'
 import { useToasts } from '@/store'
 import Sidebar from '@/app/components/sidebar/sidebar'
 import { PageHeader } from '@/app/components/page-header/page-header'
@@ -137,10 +135,14 @@ export default function SettingsClient({
         }
       }
       
-      const result = await updateSettings(settingsData as any)
+      const result = await updateSettingsAction(settingsData as any)
 
-      showToast('Settings saved successfully', 'success')
-      router.refresh()
+      if (result.success) {
+        showToast('Settings saved successfully', 'success')
+        router.refresh()
+      } else {
+        showToast(result.message || 'Failed to save settings', 'error')
+      }
     } catch (error: any) {
       console.error('Failed to save settings:', error)
       const errorMessage = error?.message || 'Failed to save settings. Please check your connection.'
@@ -172,7 +174,7 @@ export default function SettingsClient({
 
     setIsChangingPIN(true)
     try {
-      const result = await changeUserPIN(
+      const result = await changeUserPINAction(
         pinForm.currentPIN,
         pinForm.newPIN,
         pinForm.password
@@ -216,7 +218,7 @@ export default function SettingsClient({
 
     setIsChangingPassword(true)
     try {
-      const result = await changeUserPassword(
+      const result = await changeUserPasswordAction(
         passwordForm.currentPassword,
         passwordForm.newPassword,
         passwordForm.confirmPassword
@@ -241,7 +243,7 @@ export default function SettingsClient({
   // Handle account deletion
   const handleDeleteAccount = async () => {
     try {
-      const result = await deleteUserAccount()
+      const result = await deleteAccountAction()
       if (result.success) {
         showToast('Account deleted successfully', 'success')
         router.push('/signup')
@@ -300,7 +302,7 @@ export default function SettingsClient({
                   onValueChange={(value) => {
                     const newTheme = value as Theme
                     setTheme(newTheme)
-                    setNextTheme(newTheme) // Immediately apply theme to next-themes
+                    setNextTheme(newTheme)
                     saveSettings({ theme: newTheme })
                   }}
                   columns="3"

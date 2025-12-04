@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import { getSession, processTinkCallback } from '@/app/api/api-service'
+import { getSession } from '@/app/api/api-service'
+import { processTinkCallbackAction } from '@/app/actions/process-tink-callback-action'
 
 export const dynamic = 'force-dynamic'
 
@@ -8,7 +9,7 @@ export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
     const code = searchParams.get('code')
-    const credentialsId = searchParams.get('credentialsId') || searchParams.get('credentials_id')
+    // const credentialsId = searchParams.get('credentialsId') || searchParams.get('credentials_id')
 
     if (!code) {
       console.error('[Callback] Missing OAuth code')
@@ -34,8 +35,8 @@ export async function GET(request: NextRequest) {
 
     console.log(`[Callback] Processing Tink callback for user: ${session.customerId}`)
 
-    // ✅ Use existing api-service function to process the callback
-    const result = await processTinkCallback(code)
+    // ✅ Use Server Action to process the callback with cache revalidation
+    const result = await processTinkCallbackAction(code)
 
     if (!result.success) {
       console.error('[Callback] Backend processing failed:', result.message)

@@ -2,12 +2,10 @@
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { 
-  updateBudgetById, 
-  createNewBudget, 
-  setActiveBudget as setActiveBudgetApi,
-  deleteBudgetById 
-} from '@/app/api/api-service'
+import { updateBudgetAction } from '@/app/actions/update-budget-action'
+import { createBudgetAction } from '@/app/actions/create-budget-action'
+import { setActiveBudgetAction } from '@/app/actions/set-active-budget-action'
+import { deleteBudgetByIdAction } from '@/app/actions/delete-budget-action'
 import { useToasts } from '@/store'
 import Sidebar from '@/app/components/sidebar/sidebar'
 import { PageHeader } from '@/app/components/page-header/page-header'
@@ -99,7 +97,7 @@ export default function BudgetClient({
 
     try {
       setIsSaving(true)
-      const result = await updateBudgetById(budgetData._id, {
+      const result = await updateBudgetAction(budgetData._id, {
         name: updates.name,
         totalBudgetLimit: updates.totalBudgetLimit,
         categories: updates.categories,
@@ -122,7 +120,7 @@ export default function BudgetClient({
 
   const handleSwitchBudget = useCallback(async (budgetId: string) => {
     try {
-      const result = await setActiveBudgetApi(budgetId)
+      const result = await setActiveBudgetAction(budgetId)
       if (result.success) {
         showToast('Budget switched successfully', 'success')
         router.refresh()
@@ -137,7 +135,7 @@ export default function BudgetClient({
 
   const handleCreateBudget = useCallback(async (name: string) => {
     try {
-      const result = await createNewBudget(
+      const result = await createBudgetAction(
         name,
         0, // Default budget limit
         [], // Empty categories
@@ -159,7 +157,7 @@ export default function BudgetClient({
 
   const handleDeleteBudget = useCallback(async (budgetId: string) => {
     try {
-      const result = await deleteBudgetById(budgetId)
+      const result = await deleteBudgetByIdAction(budgetId)
       if (result.success) {
         showToast('Budget deleted successfully', 'success')
         router.refresh()

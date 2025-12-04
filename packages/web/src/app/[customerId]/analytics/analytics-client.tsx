@@ -7,8 +7,9 @@ import { useSelectedItems, useToasts } from '@/store'
 import type { Account } from '@/types/account'
 import type { Transaction } from '@/types/transactions'
 import type { CustomCategory } from '@/types/custom-category'
-import { createCustomCategory, deleteCustomCategory } from '@/app/api/api-client'
-import { updateCategoryAction } from '@/app/actions/update-custom-category'
+import { createCustomCategoryAction } from '@/app/actions/create-custom-category-action'
+import { deleteCustomCategoryAction } from '@/app/actions/delete-custom-category-action'
+import { updateCustomCategoryAction } from '@/app/actions/update-custom-category-action'
 import { PageHeader } from '@/app/components/page-header/page-header'
 import { PageLayout } from '@/app/components/page-layout/page-layout'
 import AccountFilterMenu from '@/app/components/account-filter-menu/account-filter-menu'
@@ -71,7 +72,7 @@ export default function AnalyticsClient({
       const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316']
       const randomColor = colors[Math.floor(Math.random() * colors.length)]
       
-      await createCustomCategory({ 
+      await createCustomCategoryAction({ 
         name, 
         keywords, 
         color: randomColor 
@@ -87,7 +88,7 @@ export default function AnalyticsClient({
 
   const handleDeleteCategory = async (id: string) => {
     try {
-      await deleteCustomCategory(id)
+      await deleteCustomCategoryAction(id)
       
       showToast('Category deleted successfully', 'success')
       router.refresh()
@@ -99,13 +100,13 @@ export default function AnalyticsClient({
 
   const handleUpdateCategory = async (id: string, updates: { name?: string; keywords?: string[]; color?: string }) => {
     try {
-      const result = await updateCategoryAction(id, updates)
+      const result = await updateCustomCategoryAction(id, updates)
       
       if (result.success) {
         showToast('Category updated successfully', 'success')
         router.refresh()
       } else {
-        showToast(result.error || 'Failed to update category', 'error')
+        showToast('Failed to update category', 'error')
       }
     } catch (error) {
       console.error('Failed to update category:', error)
