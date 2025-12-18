@@ -13,7 +13,7 @@ import { accountRoutes } from './routes/accounts'
 import { settingsRoutes } from './routes/settings'
 import { categoryRoutes } from './routes/categories'
 import { sessionRoutes } from './routes/session'
-import { callbackRoutes } from './routes/callback'
+import { monoRoutes } from './routes/mono'
 import { cleanupExpiredSessions } from './services/session'
 
 const app: Express = express()
@@ -47,6 +47,14 @@ app.use(cors({
 }))
 
 app.use(cookieParser())
+
+// Special handling for Mono webhook to preserve raw body for signature verification
+app.use('/api/mono/webhook', express.json({
+  verify: (req: any, _res, buf) => {
+    req.rawBody = buf.toString()
+  }
+}))
+
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
@@ -67,7 +75,7 @@ app.get('/health', (_req: Request, res: Response) => {
 
 app.use('/api/auth', authRoutes)
 app.use('/api/session', sessionRoutes)
-app.use('/api/callback', callbackRoutes)
+app.use('/api/mono', monoRoutes)
 app.use('/api/budget', budgetRoutes)
 app.use('/api/transactions', transactionRoutes)
 app.use('/api/accounts', accountRoutes)

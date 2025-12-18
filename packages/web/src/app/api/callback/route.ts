@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import { getSession } from '@/app/api/api-service'
-import { processTinkCallbackAction } from '@/app/actions/process-tink-callback-action'
+import { getSession, connectMonoAccount } from '@/app/api/api-service'
+import { revalidateTag } from 'next/cache'
 
 export const dynamic = 'force-dynamic'
 
@@ -9,7 +9,6 @@ export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
     const code = searchParams.get('code')
-    // const credentialsId = searchParams.get('credentialsId') || searchParams.get('credentials_id')
 
     if (!code) {
       console.error('[Callback] Missing OAuth code')
@@ -33,10 +32,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(new URL('/login?error=invalid_session', request.url))
     }
 
-    console.log(`[Callback] Processing Tink callback for user: ${session.customerId}`)
+    console.log(`[Callback] Processing Mono callback for user: ${session.customerId}`)
 
-    // ✅ Use Server Action to process the callback with cache revalidation
-    const result = await processTinkCallbackAction(code)
+    // ✅ Connect bank account via Mono
+    const result = await connectMonoAccount(code)
+    
+    // Revalidate cache
+    revalidateTag('accounts')
+    revalidateTag('transactions')
 
     if (!result.success) {
       console.error('[Callback] Backend processing failed:', result.message)

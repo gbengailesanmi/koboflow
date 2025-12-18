@@ -13,9 +13,10 @@ const config = {
   //resend stuff
   FROM_EMAIL: process.env.FROM_EMAIL,
   RESEND_API_KEY: process.env.RESEND_API_KEY,
-  //tink vars
-  TINK_CLIENT_ID: process.env.TINK_CLIENT_ID,
-  TINK_CLIENT_SECRET: process.env.TINK_CLIENT_SECRET,
+  // mono vars
+  MONO_PUBLIC_KEY: process.env.MONO_PUBLIC_KEY,
+  MONO_SECRET_KEY: process.env.MONO_SECRET_KEY,
+  MONO_WEBHOOK_SECRET: process.env.MONO_WEBHOOK_SECRET,
   // frontend urls
   FRONTEND_URL: process.env.FRONTEND_URL,
   FRONTEND_PORT: process.env.FRONTEND_PORT,

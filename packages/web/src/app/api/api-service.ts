@@ -123,7 +123,7 @@ export async function getActiveSessions(): Promise<any[]> {
 /**
  * Get all accounts for current user
  * Cache tag: 'accounts'
- * Revalidates: After Tink callback imports new accounts
+ * Revalidates: After Mono callback imports new accounts
  */
 export async function getAccounts(): Promise<Account[]> {
   try {
@@ -146,7 +146,7 @@ export async function getAccounts(): Promise<Account[]> {
 /**
  * Get all transactions for current user
  * Cache tag: 'transactions'
- * Revalidates: After create, update, delete transaction, or Tink callback
+ * Revalidates: After create, update, delete transaction, or Mono callback
  */
 export async function getTransactions(): Promise<Transaction[]> {
   try {
@@ -731,22 +731,536 @@ export async function getUserByCustomerId(customerId: string): Promise<{
 }
 
 // ============================================================================
-// Tink Callback (Server Action)
+// Mono Integration (Nigerian Banks)
 // ============================================================================
 
-/**
- * Process Tink OAuth callback to import accounts and transactions
- * Pure API call - use processTinkCallbackAction for cache revalidation
- */
-export async function processTinkCallback(code: string): Promise<{
+// --- Config ---
+
+/** GET /api/mono/config - Get Mono public key for widget */
+export async function getMonoConfig(): Promise<{
+  success: boolean
+  publicKey?: string
+  message?: string
+}> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/mono/config`, {
+      cache: 'no-store',
+    })
+    return await response.json()
+  } catch (error: any) {
+    console.error('getMonoConfig error:', error)
+    return { success: false, message: error.message }
+  }
+}
+
+// --- Account Connection ---
+
+/** POST /api/mono/connect - Exchange widget code for account + transactions */
+export async function connectMonoAccount(code: string): Promise<{
   success: boolean
   message?: string
   accountsCount?: number
   transactionsCount?: number
+  account?: { name: string; institution: string; type: string }
 }> {
-  const response = await serverFetch(`${BACKEND_URL}/api/callback?code=${code}`, {
-    cache: 'no-store',
-  })
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/mono/connect`, {
+      method: 'POST',
+      body: JSON.stringify({ code }),
+      cache: 'no-store',
+    })
+    return await response.json()
+  } catch (error: any) {
+    console.error('connectMonoAccount error:', error)
+    return { success: false, message: error.message }
+  }
+}
 
-  return await response.json()
+/** POST /api/mono/link - Link account using Mono Customer/Account ID */
+export async function linkMonoAccount(
+  monoCustomerId: string,
+  monoAccountId?: string
+): Promise<{
+  success: boolean
+  message?: string
+  accountsCount?: number
+  transactionsCount?: number
+  accounts?: Array<{
+    name: string
+    institution: string
+    type: string
+    transactionsCount: number
+    error?: string
+    note?: string
+  }>
+}> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/mono/link`, {
+      method: 'POST',
+      body: JSON.stringify({ monoCustomerId, monoAccountId }),
+      cache: 'no-store',
+    })
+    return await response.json()
+  } catch (error: any) {
+    console.error('linkMonoAccount error:', error)
+    return { success: false, message: error.message }
+  }
+}
+
+/** POST /api/mono/link-all - Link all accounts for a Mono customer */
+export async function linkAllMonoAccounts(monoCustomerId: string): Promise<{
+  success: boolean
+  message?: string
+  accountsCount?: number
+  transactionsCount?: number
+  accounts?: Array<{
+    name: string
+    institution: string
+    type: string
+    transactionsCount: number
+    error?: string
+  }>
+}> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/mono/link-all`, {
+      method: 'POST',
+      body: JSON.stringify({ monoCustomerId }),
+      cache: 'no-store',
+    })
+    return await response.json()
+  } catch (error: any) {
+    console.error('linkAllMonoAccounts error:', error)
+    return { success: false, message: error.message }
+  }
+}
+
+/** POST /api/mono/initiate - Initiate account linking (server-side flow) */
+export async function initiateMonoLinking(redirectUrl: string): Promise<{
+  success: boolean
+  message?: string
+  monoUrl?: string
+  reference?: string
+}> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/mono/initiate`, {
+      method: 'POST',
+      body: JSON.stringify({ redirectUrl }),
+      cache: 'no-store',
+    })
+    return await response.json()
+  } catch (error: any) {
+    console.error('initiateMonoLinking error:', error)
+    return { success: false, message: error.message }
+  }
+}
+
+/** POST /api/mono/reauth - Initiate account reauthorization */
+export async function initiateMonoReauth(
+  accountId: string,
+  redirectUrl: string
+): Promise<{
+  success: boolean
+  message?: string
+  monoUrl?: string
+  reference?: string
+}> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/mono/reauth`, {
+      method: 'POST',
+      body: JSON.stringify({ accountId, redirectUrl }),
+      cache: 'no-store',
+    })
+    return await response.json()
+  } catch (error: any) {
+    console.error('initiateMonoReauth error:', error)
+    return { success: false, message: error.message }
+  }
+}
+
+// --- Account Management ---
+
+/** GET /api/mono/accounts - Get user's linked Mono accounts */
+export async function getMonoAccounts(): Promise<{
+  success: boolean
+  message?: string
+  accounts?: any[]
+}> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/mono/accounts`, {
+      cache: 'no-store',
+    })
+    return await response.json()
+  } catch (error: any) {
+    console.error('getMonoAccounts error:', error)
+    return { success: false, message: error.message }
+  }
+}
+
+/** GET /api/mono/all-accounts - Get all accounts from Mono (admin) */
+export async function getAllMonoAccounts(): Promise<{
+  success: boolean
+  message?: string
+  accounts?: any[]
+}> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/mono/all-accounts`, {
+      cache: 'no-store',
+    })
+    return await response.json()
+  } catch (error: any) {
+    console.error('getAllMonoAccounts error:', error)
+    return { success: false, message: error.message }
+  }
+}
+
+/** GET /api/mono/customer/:monoCustomerId/accounts - Get accounts by Mono customer ID */
+export async function getMonoAccountsByCustomer(monoCustomerId: string): Promise<{
+  success: boolean
+  message?: string
+  accounts?: any[]
+}> {
+  try {
+    const response = await serverFetch(
+      `${BACKEND_URL}/api/mono/customer/${monoCustomerId}/accounts`,
+      { cache: 'no-store' }
+    )
+    return await response.json()
+  } catch (error: any) {
+    console.error('getMonoAccountsByCustomer error:', error)
+    return { success: false, message: error.message }
+  }
+}
+
+/** POST /api/mono/sync/:accountId - Trigger manual sync */
+export async function syncMonoAccount(accountId: string): Promise<{
+  success: boolean
+  message?: string
+  status?: string
+}> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/mono/sync/${accountId}`, {
+      method: 'POST',
+      cache: 'no-store',
+    })
+    return await response.json()
+  } catch (error: any) {
+    console.error('syncMonoAccount error:', error)
+    return { success: false, message: error.message }
+  }
+}
+
+/** POST /api/mono/refresh/:accountId - Refresh account data + transactions */
+export async function refreshMonoAccount(accountId: string): Promise<{
+  success: boolean
+  message?: string
+  transactionsCount?: number
+}> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/mono/refresh/${accountId}`, {
+      method: 'POST',
+      cache: 'no-store',
+    })
+    return await response.json()
+  } catch (error: any) {
+    console.error('refreshMonoAccount error:', error)
+    return { success: false, message: error.message }
+  }
+}
+
+/** GET /api/mono/balance/:accountId - Get real-time balance */
+export async function getMonoBalance(accountId: string): Promise<{
+  success: boolean
+  message?: string
+  balance?: {
+    ledgerBalance: number
+    availableBalance: number
+    currency: string
+  }
+}> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/mono/balance/${accountId}`, {
+      cache: 'no-store',
+    })
+    return await response.json()
+  } catch (error: any) {
+    console.error('getMonoBalance error:', error)
+    return { success: false, message: error.message }
+  }
+}
+
+/** DELETE /api/mono/unlink/:accountId - Unlink account */
+export async function unlinkMonoAccount(accountId: string): Promise<{
+  success: boolean
+  message?: string
+}> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/mono/unlink/${accountId}`, {
+      method: 'DELETE',
+      cache: 'no-store',
+    })
+    return await response.json()
+  } catch (error: any) {
+    console.error('unlinkMonoAccount error:', error)
+    return { success: false, message: error.message }
+  }
+}
+
+// --- Account Data ---
+
+/** GET /api/mono/identity/:accountId - Get account identity info */
+export async function getMonoIdentity(accountId: string): Promise<{
+  success: boolean
+  message?: string
+  identity?: any
+}> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/mono/identity/${accountId}`, {
+      cache: 'no-store',
+    })
+    return await response.json()
+  } catch (error: any) {
+    console.error('getMonoIdentity error:', error)
+    return { success: false, message: error.message }
+  }
+}
+
+/** GET /api/mono/transactions/:accountId - Get transactions */
+export async function getMonoTransactions(
+  accountId: string,
+  options?: { start?: string; end?: string; type?: 'debit' | 'credit'; narration?: string }
+): Promise<{
+  success: boolean
+  message?: string
+  transactions?: any[]
+  meta?: any
+}> {
+  try {
+    const params = new URLSearchParams()
+    if (options?.start) params.append('start', options.start)
+    if (options?.end) params.append('end', options.end)
+    if (options?.type) params.append('type', options.type)
+    if (options?.narration) params.append('narration', options.narration)
+
+    const query = params.toString()
+    const response = await serverFetch(
+      `${BACKEND_URL}/api/mono/transactions/${accountId}${query ? `?${query}` : ''}`,
+      { cache: 'no-store' }
+    )
+    return await response.json()
+  } catch (error: any) {
+    console.error('getMonoTransactions error:', error)
+    return { success: false, message: error.message }
+  }
+}
+
+/** GET /api/mono/statement/:accountId - Get account statement */
+export async function getMonoStatement(
+  accountId: string,
+  period: 'last1month' | 'last2months' | 'last3months' | 'last6months' | 'last12months',
+  output?: 'json' | 'pdf'
+): Promise<{
+  success: boolean
+  message?: string
+  statement?: any
+}> {
+  try {
+    const params = new URLSearchParams({ period })
+    if (output) params.append('output', output)
+
+    const response = await serverFetch(
+      `${BACKEND_URL}/api/mono/statement/${accountId}?${params.toString()}`,
+      { cache: 'no-store' }
+    )
+    return await response.json()
+  } catch (error: any) {
+    console.error('getMonoStatement error:', error)
+    return { success: false, message: error.message }
+  }
+}
+
+/** GET /api/mono/statement/:accountId/job/:jobId - Get statement job status */
+export async function getMonoStatementJobStatus(
+  accountId: string,
+  jobId: string
+): Promise<{
+  success: boolean
+  message?: string
+  job?: any
+}> {
+  try {
+    const response = await serverFetch(
+      `${BACKEND_URL}/api/mono/statement/${accountId}/job/${jobId}`,
+      { cache: 'no-store' }
+    )
+    return await response.json()
+  } catch (error: any) {
+    console.error('getMonoStatementJobStatus error:', error)
+    return { success: false, message: error.message }
+  }
+}
+
+/** POST /api/mono/creditworthiness/:accountId - Get credit score */
+export async function getMonoCreditworthiness(
+  accountId: string,
+  data: {
+    bvn: string
+    principal: number
+    interestRate: number
+    term: number
+    runCreditCheck: boolean
+  }
+): Promise<{
+  success: boolean
+  message?: string
+  creditworthiness?: any
+}> {
+  try {
+    const response = await serverFetch(
+      `${BACKEND_URL}/api/mono/creditworthiness/${accountId}`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data),
+        cache: 'no-store',
+      }
+    )
+    return await response.json()
+  } catch (error: any) {
+    console.error('getMonoCreditworthiness error:', error)
+    return { success: false, message: error.message }
+  }
+}
+
+// --- Investments ---
+
+/** GET /api/mono/earnings/:accountId - Get investment earnings */
+export async function getMonoEarnings(accountId: string): Promise<{
+  success: boolean
+  message?: string
+  earnings?: any
+}> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/mono/earnings/${accountId}`, {
+      cache: 'no-store',
+    })
+    return await response.json()
+  } catch (error: any) {
+    console.error('getMonoEarnings error:', error)
+    return { success: false, message: error.message }
+  }
+}
+
+/** GET /api/mono/assets/:accountId - Get investment assets */
+export async function getMonoAssets(accountId: string): Promise<{
+  success: boolean
+  message?: string
+  assets?: any
+}> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/mono/assets/${accountId}`, {
+      cache: 'no-store',
+    })
+    return await response.json()
+  } catch (error: any) {
+    console.error('getMonoAssets error:', error)
+    return { success: false, message: error.message }
+  }
+}
+
+// --- Enrichment ---
+
+/** GET /api/mono/categorisation/:accountId - Get transaction categories */
+export async function getMonoCategorisation(accountId: string): Promise<{
+  success: boolean
+  message?: string
+  categorisation?: any
+}> {
+  try {
+    const response = await serverFetch(
+      `${BACKEND_URL}/api/mono/categorisation/${accountId}`,
+      { cache: 'no-store' }
+    )
+    return await response.json()
+  } catch (error: any) {
+    console.error('getMonoCategorisation error:', error)
+    return { success: false, message: error.message }
+  }
+}
+
+/** GET /api/mono/insights/:accountId - Get statement insights */
+export async function getMonoInsights(accountId: string): Promise<{
+  success: boolean
+  message?: string
+  insights?: any
+}> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/mono/insights/${accountId}`, {
+      cache: 'no-store',
+    })
+    return await response.json()
+  } catch (error: any) {
+    console.error('getMonoInsights error:', error)
+    return { success: false, message: error.message }
+  }
+}
+
+// --- Notifications ---
+
+/** GET /api/mono/notifications - Get user notifications */
+export async function getMonoNotifications(): Promise<{
+  success: boolean
+  message?: string
+  notifications?: Array<{
+    id: string
+    type: 'info' | 'warning' | 'success' | 'error'
+    title: string
+    message: string
+    read: boolean
+    createdAt: string
+    metadata?: any
+  }>
+}> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/mono/notifications`, {
+      cache: 'no-store',
+    })
+    return await response.json()
+  } catch (error: any) {
+    console.error('getMonoNotifications error:', error)
+    return { success: false, message: error.message }
+  }
+}
+
+/** POST /api/mono/notifications/:notificationId/read - Mark notification as read */
+export async function markMonoNotificationRead(notificationId: string): Promise<{
+  success: boolean
+  message?: string
+}> {
+  try {
+    const response = await serverFetch(
+      `${BACKEND_URL}/api/mono/notifications/${notificationId}/read`,
+      { method: 'POST', cache: 'no-store' }
+    )
+    return await response.json()
+  } catch (error: any) {
+    console.error('markMonoNotificationRead error:', error)
+    return { success: false, message: error.message }
+  }
+}
+
+/** POST /api/mono/notifications/read-all - Mark all notifications as read */
+export async function markAllMonoNotificationsRead(): Promise<{
+  success: boolean
+  message?: string
+  count?: number
+}> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/mono/notifications/read-all`, {
+      method: 'POST',
+      cache: 'no-store',
+    })
+    return await response.json()
+  } catch (error: any) {
+    console.error('markAllMonoNotificationsRead error:', error)
+    return { success: false, message: error.message }
+  }
 }
