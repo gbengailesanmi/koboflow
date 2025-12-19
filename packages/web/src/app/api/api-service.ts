@@ -686,75 +686,6 @@ export async function getUserByCustomerId(customerId: string): Promise<{
   }
 }
 
-export async function initiateMonoLinking(redirectUrl: string): Promise<{
-  success: boolean
-  message?: string
-  monoUrl?: string
-  monoCustomerId?: string
-}> {
-  try {
-    const response = await serverFetch(`${BACKEND_URL}/api/mono/initiate`, {
-      method: 'POST',
-      body: JSON.stringify({ redirectUrl }),
-      cache: 'no-store',
-    })
-    return await response.json()
-  } catch (error: any) {
-    console.error('initiateMonoLinking error:', error)
-    return { success: false, message: error.message }
-  }
-}
-
-export async function getMonoTransactions(
-  accountId: string,
-  options?: { start?: string; end?: string; type?: 'debit' | 'credit'; paginate?: boolean; page?: number }
-): Promise<{
-  success: boolean
-  message?: string
-  transactions?: any[]
-}> {
-  try {
-    const params = new URLSearchParams()
-    if (options?.start) params.append('start', options.start)
-    if (options?.end) params.append('end', options.end)
-    if (options?.type) params.append('type', options.type)
-    if (options?.paginate) params.append('paginate', 'true')
-    if (options?.page) params.append('page', options.page.toString())
-
-    const query = params.toString()
-    const response = await serverFetch(
-      `${BACKEND_URL}/api/mono/transactions/${accountId}${query ? `?${query}` : ''}`,
-      { cache: 'no-store' }
-    )
-    return await response.json()
-  } catch (error: any) {
-    console.error('getMonoTransactions error:', error)
-    return { success: false, message: error.message }
-  }
-}
-
-export async function getMonoAccountDetails(accountId: string): Promise<{
-  success: boolean
-  message?: string
-  account?: any
-}> {
-  try {
-    const response = await serverFetch(
-      `${BACKEND_URL}/api/mono/details/${accountId}`,
-      { cache: 'no-store' }
-    )
-    return await response.json()
-  } catch (error: any) {
-    console.error('getMonoAccountDetails error:', error)
-    return { success: false, message: error.message }
-  }
-}
-
-/**
- * Exchange Mono Connect code for account ID
- * Called after user completes Mono widget authentication
- * Backend: POST /api/mono/auth
- */
 export async function exchangeMonoToken(code: string): Promise<{
   success: boolean
   message?: string
@@ -773,11 +704,6 @@ export async function exchangeMonoToken(code: string): Promise<{
   }
 }
 
-/**
- * Import Mono account to database using accountId from token exchange
- * Backend: POST /api/mono/import/:accountId
- * @param accountId - Account ID returned from exchangeMonoToken()
- */
 export async function importMonoAccount(accountId: string): Promise<{
   success: boolean
   message?: string
@@ -796,12 +722,6 @@ export async function importMonoAccount(accountId: string): Promise<{
   }
 }
 
-/**
- * Sync transactions from Mono to database
- * Backend: POST /api/mono/sync-transactions/:accountId
- * @param accountId - Mono account ID (NOT monoCustomerId)
- * @param options - Optional date range for syncing
- */
 export async function syncMonoTransactions(
   accountId: string,
   options?: { start?: string; end?: string }
