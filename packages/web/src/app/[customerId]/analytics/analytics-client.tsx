@@ -4,8 +4,8 @@ import React, { useState, useMemo, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Dialog } from '@radix-ui/themes'
 import { useSelectedItems, useToasts } from '@/store'
-import type { Account } from '@/types/account'
-import type { Transaction } from '@/types/transactions'
+import type { Account } from '@money-mapper/shared'
+import type { Transaction } from '@money-mapper/shared'
 import type { CustomCategory } from '@/types/custom-category'
 import { createCustomCategoryAction } from '@/app/actions/create-custom-category-action'
 import { deleteCustomCategoryAction } from '@/app/actions/delete-custom-category-action'
@@ -127,7 +127,7 @@ export default function AnalyticsClient({
     
     if (effectiveAccountId !== 'all') {
       filteredByAccount = transactions.filter(transaction => 
-        transaction.accountUniqueId === effectiveAccountId
+        transaction.accountId === effectiveAccountId
       )
     }
     
@@ -262,9 +262,6 @@ export default function AnalyticsClient({
     }
   }, [processedTransactions])
 
-  // ============================================================================
-  // RENDER - HEADER CONTENT
-  // ============================================================================
   const renderHeader = () => (
     <>
       <PageHeader 

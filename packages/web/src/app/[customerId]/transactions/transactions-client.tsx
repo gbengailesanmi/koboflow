@@ -45,7 +45,6 @@ export default function TransactionsClient({
         addAccountFilter(accountId)
       }
     } else {
-      // Clear all account filters
       accountFilter.forEach(id => removeAccountFilter(id))
     }
   }
@@ -62,7 +61,7 @@ export default function TransactionsClient({
 
   const filteredTransactions = useMemo(() => {
     return transactions.filter(txn => {
-      const matchesAccount = !filterAccountId || txn.accountUniqueId === filterAccountId
+      const matchesAccount = !filterAccountId || txn.accountId === filterAccountId
       const matchesSearch = txn.narration.toLowerCase().includes(searchQuery.toLowerCase())
       return matchesAccount && matchesSearch
     })

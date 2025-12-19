@@ -1,4 +1,3 @@
-// Individual spending category (part of UserSpendingCategories document)
 export type SpendingCategory = {
   id: string
   name: string
@@ -10,7 +9,6 @@ export type SpendingCategory = {
   updatedAt: Date
 }
 
-// Document structure: ONE per user containing all spending categories
 export type UserSpendingCategories = {
   _id?: string
   customerId: string
@@ -19,14 +17,12 @@ export type UserSpendingCategories = {
   updatedAt: Date
 }
 
-// Input types
 export type SpendingCategoryInput = {
   name: string
   keywords: string[]
   color?: string
 }
 
-// Legacy type aliases for backwards compatibility
 export type Category = SpendingCategory
 export type UserCategories = UserSpendingCategories
 export type CategoryInput = SpendingCategoryInput

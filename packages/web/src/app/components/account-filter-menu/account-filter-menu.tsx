@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { MixerVerticalIcon } from '@radix-ui/react-icons'
 import { Dialog, Flex, Text, ScrollArea, Box } from '@radix-ui/themes'
 import { useSelectedItems } from '@/store'
-import type { Account } from '@/types/account'
+import type { Account } from '@money-mapper/shared'
 import { formatCurrency } from '@/app/components/analytics/utils/format-currency'
 import styles from './account-filter-menu.module.css'
 
@@ -54,8 +54,8 @@ export default function AccountFilterMenu({ accounts, currency, asDialogContent 
           {accounts.map((account) => (
             <Flex 
               key={account.id}
-              className={`${styles.accountItem} ${effectiveAccountId === account.uniqueId ? styles.accountItemActive : ''}`}
-              onClick={() => handleAccountSelect(account.uniqueId)}
+              className={`${styles.accountItem} ${effectiveAccountId === account.id ? styles.accountItemActive : ''}`}
+              onClick={() => handleAccountSelect(account.id)}
             >
               <Flex direction="column" gap="1" style={{ flex: 1 }}>
                 <Text size="3" weight="medium">{account.name}</Text>

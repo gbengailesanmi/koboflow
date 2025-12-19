@@ -11,7 +11,6 @@ type PageProps = {
 export default async function BudgetPage({ params }: PageProps) {
   const { customerId } = await params
 
-  // Fetch all data in parallel on the server
   const [session, transactions, customCategories, budgets] = await Promise.all([
     getSession(),
     getTransactions(),
@@ -19,15 +18,12 @@ export default async function BudgetPage({ params }: PageProps) {
     getBudgets(),
   ])
 
-  // Validate session
   if (!session || session.customerId !== customerId) {
     redirect('/login')
   }
 
-  // Find active budget or use first one
   const activeBudget = budgets.find(b => b.isActive) || budgets[0] || null
   
-  // Prepare budget data for backwards compatibility
   const initialBudget = activeBudget ? {
     _id: activeBudget._id,
     name: activeBudget.name,

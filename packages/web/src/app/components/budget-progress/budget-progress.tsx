@@ -24,7 +24,6 @@ export function BudgetProgress({
   className = '',
   style = {}
 }: BudgetProgressProps) {
-  // Auto-determine color based on percentage if not explicitly provided
   const progressColor = color || (
     percentage >= 100 ? 'red' :
     percentage >= 80 ? 'orange' :

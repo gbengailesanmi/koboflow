@@ -1,4 +1,4 @@
-import type { Account } from '@/types/account'
+import type { Account } from '@money-mapper/shared'
 import React from 'react'
 import styles from '@/app/components/transactions/transactions-filters/transactions-filters.module.css'
 import { DropdownMenu, Button, Grid } from '@radix-ui/themes'
@@ -38,7 +38,7 @@ export default function TransactionsFilters({
             {accounts.map(account => (
               <DropdownMenu.Item
                 key={account.id}
-                onSelect={() => setFilterAccountId(account.uniqueId)}
+                onSelect={() => setFilterAccountId(account.id)}
               >
                 {account.name} — £{Number(account.balance).toFixed(2)}
               </DropdownMenu.Item>

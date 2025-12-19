@@ -1,10 +1,8 @@
 import type { CustomCategory } from '@/types/custom-category'
 import { DEFAULT_CATEGORIES } from '@money-mapper/shared'
 
-// Build keyword to category name mapping from shared package
 const DEFAULT_CATEGORY_KEYWORDS_MAP: Record<string, string> = 
   DEFAULT_CATEGORIES.reduce((acc, category) => {
-    // Skip "Other" as it has no keywords
     if (category.name === 'Other') return acc
     
     category.keywords.forEach(keyword => {
@@ -28,7 +26,6 @@ export function validateKeywords(
   
   const normalizedNewKeywords = newKeywords.map(k => k.toLowerCase().trim())
   
-  // Check against default category keywords
   for (const keyword of normalizedNewKeywords) {
     const categoryName = DEFAULT_CATEGORY_KEYWORDS_MAP[keyword]
     if (categoryName) {

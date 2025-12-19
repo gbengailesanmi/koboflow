@@ -15,7 +15,6 @@ export async function updateCategoryAction(
     const result = await updateCategoryService(categoryId, updates)
     
     if (result.success) {
-      // Revalidate the analytics page to refresh the data
       revalidatePath('/[customerId]/analytics', 'page')
       return { success: true }
     }

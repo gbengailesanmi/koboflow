@@ -114,7 +114,6 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({
   const handleDeleteKeyword = async (keyword: string) => {
     if (!selectedCategory) return
     
-    // Only custom categories can have keywords deleted
     if (!selectedCategory.categoryKey.startsWith('custom_')) {
       return
     }
@@ -126,7 +125,6 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({
     
     const updatedKeywords = customCat.keywords.filter(k => k !== keyword)
     
-    // A category must have at least one keyword
     if (updatedKeywords.length === 0) {
       alert('A category must have at least one keyword')
       return
@@ -136,7 +134,6 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({
     try {
       await onUpdateCategory(customId, { keywords: updatedKeywords })
       
-      // Update the selected category state to reflect the change
       setSelectedCategory({
         ...selectedCategory,
         keywords: updatedKeywords
@@ -257,7 +254,6 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({
               <div 
                 className={styles.categoryItemLeft}
                 onClick={() => {
-                  // Don't open dialog for "other" category
                   if (cat.category === 'other') return
                   setSelectedCategory({ 
                     label: config.label, 

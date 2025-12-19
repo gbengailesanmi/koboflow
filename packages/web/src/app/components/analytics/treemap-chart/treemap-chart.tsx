@@ -24,18 +24,15 @@ type TreemapData = {
 const CustomizedContent = (props: TreemapNode & { currency?: string; root?: any }) => {
   const { root, depth, x, y, width, height, index, name, currency } = props
 
-  // Only render rectangles with visible dimensions
   if (!width || !height || width < 10 || height < 10) {
     return null
   }
 
-  // Get the color from the node's data
   const nodeData = root?.children?.[index] as TreemapData | undefined
   const fillColor = nodeData?.color || '#8884d8'
   const percentage = nodeData?.percentage || 0
   const size = nodeData?.size || 0
 
-  // Determine if we have enough space to show text
   const showName = width > 60 && height > 40
   const showPercentage = width > 80 && height > 60
   const showAmount = width > 100 && height > 80
@@ -95,7 +92,6 @@ const CustomizedContent = (props: TreemapNode & { currency?: string; root?: any 
 }
 
 export const TreemapChart: React.FC<TreemapChartProps> = ({ data, categoryConfig, currency }) => {
-  // Transform the data to match treemap structure
   const treemapData: TreemapData[] = data.map((item) => ({
     name: categoryConfig[item.category]?.label || 'Other',
     size: item.amount,

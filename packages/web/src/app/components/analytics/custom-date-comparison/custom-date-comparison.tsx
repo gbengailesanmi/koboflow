@@ -27,7 +27,6 @@ export const CustomDateComparison: React.FC<CustomDateComparisonProps> = ({
   const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
   const monthNamesShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
-  // Generate year options (last 5 years + current year)
   const years = Array.from({ length: 6 }, (_, i) => currentYear - 5 + i)
 
   const comparisonData = useMemo(() => {

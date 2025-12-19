@@ -13,7 +13,6 @@ export default async function ProfilePage({ params }: PageProps) {
 
   const session = await getSession()
 
-  // Validate session
   if (!session || session.customerId !== customerId) {
     redirect('/login')
   }

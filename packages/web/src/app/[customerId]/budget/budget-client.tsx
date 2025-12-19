@@ -11,7 +11,7 @@ import Sidebar from '@/app/components/sidebar/sidebar'
 import { PageHeader } from '@/app/components/page-header/page-header'
 import { PageLayout } from '@/app/components/page-layout/page-layout'
 import { BudgetSwitcher } from '@/app/components/budget-switcher'
-import type { Transaction } from '@/types/transactions'
+import type { Transaction } from '@money-mapper/shared'
 import type { CustomCategory } from '@/types/custom-category'
 import type { Budget } from '@money-mapper/shared'
 import { categorizeTransaction } from '@/app/components/analytics/utils/categorize-transaction'
@@ -57,10 +57,8 @@ export default function BudgetClient({
 }: BudgetClientProps) {
   const router = useRouter()
   
-  // ✅ Use UI store for toast notifications
   const { showToast } = useToasts()
 
-  // Use initialBudget directly as source of truth
   const budgetData = initialBudget
   const [isSaving, setIsSaving] = useState(false)
   const [isEditing, setIsEditing] = useState<string | null>(null)
@@ -270,7 +268,6 @@ export default function BudgetClient({
   const monthlyProgress = (monthlyExpenses / budgetData.totalBudgetLimit) * 100
   const isOverBudget = monthlyExpenses > budgetData.totalBudgetLimit
 
-  // Calculate total allocated to category budgets
   const totalCategoryBudget = useMemo(() => {
     return budgetData.categories.reduce((sum, cat) => sum + cat.limit, 0)
   }, [budgetData.categories])
@@ -450,9 +447,6 @@ export default function BudgetClient({
   
   const allCategoriesWithBudget = [...categoriesWithBudget, ...customBudgetCategories]
 
-  // ============================================================================
-  // RENDER - HEADER CONTENT
-  // ============================================================================
   const renderHeader = () => (
     <div>
       <PageHeader 
@@ -472,9 +466,6 @@ export default function BudgetClient({
     </div>
   )
 
-  // ============================================================================
-  // RENDER - STICKY CONTENT (Budget Card)
-  // ============================================================================
   const renderStickyContent = () => (
     <>
       {processedTransactions.length > 0 && (
@@ -548,9 +539,6 @@ export default function BudgetClient({
     </>
   )
 
-  // ============================================================================
-  // RENDER - BODY CONTENT
-  // ============================================================================
   const renderBodyContent = () => (
     <>
       {processedTransactions.length === 0 ? (
@@ -918,9 +906,6 @@ export default function BudgetClient({
     </>
   )
 
-  // ============================================================================
-  // MAIN RENDER
-  // ============================================================================
   return (
     <Sidebar customerId={customerId}>
       <Dialog.Root open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>

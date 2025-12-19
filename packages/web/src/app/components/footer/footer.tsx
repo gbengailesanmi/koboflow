@@ -19,7 +19,6 @@ export default function Footer({ buttonColor, opacity = 75, scrollContainerRef }
 
   useEffect(() => {
     const handleScroll = () => {
-      // Use custom scroll container if provided, otherwise use window
       const currentScrollY = scrollContainerRef?.current 
         ? scrollContainerRef.current.scrollTop 
         : window.scrollY
@@ -35,7 +34,6 @@ export default function Footer({ buttonColor, opacity = 75, scrollContainerRef }
       setLastScrollY(currentScrollY)
     }
 
-    // Add listener to custom container or window
     const scrollElement = scrollContainerRef?.current || window
 
     if (scrollElement) {

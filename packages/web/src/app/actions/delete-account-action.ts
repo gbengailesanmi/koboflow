@@ -13,7 +13,6 @@ export async function deleteAccountAction(): Promise<{ success: boolean; message
     const result = await deleteAccount()
 
     if (result.success) {
-      // Revalidate everything since user is deleted
       revalidateTag('session')
       revalidateTag('accounts')
       revalidateTag('transactions')

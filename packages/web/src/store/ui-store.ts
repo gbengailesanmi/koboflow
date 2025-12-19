@@ -16,9 +16,6 @@ import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 import { useShallow } from 'zustand/react/shallow'
 
-// ============================================================================
-// TYPES
-// ============================================================================
 
 type ModalType = 
   | 'add-account' 
@@ -45,53 +42,44 @@ interface DateRange {
 }
 
 interface UIState {
-  // ===== SELECTED ITEMS =====
   selectedAccountId: string | null
   selectedTransactionId: string | null
   selectedCategoryId: string | null
   
-  // ===== UI TOGGLES =====
   isSidebarOpen: boolean
   isMobileMenuOpen: boolean
   isModalOpen: boolean
   modalType: ModalType
   modalData: any // Additional data passed to modal
   
-  // ===== VIEW PREFERENCES =====
   dashboardView: 'grid' | 'list'
   transactionsSortBy: 'date' | 'amount' | 'category' | 'description'
   transactionsSortOrder: 'asc' | 'desc'
   accountsView: 'carousel' | 'row' | 'grid'
   
-  // ===== FILTERS =====
   dateRange: DateRange
   categoryFilter: string[]
   accountFilter: string[]
   amountRangeFilter: { min: number | null; max: number | null }
   searchQuery: string
   
-  // ===== TEMPORARY UI DATA =====
   toasts: Toast[]
   
-  // ===== ACTIONS: SELECTED ITEMS =====
   setSelectedAccount: (id: string | null) => void
   setSelectedTransaction: (id: string | null) => void
   setSelectedCategory: (id: string | null) => void
   clearSelections: () => void
   
-  // ===== ACTIONS: UI TOGGLES =====
   toggleSidebar: () => void
   setSidebarOpen: (open: boolean) => void
   toggleMobileMenu: () => void
   openModal: (type: Exclude<ModalType, null>, data?: any) => void
   closeModal: () => void
   
-  // ===== ACTIONS: VIEW PREFERENCES =====
   setDashboardView: (view: 'grid' | 'list') => void
   setTransactionsSort: (by: UIState['transactionsSortBy'], order: 'asc' | 'desc') => void
   setAccountsView: (view: 'carousel' | 'row' | 'grid') => void
   
-  // ===== ACTIONS: FILTERS =====
   setDateRange: (start: Date | null, end: Date | null) => void
   addCategoryFilter: (category: string) => void
   removeCategoryFilter: (category: string) => void
@@ -102,59 +90,45 @@ interface UIState {
   setSearchQuery: (query: string) => void
   clearFilters: () => void
   
-  // ===== ACTIONS: TOASTS =====
   showToast: (message: string, type?: ToastType) => void
   clearToast: (id: string) => void
   clearAllToasts: () => void
   
-  // ===== ACTIONS: RESET =====
   reset: () => void
 }
 
-// ============================================================================
-// INITIAL STATE
-// ============================================================================
 
 const initialState = {
-  // Selected items
   selectedAccountId: null,
   selectedTransactionId: null,
   selectedCategoryId: null,
   
-  // UI toggles
   isSidebarOpen: true,
   isMobileMenuOpen: false,
   isModalOpen: false,
   modalType: null,
   modalData: null,
   
-  // View preferences
   dashboardView: 'grid' as const,
   transactionsSortBy: 'date' as const,
   transactionsSortOrder: 'desc' as const,
   accountsView: 'carousel' as const,
   
-  // Filters
   dateRange: { start: null, end: null },
   categoryFilter: [],
   accountFilter: [],
   amountRangeFilter: { min: null, max: null },
   searchQuery: '',
   
-  // Temporary UI data
   toasts: [],
 }
 
-// ============================================================================
-// STORE
-// ============================================================================
 
 export const useUIStore = create<UIState>()(
   devtools(
     (set) => ({
       ...initialState,
       
-      // ===== SELECTED ITEMS =====
       setSelectedAccount: (id) => set({ selectedAccountId: id }),
       
       setSelectedTransaction: (id) => set({ selectedTransactionId: id }),
@@ -167,7 +141,6 @@ export const useUIStore = create<UIState>()(
         selectedCategoryId: null,
       }),
       
-      // ===== UI TOGGLES =====
       toggleSidebar: () => set((state) => ({ 
         isSidebarOpen: !state.isSidebarOpen 
       })),
@@ -190,7 +163,6 @@ export const useUIStore = create<UIState>()(
         modalData: null,
       }),
       
-      // ===== VIEW PREFERENCES =====
       setDashboardView: (view) => set({ dashboardView: view }),
       
       setTransactionsSort: (by, order) => set({
@@ -200,7 +172,6 @@ export const useUIStore = create<UIState>()(
       
       setAccountsView: (view) => set({ accountsView: view }),
       
-      // ===== FILTERS =====
       setDateRange: (start, end) => set({ 
         dateRange: { start, end } 
       }),
@@ -237,7 +208,6 @@ export const useUIStore = create<UIState>()(
         searchQuery: '',
       }),
       
-      // ===== TOASTS =====
       showToast: (message, type = 'info') => set((state) => ({
         toasts: [
           ...state.toasts,
@@ -255,7 +225,6 @@ export const useUIStore = create<UIState>()(
       
       clearAllToasts: () => set({ toasts: [] }),
       
-      // ===== RESET =====
       reset: () => set(initialState),
     }),
     {
@@ -265,9 +234,6 @@ export const useUIStore = create<UIState>()(
   )
 )
 
-// ============================================================================
-// SELECTOR HOOKS (For better performance)
-// ============================================================================
 
 /**
  * Hook for selected items

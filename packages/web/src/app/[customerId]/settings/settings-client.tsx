@@ -44,7 +44,6 @@ export default function SettingsClient({
   const { showToast } = useToasts()
   const { theme: currentTheme, setTheme: setNextTheme } = useTheme()
 
-  // Settings state
   const [theme, setTheme] = useState<Theme>(initialSettings?.appearance?.theme || 'system')
   const [emailChannel, setEmailChannel] = useState(initialSettings?.receiveOn?.email ?? true)
   const [smsChannel, setSmsChannel] = useState(initialSettings?.receiveOn?.sms ?? false)
@@ -58,19 +57,16 @@ export default function SettingsClient({
   const [faceId, setFaceId] = useState(initialSettings?.security?.faceId ?? false)
   const [givePermission, setGivePermission] = useState(initialSettings?.security?.givePermission ?? false)
 
-  // Sync settings page theme state when next-themes changes (from hamburger menu or elsewhere)
   useEffect(() => {
     if (currentTheme && currentTheme !== 'system' && currentTheme !== theme) {
       setTheme(currentTheme as Theme)
     }
   }, [currentTheme, theme])
   
-  // Modal states
   const [showPinModal, setShowPinModal] = useState(false)
   const [showPasswordModal, setShowPasswordModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   
-  // PIN form state
   const [pinForm, setPinForm] = useState({
     currentPIN: '',
     newPIN: '',
@@ -79,7 +75,6 @@ export default function SettingsClient({
   })
   const [isChangingPIN, setIsChangingPIN] = useState(false)
   
-  // Password form state
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
     newPassword: '',
@@ -152,11 +147,9 @@ export default function SettingsClient({
     }
   }
 
-  // Handle PIN change
   const handleChangePIN = async (e: FormEvent) => {
     e.preventDefault()
     
-    // Validation
     if (!pinForm.currentPIN || !pinForm.newPIN || !pinForm.confirmPIN || !pinForm.password) {
       showToast('Please fill in all fields', 'error')
       return
@@ -196,11 +189,9 @@ export default function SettingsClient({
     }
   }
 
-  // Handle password change
   const handleChangePassword = async (e: FormEvent) => {
     e.preventDefault()
 
-    // Validation
     if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
       showToast('Please fill in all fields', 'error')
       return
@@ -240,7 +231,6 @@ export default function SettingsClient({
     }
   }
 
-  // Handle account deletion
   const handleDeleteAccount = async () => {
     try {
       const result = await deleteAccountAction()
@@ -256,7 +246,6 @@ export default function SettingsClient({
     }
   }
 
-  // Handle logout
   const handleLogout = async () => {
     router.push('/login')
   }

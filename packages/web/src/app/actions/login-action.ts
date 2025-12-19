@@ -5,7 +5,8 @@ import { login as loginService } from '../api/api-service'
 
 /**
  * Server Action to login a user
- * This runs on the server and can be called directly from client components
+ * Note: For browser cookie setting, use /api/auth/login route instead
+ * This action is for server-side use cases only
  */
 export async function loginAction(
   email: string,
@@ -20,7 +21,6 @@ export async function loginAction(
     const result = await loginService(email, password)
     
     if (result.success) {
-      // Revalidate any pages that depend on session state
       revalidatePath('/', 'layout')
       return {
         success: true,

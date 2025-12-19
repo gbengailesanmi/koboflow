@@ -1,7 +1,6 @@
 import type { CustomCategory } from '@/types/custom-category'
 import { DEFAULT_CATEGORIES } from '@money-mapper/shared'
 
-// Generate category keys from default categories
 const DEFAULT_CATEGORY_KEYS: Record<string, string> = {
   'Food & Groceries': 'food',
   'Transport': 'transport',
@@ -27,7 +26,6 @@ export const categorizeTransaction = (narration: string, customCategories?: Cust
     }
   }
   
-  // Check custom categories
   if (customCategories && customCategories.length > 0) {
     for (const category of customCategories) {
       for (const keyword of category.keywords) {

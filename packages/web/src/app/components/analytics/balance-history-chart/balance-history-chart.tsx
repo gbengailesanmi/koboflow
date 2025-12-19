@@ -22,7 +22,6 @@ export const BalanceHistoryChart: React.FC<BalanceHistoryChartProps> = ({ data, 
   const [axisColor, setAxisColor] = useState('#6b7280')
   const [referenceLineColor, setReferenceLineColor] = useState('#9ca3af')
   
-  // Custom date comparison state
   const today = new Date()
   const actualCurrentMonth = today.getMonth()
   const actualCurrentYear = today.getFullYear()
@@ -35,7 +34,6 @@ export const BalanceHistoryChart: React.FC<BalanceHistoryChartProps> = ({ data, 
   const [endMonth, setEndMonth] = useState(actualPrevMonth.toString())
   const [endYear, setEndYear] = useState(actualPrevYear.toString())
   
-  // Detect if user has changed from default
   useEffect(() => {
     const isDefaultComparison = 
       parseInt(startMonth) === actualCurrentMonth &&
@@ -47,7 +45,6 @@ export const BalanceHistoryChart: React.FC<BalanceHistoryChartProps> = ({ data, 
   }, [startMonth, startYear, endMonth, endYear, actualCurrentMonth, actualCurrentYear, actualPrevMonth, actualPrevYear])
 
   useEffect(() => {
-    // Check if dark mode is enabled
     const checkDarkMode = () => {
       const isDark = document.documentElement.classList.contains('dark') || 
                      document.documentElement.classList.contains('dark-theme')
@@ -88,7 +85,6 @@ export const BalanceHistoryChart: React.FC<BalanceHistoryChartProps> = ({ data, 
     getAxisColor()
     getRefLineColor()
 
-    // Watch for theme changes
     const observer = new MutationObserver(() => {
       checkDarkMode()
       getAccentColor()
@@ -104,7 +100,6 @@ export const BalanceHistoryChart: React.FC<BalanceHistoryChartProps> = ({ data, 
     return () => observer.disconnect()
   }, [])
   
-  // Use custom dates if enabled, otherwise use current vs previous month
   const currentMonth = useCustomDates ? parseInt(startMonth) : actualCurrentMonth
   const currentYear = useCustomDates ? parseInt(startYear) : actualCurrentYear
   const currentDay = today.getDate()
@@ -141,7 +136,6 @@ export const BalanceHistoryChart: React.FC<BalanceHistoryChartProps> = ({ data, 
         currentExpenses += dayExpense
       }
 
-      // Calculate previous month cumulative expenses
       if (day <= daysInPrevMonth) {
         const dayTransactions = transactions.filter((t: any) => {
           const tDate = t.date

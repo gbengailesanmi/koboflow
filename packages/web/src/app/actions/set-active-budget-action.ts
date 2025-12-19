@@ -15,7 +15,6 @@ export async function setActiveBudgetAction(budgetId: string): Promise<{
     const result = await setActiveBudgetService(budgetId)
     
     if (result.success) {
-      // Revalidate budgets and budget tags
       revalidateTag('budgets')
       revalidateTag('budget')
       return { success: true }

@@ -24,7 +24,6 @@ export async function updateBudgetAction(
     const result = await updateBudgetByIdService(budgetId, updates)
     
     if (result.success) {
-      // Revalidate budgets and budget tags
       revalidateTag('budgets')
       revalidateTag('budget')
       return { success: true }

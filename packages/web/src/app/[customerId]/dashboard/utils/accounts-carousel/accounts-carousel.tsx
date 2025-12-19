@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useCallback, useEffect, useState } from 'react'
-import type { Account } from '@/types/account'
+import type { Account } from '@money-mapper/shared'
 import useEmblaCarousel from 'embla-carousel-react'
 import { Box } from '@radix-ui/themes'
 import { PlusIcon, ListBulletIcon, BarChartIcon } from '@radix-ui/react-icons'
@@ -10,6 +10,7 @@ import FormatCarouselContent from '../../utils/format-carousel-content/format-ca
 import generateHues from '@/helpers/generate-hues'
 import AccountsPills from '../../utils/account-pills/accounts-pills'
 import { useParams, useRouter } from 'next/navigation'
+import { useMonoConnect } from '@/hooks/use-mono-connect'
 import styles from './accounts-carousel.module.css'
 
 const HUE_LOCAL_STORAGE_KEY = 'accounts-carousel-slide-hue'
@@ -29,7 +30,6 @@ export default function AccountsCarousel({
 }: AccountsCarouselProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false })
   const hues = generateHues(10)
-  // const { setBaseColor } = useBaseColor()
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [slideHue, setSlideHue] = useState<Record<number, string>>({ 0: hues[0] })
   const [hasInitialized, setHasInitialized] = useState(false)
@@ -37,6 +37,16 @@ export default function AccountsCarousel({
   const params = useParams()
   const router = useRouter()
   const customerId = params.customerId as string
+
+  const { openMonoWidget, isLoading: isConnecting } = useMonoConnect({
+    onSuccess: () => {
+      console.log('[AccountsCarousel] Account linked successfully!')
+    },
+    onError: (error) => {
+      console.error('[AccountsCarousel] Failed to link account:', error)
+      alert(`Failed to link account: ${error}`)
+    },
+  })
 
   useEffect(() => {
     try {
@@ -61,7 +71,7 @@ export default function AccountsCarousel({
     if (!emblaApi || !accounts.length || hasInitialized) return
 
     if (selectedAccount) {
-      const accountIndex = accounts.findIndex(acc => acc.uniqueId === selectedAccount)
+      const accountIndex = accounts.findIndex(acc => acc.id === selectedAccount)
       if (accountIndex !== -1) {
         emblaApi.scrollTo(accountIndex + 1, true)
       }
@@ -91,11 +101,10 @@ export default function AccountsCarousel({
         setSelectedAccount(null)
       } else {
         const account = accounts[index - 1]
-        setSelectedAccount(account?.uniqueId ?? null)
+        setSelectedAccount(account?.id ?? null)
       }
 
       const hue = slideHue[index] ?? hues[index % hues.length]
-      // setBaseColor?.(hue)
     }
 
     emblaApi.on('select', onSelect)
@@ -111,7 +120,6 @@ export default function AccountsCarousel({
       ...prev,
       [selectedIndex]: hue,
     }))
-    // setBaseColor?.(hue)
   }
 
   const totalBalance = accounts.reduce(
@@ -166,8 +174,8 @@ export default function AccountsCarousel({
           {
             key: 'add',
             icon: <PlusIcon width="35" height="35" />,
-            label: 'Add Account',
-            onClick: () => router.push(`/${customerId}/dashboard?connect=bank`),
+            label: isConnecting ? 'Connecting...' : 'Add Account',
+            onClick: openMonoWidget,
           },
           {
             key: 'details',

@@ -1,17 +1,40 @@
-export type Transaction = {
+export type MonoTransaction = {
   id: string
-  accountUniqueId: string
+  narration: string
+  amount: number
+  type: 'debit' | 'credit'
+  balance: number
+  date: string
+  category: string
+}
+
+export type Transaction = MonoTransaction & {
   accountId: string
   customerId: string
-  amount: string
-  unscaledValue: number
-  scale: number
-  narration: string
-  currencyCode: string
-  descriptions: any
-  bookedDate: Date
-  identifiers: any
-  types: any
+}
+
+export type MonoTransactionsResponse = {
   status: string
-  providerMutability: string
+  message: string
+  timestamp: string
+  data: MonoTransaction[]
+  meta: {
+    total: number
+    page: number
+    previous: string | null
+    next: string | null
+  }
+}
+
+export type TransactionsResponse = {
+  status: string
+  message: string
+  timestamp: string
+  data: Transaction[]
+  meta: {
+    total: number
+    page: number
+    previous: string | null
+    next: string | null
+  }
 }

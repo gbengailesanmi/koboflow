@@ -10,14 +10,12 @@ interface TransactionsPageProps {
 export default async function TransactionsPage({ params }: TransactionsPageProps) {
   const { customerId } = await params
 
-  // Parallel data fetching on server
   const [session, accounts, transactions] = await Promise.all([
     getSession(),
     getAccounts(),
     getTransactions()
   ])
 
-  // Redirect if not authenticated or wrong user
   if (!session || session.customerId !== customerId) {
     redirect('/login')
   }

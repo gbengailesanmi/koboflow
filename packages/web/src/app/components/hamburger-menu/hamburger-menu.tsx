@@ -33,7 +33,6 @@ export default function HamburgerMenu({ customerId }: HamburgerMenuProps) {
   const [expandedSections, setExpandedSections] = useState<string[]>([])
   const [mounted, setMounted] = useState(false)
 
-  // Wait until mounted to avoid hydration mismatch
   useEffect(() => {
     setMounted(true)
   }, [])
@@ -43,10 +42,8 @@ export default function HamburgerMenu({ customerId }: HamburgerMenuProps) {
   const handleThemeToggle = async (checked: boolean) => {
     const newTheme = checked ? 'dark' : 'light'
     
-    // Immediately apply visual theme
     setTheme(newTheme)
     
-    // Save to database
     try {
       const result = await updateSettingsAction({
         appearance: { theme: newTheme }

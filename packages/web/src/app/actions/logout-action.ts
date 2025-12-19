@@ -15,7 +15,6 @@ export async function logoutAction(): Promise<{
     const result = await logoutService()
     
     if (result.success) {
-      // Revalidate session and sessions-list tags
       revalidateTag('session')
       revalidateTag('sessions-list')
       return { success: true }

@@ -71,7 +71,6 @@ export default function ProfileClient({
       showToast('Profile updated successfully!', 'success')
       setIsEditing(false)
       
-      // Router refresh will get fresh data from revalidated cache
       router.refresh()
 
     } catch (err: any) {

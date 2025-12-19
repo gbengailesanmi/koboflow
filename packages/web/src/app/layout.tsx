@@ -11,7 +11,6 @@ const openSans = Open_Sans({
 })
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  // Only fetch settings if user is authenticated
   const session = await getSession()
   const settings = session ? await getSettings() : null
   const userTheme = settings?.appearance?.theme || 'system'

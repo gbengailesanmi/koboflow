@@ -4,7 +4,8 @@ import { signup as signupService } from '../api/api-service'
 
 /**
  * Server Action to signup a new user
- * This runs on the server and can be called directly from client components
+ * Note: For browser cookie setting, use /api/auth/signup route instead
+ * This action is for server-side use cases only
  */
 export async function signupAction(userData: {
   firstName: string
@@ -16,6 +17,7 @@ export async function signupAction(userData: {
   success: boolean
   message?: string
   requiresVerification?: boolean
+  user?: any
 }> {
   try {
     const result = await signupService(userData)
@@ -24,6 +26,7 @@ export async function signupAction(userData: {
       success: result.success,
       message: result.message,
       requiresVerification: result.requiresVerification,
+      user: result.user,
     }
   } catch (error: any) {
     console.error('[Auth Action] Signup failed:', error)

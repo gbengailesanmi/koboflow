@@ -24,17 +24,12 @@ type BubbleData = {
 }
 
 export const BubbleChart: React.FC<BubbleChartProps> = ({ data, categoryConfig, currency }) => {
-  // Transform data for bubble chart with proper collision detection
   const bubbleData: BubbleData[] = React.useMemo(() => {
     const baseX = 50
     const baseY = 50
     const placedBubbles: BubbleData[] = []
     
-    // Calculate radius based on percentage - bubble AREA should be proportional to percentage
     const getRadius = (percentage: number): number => {
-      // Scale to bubble size - area proportional to percentage
-      // Area = π * r^2, so r = sqrt(Area / π)
-      // Make the largest percentage use 80% of available space
       const maxPercentage = Math.max(...data.map(d => d.percentage))
       const scaleFactor = percentage / maxPercentage
       const minSize = 500
@@ -42,19 +37,16 @@ export const BubbleChart: React.FC<BubbleChartProps> = ({ data, categoryConfig, 
       return minSize + (scaleFactor * (maxSize - minSize))
     }
     
-    // Check if two circles overlap with proper distance calculation
     const isOverlapping = (x1: number, y1: number, r1: number, x2: number, y2: number, r2: number): boolean => {
       const dx = x2 - x1
       const dy = y2 - y1
       const distance = Math.sqrt(dx * dx + dy * dy)
-      // Convert radius to coordinate space and add padding
       const radius1 = r1 / 45 // Scale factor for coordinate system
       const radius2 = r2 / 45
       const minDistance = radius1 + radius2 + 2 // 2 units padding
       return distance < minDistance
     }
     
-    // Sort by percentage (largest first)
     const sortedData = [...data].sort((a, b) => b.percentage - a.percentage)
     
     sortedData.forEach((item, itemIndex) => {
@@ -63,29 +55,24 @@ export const BubbleChart: React.FC<BubbleChartProps> = ({ data, categoryConfig, 
       let y = baseY
       let placed = false
       
-      // For the first (largest) bubble, place it in the center
       if (itemIndex === 0) {
         x = baseX
         y = baseY
         placed = true
       } else {
-        // Try to place bubble using a systematic grid search
         const gridSize = 2 // Search every 2 units
         const maxRadius = 40 // Maximum distance from center
         
         searchLoop: for (let distance = 5; distance <= maxRadius; distance += gridSize) {
-          // Try different angles at this distance
           for (let angle = 0; angle < 360; angle += 15) {
             const rad = (angle * Math.PI) / 180
             const testX = baseX + distance * Math.cos(rad)
             const testY = baseY + distance * Math.sin(rad)
             
-            // Check bounds
             if (testX < 5 || testX > 95 || testY < 5 || testY > 95) {
               continue
             }
             
-            // Check if this position overlaps with any placed bubble
             let hasOverlap = false
             for (const bubble of placedBubbles) {
               if (isOverlapping(testX, testY, radius, bubble.x, bubble.y, bubble.z)) {
@@ -104,7 +91,6 @@ export const BubbleChart: React.FC<BubbleChartProps> = ({ data, categoryConfig, 
         }
       }
       
-      // If we still couldn't place it, put it at a far edge
       if (!placed) {
         const angle = (itemIndex / sortedData.length) * Math.PI * 2
         x = baseX + 40 * Math.cos(angle)
@@ -152,7 +138,6 @@ export const BubbleChart: React.FC<BubbleChartProps> = ({ data, categoryConfig, 
   const renderCustomizedLabel = (props: any) => {
     const { cx, cy, payload } = props
     
-    // Don't render if payload is undefined or doesn't have name
     if (!payload || !payload.name) {
       return null
     }

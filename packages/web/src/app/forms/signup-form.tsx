@@ -2,7 +2,6 @@
 
 import { useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
-import { signupClient } from '@/app/api/api-client'
 import { SignupFormSchema } from '@money-mapper/shared'
 import config from '@/config'
 
@@ -40,19 +39,22 @@ export default function SignupForm() {
     }
 
     try {
-      const result: any = await signupClient({
-        firstName,
-        lastName,
-        email,
-        password,
-        passwordConfirm,
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ firstName, lastName, email, password, passwordConfirm }),
+        credentials: 'include',
       })
+      
+      const result = await response.json()
 
       if (result.success) {
         if (result.requiresVerification) {
           router.push('/verify-email')
-        } else {
+        } else if (result.user?.customerId) {
           router.push(`/${result.user.customerId}/dashboard`)
+        } else {
+          router.push('/login')
         }
       } else {
         setMessage(result.message || 'Failed to create account.')

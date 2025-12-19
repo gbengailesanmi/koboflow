@@ -12,7 +12,6 @@ import TransactionsColumn from '@/app/components/transactions/transactions-colum
 import { MonthOnMonthChart } from '@/app/components/analytics/month-on-month-chart/month-on-month-chart'
 import { RecurringPayments } from '@/app/components/analytics/recurring-payments/recurring-payments'
 import { categorizeTransaction } from '@/app/components/analytics/utils/categorize-transaction'
-import ConnectBankModal from '@/app/components/mono-connect/connect-bank-modal'
 import type { Account, Transaction } from '@money-mapper/shared'
 
 interface DashboardClientProps {
@@ -39,7 +38,7 @@ export default function DashboardClient({
   const { selectedAccountId, setSelectedAccount } = useSelectedItems()
 
   const filteredTransactions = selectedAccountId
-    ? transactions.filter(txn => txn.accountUniqueId === selectedAccountId)
+    ? transactions.filter(txn => txn.accountId === selectedAccountId)
     : transactions
 
   const processedTransactions = useMemo(() => {
@@ -149,9 +148,6 @@ export default function DashboardClient({
         </Grid>
       </main>
       <Footer opacity={2} />
-      
-      {/* Mono Connect Modal */}
-      <ConnectBankModal customerId={customerId} />
     </>
   )
 }

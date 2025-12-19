@@ -1,4 +1,4 @@
-import type { Transaction } from '@/types/transactions'
+import type { Transaction } from '@money-mapper/shared'
 import { Box, Card, Flex, Text, Dialog } from '@radix-ui/themes'
 import { Cross1Icon, DownloadIcon, UploadIcon } from '@radix-ui/react-icons'
 import styles from './transactions-column.module.css'

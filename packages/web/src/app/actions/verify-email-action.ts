@@ -16,7 +16,6 @@ export async function verifyEmailAction(token: string): Promise<{
     const result = await verifyEmailService(token)
     
     if (result.success) {
-      // Revalidate session tag after successful verification
       revalidateTag('session')
       return {
         success: true,

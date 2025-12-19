@@ -11,7 +11,6 @@ type PageProps = {
 export default async function AnalyticsPage({ params }: PageProps) {
   const { customerId } = await params
 
-  // Fetch all data in parallel on the server
   const [session, accounts, transactions, customCategories, budgetRes] = await Promise.all([
     getSession(),
     getAccounts(),
@@ -20,7 +19,6 @@ export default async function AnalyticsPage({ params }: PageProps) {
     getBudget(),
   ])
 
-  // Validate session
   if (!session || session.customerId !== customerId) {
     redirect('/login')
   }

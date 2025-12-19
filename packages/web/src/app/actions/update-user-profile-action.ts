@@ -21,7 +21,6 @@ export async function updateUserProfileAction(
     const result = await updateUserProfile(customerId, updates)
 
     if (result.success) {
-      // Revalidate cache
       revalidateTag('session')
       if (updates.totalBudgetLimit !== undefined) {
         revalidateTag('budget')

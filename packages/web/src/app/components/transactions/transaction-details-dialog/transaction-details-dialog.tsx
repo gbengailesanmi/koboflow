@@ -1,6 +1,6 @@
 import { Dialog, Flex, Box, Text } from '@radix-ui/themes'
 import { Cross1Icon } from '@radix-ui/react-icons'
-import type { Transaction } from '@/types/transactions'
+import type { Transaction } from '@money-mapper/shared'
 
 type Props = {
   transaction: Transaction

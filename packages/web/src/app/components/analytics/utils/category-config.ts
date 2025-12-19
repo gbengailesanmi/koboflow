@@ -1,7 +1,6 @@
 import type { CustomCategory } from '@/types/custom-category'
 import { DEFAULT_CATEGORIES } from '@money-mapper/shared'
 
-// Generate category config from DEFAULT_CATEGORIES in shared package
 const DEFAULT_CATEGORY_KEYS: Record<string, string> = {
   'Food & Groceries': 'food',
   'Transport': 'transport',

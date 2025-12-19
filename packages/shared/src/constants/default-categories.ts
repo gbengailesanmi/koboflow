@@ -1,6 +1,5 @@
 import { Category } from '../types/spending-category'
 
-// Default categories that every user gets
 export const DEFAULT_CATEGORIES: Omit<Category, 'id' | 'createdAt' | 'updatedAt'>[] = [
   {
     name: 'Food & Groceries',
