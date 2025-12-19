@@ -1,15 +1,6 @@
-/**
- * Mono Connect Service
- * A suite of APIs to retrieve users' financial data from Nigerian banks
- * 
- * API Documentation: https://docs.mono.co
- * Base URL: https://api.withmono.com/v2
- */
-
 import config from '../config'
 
 const MONO_API_BASE = 'https://api.withmono.com/v2'
-
 
 export interface MonoCustomer {
   name: string
@@ -24,10 +15,10 @@ export interface MonoInitiateRequest {
   customer: {
     name?: string
     email?: string
-    id?: string // When supplying this, name and email are optional
+    id?: string
   }
   meta?: {
-    ref?: string // Unique reference (Minimum of 10 characters)
+    ref?: string
   }
   scope: 'auth' | 'reauth'
   institution?: {
@@ -35,7 +26,7 @@ export interface MonoInitiateRequest {
     auth_method?: 'mobile_banking' | 'internet_banking'
   }
   redirect_url: string
-  account?: string // Required for reauth
+  account?: string
 }
 
 export interface MonoInitiateResponse {
@@ -61,7 +52,7 @@ export interface MonoAuthResponse {
   message: string
   timestamp: string
   data: {
-    id: string // Account ID
+    id: string
   }
 }
 
@@ -179,10 +170,6 @@ export interface MonoAssets {
   }>
 }
 
-
-/**
- * Make authenticated request to Mono API
- */
 async function monoFetch<T>(
   endpoint: string,
   options: RequestInit = {}
@@ -225,9 +212,6 @@ async function monoFetch<T>(
   return data
 }
 
-/**
- * Format date as dd-mm-yyyy (Mono's required format)
- */
 export function formatDate(date: Date): string {
   const day = String(date.getDate()).padStart(2, '0')
   const month = String(date.getMonth() + 1).padStart(2, '0')
@@ -235,13 +219,6 @@ export function formatDate(date: Date): string {
   return `${day}-${month}-${year}`
 }
 
-
-/**
- * POST /v2/accounts/auth
- * Exchange code from Mono Connect widget for account ID
- * The code comes from the redirect_url after user authenticates
- * Example: https://yourdomain.com/callback?code=code_xyz123
- */
 export async function exchangeToken(code: string): Promise<string> {
   const response = await monoFetch<MonoAuthResponse>('/accounts/auth', {
     method: 'POST',
@@ -250,12 +227,6 @@ export async function exchangeToken(code: string): Promise<string> {
   return response.data.id
 }
 
-
-/**
- * GET /v2/accounts/{id}
- * Fetch account details with exact Mono API response format
- * Returns full response with status, message, timestamp, and data
- */
 export async function fetchAccountDetails(accountId: string, realtime: boolean = false): Promise<{
   status: string
   message: string
@@ -275,19 +246,11 @@ export async function fetchAccountDetails(accountId: string, realtime: boolean =
   }>(`/accounts/${accountId}`, { headers })
 }
 
-/**
- * GET /v2/accounts/{id}/identity
- * Fetch account identity information
- */
 export async function fetchAccountIdentity(accountId: string): Promise<MonoAccountIdentity> {
   const response = await monoFetch<{ data: MonoAccountIdentity }>(`/accounts/${accountId}/identity`)
   return response.data
 }
 
-/**
- * GET /v2/accounts/{id}/balance
- * Fetch account balance (with optional real-time flag)
- */
 export async function fetchAccountBalance(accountId: string, realtime: boolean = false): Promise<MonoAccountBalance> {
   const headers: Record<string, string> = {}
   if (realtime) {
@@ -301,20 +264,12 @@ export async function fetchAccountBalance(accountId: string, realtime: boolean =
   return response.data
 }
 
-/**
- * POST /v2/accounts/{id}/unlink
- * Unlink a financial account
- */
 export async function unlinkAccount(accountId: string): Promise<void> {
   await monoFetch(`/accounts/${accountId}/unlink`, {
     method: 'POST',
   })
 }
 
-/**
- * POST /v2/accounts/{id}/creditworthiness
- * Fetch creditworthiness of a user's account
- */
 export async function fetchCreditWorthiness(
   accountId: string,
   data: MonoCreditWorthinessRequest
@@ -326,16 +281,11 @@ export async function fetchCreditWorthiness(
   return response.data
 }
 
-
-/**
- * GET /v2/accounts/{id}/transactions
- * Fetch transactions for an account
- */
 export async function fetchTransactions(
   accountId: string,
   options: {
-    start?: string  // dd-mm-yyyy
-    end?: string    // dd-mm-yyyy
+    start?: string
+    end?: string
     narration?: string
     type?: 'debit' | 'credit'
     paginate?: boolean
@@ -357,9 +307,6 @@ export async function fetchTransactions(
   return monoFetch<MonoTransactionsResponse>(endpoint)
 }
 
-/**
- * Fetch all transactions (handles pagination)
- */
 export async function fetchAllTransactions(
   accountId: string,
   options: {
@@ -422,11 +369,6 @@ export async function fetchAllTransactions(
   return allTransactions
 }
 
-
-/**
- * GET /v2/accounts/{id}/statement
- * Fetch account statement (1-12 months)
- */
 export async function fetchAccountStatement(
   accountId: string,
   options: MonoStatementOptions
@@ -441,10 +383,6 @@ export async function fetchAccountStatement(
   return response.data
 }
 
-/**
- * GET /v2/accounts/{id}/statement/jobs/{jobId}
- * Fetch statement job status
- */
 export async function fetchStatementJobStatus(accountId: string, jobId: string): Promise<any> {
   const response = await monoFetch<{ data: any }>(
     `/accounts/${accountId}/statement/jobs/${jobId}`
@@ -452,30 +390,16 @@ export async function fetchStatementJobStatus(accountId: string, jobId: string):
   return response.data
 }
 
-
-/**
- * GET /v2/accounts/{id}/earnings
- * Fetch earnings from investment accounts
- */
 export async function fetchAccountEarnings(accountId: string): Promise<MonoEarnings> {
   const response = await monoFetch<{ data: MonoEarnings }>(`/accounts/${accountId}/earnings`)
   return response.data
 }
 
-/**
- * GET /v2/accounts/{id}/assets
- * Fetch assets from investment accounts
- */
 export async function fetchAccountAssets(accountId: string): Promise<MonoAssets> {
   const response = await monoFetch<{ data: MonoAssets }>(`/accounts/${accountId}/assets`)
   return response.data
 }
 
-
-/**
- * GET /v2/enrichments/{id}/transaction-categorisation
- * Fetch transaction categories (call when categories are null)
- */
 export async function fetchTransactionCategorisation(accountId: string): Promise<any> {
   const response = await monoFetch<{ data: any }>(
     `/enrichments/${accountId}/transaction-categorisation`
@@ -483,10 +407,6 @@ export async function fetchTransactionCategorisation(accountId: string): Promise
   return response.data
 }
 
-/**
- * GET /v2/enrichments/{id}/statement-insights
- * Fetch statement insights/analytics
- */
 export async function fetchStatementInsights(accountId: string): Promise<any> {
   const response = await monoFetch<{ data: any }>(
     `/enrichments/${accountId}/statement-insights`
@@ -494,11 +414,6 @@ export async function fetchStatementInsights(accountId: string): Promise<any> {
   return response.data
 }
 
-
-/**
- * POST /v2/accounts/{id}/sync
- * Trigger manual data sync for an account
- */
 export async function syncAccount(accountId: string): Promise<{ status: string }> {
   const response = await monoFetch<{ data: { status: string } }>(
     `/accounts/${accountId}/sync`,
@@ -507,11 +422,6 @@ export async function syncAccount(accountId: string): Promise<{ status: string }
   return response.data
 }
 
-
-/**
- * Format Mono account for storage in our database
- * Preserves exact Mono API format and adds customer context
- */
 export function formatAccountForStorage(
   response: MonoAccountDetails,
   appCustomerId: string

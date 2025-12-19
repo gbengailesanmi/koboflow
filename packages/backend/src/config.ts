@@ -1,5 +1,3 @@
-/* eslint-disable no-process-env */
-
 const config = {
   BASE_URI: process.env.BASE_URI,
   NODE_ENV: process.env.NODE_ENV,
