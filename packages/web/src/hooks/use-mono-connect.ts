@@ -5,7 +5,7 @@
 
 import { useCallback, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { exchangeMonoToken, importMonoAccount, syncMonoTransactions } from '@/app/api/api-service'
+import { processMonoConnection } from '@/app/actions/mono-actions'
 import config from '@/config'
 
 interface UseMonoConnectOptions {
@@ -31,40 +31,17 @@ export function useMonoConnect({ onSuccess, onError }: UseMonoConnectOptions = {
           console.log('[Mono Widget] Received code:', code)
           
           try {
-            console.log('[Mono Widget] Exchanging token...')
-            const tokenResult = await exchangeMonoToken(code)
+            const result = await processMonoConnection(code)
             
-            if (!tokenResult.success || !tokenResult.accountId) {
-              throw new Error(tokenResult.message || 'Failed to exchange token')
+            if (!result.success) {
+              throw new Error(result.message || 'Failed to link account')
             }
-
-            const accountId = tokenResult.accountId
-            console.log('[Mono Widget] Got accountId:', accountId)
-
-            console.log('[Mono Widget] Importing account...')
-            const importResult = await importMonoAccount(accountId)
             
-            if (!importResult.success) {
-              throw new Error(importResult.message || 'Failed to import account')
-            }
-
-            console.log('[Mono Widget] Account imported successfully!')
-
-            console.log('[Mono Widget] Fetching transactions...')
-            const transactionsResult = await syncMonoTransactions(accountId)
-            
-            if (transactionsResult.success) {
-              console.log(`[Mono Widget] Successfully synced ${transactionsResult.transactionsCount || 0} transactions`)
-            } else {
-              console.warn('[Mono Widget] Transaction sync failed:', transactionsResult.message)
-            }
-
-            console.log('[Mono Widget] Account linked successfully!')
+            console.log(`[Mono Widget] Successfully synced ${result.transactionsCount || 0} transactions`)
             onSuccess?.()
-            
             router.refresh()
           } catch (error: any) {
-            console.error('[Mono Widget] Error processing account:', error)
+            console.error('[Mono Widget] Error:', error)
             onError?.(error.message || 'Failed to link account')
           } finally {
             setIsLoading(false)
