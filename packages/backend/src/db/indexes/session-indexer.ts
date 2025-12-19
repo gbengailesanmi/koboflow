@@ -5,7 +5,6 @@ async function createSessionIndexes() {
     const db = await connectDB()
     const collection = db.collection('sessions')
 
-    // Unique index on sessionId for fast lookups
     await collection.createIndex(
       { sessionId: 1 },
       { 
@@ -14,14 +13,11 @@ async function createSessionIndexes() {
       }
     )
 
-    // Index on customerId for finding all user sessions
     await collection.createIndex(
       { customerId: 1 },
       { name: 'customerId_asc' }
     )
 
-    // TTL index - MongoDB will automatically delete documents when expiresAt is reached
-    // This runs a background process every 60 seconds
     await collection.createIndex(
       { expiresAt: 1 },
       { 

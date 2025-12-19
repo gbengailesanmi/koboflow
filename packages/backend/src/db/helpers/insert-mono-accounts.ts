@@ -2,7 +2,6 @@ import { accountIndexer } from './indexes/account-indexer'
 
 async function insertMonoAccounts(accounts: any[], customerId: string, connectDB: any) {
   if (!Array.isArray(accounts) || accounts.length === 0) return
-
   if (!customerId) throw new Error('Customer ID is required')
 
   const db = await connectDB()
@@ -11,27 +10,24 @@ async function insertMonoAccounts(accounts: any[], customerId: string, connectDB
 
   const records = accounts.map((account: any) => ({
     id: account.id,
-    customerId,
-    uniqueId: account.uniqueId,
     name: account.name,
-    type: account.type,
-    accountNumber: account.accountNumber,
-    balance: account.balance,
-    balanceRaw: account.balanceRaw,
     currency: account.currency,
-    institution: account.institution,
+    type: account.type,
+    account_number: account.account_number,
+    balance: account.balance,
     bvn: account.bvn,
-    dataStatus: account.dataStatus,
-    authMethod: account.authMethod,
-    lastRefreshed: account.lastRefreshed,
+    institution: account.institution,
+    customerId,
+    monoCustomerId: account.monoCustomerId,
+    meta: account.meta,
+    lastRefreshed: account.lastRefreshed || new Date(),
     provider: 'mono',
   }))
 
   try {
-    // Use upsert to update existing accounts or insert new ones
     for (const record of records) {
       await accountCollection.updateOne(
-        { uniqueId: record.uniqueId, customerId },
+        { id: record.id, customerId },
         { $set: record },
         { upsert: true }
       )

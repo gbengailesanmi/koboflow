@@ -4,20 +4,16 @@ import { connectDB } from '../mongo'
 export async function createBudgetIndexes() {
   const db = await connectDB()
   
-  // Remove old unique index if it exists
   try {
     await db.collection('budgets').dropIndex('customerId_unique')
   } catch (error) {
-    // Index doesn't exist, that's fine
   }
   
-  // Compound index for efficient queries by customer and active status
   await db.collection('budgets').createIndex(
     { customerId: 1, isActive: -1 },
     { name: 'customerId_isActive' }
   )
   
-  // Index for finding budgets by customerId
   await db.collection('budgets').createIndex(
     { customerId: 1, createdAt: -1 },
     { name: 'customerId_createdAt' }

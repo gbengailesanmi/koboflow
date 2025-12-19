@@ -11,8 +11,6 @@ import {
 
 export const categoryRoutes = Router()
 
-// Get all categories (default + custom)
-// Get all categories (default + custom)
 categoryRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
@@ -21,7 +19,6 @@ categoryRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
       return res.status(401).json({ error: 'Unauthorized' })
     }
 
-    // Get all categories (includes defaults + custom)
     const categories = await getCategories(customerId)
     
     res.json(categories)
@@ -31,7 +28,6 @@ categoryRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
   }
 })
 
-// Get only custom categories (backwards compatible)
 categoryRoutes.get('/custom', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
@@ -49,7 +45,6 @@ categoryRoutes.get('/custom', authMiddleware, async (req: AuthRequest, res) => {
   }
 })
 
-// Create new category
 categoryRoutes.post('/', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
@@ -86,7 +81,6 @@ categoryRoutes.post('/', authMiddleware, async (req: AuthRequest, res) => {
   }
 })
 
-// Update category
 categoryRoutes.patch('/:id', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
@@ -125,7 +119,6 @@ categoryRoutes.patch('/:id', authMiddleware, async (req: AuthRequest, res) => {
   }
 })
 
-// Delete category
 categoryRoutes.delete('/:id', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId

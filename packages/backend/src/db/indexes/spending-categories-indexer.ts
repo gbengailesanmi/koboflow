@@ -24,7 +24,6 @@ export async function ensureUserCategoriesIndexes() {
     { name: 'idx_categories_id' }
   )
 
-  // Index on categories.keywords for transaction categorization
   await collection.createIndex(
     { 'categories.keywords': 1 },
     { name: 'idx_categories_keywords' }
@@ -33,7 +32,6 @@ export async function ensureUserCategoriesIndexes() {
   console.log(`✓ ${COLLECTION} indexes created successfully`)
 }
 
-// Run if executed directly
 if (require.main === module) {
   ensureUserCategoriesIndexes()
     .then(() => {

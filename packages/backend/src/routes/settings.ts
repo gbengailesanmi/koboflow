@@ -40,7 +40,6 @@ settingsRoutes.patch('/', authMiddleware, async (req: AuthRequest, res) => {
 
     const updates = req.body
 
-    // Prevent updating customerId
     if ('customerId' in updates) {
       delete updates.customerId
     }
@@ -76,7 +75,6 @@ settingsRoutes.delete('/account', authMiddleware, async (req: AuthRequest, res) 
 
     const db = await connectDB()
     
-    // Delete all user data across all collections
     const results = await Promise.all([
       db.collection('users').deleteOne({ customerId }),
       db.collection('accounts').deleteMany({ customerId }),
@@ -117,7 +115,6 @@ settingsRoutes.delete('/account', authMiddleware, async (req: AuthRequest, res) 
   }
 })
 
-// Set PIN
 settingsRoutes.post('/pin/set', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
@@ -132,12 +129,10 @@ settingsRoutes.post('/pin/set', authMiddleware, async (req: AuthRequest, res) =>
       return res.status(400).json({ error: 'PIN and password are required' })
     }
 
-    // Validate PIN format (must be 4-6 digits)
     if (!/^\d{4,6}$/.test(pin)) {
       return res.status(400).json({ error: 'PIN must be 4-6 digits' })
     }
 
-    // Verify user's password
     const db = await connectDB()
     const user = await db.collection('users').findOne({ customerId })
     
@@ -152,10 +147,8 @@ settingsRoutes.post('/pin/set', authMiddleware, async (req: AuthRequest, res) =>
       return res.status(401).json({ error: 'Invalid password' })
     }
 
-    // Encrypt PIN
     const encryptedPIN = encryptPIN(pin, password)
 
-    // Update settings
     const result = await updateUserSettings(customerId, {
       security: {
         pinHash: encryptedPIN,
@@ -178,7 +171,6 @@ settingsRoutes.post('/pin/set', authMiddleware, async (req: AuthRequest, res) =>
   }
 })
 
-// Change PIN
 settingsRoutes.post('/pin/change', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
@@ -193,19 +185,16 @@ settingsRoutes.post('/pin/change', authMiddleware, async (req: AuthRequest, res)
       return res.status(400).json({ error: 'Old PIN, new PIN, and password are required' })
     }
 
-    // Validate new PIN format
     if (!/^\d{4,6}$/.test(newPin)) {
       return res.status(400).json({ error: 'New PIN must be 4-6 digits' })
     }
 
-    // Get current settings
     const settings = await getUserSettings(customerId)
     
     if (!settings || !settings.security?.pinHash) {
       return res.status(400).json({ error: 'No PIN is currently set' })
     }
 
-    // Verify password
     const db = await connectDB()
     const user = await db.collection('users').findOne({ customerId })
     
@@ -220,17 +209,14 @@ settingsRoutes.post('/pin/change', authMiddleware, async (req: AuthRequest, res)
       return res.status(401).json({ error: 'Invalid password' })
     }
 
-    // Verify old PIN
     const decryptedOldPin = decryptPIN(settings.security.pinHash, password)
     
     if (!decryptedOldPin || decryptedOldPin !== oldPin) {
       return res.status(401).json({ error: 'Invalid old PIN' })
     }
 
-    // Encrypt new PIN
     const encryptedNewPIN = encryptPIN(newPin, password)
 
-    // Update settings
     const result = await updateUserSettings(customerId, {
       security: {
         ...settings.security,
@@ -252,7 +238,6 @@ settingsRoutes.post('/pin/change', authMiddleware, async (req: AuthRequest, res)
   }
 })
 
-// Verify PIN
 settingsRoutes.post('/pin/verify', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
@@ -267,14 +252,12 @@ settingsRoutes.post('/pin/verify', authMiddleware, async (req: AuthRequest, res)
       return res.status(400).json({ error: 'PIN and password are required' })
     }
 
-    // Get current settings
     const settings = await getUserSettings(customerId)
     
     if (!settings || !settings.security?.pinHash) {
       return res.status(400).json({ error: 'No PIN is set' })
     }
 
-    // Verify password
     const db = await connectDB()
     const user = await db.collection('users').findOne({ customerId })
     
@@ -289,7 +272,6 @@ settingsRoutes.post('/pin/verify', authMiddleware, async (req: AuthRequest, res)
       return res.status(401).json({ error: 'Invalid password' })
     }
 
-    // Decrypt and verify PIN
     const decryptedPin = decryptPIN(settings.security.pinHash, password)
     
     if (!decryptedPin || decryptedPin !== pin) {
@@ -311,7 +293,6 @@ settingsRoutes.post('/pin/verify', authMiddleware, async (req: AuthRequest, res)
   }
 })
 
-// Change Password
 settingsRoutes.post('/password/change', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
@@ -334,7 +315,6 @@ settingsRoutes.post('/password/change', authMiddleware, async (req: AuthRequest,
       return res.status(400).json({ error: 'New password must be at least 8 characters' })
     }
 
-    // Get user
     const db = await connectDB()
     const user = await db.collection('users').findOne({ customerId })
     
@@ -342,7 +322,6 @@ settingsRoutes.post('/password/change', authMiddleware, async (req: AuthRequest,
       return res.status(404).json({ error: 'User not found' })
     }
 
-    // Verify current password
     const bcrypt = await import('bcrypt')
     const passwordMatch = await bcrypt.compare(currentPassword, user.password)
     
@@ -350,23 +329,18 @@ settingsRoutes.post('/password/change', authMiddleware, async (req: AuthRequest,
       return res.status(401).json({ error: 'Current password is incorrect' })
     }
 
-    // Hash new password
     const hashedNewPassword = await bcrypt.hash(newPassword, 10)
 
-    // Update password
     await db.collection('users').updateOne(
       { customerId },
       { $set: { password: hashedNewPassword, updatedAt: new Date() } }
     )
 
-    // If user has PIN set, we need to re-encrypt it with new password
     const settings = await getUserSettings(customerId)
     if (settings?.security?.pinHash) {
-      // Decrypt PIN with old password
       const decryptedPin = decryptPIN(settings.security.pinHash, currentPassword)
       
       if (decryptedPin) {
-        // Re-encrypt with new password
         const newEncryptedPIN = encryptPIN(decryptedPin, newPassword)
         
         await updateUserSettings(customerId, {

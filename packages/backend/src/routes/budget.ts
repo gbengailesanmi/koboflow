@@ -16,7 +16,6 @@ import { connectDB } from '../db/mongo'
 
 export const budgetRoutes = Router()
 
-// Get all budgets for the user
 budgetRoutes.get('/all', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
@@ -33,7 +32,6 @@ budgetRoutes.get('/all', authMiddleware, async (req: AuthRequest, res) => {
   }
 })
 
-// Get active budget (backwards compatibility)
 budgetRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
@@ -63,7 +61,6 @@ budgetRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
   }
 })
 
-// Get specific budget by ID
 budgetRoutes.get('/:budgetId', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
@@ -86,7 +83,6 @@ budgetRoutes.get('/:budgetId', authMiddleware, async (req: AuthRequest, res) => 
   }
 })
 
-// Create a new budget
 budgetRoutes.post('/create', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
@@ -156,7 +152,6 @@ budgetRoutes.post('/create', authMiddleware, async (req: AuthRequest, res) => {
   }
 })
 
-// Update existing budget by ID
 budgetRoutes.put('/:budgetId', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
@@ -215,7 +210,6 @@ budgetRoutes.put('/:budgetId', authMiddleware, async (req: AuthRequest, res) => 
   }
 })
 
-// Set a budget as active
 budgetRoutes.post('/:budgetId/activate', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
@@ -237,7 +231,6 @@ budgetRoutes.post('/:budgetId/activate', authMiddleware, async (req: AuthRequest
   }
 })
 
-// Delete a budget
 budgetRoutes.delete('/:budgetId', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId

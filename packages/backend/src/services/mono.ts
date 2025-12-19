@@ -7,13 +7,9 @@
  */
 
 import config from '../config'
-import { hasher } from '../db/helpers/hasher'
 
 const MONO_API_BASE = 'https://api.withmono.com/v2'
 
-// ============================================================================
-// Types
-// ============================================================================
 
 export interface MonoCustomer {
   name: string
@@ -25,43 +21,74 @@ export interface MonoMeta {
 }
 
 export interface MonoInitiateRequest {
-  customer: MonoCustomer
-  meta?: MonoMeta
+  customer: {
+    name?: string
+    email?: string
+    id?: string // When supplying this, name and email are optional
+  }
+  meta?: {
+    ref?: string // Unique reference (Minimum of 10 characters)
+  }
   scope: 'auth' | 'reauth'
+  institution?: {
+    id?: string
+    auth_method?: 'mobile_banking' | 'internet_banking'
+  }
   redirect_url: string
   account?: string // Required for reauth
 }
 
 export interface MonoInitiateResponse {
-  mono_url: string
-  customer: string
-  reference: string
+  status: string
+  message: string
+  timestamp: string
+  data: {
+    mono_url: string
+    customer: string
+    meta?: {
+      ref?: string
+    }
+    scope: string
+    institution: Record<string, any>
+    redirect_url: string
+    is_multi: boolean
+    created_at: string
+  }
 }
 
 export interface MonoAuthResponse {
-  id: string // Account ID
+  status: string
+  message: string
+  timestamp: string
+  data: {
+    id: string // Account ID
+  }
 }
 
 export interface MonoAccountDetails {
-  id: string
-  name: string
-  account_number: string
-  currency: string
-  balance: number
-  auth_method: string
-  status: string
-  bvn: string
-  type: string
-  institution: {
+  account: {
     id: string
     name: string
-    bank_code: string
+    account_number: string
+    currency: string
+    balance: number
+    bvn: string | null
     type: string
+    institution: {
+      name: string
+      bank_code: string
+      type: string
+    }
   }
   customer: {
     id: string
-    name: string
-    email: string
+  }
+  meta: {
+    data_status: 'AVAILABLE' | 'PARTIAL' | 'UNAVAILABLE' | 'FAILED' | 'PROCESSING'
+    auth_method: string
+    data_request_id?: string
+    session_id?: string
+    retrieved_data?: string[]
   }
 }
 
@@ -152,9 +179,6 @@ export interface MonoAssets {
   }>
 }
 
-// ============================================================================
-// Helper Functions
-// ============================================================================
 
 /**
  * Make authenticated request to Mono API
@@ -211,91 +235,60 @@ export function formatDate(date: Date): string {
   return `${day}-${month}-${year}`
 }
 
-// ============================================================================
-// Authorisation Endpoints
-// ============================================================================
-
-/**
- * POST /v2/accounts/initiate
- * Initiates linking a user's account
- */
-export async function initiateAccountLinking(
-  customer: MonoCustomer,
-  redirectUrl: string,
-  meta?: MonoMeta
-): Promise<MonoInitiateResponse> {
-  const response = await monoFetch<{ data: MonoInitiateResponse }>('/accounts/initiate', {
-    method: 'POST',
-    body: JSON.stringify({
-      customer,
-      meta,
-      scope: 'auth',
-      redirect_url: redirectUrl,
-    }),
-  })
-  return response.data
-}
-
-/**
- * POST /v2/accounts/initiate (reauth)
- * Initiates account reauthorization
- */
-export async function initiateAccountReauth(
-  accountId: string,
-  redirectUrl: string,
-  meta?: MonoMeta
-): Promise<MonoInitiateResponse> {
-  const response = await monoFetch<{ data: MonoInitiateResponse }>('/accounts/initiate', {
-    method: 'POST',
-    body: JSON.stringify({
-      meta,
-      scope: 'reauth',
-      account: accountId,
-      redirect_url: redirectUrl,
-    }),
-  })
-  return response.data
-}
 
 /**
  * POST /v2/accounts/auth
  * Exchange code from Mono Connect widget for account ID
+ * The code comes from the redirect_url after user authenticates
+ * Example: https://yourdomain.com/callback?code=code_xyz123
  */
 export async function exchangeToken(code: string): Promise<string> {
-  const response = await monoFetch<{ data: MonoAuthResponse }>('/accounts/auth', {
+  const response = await monoFetch<MonoAuthResponse>('/accounts/auth', {
     method: 'POST',
     body: JSON.stringify({ code }),
   })
   return response.data.id
 }
 
-// ============================================================================
-// Account Endpoints
-// ============================================================================
 
 /**
  * GET /v2/accounts/{id}
- * Get account details
+ * Fetch account details with exact Mono API response format
+ * Returns full response with status, message, timestamp, and data
  */
-export async function getAccountDetails(accountId: string): Promise<MonoAccountDetails> {
-  const response = await monoFetch<{ data: MonoAccountDetails }>(`/accounts/${accountId}`)
-  return response.data
+export async function fetchAccountDetails(accountId: string, realtime: boolean = false): Promise<{
+  status: string
+  message: string
+  timestamp: string
+  data: MonoAccountDetails
+}> {
+  const headers: Record<string, string> = {}
+  if (realtime) {
+    headers['x-realtime'] = 'true'
+  }
+  
+  return monoFetch<{
+    status: string
+    message: string
+    timestamp: string
+    data: MonoAccountDetails
+  }>(`/accounts/${accountId}`, { headers })
 }
 
 /**
  * GET /v2/accounts/{id}/identity
- * Get account identity information
+ * Fetch account identity information
  */
-export async function getAccountIdentity(accountId: string): Promise<MonoAccountIdentity> {
+export async function fetchAccountIdentity(accountId: string): Promise<MonoAccountIdentity> {
   const response = await monoFetch<{ data: MonoAccountIdentity }>(`/accounts/${accountId}/identity`)
   return response.data
 }
 
 /**
  * GET /v2/accounts/{id}/balance
- * Get account balance (with optional real-time flag)
+ * Fetch account balance (with optional real-time flag)
  */
-export async function getAccountBalance(accountId: string, realtime: boolean = false): Promise<MonoAccountBalance> {
+export async function fetchAccountBalance(accountId: string, realtime: boolean = false): Promise<MonoAccountBalance> {
   const headers: Record<string, string> = {}
   if (realtime) {
     headers['x-realtime'] = 'true'
@@ -320,9 +313,9 @@ export async function unlinkAccount(accountId: string): Promise<void> {
 
 /**
  * POST /v2/accounts/{id}/creditworthiness
- * Get creditworthiness of a user's account
+ * Fetch creditworthiness of a user's account
  */
-export async function getCreditWorthiness(
+export async function fetchCreditWorthiness(
   accountId: string,
   data: MonoCreditWorthinessRequest
 ): Promise<any> {
@@ -333,15 +326,12 @@ export async function getCreditWorthiness(
   return response.data
 }
 
-// ============================================================================
-// Transaction Endpoints
-// ============================================================================
 
 /**
  * GET /v2/accounts/{id}/transactions
- * Get transactions for an account
+ * Fetch transactions for an account
  */
-export async function getTransactions(
+export async function fetchTransactions(
   accountId: string,
   options: {
     start?: string  // dd-mm-yyyy
@@ -370,7 +360,7 @@ export async function getTransactions(
 /**
  * Fetch all transactions (handles pagination)
  */
-export async function getAllTransactions(
+export async function fetchAllTransactions(
   accountId: string,
   options: {
     start?: Date
@@ -383,20 +373,36 @@ export async function getAllTransactions(
   let page = 1
   let hasMore = true
   
-  const startDate = options.start ? formatDate(options.start) : undefined
-  const endDate = options.end ? formatDate(options.end) : formatDate(new Date())
+  const requestOptions: any = {
+    paginate: true,
+    page,
+  }
+  
+  if (options.start) {
+    requestOptions.start = formatDate(options.start)
+    console.log(`[Mono] Using start date: ${requestOptions.start}`)
+  } else {
+    console.log(`[Mono] No start date filter - fetching all available transactions`)
+  }
+  
+  if (options.end) {
+    requestOptions.end = formatDate(options.end)
+    console.log(`[Mono] Using end date: ${requestOptions.end}`)
+  }
+  
+  if (options.narration) {
+    requestOptions.narration = options.narration
+  }
+  
+  if (options.type) {
+    requestOptions.type = options.type
+  }
   
   while (hasMore) {
     console.log(`[Mono] Fetching transactions page ${page}`)
+    requestOptions.page = page
     
-    const response = await getTransactions(accountId, {
-      start: startDate,
-      end: endDate,
-      narration: options.narration,
-      type: options.type,
-      paginate: true,
-      page,
-    })
+    const response = await fetchTransactions(accountId, requestOptions)
     
     const transactions = response.data || []
     console.log(`[Mono] Got ${transactions.length} transactions on page ${page}`)
@@ -406,7 +412,6 @@ export async function getAllTransactions(
     hasMore = response.meta?.next !== null && transactions.length > 0
     page++
     
-    // Safety limit
     if (page > 100) {
       console.warn('[Mono] Reached page limit (100), stopping pagination')
       break
@@ -417,15 +422,12 @@ export async function getAllTransactions(
   return allTransactions
 }
 
-// ============================================================================
-// Statement Endpoints
-// ============================================================================
 
 /**
  * GET /v2/accounts/{id}/statement
- * Get account statement (1-12 months)
+ * Fetch account statement (1-12 months)
  */
-export async function getAccountStatement(
+export async function fetchAccountStatement(
   accountId: string,
   options: MonoStatementOptions
 ): Promise<any> {
@@ -441,46 +443,40 @@ export async function getAccountStatement(
 
 /**
  * GET /v2/accounts/{id}/statement/jobs/{jobId}
- * Get statement job status
+ * Fetch statement job status
  */
-export async function getStatementJobStatus(accountId: string, jobId: string): Promise<any> {
+export async function fetchStatementJobStatus(accountId: string, jobId: string): Promise<any> {
   const response = await monoFetch<{ data: any }>(
     `/accounts/${accountId}/statement/jobs/${jobId}`
   )
   return response.data
 }
 
-// ============================================================================
-// Investment Endpoints
-// ============================================================================
 
 /**
  * GET /v2/accounts/{id}/earnings
- * Get earnings from investment accounts
+ * Fetch earnings from investment accounts
  */
-export async function getAccountEarnings(accountId: string): Promise<MonoEarnings> {
+export async function fetchAccountEarnings(accountId: string): Promise<MonoEarnings> {
   const response = await monoFetch<{ data: MonoEarnings }>(`/accounts/${accountId}/earnings`)
   return response.data
 }
 
 /**
  * GET /v2/accounts/{id}/assets
- * Get assets from investment accounts
+ * Fetch assets from investment accounts
  */
-export async function getAccountAssets(accountId: string): Promise<MonoAssets> {
+export async function fetchAccountAssets(accountId: string): Promise<MonoAssets> {
   const response = await monoFetch<{ data: MonoAssets }>(`/accounts/${accountId}/assets`)
   return response.data
 }
 
-// ============================================================================
-// Data Enrichment Endpoints
-// ============================================================================
 
 /**
  * GET /v2/enrichments/{id}/transaction-categorisation
- * Get transaction categories (call when categories are null)
+ * Fetch transaction categories (call when categories are null)
  */
-export async function getTransactionCategorisation(accountId: string): Promise<any> {
+export async function fetchTransactionCategorisation(accountId: string): Promise<any> {
   const response = await monoFetch<{ data: any }>(
     `/enrichments/${accountId}/transaction-categorisation`
   )
@@ -489,18 +485,15 @@ export async function getTransactionCategorisation(accountId: string): Promise<a
 
 /**
  * GET /v2/enrichments/{id}/statement-insights
- * Get statement insights/analytics
+ * Fetch statement insights/analytics
  */
-export async function getStatementInsights(accountId: string): Promise<any> {
+export async function fetchStatementInsights(accountId: string): Promise<any> {
   const response = await monoFetch<{ data: any }>(
     `/enrichments/${accountId}/statement-insights`
   )
   return response.data
 }
 
-// ============================================================================
-// Account Sync
-// ============================================================================
 
 /**
  * POST /v2/accounts/{id}/sync
@@ -514,86 +507,41 @@ export async function syncAccount(accountId: string): Promise<{ status: string }
   return response.data
 }
 
-// ============================================================================
-// Helper: List All Accounts
-// ============================================================================
-
-/**
- * GET /v2/accounts
- * List all linked accounts (useful to find account IDs)
- */
-export async function listAllAccounts(): Promise<MonoAccountDetails[]> {
-  const response = await monoFetch<{ data: MonoAccountDetails[], meta: any }>('/accounts')
-  return response.data
-}
-
-/**
- * Get accounts for a specific customer ID
- */
-export async function getAccountsByCustomerId(customerId: string): Promise<MonoAccountDetails[]> {
-  const allAccounts = await listAllAccounts()
-  return allAccounts.filter(acc => acc.customer?.id === customerId)
-}
-
-// ============================================================================
-// Data Formatting Helpers
-// ============================================================================
 
 /**
  * Format Mono account for storage in our database
+ * Preserves exact Mono API format and adds customer context
  */
 export function formatAccountForStorage(
-  account: MonoAccountDetails,
+  response: MonoAccountDetails,
   appCustomerId: string
 ): any {
+  const { account, customer, meta } = response
   return {
     id: account.id,
-    customerId: appCustomerId,
-    uniqueId: hasher(`${account.account_number}${account.institution.bank_code}`),
     name: account.name,
-    type: account.type,
-    accountNumber: account.account_number,
-    balance: (account.balance / 100).toFixed(2), // Convert kobo to naira
-    balanceRaw: account.balance,
     currency: account.currency,
+    type: account.type,
+    account_number: account.account_number,
+    balance: account.balance,
+    bvn: account.bvn,
     institution: {
       name: account.institution.name,
-      bankCode: account.institution.bank_code,
+      bank_code: account.institution.bank_code,
       type: account.institution.type,
     },
-    bvn: account.bvn,
-    status: account.status,
-    authMethod: account.auth_method,
-    monoCustomerId: account.customer?.id,
-    monoCustomerEmail: account.customer?.email,
+    
+    customerId: appCustomerId,
+    monoCustomerId: customer.id,
+    
+    meta: {
+      data_status: meta.data_status,
+      auth_method: meta.auth_method,
+      data_request_id: meta.data_request_id,
+      session_id: meta.session_id,
+      retrieved_data: meta.retrieved_data,
+    },
     lastRefreshed: new Date(),
     provider: 'mono',
   }
-}
-
-/**
- * Format Mono transactions for storage in our database
- */
-export function formatTransactionsForStorage(
-  transactions: MonoTransaction[],
-  accountId: string,
-  accountUniqueId: string,
-  appCustomerId: string
-): any[] {
-  return transactions.map(txn => ({
-    id: txn.id,
-    transactionUniqueId: hasher(`${txn.id}${accountId}${txn.date}`),
-    accountUniqueId,
-    accountId,
-    customerId: appCustomerId,
-    amount: (txn.amount / 100).toFixed(2), // Convert kobo to naira
-    amountRaw: txn.amount,
-    type: txn.type,
-    narration: txn.narration?.toLowerCase().trim() || '',
-    currencyCode: txn.currency,
-    category: txn.category,
-    balance: txn.balance,
-    bookedDate: new Date(txn.date),
-    provider: 'mono',
-  }))
 }

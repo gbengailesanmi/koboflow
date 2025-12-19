@@ -2,7 +2,6 @@ import { connectDB } from '../mongo'
 import type { Budget, CategoryBudget, BudgetPeriod } from '@money-mapper/shared'
 import { ObjectId } from 'mongodb'
 
-// Get all budgets for a customer
 export async function getBudgets(customerId: string): Promise<Budget[]> {
   const db = await connectDB()
   return db.collection('budgets')
@@ -11,7 +10,6 @@ export async function getBudgets(customerId: string): Promise<Budget[]> {
     .toArray() as Promise<Budget[]>
 }
 
-// Get a specific budget by ID
 export async function getBudgetById(customerId: string, budgetId: string): Promise<Budget | null> {
   const db = await connectDB()
   return db.collection('budgets').findOne({ 
@@ -20,7 +18,6 @@ export async function getBudgetById(customerId: string, budgetId: string): Promi
   }) as Promise<Budget | null>
 }
 
-// Get the active budget for a customer
 export async function getActiveBudget(customerId: string): Promise<Budget | null> {
   const db = await connectDB()
   return db.collection('budgets').findOne({ 
@@ -29,12 +26,10 @@ export async function getActiveBudget(customerId: string): Promise<Budget | null
   }) as Promise<Budget | null>
 }
 
-// Legacy: Get single budget (backwards compatibility - returns active budget)
 export async function getBudget(customerId: string): Promise<Budget | null> {
   return getActiveBudget(customerId)
 }
 
-// Create a new budget
 export async function createBudget(
   customerId: string,
   name: string,
@@ -45,13 +40,11 @@ export async function createBudget(
 ): Promise<string> {
   const db = await connectDB()
   
-  // Check budget count limit
   const budgetCount = await db.collection('budgets').countDocuments({ customerId })
   if (budgetCount >= 10) {
     throw new Error('Maximum of 10 budgets allowed per user')
   }
   
-  // If setAsActive, deactivate all other budgets
   if (setAsActive) {
     await db.collection('budgets').updateMany(
       { customerId },
@@ -73,7 +66,6 @@ export async function createBudget(
   return result.insertedId.toString()
 }
 
-// Update an existing budget
 export async function updateBudgetById(
   customerId: string,
   budgetId: string,
@@ -101,24 +93,20 @@ export async function updateBudgetById(
   )
 }
 
-// Set a budget as active (deactivates all others)
 export async function setActiveBudget(customerId: string, budgetId: string): Promise<void> {
   const db = await connectDB()
   
-  // Deactivate all budgets
   await db.collection('budgets').updateMany(
     { customerId },
     { $set: { isActive: false, updatedAt: new Date() } }
   )
   
-  // Activate the selected budget
   await db.collection('budgets').updateOne(
     { _id: new ObjectId(budgetId), customerId },
     { $set: { isActive: true, updatedAt: new Date() } }
   )
 }
 
-// Delete a budget
 export async function deleteBudget(customerId: string, budgetId: string): Promise<void> {
   const db = await connectDB()
   
@@ -127,7 +115,6 @@ export async function deleteBudget(customerId: string, budgetId: string): Promis
     throw new Error('Budget not found')
   }
   
-  // If deleting the active budget, activate another one if available
   if (budget.isActive) {
     const otherBudgets = await db.collection('budgets')
       .find({ customerId, _id: { $ne: new ObjectId(budgetId) } })
@@ -149,7 +136,6 @@ export async function deleteBudget(customerId: string, budgetId: string): Promis
   })
 }
 
-// Legacy functions for backwards compatibility
 export async function upsertBudget(
   customerId: string, 
   totalBudgetLimit: number, 

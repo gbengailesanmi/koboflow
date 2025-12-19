@@ -3,7 +3,6 @@ import {
   UserSpendingCategories, 
   SpendingCategory, 
   SpendingCategoryInput,
-  // Legacy aliases for backwards compatibility
   UserCategories,
   Category,
   CategoryInput
@@ -26,7 +25,6 @@ export async function getUserCategories(customerId: string): Promise<UserCategor
   if (!userCategories) {
     console.log(`[Categories] Creating new categories document for user: ${customerId}`)
     
-    // Create new document with default categories
     const now = new Date()
     const defaultCategories: Category[] = DEFAULT_CATEGORIES.map(cat => ({
       ...cat,
@@ -79,7 +77,6 @@ export async function addCategory(
   customerId: string, 
   input: CategoryInput
 ): Promise<Category> {
-  // Ensure user categories document exists first
   await getUserCategories(customerId)
   
   const db = await connectDB()
@@ -133,12 +130,10 @@ export async function updateCategory(
   
   const category = userCategories.categories[categoryIndex]
   
-  // Only allow editing custom categories
   if (!category.isEditable) {
     throw new Error('Cannot edit default categories')
   }
   
-  // Build update object
   const now = new Date()
   const updateFields: any = {}
   
@@ -178,7 +173,6 @@ export async function deleteCategory(
   
   if (!category) return false
   
-  // Only allow deleting custom categories
   if (!category.isEditable) {
     throw new Error('Cannot delete default categories')
   }

@@ -62,11 +62,9 @@ authRoutes.post('/signup', async (req, res) => {
     console.log(`[Signup]    - Name: ${firstName} ${lastName}`)
     console.log(`[Signup]    - Email: ${normalizedEmail}`)
 
-    // Initialize user settings
     await createUserSettings(customerId)
     console.log(`[Signup] ✅ User settings created`)
     
-    // Initialize user categories (default + empty custom categories array)
     const userCategories = await initializeUserCategories(customerId)
     console.log(`[Signup] ✅ User categories initialized`)
     console.log(`[Signup]    - Default categories: ${userCategories.categories.filter(c => c.isDefault).length}`)
@@ -128,7 +126,6 @@ authRoutes.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Invalid credentials.' })
     }
 
-    // Create server-side session
     const sessionId = await createSession(
       user.customerId,
       user.email,
@@ -173,7 +170,6 @@ authRoutes.post('/logout', authMiddleware, async (req: AuthRequest, res) => {
     const sessionId = req.sessionId
 
     if (sessionId) {
-      // Delete session from database
       await deleteSession(sessionId)
     }
 
@@ -197,7 +193,6 @@ authRoutes.post('/logout', authMiddleware, async (req: AuthRequest, res) => {
   }
 })
 
-// New endpoint: Logout from all devices
 authRoutes.post('/logout-all', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
@@ -206,7 +201,6 @@ authRoutes.post('/logout-all', authMiddleware, async (req: AuthRequest, res) => 
       return res.status(401).json({ message: 'Unauthorized' })
     }
 
-    // Delete all sessions for this user
     const deletedCount = await deleteAllUserSessions(customerId)
 
     res.clearCookie('session-id', {
@@ -229,7 +223,6 @@ authRoutes.post('/logout-all', authMiddleware, async (req: AuthRequest, res) => 
   }
 })
 
-// New endpoint: Get active sessions
 authRoutes.get('/sessions', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
@@ -789,7 +782,6 @@ authRoutes.get('/google/callback', async (req, res) => {
       user.emailVerified = true
     }
 
-    // Create server-side session for Google OAuth user
     const sessionId = await createSession(
       user.customerId,
       user.email,
@@ -825,7 +817,6 @@ authRoutes.get('/google/callback', async (req, res) => {
         <body>
           <p>Login successful! Redirecting...</p>
           <script>
-            // Delay to ensure cookie is set
             setTimeout(() => {
               window.location.href = '${frontendUrl}/${user.customerId}/dashboard';
             }, 50);

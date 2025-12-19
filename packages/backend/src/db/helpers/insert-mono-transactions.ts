@@ -1,9 +1,19 @@
 import { transactionIndexer } from './indexes/transaction-indexer'
 
-async function insertMonoTransactions(transactions: any[], customerId: string, connectDB: any) {
+/**
+ * Insert Mono transactions in exact API format
+ * Stores the exact Mono transaction object plus metadata
+ */
+async function insertMonoTransactions(
+  transactions: any[], 
+  customerId: string, 
+  accountId: string,
+  connectDB: any
+) {
   if (!Array.isArray(transactions) || transactions.length === 0) return
 
   if (!customerId) throw new Error('Customer ID is required')
+  if (!accountId) throw new Error('Account ID is required')
 
   const db = await connectDB()
   const txnCollection = db.collection('transactions')
@@ -11,33 +21,48 @@ async function insertMonoTransactions(transactions: any[], customerId: string, c
 
   const records = transactions.map((txn: any) => ({
     id: txn.id,
-    transactionUniqueId: txn.transactionUniqueId,
-    accountUniqueId: txn.accountUniqueId,
-    accountId: txn.accountId,
-    customerId,
-    amount: txn.amount,
-    amountRaw: txn.amountRaw,
-    unscaledValue: txn.amountRaw, // For compatibility with existing code
-    scale: 2, // Mono uses kobo (2 decimal places)
-    type: txn.type, // 'debit' or 'credit'
     narration: txn.narration,
-    currencyCode: txn.currencyCode,
-    category: txn.category,
+    amount: txn.amount,
+    type: txn.type,
     balance: txn.balance,
-    bookedDate: txn.bookedDate,
-    provider: 'mono',
+    date: txn.date,
+    category: txn.category,
+    accountId,
+    customerId,
+  }))
+
+  const bulkOps = records.map((record) => ({
+    updateOne: {
+      filter: { 
+        customerId: record.customerId,
+        id: record.id 
+      },
+      update: { $set: record },
+      upsert: true,
+    },
   }))
 
   try {
-    await txnCollection.insertMany(records, { ordered: false })
+    const result = await txnCollection.bulkWrite(bulkOps, { ordered: false })
+    console.log(`Transaction insert result:`, {
+      inserted: result.upsertedCount,
+      updated: result.modifiedCount,
+      matched: result.matchedCount,
+      total: records.length,
+    })
   } catch (err: any) {
-    // Ignore duplicate key errors (11000)
-    if (err.code !== 11000) throw err
+    console.error('Error inserting transactions:', err.message)
+    throw err
   }
 }
 
-async function bulkInsertMonoTransactions(transactions: any[], customerId: string, connectDB: any) {
-  return insertMonoTransactions(transactions, customerId, connectDB)
+async function bulkInsertMonoTransactions(
+  transactions: any[], 
+  customerId: string, 
+  accountId: string,
+  connectDB: any
+) {
+  return insertMonoTransactions(transactions, customerId, accountId, connectDB)
 }
 
 export { bulkInsertMonoTransactions }

@@ -19,7 +19,6 @@ import { cleanupExpiredSessions } from './services/session'
 const app: Express = express()
 const BACKEND_PORT = config.BACKEND_PORT
 
-// Clean up expired sessions every hour
 setInterval(async () => {
   try {
     const deletedCount = await cleanupExpiredSessions()
@@ -29,7 +28,6 @@ setInterval(async () => {
   }
 }, 60 * 60 * 1000) // 1 hour in milliseconds
 
-// Run cleanup on startup
 cleanupExpiredSessions()
   .then(count => console.log(`[Startup] Cleaned up ${count} expired sessions`))
   .catch(err => console.error('[Startup] Failed to clean up sessions:', err))
@@ -48,7 +46,6 @@ app.use(cors({
 
 app.use(cookieParser())
 
-// Special handling for Mono webhook to preserve raw body for signature verification
 app.use('/api/mono/webhook', express.json({
   verify: (req: any, _res, buf) => {
     req.rawBody = buf.toString()

@@ -29,7 +29,6 @@ export function encryptPIN(pin: string, password: string): string {
   
   const authTag = cipher.getAuthTag()
   
-  // Combine all parts: salt:iv:authTag:encrypted
   return [
     salt.toString('base64'),
     iv.toString('base64'),

@@ -5,7 +5,6 @@ export async function createSettingsIndexes() {
     const db = await connectDB()
     const collection = db.collection('settings')
 
-    // Create unique index on customerId
     await collection.createIndex(
       { customerId: 1 },
       { 
@@ -14,7 +13,6 @@ export async function createSettingsIndexes() {
       }
     )
 
-    // Create index for efficient lookups
     await collection.createIndex(
       { updatedAt: -1 },
       { name: 'updatedAt_desc' }
