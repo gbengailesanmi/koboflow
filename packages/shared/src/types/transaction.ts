@@ -11,6 +11,7 @@ export type MonoTransaction = {
 export type Transaction = MonoTransaction & {
   accountId: string
   customerId: string
+  hash?: string
 }
 
 export type MonoTransactionsResponse = {
