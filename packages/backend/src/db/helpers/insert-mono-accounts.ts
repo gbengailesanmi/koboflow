@@ -27,7 +27,11 @@ async function insertMonoAccounts(accounts: any[], customerId: string, connectDB
   try {
     for (const record of records) {
       await accountCollection.updateOne(
-        { id: record.id, customerId },
+        { 
+          customerId,
+          account_number: record.account_number,
+          'institution.bank_code': record.institution.bank_code
+        },
         { $set: record },
         { upsert: true }
       )
