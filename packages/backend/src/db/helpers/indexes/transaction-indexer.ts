@@ -1,8 +1,4 @@
-let transactionsIndexed = false
-
-async function transactionIndexer(txnCollection: any) {
-  if (transactionsIndexed) return
-
+export async function transactionIndexer(txnCollection: any) {
   await txnCollection.createIndex(
     { customerId: 1, id: 1 },
     { unique: true }
@@ -12,7 +8,8 @@ async function transactionIndexer(txnCollection: any) {
     { customerId: 1, date: -1 }
   )
 
-  transactionsIndexed = true
+await txnCollection.createIndex(
+    { hash: 1 },
+    { unique: true, sparse: true }
+  )
 }
-
-export { transactionIndexer }

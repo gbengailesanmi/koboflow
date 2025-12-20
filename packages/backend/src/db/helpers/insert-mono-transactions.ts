@@ -1,4 +1,17 @@
+import { createHash } from 'crypto'
 import { transactionIndexer } from './indexes/transaction-indexer'
+
+function generateTransactionHash(
+  customerId: string,
+  accountId: string,
+  amount: number,
+  date: string,
+  narration: string,
+  type: string
+): string {
+  const data = `${customerId}${accountId}${amount}${date}${narration}${type}`
+  return createHash('sha256').update(data).digest('hex')
+}
 
 /**
  * Insert Mono transactions in exact API format
@@ -29,6 +42,14 @@ async function insertMonoTransactions(
     category: txn.category,
     accountId,
     customerId,
+    hash: generateTransactionHash(
+      customerId,
+      accountId,
+      txn.amount,
+      txn.date,
+      txn.narration,
+      txn.type
+    ),
   }))
 
   const bulkOps = records.map((record) => ({
