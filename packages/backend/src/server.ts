@@ -90,5 +90,3 @@ app.use((err: any, _req: Request, res: Response, _next: any) => {
 app.listen(BACKEND_PORT, () => {
   console.log(`🚀 Backend server running on port ${BACKEND_PORT}`)
 })
-
-export default app
