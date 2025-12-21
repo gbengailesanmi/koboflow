@@ -1,4 +1,5 @@
 import config from '../config'
+import { normalizeTestAccountNumber } from '../test-helpers/account-normalizer'
 
 const MONO_API_BASE = 'https://api.withmono.com/v2'
 
@@ -427,12 +428,18 @@ export function formatAccountForStorage(
   appCustomerId: string
 ): any {
   const { account, customer, meta } = response
+  
+  const normalizedAccountNumber = normalizeTestAccountNumber(
+    account.account_number,
+    account.institution.bank_code
+  )
+  
   return {
     id: account.id,
     name: account.name,
     currency: account.currency,
     type: account.type,
-    account_number: account.account_number,
+    account_number: normalizedAccountNumber,
     balance: account.balance,
     bvn: account.bvn,
     institution: {
@@ -455,3 +462,6 @@ export function formatAccountForStorage(
     provider: 'mono',
   }
 }
+
+export { normalizeTestAccountNumber } from '../test-helpers/account-normalizer'
+

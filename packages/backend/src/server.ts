@@ -89,4 +89,8 @@ app.use((err: any, _req: Request, res: Response, _next: any) => {
 
 app.listen(BACKEND_PORT, () => {
   console.log(`🚀 Backend server running on port ${BACKEND_PORT}`)
+  console.log(`🧪 Test Mode: ${!config.IS_PRODUCTION ? 'ENABLED ✅' : 'DISABLED ❌'}`)
+  if (!config.IS_PRODUCTION) {
+    console.log(`   → Account numbers will be normalized for testing`)
+  }
 })

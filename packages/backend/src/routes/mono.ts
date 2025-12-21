@@ -7,11 +7,13 @@ import {
   fetchTransactions,
   formatAccountForStorage,
   fetchAllTransactions,
+  normalizeTestAccountNumber,
 } from '../services/mono'
 import { bulkInsertMonoAccounts } from '../db/helpers/insert-mono-accounts'
 import { bulkInsertMonoTransactions } from '../db/helpers/insert-mono-transactions'
 import { updateCustomerDetailsFromMono } from '../db/helpers/update-customer-details-from-mono'
 import { connectDB } from '../db/mongo'
+import config from '../config'
 
 export const monoRoutes = Router()
 
@@ -116,6 +118,69 @@ monoRoutes.get('/identity/:accountId', authMiddleware, async (req: AuthRequest, 
   } catch (err: any) {
     console.error('[Mono] Get identity error:', err)
     res.status(500).json({ success: false, error: 'Failed to get account identity', message: err.message })
+  }
+})
+
+// Debug endpoint: Get account normalization info (test mode only)
+monoRoutes.get('/debug/account/:accountId', authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    if (config.IS_PRODUCTION) {
+      return res.status(403).json({ 
+        success: false, 
+        error: 'Debug endpoints not available in production' 
+      })
+    }
+
+    const customerId = req.user?.customerId
+    if (!customerId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' })
+    }
+
+    const { accountId } = req.params
+    if (!accountId) {
+      return res.status(400).json({ success: false, error: 'Missing accountId' })
+    }
+
+    // Fetch from Mono
+    const monoResponse = await fetchAccountDetails(accountId)
+    const monoAccount = monoResponse.data.account
+
+    // Fetch from our DB
+    const db = await connectDB()
+    const storedAccount = await db.collection('accounts').findOne({ 
+      customerId,
+      id: accountId 
+    })
+
+    res.json({
+      success: true,
+      debug: {
+        mono: {
+          account_number: monoAccount.account_number,
+          bank_code: monoAccount.institution.bank_code,
+          bank_name: monoAccount.institution.name,
+          bvn: monoAccount.bvn
+        },
+        stored: storedAccount ? {
+          account_number: storedAccount.account_number,
+          bank_code: storedAccount.institution.bank_code,
+          bank_name: storedAccount.institution.name,
+          bvn: storedAccount.bvn,
+          is_normalized: storedAccount.account_number.includes('-')
+        } : null,
+        normalization: {
+          enabled: !config.IS_PRODUCTION,
+          original: monoAccount.account_number,
+          normalized: normalizeTestAccountNumber(
+            monoAccount.account_number,
+            monoAccount.institution.bank_code
+          )
+        }
+      }
+    })
+  } catch (err: any) {
+    console.error('[Mono Debug] Error:', err)
+    res.status(500).json({ success: false, error: err.message })
   }
 })
 
