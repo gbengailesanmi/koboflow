@@ -28,7 +28,6 @@ export function useMonoConnect({ onSuccess, onError }: UseMonoConnectOptions = {
         scope: 'auth',
         
         onSuccess: async ({ code }: { code: string }) => {
-          console.log('[Mono Widget] Received code:', code)
           
           try {
             const result = await processMonoConnection(code)
@@ -37,7 +36,6 @@ export function useMonoConnect({ onSuccess, onError }: UseMonoConnectOptions = {
               throw new Error(result.message || 'Failed to link account')
             }
             
-            console.log(`[Mono Widget] Successfully synced ${result.transactionsCount || 0} transactions`)
             onSuccess?.()
             router.refresh()
           } catch (error: any) {
@@ -49,16 +47,13 @@ export function useMonoConnect({ onSuccess, onError }: UseMonoConnectOptions = {
         },
 
         onClose: () => {
-          console.log('[Mono Widget] Widget closed')
           setIsLoading(false)
         },
 
         onLoad: () => {
-          console.log('[Mono Widget] Widget loaded')
         },
 
         onEvent: (eventName: string, data: any) => {
-          console.log('[Mono Widget] Event:', eventName, data)
         },
       })
 

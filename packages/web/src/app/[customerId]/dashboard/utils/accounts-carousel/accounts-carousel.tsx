@@ -97,23 +97,20 @@ export default function AccountsCarousel({
       const index = emblaApi.selectedScrollSnap()
       setSelectedIndex(index)
 
-      if (index === 0) {
-        setSelectedAccount(null)
-      } else {
-        const account = accounts[index - 1]
-        setSelectedAccount(account?.id ?? null)
-      }
+      const nextAccountId =
+        index === 0 ? null : accounts[index - 1]?.id ?? null
 
-      const hue = slideHue[index] ?? hues[index % hues.length]
+      if (nextAccountId !== selectedAccount) {
+        setSelectedAccount(nextAccountId)
+      }
     }
 
     emblaApi.on('select', onSelect)
-    onSelect() // initial
 
     return () => {
       emblaApi.off('select', onSelect)
     }
-  }, [emblaApi, accounts, setSelectedAccount, hues, slideHue])
+  }, [emblaApi, accounts, selectedAccount, setSelectedAccount])
 
   const handleSetHue = (hue: string) => {
     setSlideHue((prev) => ({
