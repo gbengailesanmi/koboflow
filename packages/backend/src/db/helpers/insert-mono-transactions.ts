@@ -57,8 +57,8 @@ async function insertMonoTransactions(
     category: txn.category,
     accountId,
     customerId,
-    accountNumber,  // Add stable identifier
-    bankCode,       // Add stable identifier
+    accountNumber,
+    bankCode,
     hash: generateTransactionHash(
       customerId,
       accountNumber,

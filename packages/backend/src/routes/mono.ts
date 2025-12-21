@@ -8,6 +8,7 @@ import {
   formatAccountForStorage,
   fetchAllTransactions,
   normalizeTestAccountNumber,
+  syncAccount,
 } from '../services/mono'
 import { bulkInsertMonoAccounts } from '../db/helpers/insert-mono-accounts'
 import { bulkInsertMonoTransactions } from '../db/helpers/insert-mono-transactions'
@@ -297,6 +298,29 @@ monoRoutes.post('/sync-transactions/:accountId', authMiddleware, async (req: Aut
     const { start, end } = req.body
 
     console.log(`[Mono] Syncing transactions for account ${accountId}`)
+
+    // Step 1: Check account data status first
+    const accountDetails = await fetchAccountDetails(accountId)
+    const { data_status, retrieved_data } = accountDetails.data.meta
+    
+    console.log(`[Mono] Account data status: ${data_status}`)
+    console.log(`[Mono] Retrieved data types: ${retrieved_data?.join(', ') || 'none'}`)
+    
+    // Step 2: If transactions not retrieved yet, trigger a sync
+    const hasTransactions = retrieved_data?.some(d => 
+      d.toLowerCase().includes('transaction') || d.toLowerCase().includes('statement')
+    )
+    
+    if (!hasTransactions) {
+      console.log(`[Mono] Transactions not yet retrieved, triggering sync...`)
+      try {
+        await syncAccount(accountId)
+        console.log(`[Mono] ✅ Sync triggered, transactions should be available shortly`)
+        console.log(`[Mono] ℹ️  You may need to retry this request in a few seconds`)
+      } catch (syncErr: any) {
+        console.warn(`[Mono] ⚠️  Sync failed: ${syncErr.message}`)
+      }
+    }
 
     const options: any = {}
     if (start) {
