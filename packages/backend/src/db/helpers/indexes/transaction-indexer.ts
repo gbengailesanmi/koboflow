@@ -8,7 +8,7 @@ export async function transactionIndexer(txnCollection: any) {
     { customerId: 1, date: -1 }
   )
 
-await txnCollection.createIndex(
+  await txnCollection.createIndex(
     { hash: 1 },
     { unique: true, sparse: true }
   )
