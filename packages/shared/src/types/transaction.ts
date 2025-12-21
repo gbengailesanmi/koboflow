@@ -9,9 +9,11 @@ export type MonoTransaction = {
 }
 
 export type Transaction = MonoTransaction & {
-  accountId: string
-  customerId: string
-  hash?: string
+  accountId: string        // Mono's account ID (can change on re-link)
+  customerId: string       // Your app's customer ID
+  accountNumber?: string   // Stable: Bank account number
+  bankCode?: string        // Stable: Bank code
+  hash?: string            // SHA-256 hash for duplicate detection
 }
 
 export type MonoTransactionsResponse = {

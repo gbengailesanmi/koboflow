@@ -745,3 +745,59 @@ export async function syncMonoTransactions(
     return { success: false, message: error.message }
   }
 }
+
+export async function getMonoAccountIdentity(accountId: string): Promise<{
+  success: boolean
+  message?: string
+  data?: {
+    full_name: string
+    email: string
+    phone: string
+    gender: string
+    dob: string
+    bvn: string
+    marital_status: string
+    address_line1: string
+    address_line2: string
+  }
+}> {
+  try {
+    const response = await serverFetch(
+      `${BACKEND_URL}/api/mono/identity/${accountId}`,
+      { cache: 'no-store' }
+    )
+    return await response.json()
+  } catch (error: any) {
+    console.error('getMonoAccountIdentity error:', error)
+    return { success: false, message: error.message }
+  }
+}
+
+export async function getCustomerDetailsFromMono(): Promise<{
+  success: boolean
+  message?: string
+  customerDetailsFromMono?: {
+    full_name: string
+    bvn: string
+    phone: string
+    gender: string
+    dob: string
+    address_line1: string
+    address_line2?: string
+    marital_status: string
+    created_at: string
+    updated_at: string
+  } | null
+  customerDetailsLastUpdated?: Date | null
+}> {
+  try {
+    const response = await serverFetch(
+      `${BACKEND_URL}/api/session/customer-details`,
+      { next: { tags: ['customer-details'] } }
+    )
+    return await response.json()
+  } catch (error: any) {
+    console.error('getCustomerDetailsFromMono error:', error)
+    return { success: false, message: error.message }
+  }
+}
