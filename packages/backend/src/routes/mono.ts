@@ -3,12 +3,14 @@ import { authMiddleware, AuthRequest } from '../middleware/middleware'
 import {
   exchangeToken,
   fetchAccountDetails,
+  fetchAccountIdentity,
   fetchTransactions,
   formatAccountForStorage,
   fetchAllTransactions,
 } from '../services/mono'
 import { bulkInsertMonoAccounts } from '../db/helpers/insert-mono-accounts'
 import { bulkInsertMonoTransactions } from '../db/helpers/insert-mono-transactions'
+import { updateCustomerDetailsFromMono } from '../db/helpers/update-customer-details-from-mono'
 import { connectDB } from '../db/mongo'
 
 export const monoRoutes = Router()
@@ -91,6 +93,32 @@ monoRoutes.get('/details/:accountId', authMiddleware, async (req: AuthRequest, r
   }
 })
 
+monoRoutes.get('/identity/:accountId', authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    const customerId = req.user?.customerId
+    if (!customerId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' })
+    }
+
+    const { accountId } = req.params
+    
+    if (!accountId) {
+      return res.status(400).json({ success: false, error: 'Missing accountId' })
+    }
+
+    console.log(`[Mono] Fetching identity for account ${accountId}`)
+    const identity = await fetchAccountIdentity(accountId)
+    
+    res.json({
+      success: true,
+      data: identity,
+    })
+  } catch (err: any) {
+    console.error('[Mono] Get identity error:', err)
+    res.status(500).json({ success: false, error: 'Failed to get account identity', message: err.message })
+  }
+})
+
 monoRoutes.post('/import/:accountId', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
@@ -105,12 +133,63 @@ monoRoutes.post('/import/:accountId', authMiddleware, async (req: AuthRequest, r
 
     console.log(`[Mono] Importing account ${accountId}`)
 
-    const response = await fetchAccountDetails(accountId)
-    const accountForStorage = formatAccountForStorage(response.data, customerId)
+    // Step 1: Fetch identity data first (contains customer info including BVN)
+    let identity
+    let customerBVN: string | null = null
+    
+    try {
+      console.log(`[Mono] Fetching identity for account ${accountId}`)
+      identity = await fetchAccountIdentity(accountId)
+      customerBVN = identity.bvn
+      console.log(`[Mono] Got identity: BVN=${customerBVN}, Name=${identity.full_name}`)
+      
+      // Step 2: Update customer details in users collection
+      await updateCustomerDetailsFromMono(customerId, identity, connectDB)
+      console.log(`[Mono] ✅ Customer details updated in users collection`)
+    } catch (err: any) {
+      console.warn(`[Mono] ⚠️  Failed to fetch/update identity: ${err.message}`)
+      // Continue without identity data - some accounts may not have it
+      // But try to get existing BVN from user document
+      try {
+        const db = await connectDB()
+        const user = await db.collection('users').findOne({ customerId })
+        if (user?.customerDetailsFromMono?.bvn) {
+          customerBVN = user.customerDetailsFromMono.bvn
+          console.log(`[Mono] Using existing BVN from user: ${customerBVN}`)
+        }
+      } catch (e) {
+        console.warn(`[Mono] Could not fetch existing user BVN`)
+      }
+    }
 
+    // Step 3: Fetch account details
+    const response = await fetchAccountDetails(accountId)
+    const accountBVN = response.data.account.bvn
+
+    // Step 4: Validate BVN match if both are available
+    if (customerBVN && accountBVN && customerBVN !== accountBVN) {
+      console.error(`[Mono] ❌ BVN mismatch!`)
+      console.error(`[Mono]    - Customer BVN: ${customerBVN}`)
+      console.error(`[Mono]    - Account BVN: ${accountBVN}`)
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Account BVN does not match customer BVN. Cannot link account.' 
+      })
+    }
+
+    if (customerBVN && accountBVN) {
+      console.log(`[Mono] ✅ BVN validation passed: ${customerBVN}`)
+    } else if (!accountBVN) {
+      console.warn(`[Mono] ⚠️  Account has no BVN, skipping validation`)
+    } else if (!customerBVN) {
+      console.warn(`[Mono] ⚠️  Customer has no BVN on record, skipping validation`)
+    }
+    
+    // Step 5: Store account
+    const accountForStorage = formatAccountForStorage(response.data, customerId)
     await bulkInsertMonoAccounts([accountForStorage], customerId, connectDB)
 
-    console.log(`[Mono] Successfully imported account ${accountId}`)
+    console.log(`[Mono] ✅ Successfully imported account ${accountId}`)
     res.json({ 
       success: true, 
       accountsCount: 1,

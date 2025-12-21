@@ -28,16 +28,47 @@ async function insertMonoAccounts(accounts: any[], customerId: string, connectDB
     for (const record of records) {
       await accountCollection.updateOne(
         { 
-          customerId,
+          bvn: record.bvn,
           account_number: record.account_number,
           'institution.bank_code': record.institution.bank_code
         },
-        { $set: record },
+        { 
+          $set: {
+            // Update these fields on re-link
+            balance: record.balance,
+            lastRefreshed: record.lastRefreshed,
+            meta: record.meta,
+            name: record.name,
+            currency: record.currency,
+            type: record.type,
+            // Keep new Mono session info
+            monoCustomerId: record.monoCustomerId,
+          },
+          $setOnInsert: {
+            // Only set these on first insert (preserve on re-link)
+            id: record.id,
+            customerId: record.customerId,
+            bvn: record.bvn,
+            account_number: record.account_number,
+            institution: record.institution,
+            provider: record.provider,
+          }
+        },
         { upsert: true }
       )
     }
   } catch (err: any) {
-    if (err.code !== 11000) throw err
+    if (err.code === 11000) {
+      // Duplicate key error - determine which constraint was violated
+      if (err.message.includes('customerId_1_bvn_1')) {
+        throw new Error('Cannot link accounts with different BVNs to the same customer account')
+      }
+      if (err.message.includes('bvn_1_account_number_1')) {
+        throw new Error('This account is already linked to this BVN')
+      }
+      throw new Error('Duplicate account detected')
+    }
+    throw err
   }
 }
 

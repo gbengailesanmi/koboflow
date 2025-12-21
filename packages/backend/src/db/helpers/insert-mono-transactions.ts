@@ -3,13 +3,14 @@ import { transactionIndexer } from './indexes/transaction-indexer'
 
 function generateTransactionHash(
   customerId: string,
-  accountId: string,
+  accountNumber: string,
+  bankCode: string,
   amount: number,
   date: string,
   narration: string,
   type: string
 ): string {
-  const data = `${customerId}${accountId}${amount}${date}${narration}${type}`
+  const data = `${customerId}${accountNumber}${bankCode}${amount}${date}${narration}${type}`
   return createHash('sha256').update(data).digest('hex')
 }
 
@@ -32,6 +33,20 @@ async function insertMonoTransactions(
   const txnCollection = db.collection('transactions')
   await transactionIndexer(txnCollection)
 
+  // Fetch account details to get stable identifiers (account number + bank code)
+  const accountCollection = db.collection('accounts')
+  const account = await accountCollection.findOne({ 
+    customerId,
+    id: accountId 
+  })
+
+  if (!account) {
+    throw new Error(`Account not found: ${accountId}`)
+  }
+
+  const accountNumber = account.account_number
+  const bankCode = account.institution.bank_code
+
   const records = transactions.map((txn: any) => ({
     id: txn.id,
     narration: txn.narration,
@@ -42,9 +57,12 @@ async function insertMonoTransactions(
     category: txn.category,
     accountId,
     customerId,
+    accountNumber,  // Add stable identifier
+    bankCode,       // Add stable identifier
     hash: generateTransactionHash(
       customerId,
-      accountId,
+      accountNumber,
+      bankCode,
       txn.amount,
       txn.date,
       txn.narration,
