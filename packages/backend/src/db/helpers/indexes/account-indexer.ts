@@ -5,6 +5,7 @@ export async function accountIndexer(accountCollection: any) {
 
   // Unique constraint: Same BVN cannot add same account from same bank
   // This prevents duplicate accounts even across app accounts/sessions
+  // Note: BVN is stored as last 4 digits (matching production behavior)
   await accountCollection.createIndex(
     { 
       bvn: 1,
@@ -17,19 +18,15 @@ export async function accountIndexer(accountCollection: any) {
     }
   )
 
-  // Unique constraint: One customerId = One BVN
-  // Prevents linking accounts with different BVNs to same app account
-  await accountCollection.createIndex(
-    { customerId: 1, bvn: 1 },
-    { 
-      unique: true,
-      partialFilterExpression: { bvn: { $type: 'string' } }
-    }
-  )
-
   // Index for querying accounts by app customer
   await accountCollection.createIndex(
     { customerId: 1 }
+  )
+
+  // Index for BVN queries (helps with validation)
+  await accountCollection.createIndex(
+    { bvn: 1 },
+    { partialFilterExpression: { bvn: { $type: 'string' } } }
   )
 
   accountsIndexed = true

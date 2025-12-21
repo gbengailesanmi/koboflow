@@ -16,6 +16,7 @@ async function updateCustomerDetailsFromMono(
   const usersCollection = db.collection('users')
 
   // Format the customer details (excluding 'verified' field as requested)
+  // Identity BVN is stored as-is (full BVN, source of truth)
   const customerDetailsFromMono = {
     full_name: identity.full_name,
     bvn: identity.bvn,

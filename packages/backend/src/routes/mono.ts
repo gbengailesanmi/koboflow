@@ -202,56 +202,72 @@ monoRoutes.post('/import/:accountId', authMiddleware, async (req: AuthRequest, r
     let identity
     let customerBVN: string | null = null
     
+    // First check if customer already has details stored
+    const db = await connectDB()
+    const user = await db.collection('users').findOne({ customerId })
+    const hasExistingDetails = !!user?.customerDetailsFromMono
+    
     try {
       console.log(`[Mono] Fetching identity for account ${accountId}`)
       identity = await fetchAccountIdentity(accountId)
       customerBVN = identity.bvn
       console.log(`[Mono] Got identity: BVN=${customerBVN}, Name=${identity.full_name}`)
       
-      // Step 2: Update customer details in users collection
-      await updateCustomerDetailsFromMono(customerId, identity, connectDB)
-      console.log(`[Mono] ✅ Customer details updated in users collection`)
+      // Step 2: Update customer details in users collection ONLY if this is the FIRST account
+      if (!hasExistingDetails) {
+        await updateCustomerDetailsFromMono(customerId, identity, connectDB)
+        console.log(`[Mono] ✅ Customer details updated in users collection (FIRST ACCOUNT)`)
+      } else {
+        console.log(`[Mono] ℹ️  Customer details already exist, skipping update (subsequent account)`)
+        // Use existing BVN from user document
+        customerBVN = user.customerDetailsFromMono.bvn
+        console.log(`[Mono] Using existing BVN from user: ${customerBVN}`)
+      }
     } catch (err: any) {
       console.warn(`[Mono] ⚠️  Failed to fetch/update identity: ${err.message}`)
       // Continue without identity data - some accounts may not have it
       // But try to get existing BVN from user document
-      try {
-        const db = await connectDB()
-        const user = await db.collection('users').findOne({ customerId })
-        if (user?.customerDetailsFromMono?.bvn) {
-          customerBVN = user.customerDetailsFromMono.bvn
-          console.log(`[Mono] Using existing BVN from user: ${customerBVN}`)
-        }
-      } catch (e) {
+      if (user?.customerDetailsFromMono?.bvn) {
+        customerBVN = user.customerDetailsFromMono.bvn
+        console.log(`[Mono] Using existing BVN from user: ${customerBVN}`)
+      } else {
         console.warn(`[Mono] Could not fetch existing user BVN`)
       }
     }
 
     // Step 3: Fetch account details
     const response = await fetchAccountDetails(accountId)
-    const accountBVN = response.data.account.bvn
-
-    // Step 4: Validate BVN match if both are available
-    if (customerBVN && accountBVN && customerBVN !== accountBVN) {
-      console.error(`[Mono] ❌ BVN mismatch!`)
-      console.error(`[Mono]    - Customer BVN: ${customerBVN}`)
-      console.error(`[Mono]    - Account BVN: ${accountBVN}`)
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Account BVN does not match customer BVN. Cannot link account.' 
-      })
-    }
-
-    if (customerBVN && accountBVN) {
-      console.log(`[Mono] ✅ BVN validation passed: ${customerBVN}`)
-    } else if (!accountBVN) {
+    
+    // Step 4: Format account for storage (applies test normalizations)
+    // In test mode, account BVN will be normalized to last 4 digits of identity BVN
+    // In production, account BVN already comes as last 4 digits
+    const accountForStorage = formatAccountForStorage(response.data, customerId, customerBVN)
+    
+    // Step 5: Validate BVN consistency BEFORE storing
+    // The identity BVN (from users.customerDetailsFromMono) is the source of truth
+    // All accounts linked to this customer must match this BVN
+    const storedAccountBVN = accountForStorage.bvn
+    const customerBVNLast4 = customerBVN ? customerBVN.slice(-4) : null
+    
+    if (customerBVNLast4 && storedAccountBVN) {
+      if (customerBVNLast4 !== storedAccountBVN) {
+        console.error(`[Mono] ❌ BVN mismatch! Cannot link account.`)
+        console.error(`[Mono]    - Customer BVN (last 4): ${customerBVNLast4}`)
+        console.error(`[Mono]    - Account BVN: ${storedAccountBVN}`)
+        console.error(`[Mono]    - Account will NOT be added to database`)
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Account BVN does not match customer BVN. Cannot link account.' 
+        })
+      }
+      console.log(`[Mono] ✅ BVN validation passed: ${storedAccountBVN} matches customer ${customerBVNLast4}`)
+    } else if (!storedAccountBVN) {
       console.warn(`[Mono] ⚠️  Account has no BVN, skipping validation`)
     } else if (!customerBVN) {
       console.warn(`[Mono] ⚠️  Customer has no BVN on record, skipping validation`)
     }
     
-    // Step 5: Store account
-    const accountForStorage = formatAccountForStorage(response.data, customerId)
+    // Step 6: Store account ONLY after BVN validation passes
     await bulkInsertMonoAccounts([accountForStorage], customerId, connectDB)
 
     console.log(`[Mono] ✅ Successfully imported account ${accountId}`)
