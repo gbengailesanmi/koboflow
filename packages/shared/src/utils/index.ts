@@ -1,4 +1,6 @@
 
+export { default as logger } from './logger'
+
 export const formatCurrency = (amount: number, currency: string = 'USD'): string => {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',

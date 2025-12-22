@@ -1,5 +1,6 @@
 'use server'
 
+import { logger } from '@money-mapper/shared/utils'
 import { resendVerificationEmail as resendVerificationEmailService } from '../api/api-service'
 
 /**
@@ -18,7 +19,7 @@ export async function resendVerificationEmailAction(email: string): Promise<{
       message: result.message,
     }
   } catch (error: any) {
-    console.error('[Auth Action] Resend verification email failed:', error)
+    logger.error({ module: 'resend-verification-email-action', email, error: error.message }, 'Resend verification email failed')
     return {
       success: false,
       message: error.message || 'Failed to resend verification email',

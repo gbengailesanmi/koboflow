@@ -8,7 +8,7 @@ import { createUserSettings } from '../services/settings'
 import { createSession, deleteSession, deleteAllUserSessions, getUserSessions } from '../services/session'
 import { authMiddleware, AuthRequest } from '../middleware/middleware'
 import { initializeUserCategories } from '../db/helpers/spending-categories-helpers'
-import logger from '../utils/logger'
+import { logger } from '@money-mapper/shared/utils'
 
 export const authRoutes = Router()
 
@@ -65,13 +65,6 @@ authRoutes.post('/signup', async (req, res) => {
     logger.info({ module: 'auth', customerId }, 'User settings created')
     
     const userCategories = await initializeUserCategories(customerId)
-    logger.info({ 
-      module: 'auth',
-      customerId, 
-      defaultCategories: userCategories.categories.filter(c => c.isDefault).length,
-      customCategories: userCategories.categories.filter(c => !c.isDefault).length,
-      totalCategories: userCategories.categories.length
-    }, 'User categories initialized')
 
     const emailResult = await sendVerificationEmail(
       normalizedEmail,
@@ -83,13 +76,6 @@ authRoutes.post('/signup', async (req, res) => {
       await db.collection('users').deleteOne({ _id: insertResult.insertedId })
       return res.status(500).json({ message: 'Failed to send verification email. Please try again.' })
     }
-
-    logger.info({ 
-      module: 'auth',
-      customerId, 
-      email: normalizedEmail,
-      categoriesCount: userCategories.categories.length 
-    }, 'Signup complete - verification email sent')
 
     res.status(201).json({
       success: true,

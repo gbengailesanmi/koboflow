@@ -2,7 +2,6 @@
 
 import React, { useState, useMemo, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useSelectedItems, useFilters } from '@/store'
 import type { Transaction, Account } from '@money-mapper/shared'
 import PageLayoutWithSidebar from '@/app/components/sidebar/sidebar'
 import { Dialog } from '@radix-ui/themes'
@@ -45,14 +44,14 @@ export default function TransactionsClient({
         addAccountFilter(accountId)
       }
     } else {
-      accountFilter.forEach(id => removeAccountFilter(id))
+      accountFilter.forEach((id: string) => removeAccountFilter(id))
     }
   }
 
   const months = useMemo(() => {
     const monthSet = new Set<string>()
     transactions.forEach(txn => {
-      const newDate = new Date(txn.bookedDate)
+      const newDate = new Date(txn.date)
       const newMonth = newDate.toISOString().slice(0, 7)
       monthSet.add(newMonth)
     })
@@ -70,7 +69,7 @@ export default function TransactionsClient({
   const transactionsByMonth = useMemo(() => {
     const map = new Map<string, string[]>()
     filteredTransactions.forEach(txn => {
-      const month = new Date(txn.bookedDate).toISOString().slice(0, 7)
+      const month = new Date(txn.date).toISOString().slice(0, 7)
       if (!map.has(month)) map.set(month, [])
       map.get(month)!.push(txn.id)
     })

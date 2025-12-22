@@ -6,7 +6,6 @@ import { updateBudgetAction } from '@/app/actions/update-budget-action'
 import { createBudgetAction } from '@/app/actions/create-budget-action'
 import { setActiveBudgetAction } from '@/app/actions/set-active-budget-action'
 import { deleteBudgetByIdAction } from '@/app/actions/delete-budget-action'
-import { useToasts } from '@/store'
 import Sidebar from '@/app/components/sidebar/sidebar'
 import { PageHeader } from '@/app/components/page-header/page-header'
 import { PageLayout } from '@/app/components/page-layout/page-layout'
@@ -56,8 +55,6 @@ export default function BudgetClient({
   currency
 }: BudgetClientProps) {
   const router = useRouter()
-  
-  const { showToast } = useToasts()
 
   const budgetData = initialBudget
   const [isSaving, setIsSaving] = useState(false)
@@ -89,7 +86,7 @@ export default function BudgetClient({
 
   const saveBudget = useCallback(async (updates: Partial<BudgetData>) => {
     if (!budgetData._id) {
-      showToast('No active budget to update', 'error')
+      console.error('No active budget to update')
       return
     }
 
@@ -103,33 +100,29 @@ export default function BudgetClient({
       })
       
       if (result.success) {
-        showToast('Budget saved successfully', 'success')
         router.refresh()
       } else {
-        showToast(result.message || 'Failed to save budget', 'error')
+        console.error(result.message || 'Failed to save budget')
       }
     } catch (error) {
       console.error('Failed to save budget:', error)
-      showToast('Failed to save budget. Please try again.', 'error')
     } finally {
       setIsSaving(false)
     }
-  }, [budgetData._id, router, showToast])
+  }, [budgetData._id, router])
 
   const handleSwitchBudget = useCallback(async (budgetId: string) => {
     try {
       const result = await setActiveBudgetAction(budgetId)
       if (result.success) {
-        showToast('Budget switched successfully', 'success')
         router.refresh()
       } else {
-        showToast(result.message || 'Failed to switch budget', 'error')
+        console.error(result.message || 'Failed to switch budget')
       }
     } catch (error) {
       console.error('Failed to switch budget:', error)
-      showToast('Failed to switch budget. Please try again.', 'error')
     }
-  }, [router, showToast])
+  }, [router])
 
   const handleCreateBudget = useCallback(async (name: string) => {
     try {
@@ -142,41 +135,37 @@ export default function BudgetClient({
       )
       
       if (result.success) {
-        showToast('Budget created successfully', 'success')
         router.refresh()
       } else {
-        showToast(result.message || 'Failed to create budget', 'error')
+        console.error(result.message || 'Failed to create budget')
       }
     } catch (error) {
       console.error('Failed to create budget:', error)
-      showToast('Failed to create budget. Please try again.', 'error')
     }
-  }, [router, showToast])
+  }, [router])
 
   const handleDeleteBudget = useCallback(async (budgetId: string) => {
     try {
       const result = await deleteBudgetByIdAction(budgetId)
       if (result.success) {
-        showToast('Budget deleted successfully', 'success')
         router.refresh()
       } else {
-        showToast(result.message || 'Failed to delete budget', 'error')
+        console.error(result.message || 'Failed to delete budget')
       }
     } catch (error) {
       console.error('Failed to delete budget:', error)
-      showToast('Failed to delete budget. Please try again.', 'error')
     }
-  }, [router, showToast])
+  }, [router])
 
   const processedTransactions = useMemo(() => {
     return transactions.map((transaction) => {
-      const amount = parseFloat(transaction.amount)
+      const amount = transaction.amount
       return {
         ...transaction,
         numericAmount: Math.abs(amount),
         type: amount < 0 ? 'expense' : 'income',
         category: amount < 0 ? categorizeTransaction(transaction.narration, customCategories) : 'income',
-        date: new Date(transaction.bookedDate)
+        date: new Date(transaction.date)
       }
     })
   }, [transactions, customCategories])

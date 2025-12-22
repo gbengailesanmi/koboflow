@@ -58,13 +58,13 @@ export default function DashboardClient({
 
   const processedTransactions = useMemo(() => {
     return filteredTransactions.map(transaction => {
-      const amount = parseFloat(transaction.amount)
+      const amount = transaction.amount
       return {
         ...transaction,
         numericAmount: Math.abs(amount),
         type: amount < 0 ? 'expense' : 'income',
         category: amount < 0 ? categorizeTransaction(transaction.narration) : 'income',
-        date: new Date(transaction.bookedDate),
+        date: new Date(transaction.date),
       }
     })
   }, [filteredTransactions])

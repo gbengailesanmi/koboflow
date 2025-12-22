@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { updateUserProfileAction } from '@/app/actions/update-user-profile-action'
-import { useToasts } from '@/store'
 import Sidebar from '@/app/components/sidebar/sidebar'
 import { Pencil1Icon, CheckIcon, Cross2Icon, PersonIcon, EnvelopeClosedIcon } from '@radix-ui/react-icons'
 import Footer from '@/app/components/footer/footer'
@@ -32,8 +31,6 @@ export default function ProfileClient({
   email
 }: ProfileClientProps) {
   const router = useRouter()
-  
-  const { showToast } = useToasts()
 
   const [isEditing, setIsEditing] = useState(false)
   const [formData, setFormData] = useState({
@@ -45,12 +42,12 @@ export default function ProfileClient({
 
   const handleSave = async () => {
     if (!formData.firstName?.trim() || !formData.lastName?.trim() || !formData.email?.trim()) {
-      showToast('First name, last name, and email are required', 'error')
+      console.error('First name, last name, and email are required')
       return
     }
 
     if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      showToast('Please enter a valid email address', 'error')
+      console.error('Please enter a valid email address')
       return
     }
 
@@ -64,17 +61,16 @@ export default function ProfileClient({
       })
 
       if (!result.success) {
-        showToast(result.message || 'Failed to update profile', 'error')
+        console.error(result.message || 'Failed to update profile')
         return
       }
 
-      showToast('Profile updated successfully!', 'success')
       setIsEditing(false)
       
       router.refresh()
 
     } catch (err: any) {
-      showToast(err.message || 'An unexpected error occurred', 'error')
+      console.error(err.message || 'An unexpected error occurred')
     } finally {
       setSavingProfile(false)
     }

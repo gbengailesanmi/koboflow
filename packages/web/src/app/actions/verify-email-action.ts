@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidateTag } from 'next/cache'
+import { logger } from '@money-mapper/shared/utils'
 import { verifyEmail as verifyEmailService } from '../api/api-service'
 
 /**
@@ -28,7 +29,7 @@ export async function verifyEmailAction(token: string): Promise<{
       message: result.message || 'Email verification failed',
     }
   } catch (error: any) {
-    console.error('[Auth Action] Email verification failed:', error)
+    logger.error({ module: 'verify-email-action', token, error: error.message }, 'Email verification failed')
     return {
       success: false,
       message: error.message || 'Failed to verify email',

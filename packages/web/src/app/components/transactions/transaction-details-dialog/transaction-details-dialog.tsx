@@ -31,7 +31,7 @@ export default function TransactionDetailsDialog({ transaction, onClose }: Props
           <br />
         </Text>
         <Text>
-          <strong>Booked Date:</strong> {new Date(transaction.bookedDate).toLocaleString()}
+          <strong>Booked Date:</strong> {new Date(transaction.date).toLocaleString()}
         </Text>
       </Box>
     </Dialog.Content>

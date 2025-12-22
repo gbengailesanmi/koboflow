@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidateTag } from 'next/cache'
+import { logger } from '@money-mapper/shared/utils'
 import { 
   exchangeMonoToken, 
   importMonoAccount, 
@@ -16,7 +17,6 @@ export async function processMonoConnection(code: string): Promise<{
   transactionsCount?: number
 }> {
   try {
-    console.log('[Mono Server Action] Exchanging token...')
     const tokenResult = await exchangeMonoToken(code)
     
     if (!tokenResult.success || !tokenResult.accountId) {
@@ -27,9 +27,8 @@ export async function processMonoConnection(code: string): Promise<{
     }
 
     const accountId = tokenResult.accountId
-    console.log('[Mono Server Action] Got accountId:', accountId)
+    logger.info({ module: 'mono-action', accountId }, 'Token exchanged')
 
-    console.log('[Mono Server Action] Importing account...')
     const importResult = await importMonoAccount(accountId)
     
     if (!importResult.success) {
@@ -39,15 +38,14 @@ export async function processMonoConnection(code: string): Promise<{
       }
     }
 
-    console.log('[Mono Server Action] Account imported successfully!')
+    logger.info({ module: 'mono-action', accountId }, 'Account imported')
 
-    console.log('[Mono Server Action] Syncing transactions...')
     const transactionsResult = await syncMonoTransactions(accountId)
     
     if (!transactionsResult.success) {
-      console.warn('[Mono Server Action] Transaction sync failed:', transactionsResult.message)
+      logger.warn({ module: 'mono-action', accountId, message: transactionsResult.message }, 'Transaction sync failed')
     } else {
-      console.log(`[Mono Server Action] Successfully synced ${transactionsResult.transactionsCount || 0} transactions`)
+      logger.info({ module: 'mono-action', accountId, transactionsCount: transactionsResult.transactionsCount }, 'Transactions synced')
     }
 
     revalidateTag('accounts')
@@ -61,7 +59,7 @@ export async function processMonoConnection(code: string): Promise<{
       message: 'Account linked successfully'
     }
   } catch (error: any) {
-    console.error('[Mono Server Action] Error:', error)
+    logger.error({ module: 'mono-action', error: error.message }, 'Mono connection failed')
     return { 
       success: false, 
       message: error.message || 'Failed to process Mono connection' 
@@ -87,7 +85,7 @@ export async function fetchAccountIdentity(accountId: string): Promise<{
   try {
     return await getMonoAccountIdentity(accountId)
   } catch (error: any) {
-    console.error('[Mono Server Action] Fetch identity error:', error)
+    logger.error({ module: 'mono-action', accountId, error: error.message }, 'Fetch identity failed')
     return { 
       success: false, 
       message: error.message || 'Failed to fetch account identity' 
@@ -115,7 +113,7 @@ export async function fetchCustomerDetails(): Promise<{
   try {
     return await getCustomerDetailsFromMono()
   } catch (error: any) {
-    console.error('[Mono Server Action] Fetch customer details error:', error)
+    logger.error({ module: 'mono-action', error: error.message }, 'Fetch customer details failed')
     return { 
       success: false, 
       message: error.message || 'Failed to fetch customer details' 

@@ -1,5 +1,6 @@
 'use server'
 
+import { logger } from '@money-mapper/shared/utils'
 import { signup as signupService } from '../api/api-service'
 
 /**
@@ -29,7 +30,7 @@ export async function signupAction(userData: {
       user: result.user,
     }
   } catch (error: any) {
-    console.error('[Auth Action] Signup failed:', error)
+    logger.error({ module: 'signup-action', email: userData.email, error: error.message }, 'Signup failed')
     return {
       success: false,
       message: error.message || 'Failed to signup',

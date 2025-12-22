@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { logger } from '@money-mapper/shared/utils'
 import { login as loginService } from '../api/api-service'
 
 /**
@@ -34,7 +35,7 @@ export async function loginAction(
       requiresVerification: result.requiresVerification,
     }
   } catch (error: any) {
-    console.error('[Auth Action] Login failed:', error)
+    logger.error({ module: 'login-action', email, error: error.message }, 'Login failed')
     return {
       success: false,
       message: error.message || 'Failed to login',

@@ -15,7 +15,7 @@ import { bulkInsertTransactions } from '../db/helpers/insert-transactions'
 import { updateCustomerDetailsFromMono } from '../db/helpers/update-customer-details-from-mono'
 import { connectDB } from '../db/mongo'
 import config from '../config'
-import logger from '../utils/logger'
+import { logger } from '@money-mapper/shared/utils'
 
 export const monoRoutes = Router()
 

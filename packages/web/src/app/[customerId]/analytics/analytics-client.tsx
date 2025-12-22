@@ -3,7 +3,6 @@
 import React, { useState, useMemo, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Dialog } from '@radix-ui/themes'
-import { useSelectedItems, useToasts } from '@/store'
 import type { Account } from '@money-mapper/shared'
 import type { Transaction } from '@money-mapper/shared'
 import type { CustomCategory } from '@/types/custom-category'
@@ -55,10 +54,7 @@ export default function AnalyticsClient({
 }: AnalyticsClientProps) {
   const router = useRouter()
   
-  const { selectedAccountId, setSelectedAccount } = useSelectedItems()
-  
-  const { showToast } = useToasts()
-
+  const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null)
   const [timePeriod, setTimePeriod] = useState<'day' | 'month' | 'year'>('month')
   const [showAccountFilter, setShowAccountFilter] = useState(false)
   const [currentChartIndex, setCurrentChartIndex] = useState(0)
@@ -78,23 +74,18 @@ export default function AnalyticsClient({
         color: randomColor 
       })
       
-      showToast('Category added successfully', 'success')
       router.refresh()
     } catch (error) {
       console.error('Failed to add category:', error)
-      showToast('Failed to add category', 'error')
     }
   }
 
   const handleDeleteCategory = async (id: string) => {
     try {
       await deleteCustomCategoryAction(id)
-      
-      showToast('Category deleted successfully', 'success')
       router.refresh()
     } catch (error) {
       console.error('Failed to delete category:', error)
-      showToast('Failed to delete category', 'error')
     }
   }
 
@@ -103,14 +94,10 @@ export default function AnalyticsClient({
       const result = await updateCustomCategoryAction(id, updates)
       
       if (result.success) {
-        showToast('Category updated successfully', 'success')
         router.refresh()
-      } else {
-        showToast('Failed to update category', 'error')
       }
     } catch (error) {
       console.error('Failed to update category:', error)
-      showToast('Failed to update category', 'error')
     }
   }
 
@@ -132,13 +119,13 @@ export default function AnalyticsClient({
     }
     
     return filteredByAccount.map(transaction => {
-      const amount = parseFloat(transaction.amount)
+      const amount = transaction.amount
       return {
         ...transaction,
         numericAmount: Math.abs(amount),
         type: amount < 0 ? 'expense' : 'income',
         category: amount < 0 ? categorizeTransaction(transaction.narration, customCategories) : 'income',
-        date: new Date(transaction.bookedDate)
+        date: new Date(transaction.date)
       }
     })
   }, [transactions, effectiveAccountId, customCategories])

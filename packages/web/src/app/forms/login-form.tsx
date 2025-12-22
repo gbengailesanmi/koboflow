@@ -25,6 +25,7 @@ export default function LoginForm({ isTimeout = false }: { isTimeout?: boolean }
     }
 
     try {
+      // Use API route to properly handle cookies
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -36,6 +37,7 @@ export default function LoginForm({ isTimeout = false }: { isTimeout?: boolean }
       
       if (result.success) {
         router.push(`/${result.user.customerId}/dashboard`)
+        router.refresh()
       } else {
         setError(result.message || 'Login failed')
       }

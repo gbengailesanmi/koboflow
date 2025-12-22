@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { MixerVerticalIcon } from '@radix-ui/react-icons'
 import { Dialog, Flex, Text, ScrollArea, Box } from '@radix-ui/themes'
-import { useSelectedItems } from '@/store'
 import type { Account } from '@money-mapper/shared'
 import { formatCurrency } from '@/app/components/analytics/utils/format-currency'
 import styles from './account-filter-menu.module.css'
@@ -14,11 +13,20 @@ type AccountFilterMenuProps = {
   asDialogContent?: boolean
   open?: boolean
   onOpenChange?: (open: boolean) => void
+  selectedAccountId?: string | null
+  onAccountSelect?: (accountId: string | null) => void
 }
 
-export default function AccountFilterMenu({ accounts, currency, asDialogContent = false, open: controlledOpen, onOpenChange }: AccountFilterMenuProps) {
+export default function AccountFilterMenu({ 
+  accounts, 
+  currency, 
+  asDialogContent = false, 
+  open: controlledOpen, 
+  onOpenChange,
+  selectedAccountId = null,
+  onAccountSelect
+}: AccountFilterMenuProps) {
   const [internalOpen, setInternalOpen] = useState(false)
-  const { selectedAccountId, setSelectedAccount } = useSelectedItems()
   
   const open = controlledOpen !== undefined ? controlledOpen : internalOpen
   const setOpen = onOpenChange || setInternalOpen
@@ -26,7 +34,10 @@ export default function AccountFilterMenu({ accounts, currency, asDialogContent 
   const effectiveAccountId = selectedAccountId || 'all'
 
   const handleAccountSelect = (accountId: string) => {
-    setSelectedAccount(accountId === 'all' ? null : accountId)
+    const newAccountId = accountId === 'all' ? null : accountId
+    if (onAccountSelect) {
+      onAccountSelect(newAccountId)
+    }
     setOpen(false)
   }
 

@@ -16,6 +16,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "pino": "^9.6.0",
     "zod": "^4.0.13"
   },
   "devDependencies": {

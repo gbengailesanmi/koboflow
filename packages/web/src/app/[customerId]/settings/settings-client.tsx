@@ -7,7 +7,6 @@ import { updateSettingsAction } from '@/app/actions/update-settings-action'
 import { changeUserPINAction } from '@/app/actions/change-user-pin-action'
 import { changeUserPasswordAction } from '@/app/actions/change-user-password-action'
 import { deleteAccountAction } from '@/app/actions/delete-account-action'
-import { useToasts } from '@/store'
 import Sidebar from '@/app/components/sidebar/sidebar'
 import { PageHeader } from '@/app/components/page-header/page-header'
 import Footer from '@/app/components/footer/footer'
@@ -19,7 +18,9 @@ import {
   Text,
   Flex,
   TextField,
+  Callout,
 } from '@radix-ui/themes'
+import { InfoCircledIcon, CheckCircledIcon, ExclamationTriangleIcon, CrossCircledIcon } from '@radix-ui/react-icons'
 import styles from './settings.module.css'
 import type { UserSettings } from '@money-mapper/shared'
 
@@ -41,7 +42,6 @@ export default function SettingsClient({
   initialSettings
 }: SettingsClientProps) {
   const router = useRouter()
-  const { showToast } = useToasts()
   const { theme: currentTheme, setTheme: setNextTheme } = useTheme()
 
   const [theme, setTheme] = useState<Theme>(initialSettings?.appearance?.theme || 'system')
@@ -56,6 +56,17 @@ export default function SettingsClient({
   const [showBalance, setShowBalance] = useState(initialSettings?.privacy?.showBalance ?? true)
   const [faceId, setFaceId] = useState(initialSettings?.security?.faceId ?? false)
   const [givePermission, setGivePermission] = useState(initialSettings?.security?.givePermission ?? false)
+
+  // Callout notification state
+  const [callout, setCallout] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null)
+
+  // Auto-dismiss callout after 5 seconds
+  useEffect(() => {
+    if (callout) {
+      const timer = setTimeout(() => setCallout(null), 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [callout])
 
   useEffect(() => {
     if (currentTheme && currentTheme !== 'system' && currentTheme !== theme) {
@@ -133,15 +144,15 @@ export default function SettingsClient({
       const result = await updateSettingsAction(settingsData as any)
 
       if (result.success) {
-        showToast('Settings saved successfully', 'success')
+        // showToast('Settings saved successfully', 'success')
         router.refresh()
       } else {
-        showToast(result.message || 'Failed to save settings', 'error')
+        // showToast(result.message || 'Failed to save settings', 'error')
       }
     } catch (error: any) {
       console.error('Failed to save settings:', error)
       const errorMessage = error?.message || 'Failed to save settings. Please check your connection.'
-      showToast(errorMessage, 'error')
+      // showToast(errorMessage, 'error')
     } finally {
       setIsSaving(false)
     }
@@ -151,17 +162,17 @@ export default function SettingsClient({
     e.preventDefault()
     
     if (!pinForm.currentPIN || !pinForm.newPIN || !pinForm.confirmPIN || !pinForm.password) {
-      showToast('Please fill in all fields', 'error')
+      // showToast('Please fill in all fields', 'error')
       return
     }
 
     if (pinForm.newPIN !== pinForm.confirmPIN) {
-      showToast('New PINs do not match', 'error')
+      // showToast('New PINs do not match', 'error')
       return
     }
 
     if (!/^\d{4,6}$/.test(pinForm.newPIN)) {
-      showToast('PIN must be 4-6 digits', 'error')
+      // showToast('PIN must be 4-6 digits', 'error')
       return
     }
 
@@ -174,16 +185,16 @@ export default function SettingsClient({
       )
 
       if (result.success) {
-        showToast('PIN changed successfully', 'success')
+        // showToast('PIN changed successfully', 'success')
         setShowPinModal(false)
         setPinForm({ currentPIN: '', newPIN: '', confirmPIN: '', password: '' })
         router.refresh()
       } else {
-        showToast(result.message || 'Failed to change PIN', 'error')
+        // showToast(result.message || 'Failed to change PIN', 'error')
       }
     } catch (error) {
       console.error('PIN change error:', error)
-      showToast('Network error', 'error')
+      // showToast('Network error', 'error')
     } finally {
       setIsChangingPIN(false)
     }
@@ -193,17 +204,17 @@ export default function SettingsClient({
     e.preventDefault()
 
     if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
-      showToast('Please fill in all fields', 'error')
+      // showToast('Please fill in all fields', 'error')
       return
     }
 
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      showToast('New passwords do not match', 'error')
+      // showToast('New passwords do not match', 'error')
       return
     }
 
     if (passwordForm.newPassword.length < 8) {
-      showToast('Password must be at least 8 characters', 'error')
+      // showToast('Password must be at least 8 characters', 'error')
       return
     }
 
@@ -216,16 +227,16 @@ export default function SettingsClient({
       )
 
       if (result.success) {
-        showToast('Password changed successfully', 'success')
+        // showToast('Password changed successfully', 'success')
         setShowPasswordModal(false)
         setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' })
         router.refresh()
       } else {
-        showToast(result.message || 'Failed to change password', 'error')
+        // showToast(result.message || 'Failed to change password', 'error')
       }
     } catch (error) {
       console.error('Password change error:', error)
-      showToast('Network error', 'error')
+      // showToast('Network error', 'error')
     } finally {
       setIsChangingPassword(false)
     }
@@ -235,14 +246,14 @@ export default function SettingsClient({
     try {
       const result = await deleteAccountAction()
       if (result.success) {
-        showToast('Account deleted successfully', 'success')
+        // showToast('Account deleted successfully', 'success')
         router.push('/signup')
       } else {
-        showToast(result.message || 'Failed to delete account', 'error')
+        // showToast(result.message || 'Failed to delete account', 'error')
       }
     } catch (error) {
       console.error('Failed to delete account:', error)
-      showToast('Failed to delete account', 'error')
+      // showToast('Failed to delete account', 'error')
     }
   }
 

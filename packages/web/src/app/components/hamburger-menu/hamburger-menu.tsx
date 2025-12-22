@@ -6,7 +6,6 @@ import { useTheme } from 'next-themes'
 import { HamburgerMenuIcon, ChevronDownIcon, ChevronRightIcon } from '@radix-ui/react-icons'
 import { Dialog, Flex, Text, Box, ScrollArea, Switch } from '@radix-ui/themes'
 import { updateSettingsAction } from '@/app/actions/update-settings-action'
-import { useToasts } from '@/store'
 import type { UserSettings } from '@money-mapper/shared'
 import styles from './hamburger-menu.module.css'
 
@@ -28,7 +27,6 @@ export default function HamburgerMenu({ customerId }: HamburgerMenuProps) {
   const router = useRouter()
   const pathname = usePathname()
   const { setTheme, resolvedTheme } = useTheme()
-  const { showToast } = useToasts()
   const [open, setOpen] = useState(false)
   const [expandedSections, setExpandedSections] = useState<string[]>([])
   const [mounted, setMounted] = useState(false)
@@ -50,11 +48,10 @@ export default function HamburgerMenu({ customerId }: HamburgerMenuProps) {
       } as Partial<UserSettings>)
       
       if (!result.success) {
-        showToast(result.message || 'Failed to save theme preference', 'error')
+        console.error('Failed to save theme preference:', result.message)
       }
     } catch (error) {
       console.error('Failed to save theme:', error)
-      showToast('Failed to save theme preference', 'error')
     }
   }
 
