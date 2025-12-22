@@ -36,7 +36,7 @@ export interface SettingsUpdate {
   appearance?: Partial<UserSettings['appearance']>
   notifications?: Partial<UserSettings['notifications']>
   receiveOn?: Partial<UserSettings['receiveOn']>
-  currency?: 'GBP'
+  currency?: 'NGN'
   security?: Partial<UserSettings['security']>
   privacy?: Partial<UserSettings['privacy']>
 }
@@ -73,7 +73,7 @@ export const DEFAULT_SETTINGS: Omit<UserSettings, 'customerId' | 'createdAt' | '
     email: true,
     sms: false,
   },
-  currency: 'GBP',
+  currency: 'NGN',
   security: {
     faceId: false,
     givePermission: false,
