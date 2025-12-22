@@ -81,6 +81,7 @@ export async function getSession(): Promise<SessionUser | null> {
     }
 
     const data = await parseResponse<{ success: boolean; user: SessionUser }>(response)
+
     return data.success ? data.user : null
   } catch (error) {
     console.error('getSession error:', error)
@@ -119,8 +120,11 @@ export async function getAccounts(): Promise<Account[]> {
       next: { tags: ['accounts'] },
     })
 
-    const data = await parseResponse<{ success: boolean; accounts: Account[] }>(response)
-    return data.accounts || []
+    const data = await parseResponse<{ status: string; message: string; timestamp: string; data: any[] }>(response)
+    const accounts = Array.isArray(data.data)
+      ? data.data.map((item: any) => item.account)
+      : []
+    return accounts
   } catch (error) {
     console.error('getAccounts error:', error)
     return []
@@ -139,8 +143,8 @@ export async function getTransactions(): Promise<Transaction[]> {
       next: { tags: ['transactions'] },
     })
 
-    const data = await parseResponse<{ success: boolean; transactions: Transaction[] }>(response)
-    return data.transactions || []
+    const data = await parseResponse<{ status: string; message: string; timestamp: string; data: Transaction[] }>(response)
+    return data.data || []
   } catch (error) {
     console.error('getTransactions error:', error)
     return []

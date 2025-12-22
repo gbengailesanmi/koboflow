@@ -91,6 +91,11 @@ transactionRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
       balance: txn.balance,
       date: txn.date,
       category: txn.category,
+      accountId: txn.accountId,
+      customerId: txn.customerId,
+      accountNumber: txn.accountNumber,
+      bankCode: txn.bankCode,
+      hash: txn.hash,
     }))
 
     const totalPages = shouldPaginate ? Math.ceil(total / limitNum) : 1
