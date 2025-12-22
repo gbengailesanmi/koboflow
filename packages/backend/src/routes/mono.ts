@@ -7,14 +7,15 @@ import {
   fetchTransactions,
   formatAccountForStorage,
   fetchAllTransactions,
-  normalizeTestAccountNumber,
+  normaliseTestAccountNumber,
   syncAccount,
 } from '../services/mono'
-import { bulkInsertMonoAccounts } from '../db/helpers/insert-mono-accounts'
-import { bulkInsertMonoTransactions } from '../db/helpers/insert-mono-transactions'
+import { bulkInsertAccounts } from '../db/helpers/insert-accounts'
+import { bulkInsertTransactions } from '../db/helpers/insert-transactions'
 import { updateCustomerDetailsFromMono } from '../db/helpers/update-customer-details-from-mono'
 import { connectDB } from '../db/mongo'
 import config from '../config'
+import logger from '../utils/logger'
 
 export const monoRoutes = Router()
 
@@ -30,13 +31,12 @@ monoRoutes.post('/auth', authMiddleware, async (req: AuthRequest, res) => {
       return res.status(400).json({ success: false, error: 'Missing authorization code' })
     }
 
-    console.log(`[Mono] Exchanging token for code: ${code}`)
     const accountId = await exchangeToken(code)
+    logger.info({ module: 'mono', customerId, accountId }, 'Token exchanged successfully')
     
-    console.log(`[Mono] Got account ID: ${accountId}`)
     res.json({ success: true, accountId })
   } catch (err: any) {
-    console.error('[Mono] Token exchange error:', err)
+    logger.error({ module: 'mono', error: err.message }, 'Token exchange failed')
     res.status(500).json({ success: false, error: 'Failed to exchange token', message: err.message })
   }
 })
@@ -65,7 +65,7 @@ monoRoutes.get('/transactions/:accountId', authMiddleware, async (req: AuthReque
 
     res.json({ success: true, transactions })
   } catch (err: any) {
-    console.error('[Mono] Get transactions error:', err)
+    logger.error({ module: 'mono', error: err.message }, 'Failed to fetch transactions')
     res.status(500).json({ success: false, error: 'Failed to get transactions', message: err.message })
   }
 })
@@ -91,7 +91,7 @@ monoRoutes.get('/details/:accountId', authMiddleware, async (req: AuthRequest, r
       ...response,
     })
   } catch (err: any) {
-    console.error('[Mono] Get details error:', err)
+    logger.error({ module: 'mono', error: err.message }, 'Failed to fetch account details')
     res.status(500).json({ success: false, error: 'Failed to get account details', message: err.message })
   }
 })
@@ -109,7 +109,6 @@ monoRoutes.get('/identity/:accountId', authMiddleware, async (req: AuthRequest, 
       return res.status(400).json({ success: false, error: 'Missing accountId' })
     }
 
-    console.log(`[Mono] Fetching identity for account ${accountId}`)
     const identity = await fetchAccountIdentity(accountId)
     
     res.json({
@@ -117,7 +116,7 @@ monoRoutes.get('/identity/:accountId', authMiddleware, async (req: AuthRequest, 
       data: identity,
     })
   } catch (err: any) {
-    console.error('[Mono] Get identity error:', err)
+    logger.error({ module: 'mono', error: err.message }, 'Failed to fetch account identity')
     res.status(500).json({ success: false, error: 'Failed to get account identity', message: err.message })
   }
 })
@@ -172,7 +171,7 @@ monoRoutes.get('/debug/account/:accountId', authMiddleware, async (req: AuthRequ
         normalization: {
           enabled: !config.IS_PRODUCTION,
           original: monoAccount.account_number,
-          normalized: normalizeTestAccountNumber(
+          normalized: normaliseTestAccountNumber(
             monoAccount.account_number,
             monoAccount.institution.bank_code
           )
@@ -180,14 +179,15 @@ monoRoutes.get('/debug/account/:accountId', authMiddleware, async (req: AuthRequ
       }
     })
   } catch (err: any) {
-    console.error('[Mono Debug] Error:', err)
+    logger.error({ module: 'mono', error: err.message }, 'Debug endpoint error')
     res.status(500).json({ success: false, error: err.message })
   }
 })
 
 monoRoutes.post('/import/:accountId', authMiddleware, async (req: AuthRequest, res) => {
+  const customerId = req.user?.customerId
+  
   try {
-    const customerId = req.user?.customerId
     if (!customerId) {
       return res.status(401).json({ success: false, error: 'Unauthorized' })
     }
@@ -196,8 +196,6 @@ monoRoutes.post('/import/:accountId', authMiddleware, async (req: AuthRequest, r
     if (!accountId) {
       return res.status(400).json({ success: false, error: 'Missing accountId' })
     }
-
-    console.log(`[Mono] Importing account ${accountId}`)
 
     // Step 1: Fetch identity data first (contains customer info including BVN)
     let identity
@@ -209,30 +207,24 @@ monoRoutes.post('/import/:accountId', authMiddleware, async (req: AuthRequest, r
     const hasExistingDetails = !!user?.customerDetailsFromMono
     
     try {
-      console.log(`[Mono] Fetching identity for account ${accountId}`)
       identity = await fetchAccountIdentity(accountId)
       customerBVN = identity.bvn
-      console.log(`[Mono] Got identity: BVN=${customerBVN}, Name=${identity.full_name}`)
       
       // Step 2: Update customer details in users collection ONLY if this is the FIRST account
       if (!hasExistingDetails) {
         await updateCustomerDetailsFromMono(customerId, identity, connectDB)
-        console.log(`[Mono] ✅ Customer details updated in users collection (FIRST ACCOUNT)`)
+        logger.info({ module: 'mono', customerId, accountId }, 'Customer details updated (first account)')
       } else {
-        console.log(`[Mono] ℹ️  Customer details already exist, skipping update (subsequent account)`)
         // Use existing BVN from user document
         customerBVN = user.customerDetailsFromMono.bvn
-        console.log(`[Mono] Using existing BVN from user: ${customerBVN}`)
+        logger.info({ module: 'mono', customerId, accountId }, 'Using existing customer details')
       }
     } catch (err: any) {
-      console.warn(`[Mono] ⚠️  Failed to fetch/update identity: ${err.message}`)
+      logger.warn({ module: 'mono', customerId, accountId, error: err.message }, 'Failed to fetch/update identity')
       // Continue without identity data - some accounts may not have it
       // But try to get existing BVN from user document
       if (user?.customerDetailsFromMono?.bvn) {
         customerBVN = user.customerDetailsFromMono.bvn
-        console.log(`[Mono] Using existing BVN from user: ${customerBVN}`)
-      } else {
-        console.warn(`[Mono] Could not fetch existing user BVN`)
       }
     }
 
@@ -252,33 +244,37 @@ monoRoutes.post('/import/:accountId', authMiddleware, async (req: AuthRequest, r
     
     if (customerBVNLast4 && storedAccountBVN) {
       if (customerBVNLast4 !== storedAccountBVN) {
-        console.error(`[Mono] ❌ BVN mismatch! Cannot link account.`)
-        console.error(`[Mono]    - Customer BVN (last 4): ${customerBVNLast4}`)
-        console.error(`[Mono]    - Account BVN: ${storedAccountBVN}`)
-        console.error(`[Mono]    - Account will NOT be added to database`)
+        logger.error({ 
+          module: 'mono', 
+          customerId, 
+          accountId,
+          customerBVN: customerBVNLast4, 
+          accountBVN: storedAccountBVN 
+        }, 'BVN mismatch - cannot link account')
+        
         return res.status(400).json({ 
           success: false, 
           error: 'Account BVN does not match customer BVN. Cannot link account.' 
         })
       }
-      console.log(`[Mono] ✅ BVN validation passed: ${storedAccountBVN} matches customer ${customerBVNLast4}`)
+      logger.info({ module: 'mono', customerId, accountId, bvn: storedAccountBVN }, 'BVN validation passed')
     } else if (!storedAccountBVN) {
-      console.warn(`[Mono] ⚠️  Account has no BVN, skipping validation`)
+      logger.warn({ module: 'mono', customerId, accountId }, 'Account has no BVN, skipping validation')
     } else if (!customerBVN) {
-      console.warn(`[Mono] ⚠️  Customer has no BVN on record, skipping validation`)
+      logger.warn({ module: 'mono', customerId, accountId }, 'Customer has no BVN on record, skipping validation')
     }
     
     // Step 6: Store account ONLY after BVN validation passes
-    await bulkInsertMonoAccounts([accountForStorage], customerId, connectDB)
+    await bulkInsertAccounts([accountForStorage], customerId, connectDB)
 
-    console.log(`[Mono] ✅ Successfully imported account ${accountId}`)
+    logger.info({ module: 'mono', customerId, accountId }, 'Account imported successfully')
     res.json({ 
       success: true, 
       accountsCount: 1,
       account: accountForStorage 
     })
   } catch (err: any) {
-    console.error('[Mono] Import error:', err)
+    logger.error({ module: 'mono', customerId, error: err.message }, 'Failed to import account')
     res.status(500).json({ success: false, error: 'Failed to import accounts', message: err.message })
   }
 })
@@ -297,14 +293,17 @@ monoRoutes.post('/sync-transactions/:accountId', authMiddleware, async (req: Aut
 
     const { start, end } = req.body
 
-    console.log(`[Mono] Syncing transactions for account ${accountId}`)
-
     // Step 1: Check account data status first
     const accountDetails = await fetchAccountDetails(accountId)
     const { data_status, retrieved_data } = accountDetails.data.meta
     
-    console.log(`[Mono] Account data status: ${data_status}`)
-    console.log(`[Mono] Retrieved data types: ${retrieved_data?.join(', ') || 'none'}`)
+    logger.info({ 
+      module: 'mono', 
+      customerId, 
+      accountId, 
+      data_status, 
+      retrieved_data 
+    }, 'Syncing transactions')
     
     // Step 2: If transactions not retrieved yet, trigger a sync
     const hasTransactions = retrieved_data?.some(d => 
@@ -312,13 +311,11 @@ monoRoutes.post('/sync-transactions/:accountId', authMiddleware, async (req: Aut
     )
     
     if (!hasTransactions) {
-      console.log(`[Mono] Transactions not yet retrieved, triggering sync...`)
       try {
         await syncAccount(accountId)
-        console.log(`[Mono] ✅ Sync triggered, transactions should be available shortly`)
-        console.log(`[Mono] ℹ️  You may need to retry this request in a few seconds`)
+        logger.info({ module: 'mono', customerId, accountId }, 'Sync triggered - retry in a few seconds')
       } catch (syncErr: any) {
-        console.warn(`[Mono] ⚠️  Sync failed: ${syncErr.message}`)
+        logger.warn({ module: 'mono', customerId, accountId, error: syncErr.message }, 'Sync failed')
       }
     }
 
@@ -340,11 +337,14 @@ monoRoutes.post('/sync-transactions/:accountId', authMiddleware, async (req: Aut
       })
     }
 
-    console.log(`[Mono] Fetched ${monoTransactions.length} transactions from Mono`)
+    await bulkInsertTransactions(monoTransactions, customerId, accountId, connectDB)
 
-    await bulkInsertMonoTransactions(monoTransactions, customerId, accountId, connectDB)
-
-    console.log(`[Mono] Stored ${monoTransactions.length} transactions`)
+    logger.info({ 
+      module: 'mono', 
+      customerId, 
+      accountId, 
+      transactionsCount: monoTransactions.length 
+    }, 'Transactions synced successfully')
 
     res.json({ 
       success: true, 
@@ -352,7 +352,7 @@ monoRoutes.post('/sync-transactions/:accountId', authMiddleware, async (req: Aut
       message: 'Transactions synced successfully'
     })
   } catch (err: any) {
-    console.error('[Mono] Sync transactions error:', err)
+    logger.error({ module: 'mono', error: err.message }, 'Failed to sync transactions')
     res.status(500).json({ 
       success: false, 
       error: 'Failed to sync transactions', 

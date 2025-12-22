@@ -8,6 +8,7 @@ import { createUserSettings } from '../services/settings'
 import { createSession, deleteSession, deleteAllUserSessions, getUserSessions } from '../services/session'
 import { authMiddleware, AuthRequest } from '../middleware/middleware'
 import { initializeUserCategories } from '../db/helpers/spending-categories-helpers'
+import logger from '../utils/logger'
 
 export const authRoutes = Router()
 
@@ -58,17 +59,19 @@ authRoutes.post('/signup', async (req, res) => {
       return res.status(500).json({ message: 'Failed to create user.' })
     }
 
-    console.log(`[Signup] ✅ User created: ${customerId}`)
-    console.log(`[Signup]    - Name: ${firstName} ${lastName}`)
-    console.log(`[Signup]    - Email: ${normalizedEmail}`)
+    logger.info({ module: 'auth', customerId, name: `${firstName} ${lastName}`, email: normalizedEmail }, 'User created')
 
     await createUserSettings(customerId)
-    console.log(`[Signup] ✅ User settings created`)
+    logger.info({ module: 'auth', customerId }, 'User settings created')
     
     const userCategories = await initializeUserCategories(customerId)
-    console.log(`[Signup] ✅ User categories initialized`)
-    console.log(`[Signup]    - Default categories: ${userCategories.categories.filter(c => c.isDefault).length}`)
-    console.log(`[Signup]    - Custom categories: ${userCategories.categories.filter(c => !c.isDefault).length}`)
+    logger.info({ 
+      module: 'auth',
+      customerId, 
+      defaultCategories: userCategories.categories.filter(c => c.isDefault).length,
+      customCategories: userCategories.categories.filter(c => !c.isDefault).length,
+      totalCategories: userCategories.categories.length
+    }, 'User categories initialized')
 
     const emailResult = await sendVerificationEmail(
       normalizedEmail,
@@ -81,11 +84,12 @@ authRoutes.post('/signup', async (req, res) => {
       return res.status(500).json({ message: 'Failed to send verification email. Please try again.' })
     }
 
-    console.log(`[Signup] ✅ Verification email sent to ${normalizedEmail}`)
-    console.log(`[Signup] 📦 User initialization complete!`)
-    console.log(`[Signup]    ✓ User document`)
-    console.log(`[Signup]    ✓ Settings document`)
-    console.log(`[Signup]    ✓ Categories document (${userCategories.categories.length} categories)`)
+    logger.info({ 
+      module: 'auth',
+      customerId, 
+      email: normalizedEmail,
+      categoriesCount: userCategories.categories.length 
+    }, 'Signup complete - verification email sent')
 
     res.status(201).json({
       success: true,
@@ -93,7 +97,7 @@ authRoutes.post('/signup', async (req, res) => {
       message: 'Account created! Please check your email to verify your account.'
     })
   } catch (error) {
-    console.error('Signup error:', error)
+    logger.error({ module: 'auth', error }, 'Signup error')
     res.status(500).json({ message: 'An unexpected error occurred. Please try again.' })
   }
 })
@@ -160,7 +164,7 @@ authRoutes.post('/login', async (req, res) => {
       }
     })
   } catch (error) {
-    console.error('Login error:', error)
+    logger.error({ module: 'auth', error }, 'Login error')
     res.status(500).json({ message: 'An error occurred during login.' })
   }
 })
@@ -185,7 +189,7 @@ authRoutes.post('/logout', authMiddleware, async (req: AuthRequest, res) => {
       message: 'Logged out successfully'
     })
   } catch (error) {
-    console.error('Logout error:', error)
+    logger.error({ module: 'auth', error }, 'Logout error')
     res.status(500).json({
       success: false,
       message: 'Logout failed'
@@ -215,7 +219,7 @@ authRoutes.post('/logout-all', authMiddleware, async (req: AuthRequest, res) => 
       message: `Logged out from ${deletedCount} device(s)`
     })
   } catch (error) {
-    console.error('Logout all error:', error)
+    logger.error({ module: 'auth', error }, 'Logout all error')
     res.status(500).json({
       success: false,
       message: 'Logout failed'
@@ -246,7 +250,7 @@ authRoutes.get('/sessions', authMiddleware, async (req: AuthRequest, res) => {
       }))
     })
   } catch (error) {
-    console.error('Get sessions error:', error)
+    logger.error({ module: 'auth', error }, 'Get sessions error')
     res.status(500).json({
       success: false,
       message: 'Failed to fetch sessions'
@@ -312,7 +316,7 @@ authRoutes.get('/verify-email', async (req, res) => {
       customerId: user.customerId,
     })
   } catch (error) {
-    console.error('Error verifying email:', error)
+    logger.error({ module: 'auth', error }, 'Error verifying email')
     res.status(500).json({
       success: false,
       message: 'An error occurred during verification'

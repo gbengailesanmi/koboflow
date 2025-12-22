@@ -1,6 +1,6 @@
 import config from '../config'
 
-export function normalizeTestAccountNumber(
+export function normaliseTestAccountNumber(
   accountNumber: string,
   bankCode: string
 ): string {
@@ -34,29 +34,12 @@ export function normalizeTestAccountNumber(
  * @param identityBVN - Full BVN from identity endpoint (source of truth)
  * @returns Last 4 digits of identity BVN (simulating production behavior)
  */
-export function normalizeAccountBVNToIdentity(
-  accountBVN: string | null,
-  identityBVN: string | null
-): string | null {
+export function normaliseAccountBVNToIdentity(
+  accountBVN: string | null): string | null {
   // In production, account BVN already comes as last 4 digits from Mono
   if (config.IS_PRODUCTION) {
     return accountBVN
   }
 
-  // If no identity BVN, fall back to account BVN
-  if (!identityBVN) {
-    console.warn(`[Test Mode] No identity BVN provided, using account BVN as-is`)
-    return accountBVN
-  }
-
-  // If no account BVN, return null
-  if (!accountBVN) {
-    return null
-  }
-
-  // In test mode, normalize to last 4 digits of identity BVN
-  const normalized = identityBVN.slice(-4)
-  console.log(`[Test Mode] Normalized BVN: ${accountBVN} → ${normalized} (from identity: ${identityBVN})`)
-  
   return '1000'
 }

@@ -1,6 +1,6 @@
 import { accountIndexer } from './indexes/account-indexer'
 
-async function insertMonoAccounts(accounts: any[], customerId: string, connectDB: any) {
+async function insertAccounts(accounts: any[], customerId: string, connectDB: any) {
   if (!Array.isArray(accounts) || accounts.length === 0) return
   if (!customerId) throw new Error('Customer ID is required')
 
@@ -72,8 +72,8 @@ async function insertMonoAccounts(accounts: any[], customerId: string, connectDB
   }
 }
 
-async function bulkInsertMonoAccounts(accounts: any[], customerId: string, connectDB: any) {
-  return insertMonoAccounts(accounts, customerId, connectDB)
+async function bulkInsertAccounts(accounts: any[], customerId: string, connectDB: any) {
+  return insertAccounts(accounts, customerId, connectDB)
 }
 
-export { bulkInsertMonoAccounts }
+export { bulkInsertAccounts }

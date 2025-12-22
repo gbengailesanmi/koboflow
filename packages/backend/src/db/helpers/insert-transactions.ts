@@ -18,7 +18,7 @@ function generateTransactionHash(
  * Insert Mono transactions in exact API format
  * Stores the exact Mono transaction object plus metadata
  */
-async function insertMonoTransactions(
+async function insertTransactions(
   transactions: any[], 
   customerId: string, 
   accountId: string,
@@ -95,13 +95,13 @@ async function insertMonoTransactions(
   }
 }
 
-async function bulkInsertMonoTransactions(
+async function bulkInsertTransactions(
   transactions: any[], 
   customerId: string, 
   accountId: string,
   connectDB: any
 ) {
-  return insertMonoTransactions(transactions, customerId, accountId, connectDB)
+  return insertTransactions(transactions, customerId, accountId, connectDB)
 }
 
-export { bulkInsertMonoTransactions }
+export { bulkInsertTransactions }

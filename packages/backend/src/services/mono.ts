@@ -1,5 +1,5 @@
 import config from '../config'
-import { normalizeTestAccountNumber, normalizeAccountBVNToIdentity } from '../test-helpers/account-normalizer'
+import { normaliseTestAccountNumber, normaliseAccountBVNToIdentity } from '../test-helpers/account-normalizer'
 
 const MONO_API_BASE = 'https://api.withmono.com/v2'
 
@@ -430,25 +430,27 @@ export function formatAccountForStorage(
 ): any {
   const { account, customer, meta } = response
   
+  // -----------------------------------------------------------------
+  //TEST NORMALISERS
   // Normalize account number for test environment (adds bank code suffix)
-  const normalizedAccountNumber = normalizeTestAccountNumber(
+  const normalisedAccountNumber = normaliseTestAccountNumber(
     account.account_number,
     account.institution.bank_code
   )
-  
   // Normalize account BVN to match identity BVN (last 4 digits)
   // In test: account BVN may differ from identity, so use identity's last 4
   // In production: account BVN already comes as last 4 digits from Mono
-  const normalizedBVN = normalizeAccountBVNToIdentity(account.bvn, identityBVN || null)
-  
+  const normalisedBVN = normaliseAccountBVNToIdentity(account.bvn)
+  // -----------------------------------------------------------------
+
   return {
     id: account.id,
     name: account.name,
     currency: account.currency,
     type: account.type,
-    account_number: normalizedAccountNumber,
+    account_number: normalisedAccountNumber,
     balance: account.balance,
-    bvn: normalizedBVN,
+    bvn: normalisedBVN,
     institution: {
       name: account.institution.name,
       bank_code: account.institution.bank_code,
@@ -471,5 +473,5 @@ export function formatAccountForStorage(
 }
 
 // Re-export test helper for convenience
-export { normalizeTestAccountNumber } from '../test-helpers/account-normalizer'
+export { normaliseTestAccountNumber } from '../test-helpers/account-normalizer'
 
