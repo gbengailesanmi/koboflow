@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState, useRef } from 'react'
 import type { Account } from '@money-mapper/shared'
 import useEmblaCarousel from 'embla-carousel-react'
 import { Box } from '@radix-ui/themes'
@@ -11,6 +11,7 @@ import generateHues from '@/helpers/generate-hues'
 import AccountsPills from '../../utils/account-pills/accounts-pills'
 import { useParams, useRouter } from 'next/navigation'
 import { useMonoConnect } from '@/hooks/use-mono-connect'
+import { useHorizontalScrollRestoration } from '@/hooks/use-scroll-restoration'
 import styles from './accounts-carousel.module.css'
 
 const HUE_LOCAL_STORAGE_KEY = 'accounts-carousel-slide-hue'
@@ -33,10 +34,14 @@ export default function AccountsCarousel({
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [slideHue, setSlideHue] = useState<Record<number, string>>({ 0: hues[0] })
   const [hasInitialized, setHasInitialized] = useState(false)
+  const carouselContainerRef = useRef<HTMLDivElement>(null)
   
   const params = useParams()
   const router = useRouter()
   const customerId = params.customerId as string
+
+  // Restore carousel scroll position when returning to this page
+  useHorizontalScrollRestoration(carouselContainerRef, 'accounts-carousel')
 
   const { openMonoWidget, isLoading: isConnecting } = useMonoConnect({
     onSuccess: () => {
@@ -127,7 +132,15 @@ export default function AccountsCarousel({
   return (
     <>
       <Box className={styles.embla}>
-        <div className={styles.embla__viewport} ref={emblaRef}>
+        <div 
+          className={styles.embla__viewport} 
+          ref={(node) => {
+            emblaRef(node)
+            if (carouselContainerRef) {
+              (carouselContainerRef as any).current = node
+            }
+          }}
+        >
           <div className={styles.embla__container}>
 
             {}

@@ -11,6 +11,8 @@ import TransactionsColumn from '@/app/components/transactions/transactions-colum
 import { MonthOnMonthChart } from '@/app/components/analytics/month-on-month-chart/month-on-month-chart'
 import { RecurringPayments } from '@/app/components/analytics/recurring-payments/recurring-payments'
 import { categorizeTransaction } from '@/app/components/analytics/utils/categorize-transaction'
+import { useQueryStateNullable } from '@/hooks/use-query-state'
+import { useScrollRestoration } from '@/hooks/use-scroll-restoration'
 import type { Account, Transaction } from '@money-mapper/shared'
 
 interface DashboardClientProps {
@@ -32,24 +34,13 @@ export default function DashboardClient({
   profile,
 }: DashboardClientProps) {
   const router = useRouter()
-  const searchParams = useSearchParams()
   const [hasNavigated, setHasNavigated] = useState(false)
 
-  // --- URL state ---
-  const selectedAccountId =
-    searchParams.get('accountId') ?? accounts[0]?.id ?? null
+  const [selectedAccountId, setSelectedAccountId] = useQueryStateNullable('accountId')
+  
+  useScrollRestoration()
 
-  const setSelectedAccount = (accountId: string | null) => {
-    const params = new URLSearchParams(searchParams.toString())
-
-    if (accountId) {
-      params.set('accountId', accountId)
-    } else {
-      params.delete('accountId')
-    }
-
-    router.push(`?${params.toString()}`)
-  }
+  const effectiveAccountId = selectedAccountId ?? accounts[0]?.id ?? null
 
 
   const filteredTransactions = selectedAccountId
@@ -113,7 +104,7 @@ export default function DashboardClient({
           <AccountsCarousel
             accounts={accounts}
             selectedAccount={selectedAccountId}
-            setSelectedAccount={setSelectedAccount}
+            setSelectedAccount={setSelectedAccountId}
             onNavigate={() => setHasNavigated(true)}
           />
         </Grid>

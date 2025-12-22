@@ -26,6 +26,8 @@ import { DailySpendingComparison } from '@/app/components/analytics/daily-spendi
 import { AnalyticsCard } from '@/app/components/analytics/analytics-card/analytics-card'
 import { EmptyState } from '@/app/components/empty-state'
 import { ChartPlaceholder } from '@/app/components/chart-placeholder'
+import { useQueryStateNullable, useQueryState } from '@/hooks/use-query-state'
+import { useScrollRestoration } from '@/hooks/use-scroll-restoration'
 import { 
   Grid, 
   Tabs,
@@ -54,10 +56,16 @@ export default function AnalyticsClient({
 }: AnalyticsClientProps) {
   const router = useRouter()
   
-  const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null)
-  const [timePeriod, setTimePeriod] = useState<'day' | 'month' | 'year'>('month')
+  // URL state for account filter and settings
+  const [selectedAccountId, setSelectedAccountId] = useQueryStateNullable('accountId')
+  const [timePeriod, setTimePeriod] = useQueryState('period', 'month')
+  
+  // Local UI state
   const [showAccountFilter, setShowAccountFilter] = useState(false)
   const [currentChartIndex, setCurrentChartIndex] = useState(0)
+  
+  // Restore scroll position when navigating back
+  useScrollRestoration()
   
   const effectiveAccountId = selectedAccountId || 'all'
 

@@ -10,6 +10,7 @@ import Sidebar from '@/app/components/sidebar/sidebar'
 import { PageHeader } from '@/app/components/page-header/page-header'
 import { PageLayout } from '@/app/components/page-layout/page-layout'
 import { BudgetSwitcher } from '@/app/components/budget-switcher'
+import { useScrollRestoration } from '@/hooks/use-scroll-restoration'
 import type { Transaction } from '@money-mapper/shared'
 import type { CustomCategory } from '@/types/custom-category'
 import type { Budget } from '@money-mapper/shared'
@@ -55,6 +56,9 @@ export default function BudgetClient({
   currency
 }: BudgetClientProps) {
   const router = useRouter()
+
+  // Restore scroll position when navigating back
+  useScrollRestoration()
 
   const budgetData = initialBudget
   const [isSaving, setIsSaving] = useState(false)
