@@ -71,7 +71,7 @@ export default function AccountFilterMenu({
               <Flex direction="column" gap="1" style={{ flex: 1 }}>
                 <Text size="3" weight="medium">{account.name}</Text>
                 <Text size="2" color="gray">
-                  {currency === 'GBP' ? '£' : formatCurrency(0, currency).charAt(0)}
+                  {currency === 'NGN' ? '₦' : formatCurrency(0, currency).charAt(0)}
                   {Number(account.balance).toFixed(2)}
                 </Text>
               </Flex>

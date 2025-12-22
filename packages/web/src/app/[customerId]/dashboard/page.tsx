@@ -24,7 +24,7 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
   const profile = {
     name: `${session.firstName} ${session.lastName}`,
     email: session.email,
-    currency: 'GBP',
+    currency: 'NGN',
     totalBudgetLimit: budgetRes?.totalBudgetLimit || 0,
   }
 

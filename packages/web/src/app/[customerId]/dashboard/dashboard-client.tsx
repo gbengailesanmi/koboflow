@@ -1,15 +1,13 @@
 'use client'
 
-import React, { useMemo, useState, useEffect } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import React, { useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Header from '@/app/components/header/header'
 import Footer from '@/app/components/footer/footer'
 import { Grid } from '@radix-ui/themes'
 import styles from './dashboard.module.css'
 import AccountsCarousel from './utils/accounts-carousel/accounts-carousel'
 import TransactionsColumn from '@/app/components/transactions/transactions-column/transactions-column'
-import { MonthOnMonthChart } from '@/app/components/analytics/month-on-month-chart/month-on-month-chart'
-import { RecurringPayments } from '@/app/components/analytics/recurring-payments/recurring-payments'
 import { categorizeTransaction } from '@/app/components/analytics/utils/categorize-transaction'
 import { useQueryStateNullable } from '@/hooks/use-query-state'
 import { useScrollRestoration } from '@/hooks/use-scroll-restoration'
@@ -109,19 +107,6 @@ export default function DashboardClient({
           />
         </Grid>
 
-        <Grid className={styles.Grid2}>
-          <h2 className="text-sm font-semibold mb-2">Ads</h2>
-        </Grid>
-
-        <Grid className={styles.Grid2}>
-          <h2 className="text-sm font-semibold mb-2">Upcoming bills</h2>
-          <RecurringPayments
-            transactions={processedTransactions}
-            currency={profile.currency}
-            maxItems={5}
-            showSeeMore
-          />
-        </Grid>
 
         <Grid
           rows="3"
@@ -129,7 +114,7 @@ export default function DashboardClient({
           style={{ gridTemplateRows: '2.5rem 1fr 2.5rem' }}
         >
           <div style={{ display: 'flex', height: '100%', padding: '.3rem' }}>
-            <h2 className="text-sm font-semibold mb-2">Transactions</h2>
+            <h2 className="text-sm font-semibold mb-2">All Transactions</h2>
           </div>
 
           <div className={styles.TransactionsListWrapper}>
@@ -145,28 +130,9 @@ export default function DashboardClient({
           </div>
         </Grid>
 
-        <Grid className={styles.Grid4}>
-          <h2 className="text-sm font-semibold mb-2">This Month vs Last Month</h2>
-          <div style={{ width: '100%', height: '350px' }}>
-            {processedTransactions.length > 0 &&
-            (monthOnMonthData.currentMonth.expense > 0 ||
-              monthOnMonthData.prevMonth.expense > 0) ? (
-              <MonthOnMonthChart
-                data={monthOnMonthData}
-                currency={profile.currency}
-                transactions={processedTransactions}
-              />
-            ) : (
-              <div className={styles.EmptyChart}>
-                <div style={{ fontSize: 48 }}>📈</div>
-                <p>No expense data for comparison</p>
-              </div>
-            )}
-          </div>
-        </Grid>
 
         <Grid className={styles.Grid6}>
-          <h2 className="text-sm font-semibold mb-2">My top receivers</h2>
+          <h2 className="text-sm font-semibold mb-2">Current month summary</h2>
         </Grid>
       </main>
       <Footer opacity={2} />

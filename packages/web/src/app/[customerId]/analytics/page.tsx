@@ -29,7 +29,7 @@ export default async function AnalyticsPage({ params }: PageProps) {
       accounts={accounts}
       transactions={transactions}
       customCategories={customCategories || []}
-      currency="GBP"
+      currency="NGN"
       totalBudgetLimit={budgetRes?.totalBudgetLimit || 0}
     />
   )
