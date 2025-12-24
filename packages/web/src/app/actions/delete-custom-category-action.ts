@@ -13,7 +13,7 @@ export async function deleteCustomCategoryAction(categoryId: string): Promise<{ 
     const result = await deleteCustomCategory(categoryId)
 
     if (result.success) {
-      revalidateTag('categories')
+      revalidateTag('categories', 'fetch')
     }
 
     return result

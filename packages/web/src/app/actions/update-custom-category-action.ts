@@ -16,7 +16,7 @@ export async function updateCustomCategoryAction(
     const result = await updateCustomCategory(categoryId, updates)
 
     if (result.success) {
-      revalidateTag('categories')
+      revalidateTag('categories', 'fetch')
     }
 
     return result

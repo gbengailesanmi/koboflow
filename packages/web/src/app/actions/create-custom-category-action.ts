@@ -18,7 +18,7 @@ export async function createCustomCategoryAction(categoryData: {
     const result = await createCustomCategory(categoryData)
 
     if (result) {
-      revalidateTag('categories')
+      revalidateTag('categories', 'fetch')
     }
 
     return result

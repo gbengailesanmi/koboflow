@@ -25,8 +25,8 @@ export async function createBudgetAction(
     )
     
     if (result.success) {
-      revalidateTag('budgets')
-      revalidateTag('budget')
+      revalidateTag('budgets', 'fetch')
+      revalidateTag('budget', 'fetch')
       return {
         success: true,
         budgetId: result.budgetId,

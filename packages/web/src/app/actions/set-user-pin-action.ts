@@ -21,7 +21,7 @@ export async function setUserPINAction(
     const result = await setUserPIN(pin, password)
 
     if (result.success) {
-      revalidateTag('settings')
+      revalidateTag('settings', 'fetch')
     }
 
     return result

@@ -48,9 +48,9 @@ export async function processMonoConnection(code: string): Promise<{
       logger.info({ module: 'mono-action', accountId, transactionsCount: transactionsResult.transactionsCount }, 'Transactions synced')
     }
 
-    revalidateTag('accounts')
-    revalidateTag('transactions')
-    revalidateTag('customer-details')
+    revalidateTag('accounts', 'fetch')
+    revalidateTag('transactions', 'fetch')
+    revalidateTag('customer-details', 'fetch')
     
     return {
       success: true,

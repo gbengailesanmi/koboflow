@@ -15,8 +15,8 @@ export async function logoutAction(): Promise<{
     const result = await logoutService()
     
     if (result.success) {
-      revalidateTag('session')
-      revalidateTag('sessions-list')
+      revalidateTag('session', 'fetch')
+      revalidateTag('sessions-list', 'fetch')
       return { success: true }
     }
     

@@ -15,8 +15,8 @@ export async function deleteBudgetByIdAction(budgetId: string): Promise<{
     const result = await deleteBudgetByIdService(budgetId)
 
     if (result.success) {
-      revalidateTag('budgets')
-      revalidateTag('budget')
+      revalidateTag('budgets', 'fetch')
+      revalidateTag('budget', 'fetch')
       return { success: true }
     }
 

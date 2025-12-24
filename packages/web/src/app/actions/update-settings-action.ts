@@ -18,8 +18,8 @@ export async function updateSettingsAction(settings: Partial<UserSettings>): Pro
     const result = await updateSettings(settings)
 
     if (result.success) {
-      revalidateTag('settings')
-      revalidateTag('session')
+      revalidateTag('settings', 'fetch')
+      revalidateTag('session', 'fetch')
     }
 
     return result

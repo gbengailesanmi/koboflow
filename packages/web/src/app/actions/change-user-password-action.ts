@@ -23,8 +23,8 @@ export async function changeUserPasswordAction(
     const result = await changeUserPassword(currentPassword, newPassword, confirmPassword)
 
     if (result.success) {
-      revalidateTag('settings')
-      revalidateTag('session')
+      revalidateTag('settings', 'fetch')
+      revalidateTag('session', 'fetch')
     }
 
     return result

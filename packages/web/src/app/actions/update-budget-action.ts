@@ -24,8 +24,8 @@ export async function updateBudgetAction(
     const result = await updateBudgetByIdService(budgetId, updates)
     
     if (result.success) {
-      revalidateTag('budgets')
-      revalidateTag('budget')
+      revalidateTag('budgets', 'fetch')
+      revalidateTag('budget', 'fetch')
       return { success: true }
     }
     

@@ -18,8 +18,8 @@ export async function patchBudgetAction(updates: {
     const result = await patchBudget(updates)
 
     if (result.success) {
-      revalidateTag('budget')
-      revalidateTag('session')
+      revalidateTag('budget', 'fetch')
+      revalidateTag('session', 'fetch')
     }
 
     return result

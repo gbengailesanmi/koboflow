@@ -21,10 +21,10 @@ export async function updateUserProfileAction(
     const result = await updateUserProfile(customerId, updates)
 
     if (result.success) {
-      revalidateTag('session')
+      revalidateTag('session', 'fetch')
       if (updates.totalBudgetLimit !== undefined) {
-        revalidateTag('budget')
-        revalidateTag('budgets')
+        revalidateTag('budget', 'fetch')
+        revalidateTag('budgets', 'fetch')
       }
     }
 

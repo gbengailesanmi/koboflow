@@ -23,7 +23,7 @@ export async function changeUserPINAction(
     const result = await changeUserPIN(oldPin, newPin, password)
 
     if (result.success) {
-      revalidateTag('settings')
+      revalidateTag('settings', 'fetch')
     }
 
     return result
