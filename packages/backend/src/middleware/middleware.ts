@@ -14,21 +14,18 @@ export interface AuthRequest extends Request {
 
 export const authMiddleware = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    // Get session ID from cookie
     const sessionId = req.cookies?.['session-id']
 
     if (!sessionId) {
       return res.status(401).json({ error: "Authentication required" })
     }
 
-    // Lookup session in database
     const session = await getSession(sessionId)
 
     if (!session) {
       return res.status(401).json({ error: "Invalid or expired session" })
     }
 
-    // Attach session data to request
     req.user = {
       userId: session.customerId, // Using customerId as userId for consistency
       customerId: session.customerId,

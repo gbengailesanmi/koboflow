@@ -1,43 +1,213 @@
 @reference "../../../globals.css";
 
 .statsGrid {
-  @apply grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 px-4;
+  @apply flex flex-row items-stretch mb-8 px-1;
+  gap: 0;
+  width: 100%;
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+  flex-wrap: nowrap;
+  box-sizing: border-box;
+}
+
+.separator {
+  align-self: center;
+  flex: 0 0 auto;
+  margin: 0 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50%;
+}
+
+.separator > * {
+  width: 1px;
 }
 
 .statsCard {
-  @apply rounded-2xl p-6;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  @apply p-1;
+  flex: 1 1 0%;
+  min-width: 0;
+  background: transparent;
+  backdrop-filter: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
   transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  aspect-ratio: 4 / 1;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  box-sizing: border-box;
 }
 
 .statsCard:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
-}
-
-.statsCardHeader {
-  @apply mb-4;
-}
-
-.statsCardTitle {
-  @apply text-sm font-medium text-gray-600;
+  transform: translateY(-2px);
+  box-shadow: none;
 }
 
 .statsCardContent {
-  @apply space-y-1;
+  @apply space-y-0;
+  margin-bottom: 1px;
+  text-align: left;
+  width: 100%;
+  padding-left: 25%;
+}
+
+.statsCardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  width: 100%;
+  padding-left: 25%;
+}
+
+.transactionBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.badgeIcon {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  color: rgba(255, 255, 255, 0.071);
+}
+
+.badgeNumber {
+  position: relative;
+  font-size: 0.5rem;
+  color: rgba(255, 255, 255, 0.592);
+  font-weight: 600;
+  line-height: 1;
+  z-index: 1;
+}
+
+.badgeText {
+  line-height: 1;
+}
+
+.statsCardTitle {
+  font-size: 0.50rem;
+  font-weight: 500;
+  color: var(--gray-11);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .statsValue {
-  @apply text-3xl font-bold;
+  @apply text-sm font-bold;
+  color: var(--gray-12);
 }
 
 .incomeColor {
-  @apply text-green-600;
+  color: var(--gray-12);
 }
 
 .expenseColor {
-  @apply text-red-600;
+  color: var(--gray-10);
+}
+
+/* Tablet and up */
+@media (min-width: 481px) {
+  .statsGrid {
+    @apply px-2;
+  }
+
+  .separator {
+    margin: 0 8px;
+  }
+
+  .statsCard {
+    @apply p-2;
+  }
+
+  .statsCardContent {
+    padding-left: 0;
+    text-align: center;
+  }
+
+  .statsCardFooter {
+    gap: 8px;
+    padding-left: 0;
+    justify-content: center;
+  }
+
+  .transactionBadge {
+    width: 20px;
+    height: 20px;
+  }
+
+  .badgeIcon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .badgeNumber {
+    font-size: 0.55rem;
+  }
+
+  .statsCardTitle {
+    font-size: 0.6rem;
+  }
+
+  .statsValue {
+    @apply text-base;
+  }
+}
+
+/* Desktop and up */
+@media (min-width: 769px) {
+  .statsGrid {
+    @apply px-4;
+  }
+
+  .separator {
+    margin: 0 16px;
+  }
+
+  .statsCard {
+    @apply p-3;
+  }
+
+  .statsCardContent {
+    padding-left: 0;
+    text-align: center;
+  }
+
+  .statsCardFooter {
+    gap: 12px;
+    padding-left: 0;
+    justify-content: center;
+  }
+
+  .transactionBadge {
+    width: 24px;
+    height: 24px;
+  }
+
+  .badgeIcon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .badgeNumber {
+    font-size: 0.6rem;
+  }
+
+  .statsCardTitle {
+    font-size: 0.6.5rem;
+  }
+
+  .statsValue {
+    @apply text-lg;
+  }
 }

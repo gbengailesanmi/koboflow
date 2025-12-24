@@ -7,6 +7,8 @@ import { sendVerificationEmail } from '../services/email'
 import { createUserSettings } from '../services/settings'
 import { createSession, deleteSession, deleteAllUserSessions, getUserSessions } from '../services/session'
 import { authMiddleware, AuthRequest } from '../middleware/middleware'
+import { initializeUserCategories } from '../db/helpers/spending-categories-helpers'
+import { logger } from '@money-mapper/shared/utils'
 
 export const authRoutes = Router()
 
@@ -36,7 +38,7 @@ authRoutes.post('/signup', async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10)
-        const customerId = randomUUID()
+    const customerId = randomUUID()
     const verificationToken = randomUUID()
     const verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
 
@@ -57,7 +59,12 @@ authRoutes.post('/signup', async (req, res) => {
       return res.status(500).json({ message: 'Failed to create user.' })
     }
 
+    logger.info({ module: 'auth', customerId, name: `${firstName} ${lastName}`, email: normalizedEmail }, 'User created')
+
     await createUserSettings(customerId)
+    logger.info({ module: 'auth', customerId }, 'User settings created')
+    
+    const userCategories = await initializeUserCategories(customerId)
 
     const emailResult = await sendVerificationEmail(
       normalizedEmail,
@@ -76,7 +83,7 @@ authRoutes.post('/signup', async (req, res) => {
       message: 'Account created! Please check your email to verify your account.'
     })
   } catch (error) {
-    console.error('Signup error:', error)
+    logger.error({ module: 'auth', error }, 'Signup error')
     res.status(500).json({ message: 'An unexpected error occurred. Please try again.' })
   }
 })
@@ -109,7 +116,6 @@ authRoutes.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Invalid credentials.' })
     }
 
-    // Create server-side session
     const sessionId = await createSession(
       user.customerId,
       user.email,
@@ -144,7 +150,7 @@ authRoutes.post('/login', async (req, res) => {
       }
     })
   } catch (error) {
-    console.error('Login error:', error)
+    logger.error({ module: 'auth', error }, 'Login error')
     res.status(500).json({ message: 'An error occurred during login.' })
   }
 })
@@ -154,7 +160,6 @@ authRoutes.post('/logout', authMiddleware, async (req: AuthRequest, res) => {
     const sessionId = req.sessionId
 
     if (sessionId) {
-      // Delete session from database
       await deleteSession(sessionId)
     }
 
@@ -170,7 +175,7 @@ authRoutes.post('/logout', authMiddleware, async (req: AuthRequest, res) => {
       message: 'Logged out successfully'
     })
   } catch (error) {
-    console.error('Logout error:', error)
+    logger.error({ module: 'auth', error }, 'Logout error')
     res.status(500).json({
       success: false,
       message: 'Logout failed'
@@ -178,7 +183,6 @@ authRoutes.post('/logout', authMiddleware, async (req: AuthRequest, res) => {
   }
 })
 
-// New endpoint: Logout from all devices
 authRoutes.post('/logout-all', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
@@ -187,7 +191,6 @@ authRoutes.post('/logout-all', authMiddleware, async (req: AuthRequest, res) => 
       return res.status(401).json({ message: 'Unauthorized' })
     }
 
-    // Delete all sessions for this user
     const deletedCount = await deleteAllUserSessions(customerId)
 
     res.clearCookie('session-id', {
@@ -202,7 +205,7 @@ authRoutes.post('/logout-all', authMiddleware, async (req: AuthRequest, res) => 
       message: `Logged out from ${deletedCount} device(s)`
     })
   } catch (error) {
-    console.error('Logout all error:', error)
+    logger.error({ module: 'auth', error }, 'Logout all error')
     res.status(500).json({
       success: false,
       message: 'Logout failed'
@@ -210,7 +213,6 @@ authRoutes.post('/logout-all', authMiddleware, async (req: AuthRequest, res) => 
   }
 })
 
-// New endpoint: Get active sessions
 authRoutes.get('/sessions', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
@@ -234,7 +236,7 @@ authRoutes.get('/sessions', authMiddleware, async (req: AuthRequest, res) => {
       }))
     })
   } catch (error) {
-    console.error('Get sessions error:', error)
+    logger.error({ module: 'auth', error }, 'Get sessions error')
     res.status(500).json({
       success: false,
       message: 'Failed to fetch sessions'
@@ -300,7 +302,7 @@ authRoutes.get('/verify-email', async (req, res) => {
       customerId: user.customerId,
     })
   } catch (error) {
-    console.error('Error verifying email:', error)
+    logger.error({ module: 'auth', error }, 'Error verifying email')
     res.status(500).json({
       success: false,
       message: 'An error occurred during verification'
@@ -770,7 +772,6 @@ authRoutes.get('/google/callback', async (req, res) => {
       user.emailVerified = true
     }
 
-    // Create server-side session for Google OAuth user
     const sessionId = await createSession(
       user.customerId,
       user.email,
@@ -806,7 +807,6 @@ authRoutes.get('/google/callback', async (req, res) => {
         <body>
           <p>Login successful! Redirecting...</p>
           <script>
-            // Delay to ensure cookie is set
             setTimeout(() => {
               window.location.href = '${frontendUrl}/${user.customerId}/dashboard';
             }, 50);

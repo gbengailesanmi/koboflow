@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { getSession, getAccounts, getTransactions, getCustomCategories, getBudget } from '@/lib/api-service'
+import { getSession, getAccounts, getTransactions, getCustomCategories, getBudget } from '@/app/api/api-service'
 import AnalyticsClient from './analytics-client'
 
 type PageProps = {
@@ -11,7 +11,6 @@ type PageProps = {
 export default async function AnalyticsPage({ params }: PageProps) {
   const { customerId } = await params
 
-  // Fetch all data in parallel on the server
   const [session, accounts, transactions, customCategories, budgetRes] = await Promise.all([
     getSession(),
     getAccounts(),
@@ -20,7 +19,6 @@ export default async function AnalyticsPage({ params }: PageProps) {
     getBudget(),
   ])
 
-  // Validate session
   if (!session || session.customerId !== customerId) {
     redirect('/login')
   }
@@ -31,7 +29,7 @@ export default async function AnalyticsPage({ params }: PageProps) {
       accounts={accounts}
       transactions={transactions}
       customCategories={customCategories || []}
-      currency="GBP"
+      currency="NGN"
       totalBudgetLimit={budgetRes?.totalBudgetLimit || 0}
     />
   )

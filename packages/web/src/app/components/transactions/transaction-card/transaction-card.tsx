@@ -39,7 +39,7 @@ export default function TransactionCard({
                   {transaction.narration}
                 </Text>
                 <Text as="div" size="1">
-                  {new Date(transaction.bookedDate).toISOString().slice(0, 10)}
+                  {new Date(transaction.date).toISOString().slice(0, 10)}
                 </Text>
               </div>
               <div className={styles.AmountWrapper}>

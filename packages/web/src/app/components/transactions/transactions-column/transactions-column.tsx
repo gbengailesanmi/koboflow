@@ -1,4 +1,4 @@
-import type { Transaction } from '@/types/transactions'
+import type { Transaction } from '@money-mapper/shared'
 import { Box, Card, Flex, Text, Dialog } from '@radix-ui/themes'
 import { Cross1Icon, DownloadIcon, UploadIcon } from '@radix-ui/react-icons'
 import styles from './transactions-column.module.css'
@@ -40,7 +40,7 @@ export default function TransactionsColumn({ transactions }: TrxnRowProps) {
                           {transaction.narration}
                         </Text>
                         <Text as="div" size="1">
-                          {new Date(transaction.bookedDate).toISOString().slice(0, 10)}
+                          {new Date(transaction.date).toISOString().slice(0, 10)}
                         </Text>
                       </div>
                       <div className={styles.AmountWrapper}>
@@ -69,7 +69,7 @@ export default function TransactionsColumn({ transactions }: TrxnRowProps) {
             <Text><strong>ID:</strong> {selectedTransaction.id}<br /></Text>
             <Text><strong>Amount:</strong> {selectedTransaction.amount}</Text>
             <Text><strong>Narration:</strong> {selectedTransaction.narration}<br /></Text>
-            <Text><strong>Booked Date:</strong> {new Date(selectedTransaction.bookedDate).toLocaleString()}</Text>
+            <Text><strong>Booked Date:</strong> {new Date(selectedTransaction.date).toLocaleString()}</Text>
           </Box>
         </Dialog.Content>
       )}

@@ -19,6 +19,8 @@ export type BudgetPeriod = {
 export type Budget = {
   _id?: string
   customerId: string
+  name: string
+  isActive: boolean
   totalBudgetLimit: number
   period?: BudgetPeriod
   categories: CategoryBudget[]

@@ -1,8 +1,7 @@
 'use client'
 
-import React, { useCallback, useEffect, useState } from 'react'
-import type { Account } from '@/types/account'
-import { useBaseColor } from '@/providers/base-colour-provider'
+import React, { useCallback, useEffect, useState, useRef } from 'react'
+import type { Account } from '@money-mapper/shared'
 import useEmblaCarousel from 'embla-carousel-react'
 import { Box } from '@radix-ui/themes'
 import { PlusIcon, ListBulletIcon, BarChartIcon } from '@radix-ui/react-icons'
@@ -11,7 +10,8 @@ import FormatCarouselContent from '../../utils/format-carousel-content/format-ca
 import generateHues from '@/helpers/generate-hues'
 import AccountsPills from '../../utils/account-pills/accounts-pills'
 import { useParams, useRouter } from 'next/navigation'
-import config from '@/config'
+import { useMonoConnect } from '@/hooks/use-mono-connect'
+import { useHorizontalScrollRestoration } from '@/hooks/use-scroll-restoration'
 import styles from './accounts-carousel.module.css'
 
 const HUE_LOCAL_STORAGE_KEY = 'accounts-carousel-slide-hue'
@@ -31,14 +31,27 @@ export default function AccountsCarousel({
 }: AccountsCarouselProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false })
   const hues = generateHues(10)
-  const { setBaseColor } = useBaseColor()
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [slideHue, setSlideHue] = useState<Record<number, string>>({ 0: hues[0] })
   const [hasInitialized, setHasInitialized] = useState(false)
+  const carouselContainerRef = useRef<HTMLDivElement>(null)
   
   const params = useParams()
   const router = useRouter()
   const customerId = params.customerId as string
+
+  // Restore carousel scroll position when returning to this page
+  useHorizontalScrollRestoration(carouselContainerRef, 'accounts-carousel')
+
+  const { openMonoWidget, isLoading: isConnecting } = useMonoConnect({
+    onSuccess: () => {
+      console.log('[AccountsCarousel] Account linked successfully!')
+    },
+    onError: (error) => {
+      console.error('[AccountsCarousel] Failed to link account:', error)
+      alert(`Failed to link account: ${error}`)
+    },
+  })
 
   useEffect(() => {
     try {
@@ -63,7 +76,7 @@ export default function AccountsCarousel({
     if (!emblaApi || !accounts.length || hasInitialized) return
 
     if (selectedAccount) {
-      const accountIndex = accounts.findIndex(acc => acc.uniqueId === selectedAccount)
+      const accountIndex = accounts.findIndex(acc => acc.id === selectedAccount)
       if (accountIndex !== -1) {
         emblaApi.scrollTo(accountIndex + 1, true)
       }
@@ -89,31 +102,26 @@ export default function AccountsCarousel({
       const index = emblaApi.selectedScrollSnap()
       setSelectedIndex(index)
 
-      if (index === 0) {
-        setSelectedAccount(null)
-      } else {
-        const account = accounts[index - 1]
-        setSelectedAccount(account?.uniqueId ?? null)
-      }
+      const nextAccountId =
+        index === 0 ? null : accounts[index - 1]?.id ?? null
 
-      const hue = slideHue[index] ?? hues[index % hues.length]
-      setBaseColor?.(hue)
+      if (nextAccountId !== selectedAccount) {
+        setSelectedAccount(nextAccountId)
+      }
     }
 
     emblaApi.on('select', onSelect)
-    onSelect() // initial
 
     return () => {
       emblaApi.off('select', onSelect)
     }
-  }, [emblaApi, accounts, setSelectedAccount, setBaseColor, hues, slideHue])
+  }, [emblaApi, accounts, selectedAccount, setSelectedAccount])
 
   const handleSetHue = (hue: string) => {
     setSlideHue((prev) => ({
       ...prev,
       [selectedIndex]: hue,
     }))
-    setBaseColor?.(hue)
   }
 
   const totalBalance = accounts.reduce(
@@ -124,7 +132,15 @@ export default function AccountsCarousel({
   return (
     <>
       <Box className={styles.embla}>
-        <div className={styles.embla__viewport} ref={emblaRef}>
+        <div 
+          className={styles.embla__viewport} 
+          ref={(node) => {
+            emblaRef(node)
+            if (carouselContainerRef) {
+              (carouselContainerRef as any).current = node
+            }
+          }}
+        >
           <div className={styles.embla__container}>
 
             {}
@@ -168,8 +184,8 @@ export default function AccountsCarousel({
           {
             key: 'add',
             icon: <PlusIcon width="35" height="35" />,
-            label: 'Add Account',
-            onClick: () => window.open(config.ADD_ACCOUNT_URL, '_blank'),
+            label: isConnecting ? 'Connecting...' : 'Add Account',
+            onClick: openMonoWidget,
           },
           {
             key: 'details',

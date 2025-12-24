@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { authMiddleware, AuthRequest } from '../middleware/middleware'
 import { deleteSession } from '../services/session'
+import { connectDB } from '../db/mongo'
 import config from '../config'
 
 export const sessionRoutes = Router()
@@ -15,6 +16,7 @@ sessionRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
     }
     
     const { customerId, email, firstName, lastName } = req.user
+    const sessionId = req.sessionId
     
     res.json({
       success: true,
@@ -23,7 +25,8 @@ sessionRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
         email,
         firstName: firstName || '',
         lastName: lastName || '',
-        name: `${firstName || ''} ${lastName || ''}`.trim()
+        name: `${firstName || ''} ${lastName || ''}`.trim(),
+        sessionId: sessionId || ''
       }
     })
   } catch (error) {
@@ -51,5 +54,36 @@ sessionRoutes.delete('/', authMiddleware, async (req: AuthRequest, res) => {
   } catch (error) {
     console.error('Error during logout:', error)
     res.status(500).json({ success: false, message: 'Logout failed' })
+  }
+})
+
+sessionRoutes.get('/customer-details', authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: 'Unauthorized',
+      })
+    }
+    
+    const { customerId } = req.user
+    const db = await connectDB()
+    const user = await db.collection('users').findOne({ customerId })
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      })
+    }
+    
+    res.json({
+      success: true,
+      customerDetailsFromMono: user.customerDetailsFromMono || null,
+      customerDetailsLastUpdated: user.customerDetailsLastUpdated || null,
+    })
+  } catch (error) {
+    console.error('Get customer details error:', error)
+    res.status(500).json({ success: false, message: 'Failed to get customer details' })
   }
 })

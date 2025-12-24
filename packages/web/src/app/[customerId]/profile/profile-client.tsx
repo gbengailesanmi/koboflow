@@ -1,15 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { updateUserProfile } from '@/lib/api-service'
-import { useToasts } from '@/store'
+import { updateUserProfileAction } from '@/app/actions/update-user-profile-action'
 import Sidebar from '@/app/components/sidebar/sidebar'
-import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
 import { Pencil1Icon, CheckIcon, Cross2Icon, PersonIcon, EnvelopeClosedIcon } from '@radix-ui/react-icons'
 import Footer from '@/app/components/footer/footer'
 import { PageHeader } from '@/app/components/page-header/page-header'
-import { useBaseColor } from '@/providers/base-colour-provider'
 import { 
   Button, 
   TextField, 
@@ -34,10 +31,6 @@ export default function ProfileClient({
   email
 }: ProfileClientProps) {
   const router = useRouter()
-  const { setBaseColor } = useBaseColor()
-  
-  // ✅ Use UI store for toast notifications
-  const { showToast } = useToasts()
 
   const [isEditing, setIsEditing] = useState(false)
   const [formData, setFormData] = useState({
@@ -47,44 +40,37 @@ export default function ProfileClient({
   })
   const [savingProfile, setSavingProfile] = useState(false)
 
-  useEffect(() => {
-    const colorWithTransparency = `${PAGE_COLORS.profile}4D`
-    setBaseColor(colorWithTransparency)
-  }, [setBaseColor])
-
   const handleSave = async () => {
     if (!formData.firstName?.trim() || !formData.lastName?.trim() || !formData.email?.trim()) {
-      showToast('First name, last name, and email are required', 'error')
+      console.error('First name, last name, and email are required')
       return
     }
 
     if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      showToast('Please enter a valid email address', 'error')
+      console.error('Please enter a valid email address')
       return
     }
 
     setSavingProfile(true)
 
     try {
-      const result = await updateUserProfile(customerId, {
+      const result = await updateUserProfileAction(customerId, {
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
         email: formData.email.trim(),
       })
 
       if (!result.success) {
-        showToast(result.message || 'Failed to update profile', 'error')
+        console.error(result.message || 'Failed to update profile')
         return
       }
 
-      showToast('Profile updated successfully!', 'success')
       setIsEditing(false)
       
-      // Router refresh will get fresh data from revalidated cache
       router.refresh()
 
     } catch (err: any) {
-      showToast(err.message || 'An unexpected error occurred', 'error')
+      console.error(err.message || 'An unexpected error occurred')
     } finally {
       setSavingProfile(false)
     }
@@ -101,7 +87,7 @@ export default function ProfileClient({
 
   return (
     <Sidebar customerId={customerId}>
-      <div className={`${styles.container} page-gradient-background`}>
+      <div className={`${styles.container}`}>
         <div className={styles.wrapper}>
           <div>
             <PageHeader 

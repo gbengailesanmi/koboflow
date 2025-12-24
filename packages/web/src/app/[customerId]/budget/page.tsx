@@ -1,6 +1,5 @@
 import { redirect } from 'next/navigation'
-import { getSession, getTransactions, getCustomCategories, getBudget } from '@/lib/api-service'
-import { BudgetSkeleton } from '@/app/components/skeletons/budget-skeleton'
+import { getSession, getTransactions, getCustomCategories, getBudgets } from '@/app/api/api-service'
 import BudgetClient from './budget-client'
 
 type PageProps = {
@@ -12,33 +11,39 @@ type PageProps = {
 export default async function BudgetPage({ params }: PageProps) {
   const { customerId } = await params
 
-  // Fetch all data in parallel on the server
-  const [session, transactions, customCategories, budgetRes] = await Promise.all([
+  const [session, transactions, customCategories, budgets] = await Promise.all([
     getSession(),
     getTransactions(),
     getCustomCategories(),
-    getBudget(),
+    getBudgets(),
   ])
 
-  // Validate session
   if (!session || session.customerId !== customerId) {
     redirect('/login')
   }
 
-  // Prepare budget data
-  const initialBudget = {
-    totalBudgetLimit: budgetRes?.totalBudgetLimit || 0,
-    period: budgetRes?.period || { type: 'current-month' as const },
-    categories: budgetRes?.categories || []
+  const activeBudget = budgets.find(b => b.isActive) || budgets[0] || null
+  
+  const initialBudget = activeBudget ? {
+    _id: activeBudget._id,
+    name: activeBudget.name,
+    totalBudgetLimit: activeBudget.totalBudgetLimit,
+    period: activeBudget.period || { type: 'current-month' as const },
+    categories: activeBudget.categories || []
+  } : {
+    totalBudgetLimit: 0,
+    period: { type: 'current-month' as const },
+    categories: []
   }
 
   return (
     <BudgetClient
       customerId={customerId}
+      allBudgets={budgets}
       initialBudget={initialBudget}
       transactions={transactions}
       customCategories={customCategories || []}
-      currency="GBP"
+      currency="NGN"
     />
   )
 }

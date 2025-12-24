@@ -1,0 +1,41 @@
+.emptyState {
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(20px);
+  padding: 64px 32px;
+  margin: 0 16px;
+}
+
+/* Light mode empty state */
+:root .emptyState,
+.light .emptyState,
+.light-theme .emptyState {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+/* Dark mode empty state */
+.dark .emptyState,
+.dark-theme .emptyState {
+  background: rgba(30, 30, 35, 0.95);
+}
+
+.emptyStateContent {
+  text-align: center;
+}
+
+.emptyStateIcon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.emptyStateTitle {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--gray-12);
+}
+
+.emptyStateText {
+  font-size: 14px;
+  color: var(--gray-11);
+}

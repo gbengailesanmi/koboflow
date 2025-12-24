@@ -2,21 +2,26 @@
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { updateBudget } from '@/lib/api-service'
-import { useToasts } from '@/store'
+import { updateBudgetAction } from '@/app/actions/update-budget-action'
+import { createBudgetAction } from '@/app/actions/create-budget-action'
+import { setActiveBudgetAction } from '@/app/actions/set-active-budget-action'
+import { deleteBudgetByIdAction } from '@/app/actions/delete-budget-action'
 import Sidebar from '@/app/components/sidebar/sidebar'
-import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
-import Footer from '@/app/components/footer/footer'
 import { PageHeader } from '@/app/components/page-header/page-header'
-import type { Transaction } from '@/types/transactions'
+import { PageLayout } from '@/app/components/page-layout/page-layout'
+import { BudgetSwitcher } from '@/app/components/budget-switcher'
+import { useScrollRestoration } from '@/hooks/use-scroll-restoration'
+import type { Transaction } from '@money-mapper/shared'
 import type { CustomCategory } from '@/types/custom-category'
+import type { Budget } from '@money-mapper/shared'
 import { categorizeTransaction } from '@/app/components/analytics/utils/categorize-transaction'
 import { formatCurrency } from '@/app/components/analytics/utils/format-currency'
 import { getCategoryConfig } from '@/app/components/analytics/utils/category-config'
 import { BudgetProgress } from '@/app/components/budget-progress'
+import { EmptyState } from '@/app/components/empty-state'
+import { StatusAlert } from '@/app/components/status-alert'
 import type { BudgetPeriod, BudgetPeriodType } from '@/types/budget'
-import { useBaseColor } from '@/providers/base-colour-provider'
-import { Dialog, Button, Flex, Text, Progress } from '@radix-ui/themes'
+import { Dialog, Button, Flex, Text, Progress, Grid } from '@radix-ui/themes'
 import styles from './budget.module.css'
 
 type CategoryBudget = {
@@ -26,6 +31,8 @@ type CategoryBudget = {
 }
 
 type BudgetData = {
+  _id?: string
+  name?: string
   totalBudgetLimit: number
   period?: BudgetPeriod
   categories: CategoryBudget[]
@@ -33,6 +40,7 @@ type BudgetData = {
 
 type BudgetClientProps = {
   customerId: string
+  allBudgets: Budget[]
   initialBudget: BudgetData
   transactions: Transaction[]
   customCategories: CustomCategory[]
@@ -41,18 +49,18 @@ type BudgetClientProps = {
 
 export default function BudgetClient({
   customerId,
+  allBudgets,
   initialBudget,
   transactions,
   customCategories,
   currency
 }: BudgetClientProps) {
   const router = useRouter()
-  const { setBaseColor } = useBaseColor()
-  
-  // ✅ Use UI store for toast notifications
-  const { showToast } = useToasts()
 
-  const [budgetData, setBudgetData] = useState<BudgetData>(initialBudget)
+  // Restore scroll position when navigating back
+  useScrollRestoration()
+
+  const budgetData = initialBudget
   const [isSaving, setIsSaving] = useState(false)
   const [isEditing, setIsEditing] = useState<string | null>(null)
   const [editValue, setEditValue] = useState('')
@@ -78,45 +86,90 @@ export default function BudgetClient({
     initialBudget.period?.recurringUnit || 'months'
   )
 
-  useEffect(() => {
-    const colorWithTransparency = `${PAGE_COLORS.budget}4D`
-    setBaseColor(colorWithTransparency)
-  }, [setBaseColor])
-
   const categoryConfig = useMemo(() => getCategoryConfig(customCategories), [customCategories])
 
-  const saveBudget = useCallback(async (newBudget: BudgetData) => {
+  const saveBudget = useCallback(async (updates: Partial<BudgetData>) => {
+    if (!budgetData._id) {
+      console.error('No active budget to update')
+      return
+    }
+
     try {
       setIsSaving(true)
-      const result = await updateBudget(
-        newBudget.totalBudgetLimit,
-        newBudget.categories,
-        newBudget.period
-      )
+      const result = await updateBudgetAction(budgetData._id, {
+        name: updates.name,
+        totalBudgetLimit: updates.totalBudgetLimit,
+        categories: updates.categories,
+        period: updates.period
+      })
       
       if (result.success) {
-        showToast('Budget saved successfully', 'success')
         router.refresh()
       } else {
-        showToast(result.message || 'Failed to save budget', 'error')
+        console.error(result.message || 'Failed to save budget')
       }
     } catch (error) {
       console.error('Failed to save budget:', error)
-      showToast('Failed to save budget. Please try again.', 'error')
     } finally {
       setIsSaving(false)
     }
-  }, [router, showToast])
+  }, [budgetData._id, router])
+
+  const handleSwitchBudget = useCallback(async (budgetId: string) => {
+    try {
+      const result = await setActiveBudgetAction(budgetId)
+      if (result.success) {
+        router.refresh()
+      } else {
+        console.error(result.message || 'Failed to switch budget')
+      }
+    } catch (error) {
+      console.error('Failed to switch budget:', error)
+    }
+  }, [router])
+
+  const handleCreateBudget = useCallback(async (name: string) => {
+    try {
+      const result = await createBudgetAction(
+        name,
+        0, // Default budget limit
+        [], // Empty categories
+        { type: 'current-month' }, // Default period
+        false // Don't set as active yet
+      )
+      
+      if (result.success) {
+        router.refresh()
+      } else {
+        console.error(result.message || 'Failed to create budget')
+      }
+    } catch (error) {
+      console.error('Failed to create budget:', error)
+    }
+  }, [router])
+
+  const handleDeleteBudget = useCallback(async (budgetId: string) => {
+    try {
+      const result = await deleteBudgetByIdAction(budgetId)
+      if (result.success) {
+        router.refresh()
+      } else {
+        console.error(result.message || 'Failed to delete budget')
+      }
+    } catch (error) {
+      console.error('Failed to delete budget:', error)
+    }
+  }, [router])
 
   const processedTransactions = useMemo(() => {
     return transactions.map((transaction) => {
-      const amount = parseFloat(transaction.amount)
+      const amount = transaction.amount
       return {
         ...transaction,
         numericAmount: Math.abs(amount),
         type: amount < 0 ? 'expense' : 'income',
         category: amount < 0 ? categorizeTransaction(transaction.narration, customCategories) : 'income',
-        date: new Date(transaction.bookedDate)
+        date: new Date(transaction.date)
       }
     })
   }, [transactions, customCategories])
@@ -208,7 +261,6 @@ export default function BudgetClient({
   const monthlyProgress = (monthlyExpenses / budgetData.totalBudgetLimit) * 100
   const isOverBudget = monthlyExpenses > budgetData.totalBudgetLimit
 
-  // Calculate total allocated to category budgets
   const totalCategoryBudget = useMemo(() => {
     return budgetData.categories.reduce((sum, cat) => sum + cat.limit, 0)
   }, [budgetData.categories])
@@ -255,12 +307,7 @@ export default function BudgetClient({
   }
 
   const handleUpdateMonthlyBudget = (newAmount: number) => {
-    const newBudget = {
-      ...budgetData,
-      totalBudgetLimit: newAmount
-    }
-    setBudgetData(newBudget)
-    saveBudget(newBudget)
+    saveBudget({ totalBudgetLimit: newAmount })
     setIsEditing(null)
     setEditValue('')
   }
@@ -305,13 +352,10 @@ export default function BudgetClient({
       return
     }
     
-    const newBudget = {
-      ...budgetData,
+    saveBudget({
       totalBudgetLimit: amount,
       period: period
-    }
-    setBudgetData(newBudget)
-    saveBudget(newBudget)
+    })
     setIsEditModalOpen(false)
     setIsEditing(null)
     setEditValue('')
@@ -341,36 +385,29 @@ export default function BudgetClient({
       return
     }
 
-    const newBudget = {
-      ...budgetData,
-      categories: (() => {
-        const existing = budgetData.categories.find(b => b.category === category && !b.customName)
-        if (existing) {
-          return budgetData.categories.map(b => 
-            b.category === category && !b.customName ? { ...b, limit, ...(customName ? { customName } : {}) } : b
-          )
-        }
-        return [...budgetData.categories, { 
-          category, 
-          limit,
-          ...(customName ? { customName } : {})
-        }]
-      })()
-    }
-    setBudgetData(newBudget)
-    saveBudget(newBudget)
+    const newCategories = (() => {
+      const existing = budgetData.categories.find(b => b.category === category && !b.customName)
+      if (existing) {
+        return budgetData.categories.map(b => 
+          b.category === category && !b.customName ? { ...b, limit, ...(customName ? { customName } : {}) } : b
+        )
+      }
+      return [...budgetData.categories, { 
+        category, 
+        limit,
+        ...(customName ? { customName } : {})
+      }]
+    })()
+    
+    saveBudget({ categories: newCategories })
     setIsEditing(null)
     setEditValue('')
     setRenameValue('')
   }
 
   const handleRemoveCategoryBudget = (category: string) => {
-    const newBudget = {
-      ...budgetData,
-      categories: budgetData.categories.filter(b => b.category !== category)
-    }
-    setBudgetData(newBudget)
-    saveBudget(newBudget)
+    const newCategories = budgetData.categories.filter(b => b.category !== category)
+    saveBudget({ categories: newCategories })
   }
 
   const startEdit = (type: string, currentValue?: number) => {
@@ -403,90 +440,110 @@ export default function BudgetClient({
   
   const allCategoriesWithBudget = [...categoriesWithBudget, ...customBudgetCategories]
 
-  return (
-    <Sidebar customerId={customerId}>
-      <Dialog.Root open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <div className={`${styles.container} page-gradient-background`}>
-          <div className={styles.wrapper}>
-            <div>
-              <PageHeader 
-                title="Budget" 
-                subtitle="Set spending limits and track your progress"
-              />
+  const renderHeader = () => (
+    <div>
+      <PageHeader 
+        title="Budget" 
+        subtitle="Set spending limits and track your progress"
+      />
+      <div style={{ padding: '0 16px', marginTop: '16px' }}>
+        <BudgetSwitcher
+          budgets={allBudgets}
+          activeBudget={allBudgets.find(b => b.isActive) || null}
+          onSwitch={handleSwitchBudget}
+          onCreate={handleCreateBudget}
+          onDelete={handleDeleteBudget}
+          disabled={isSaving}
+        />
+      </div>
+    </div>
+  )
 
-              {/* Monthly Budget Card */}
-              <div id="monthly-budget" className={styles.card} style={{ margin: '0 16px 32px 16px' }}>
-                <div className={styles.cardHeader}>
-                  <div className={styles.cardHeaderFlex}>
-                    <div className={styles.cardTitleSection}>
-                      <div className={styles.iconWrapper}>
-                        <span style={{ fontSize: '24px' }}>🎯</span>
-                      </div>
-                      <div>
-                        <h2 className={styles.cardTitle}>Budget</h2>
-                        <p className={styles.cardDescription}>{formatPeriod(budgetData.period)}</p>
-                      </div>
-                    </div>
-                    <Dialog.Trigger>
-                      <button 
-                        className={styles.editButton}
-                        onClick={() => {
-                          setIsEditing('monthly')
-                          setEditValue(budgetData.totalBudgetLimit.toString())
-                        }}
-                      >
-                        ✏️ Edit
-                      </button>
-                    </Dialog.Trigger>
+  const renderStickyContent = () => (
+    <>
+      {processedTransactions.length > 0 && (
+        <Grid id="budget-overview" style={{ padding: '0 16px', marginTop: '24px' }}>
+          <div className={styles.card}>
+            <div className={styles.cardHeader}>
+              <div className={styles.cardHeaderFlex}>
+                <div className={styles.cardTitleSection}>
+                  <div className={styles.iconWrapper}>
+                    <span style={{ fontSize: '24px' }}>🎯</span>
+                  </div>
+                  <div>
+                    <h2 className={styles.cardTitle}>Budget</h2>
+                    <p className={styles.cardDescription}>{formatPeriod(budgetData.period)}</p>
                   </div>
                 </div>
-              <div className={styles.cardContent}>
-                <div className={styles.budgetOverview}>
-                  <div className={styles.budgetSection}>
-                    <div className={styles.budgetLabel}>Spent {getPeriodText(budgetData.period)}</div>
-                    <div className={`${styles.budgetValue} ${isOverBudget ? styles.budgetValueOver : styles.budgetValueNormal}`}>
-                      {formatCurrency(monthlyExpenses, currency)}
-                    </div>
-                  </div>
-                  <div className={styles.budgetSection} style={{ alignItems: 'flex-end' }}>
-                    <div className={styles.budgetLabel}>Budget limit</div>
-                    <div className={`${styles.budgetValue} ${styles.budgetValueMuted}`}>
-                      {formatCurrency(budgetData.totalBudgetLimit, currency)}
-                    </div>
+                <Dialog.Trigger>
+                  <button 
+                    className={styles.editButton}
+                    onClick={() => {
+                      setIsEditing('monthly')
+                      setEditValue(budgetData.totalBudgetLimit.toString())
+                      setIsEditModalOpen(true)
+                    }}
+                  >
+                    ✏️ Edit
+                  </button>
+                </Dialog.Trigger>
+              </div>
+            </div>
+            <div className={styles.cardContent}>
+              <div className={styles.budgetOverview}>
+                <div className={styles.budgetSection}>
+                  <div className={styles.budgetLabel}>Spent {getPeriodText(budgetData.period)}</div>
+                  <div className={`${styles.budgetValue} ${isOverBudget ? styles.budgetValueOver : styles.budgetValueNormal}`}>
+                    {formatCurrency(monthlyExpenses, currency)}
                   </div>
                 </div>
-
-                <BudgetProgress
-                  value={monthlyProgress}
-                  label="Spending Progress"
-                  percentage={monthlyProgress}
-                  color={isOverBudget ? 'red' : monthlyProgress >= 80 ? 'orange' : 'green'}
-                  size="3"
-                  className={styles.progressSection}
-                />
-
-                <div className={styles.statusAlert}>
-                  <div className={styles.statusIcon}>
-                    {isOverBudget ? '⚠️' : monthlyProgress >= 80 ? '⚡' : '✅'}
-                  </div>
-                  <div className={styles.statusContent}>
-                    <div className={styles.statusTitle} style={{ 
-                      color: isOverBudget ? '#ef4444' : monthlyProgress >= 80 ? '#f59e0b' : '#10b981' 
-                    }}>
-                      {isOverBudget ? 'Over Budget' : monthlyProgress >= 80 ? 'Approaching Limit' : 'On Track'}
-                    </div>
-                    <div className={styles.statusMessage}>
-                      {isOverBudget 
-                        ? `You've exceeded your budget by ${formatCurrency(monthlyExpenses - budgetData.totalBudgetLimit, currency)}`
-                        : `You have ${formatCurrency(budgetData.totalBudgetLimit - monthlyExpenses, currency)} remaining ${getPeriodText(budgetData.period)}`
-                      }
-                    </div>
+                <div className={styles.budgetSection} style={{ alignItems: 'flex-end' }}>
+                  <div className={styles.budgetLabel}>Budget limit</div>
+                  <div className={`${styles.budgetValue} ${styles.budgetValueMuted}`}>
+                    {formatCurrency(budgetData.totalBudgetLimit, currency)}
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Edit Budget Modal */}
+              <BudgetProgress
+                value={monthlyProgress}
+                label="Spending Progress"
+                percentage={monthlyProgress}
+                color={isOverBudget ? 'red' : monthlyProgress >= 80 ? 'orange' : 'green'}
+                size="3"
+                className={styles.progressSection}
+              />
+
+              <StatusAlert
+                icon={isOverBudget ? '⚠️' : monthlyProgress >= 80 ? '⚡' : '✅'}
+                title={isOverBudget ? 'Over Budget' : monthlyProgress >= 80 ? 'Approaching Limit' : 'On Track'}
+                message={
+                  isOverBudget 
+                    ? `You've exceeded your budget by ${formatCurrency(monthlyExpenses - budgetData.totalBudgetLimit, currency)}`
+                    : `You have ${formatCurrency(budgetData.totalBudgetLimit - monthlyExpenses, currency)} remaining ${getPeriodText(budgetData.period)}`
+                }
+                type={isOverBudget ? 'danger' : monthlyProgress >= 80 ? 'warning' : 'success'}
+                className={styles.statusAlert}
+              />
+            </div>
+          </div>
+        </Grid>
+      )}
+    </>
+  )
+
+  const renderBodyContent = () => (
+    <>
+      {processedTransactions.length === 0 ? (
+        <EmptyState
+          icon="💰"
+          title="No transactions yet"
+          description="Add some transactions to start tracking your budget"
+        />
+      ) : (
+        <>
+          {/* Edit Budget Modal */}
+          <Grid>
             <Dialog.Content maxWidth="500px">
               <Dialog.Title>Edit Budget</Dialog.Title>
               <Dialog.Description size="2" mb="4">
@@ -611,10 +668,12 @@ export default function BudgetClient({
                 </Button>
               </Flex>
             </Dialog.Content>
+          </Grid>
 
-            {/* Category Budgets */}
-            {allCategoriesWithBudget.length > 0 && (
-              <div id="category-budgets" className={styles.card} style={{ margin: '0 16px 32px 16px' }}>
+          {/* Category Budgets */}
+          {allCategoriesWithBudget.length > 0 && (
+            <Grid id="category-budgets">
+                <div className={styles.card} style={{ margin: '0 16px 32px 16px' }}>
                 <div className={styles.cardHeader}>
                   <h2 className={styles.cardTitle}>Category Budgets</h2>
                   <p className={styles.cardDescription}>Track spending limits for specific categories</p>
@@ -632,30 +691,22 @@ export default function BudgetClient({
                   />
 
                   {isCategoryBudgetOver && (
-                    <div className={styles.statusAlert} style={{ marginTop: '12px' }}>
-                      <div className={styles.statusIcon}>⚠️</div>
-                      <div className={styles.statusContent}>
-                        <div className={styles.statusTitle} style={{ color: '#ef4444' }}>
-                          Over-allocated
-                        </div>
-                        <div className={styles.statusMessage}>
-                          Category budgets exceed total budget by {formatCurrency(totalCategoryBudget - budgetData.totalBudgetLimit, currency)}
-                        </div>
-                      </div>
-                    </div>
+                    <StatusAlert
+                      icon="⚠️"
+                      title="Over-allocated"
+                      message={`Category budgets exceed total budget by ${formatCurrency(totalCategoryBudget - budgetData.totalBudgetLimit, currency)}`}
+                      type="danger"
+                      style={{ marginTop: '12px' }}
+                    />
                   )}
                   {!isCategoryBudgetOver && categoryBudgetProgress >= 80 && (
-                    <div className={styles.statusAlert} style={{ marginTop: '12px' }}>
-                      <div className={styles.statusIcon}>⚡</div>
-                      <div className={styles.statusContent}>
-                        <div className={styles.statusTitle} style={{ color: '#f59e0b' }}>
-                          Nearly Full
-                        </div>
-                        <div className={styles.statusMessage}>
-                          You have {formatCurrency(budgetData.totalBudgetLimit - totalCategoryBudget, currency)} remaining to allocate
-                        </div>
-                      </div>
-                    </div>
+                    <StatusAlert
+                      icon="⚡"
+                      title="Nearly Full"
+                      message={`You have ${formatCurrency(budgetData.totalBudgetLimit - totalCategoryBudget, currency)} remaining to allocate`}
+                      type="warning"
+                      style={{ marginTop: '12px' }}
+                    />
                   )}
                 </div>
 
@@ -713,14 +764,10 @@ export default function BudgetClient({
                                 className={styles.iconButton}
                                 onClick={() => {
                                   if (customName) {
-                                    const newBudget = {
-                                      ...budgetData,
-                                      categories: budgetData.categories.filter(b => 
-                                        !(b.category === category && b.customName === customName)
-                                      )
-                                    }
-                                    setBudgetData(newBudget)
-                                    saveBudget(newBudget)
+                                    const newCategories = budgetData.categories.filter(b => 
+                                      !(b.category === category && b.customName === customName)
+                                    )
+                                    saveBudget({ categories: newCategories })
                                   } else {
                                     handleRemoveCategoryBudget(category)
                                   }
@@ -745,20 +792,22 @@ export default function BudgetClient({
                   })}
                 </div>
               </div>
-            )}
+            </Grid>
+          )}
 
             {/* Add Category Section */}
-            <div id="add-category" className={styles.card} style={{ margin: '0 16px 32px 16px' }}>
-              <div className={styles.cardHeader}>
-                <h2 className={styles.cardTitle}>Add Category Budget</h2>
-                <p className={styles.cardDescription}>Set spending limits for individual expense categories</p>
-              </div>
-              {categoriesWithoutBudget.length === 0 ? (
-                <div className={styles.emptyState}>
-                  <div className={styles.emptyStateIcon}>📈</div>
-                  <h3 className={styles.emptyStateTitle}>All categories have budgets</h3>
-                  <p className={styles.emptyStateText}>You've set budget limits for all expense categories</p>
+            <Grid id="add-category">
+              <div className={styles.card} style={{ margin: '0 16px 32px 16px' }}>
+                <div className={styles.cardHeader}>
+                  <h2 className={styles.cardTitle}>Add Category Budget</h2>
+                  <p className={styles.cardDescription}>Set spending limits for individual expense categories</p>
                 </div>
+              {categoriesWithoutBudget.length === 0 ? (
+                <EmptyState
+                  icon="📈"
+                  title="All categories have budgets"
+                  description="You've set budget limits for all expense categories"
+                />
               ) : (
                 <div className={styles.addCategorySection}>
                   {categoriesWithoutBudget.map(({ category, spent }) => {
@@ -844,11 +893,22 @@ export default function BudgetClient({
                 </div>
               )}
             </div>
-          </div>
-        </div>
-        
-        <Footer buttonColor='#222222' opacity={50} />
-      </div>
+          </Grid>
+        </>
+      )}
+    </>
+  )
+
+  return (
+    <Sidebar customerId={customerId}>
+      <Dialog.Root open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <PageLayout
+          header={renderHeader()}
+          stickySection={renderStickyContent()}
+          footer={{ buttonColor: '#222222', opacity: 50 }}
+        >
+          {renderBodyContent()}
+        </PageLayout>
       </Dialog.Root>
     </Sidebar>
   )

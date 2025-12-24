@@ -1,0 +1,60 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+.controls {
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--gray-a2);
+  margin-bottom: 8px;
+}
+
+.label {
+  color: var(--gray-12);
+  white-space: nowrap;
+}
+
+.vsText {
+  color: var(--gray-11);
+  font-weight: 600;
+  padding: 0 4px;
+}
+
+.select {
+  min-width: 120px;
+}
+
+.chartWrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.comparisonStats {
+  margin-top: 24px;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Mobile responsive */
+@media (max-width: 640px) {
+  .controls {
+    padding: 12px;
+  }
+
+  .select {
+    min-width: 100px;
+  }
+
+  .label {
+    font-size: 12px;
+  }
+
+  .vsText {
+    font-size: 12px;
+  }
+}

@@ -31,7 +31,7 @@ export default function SidebarNav({ customerId }: SidebarNavProps) {
       items: [
         { id: 'stats-cards', label: 'Stats Overview', scrollTo: 'stats-cards' },
         { id: 'expense-breakdown', label: 'Expense Breakdown', scrollTo: 'expense-breakdown' },
-        { id: 'daily-comparison', label: 'Daily Expense Comparison', scrollTo: 'daily-comparison' },
+        { id: 'daily-comparison', label: 'Daily Expense', scrollTo: 'daily-comparison' },
         { id: 'spending-category', label: 'Spending by Category', scrollTo: 'spending-category' },
         { id: 'recurring-payments', label: 'Recurring Payments', scrollTo: 'recurring-payments' },
         { id: 'budget-overview', label: 'Budget Overview', scrollTo: 'budget-overview' },

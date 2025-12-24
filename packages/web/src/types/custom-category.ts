@@ -1,15 +1,9 @@
-export type CustomCategory = {
-  id: string
-  customerId: string
-  name: string
-  keywords: string[]
-  color: string
-  createdAt: Date
-  updatedAt: Date
-}
-
-export type CustomCategoryInput = {
-  name: string
-  keywords: string[]
-  color?: string
-}
+export type { 
+  SpendingCategory,
+  SpendingCategoryInput,
+  UserSpendingCategories,
+  Category,
+  CustomCategory, 
+  CustomCategoryInput,
+  UserCategories 
+} from '@money-mapper/shared'

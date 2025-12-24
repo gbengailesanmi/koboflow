@@ -2,87 +2,150 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 24px;
+  justify-content: center;
+  gap: 16px;
   width: 100%;
+  height: 100%;
+  padding: 0;
 }
 
-.pieChartContainer {
-  position: relative;
-  width: 100%;
-  height: 300px;
-  min-height: 300px;
-}
-
-.pieTooltipContent {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 12px;
-  padding: 12px 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.pieTooltipTitle {
-  font-weight: 500;
-  color: #374151;
-  font-size: 14px;
-}
-
-.pieTooltipValue {
-  font-weight: bold;
-  font-size: 18px;
-  color: #111827;
-}
-
-.pieTooltipPercentage {
-  font-size: 14px;
-  color: #6b7280;
-}
-
-.pieLegend {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  width: 100%;
-  max-width: 384px;
-}
-
-.pieLegendItem {
+.chartCenter {
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: center;
+  width: 100%;
+  height: 70%;
+  position: relative;
+}
+
+.responsiveContainer {
+  max-width: 400px;
+}
+
+/* Tablet */
+@media (min-width: 640px) {
+  .responsiveContainer {
+    max-width: 500px;
+  }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+  .pieChartWrapper {
+    gap: 24px;
+  }
+  
+  .responsiveContainer {
+    max-width: 650px;
+  }
+}
+
+.pieChartCenterText {
+  font-size: 1.5rem;
+  font-weight: 300;
+}
+
+.pieChartLabel {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.pieChartPercentage {
+  font-size: 12px;
+}
+
+/* Tooltip */
+.tooltip {
+  background-color: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
   padding: 12px;
-  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.tooltipLabel {
+  margin: 0;
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.tooltipValue {
+  margin: 0;
+  font-size: 13px;
+  color: #666;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.tooltipPercent {
+  margin: 0;
+  font-size: 12px;
+  color: #999;
+}
+
+/* Category Buttons */
+.categoryButtons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  width: 100%;
+  max-width: 650px;
+  margin-top: 16px;
+}
+
+.categoryButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.2s ease;
+  width: 100%;
+  min-width: 0;
 }
 
-.pieLegendItem:hover,
-.pieLegendItemHover {
-  transform: scale(1.05);
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.pieLegendColor {
-  width: 16px;
-  height: 16px;
+.categoryButtonDot {
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   flex-shrink: 0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.pieLegendLabel {
-  font-size: 14px;
-  font-weight: 500;
-  color: #374151;
+.categoryButtonLabel {
+  font-size: 11px;
+  font-weight: 400;
   flex: 1;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.pieLegendPercentage {
-  font-size: 14px;
-  font-weight: bold;
-  color: #111827;
+.categoryButtonPercent {
+  font-size: 10px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+@media (min-width: 640px) {
+  .categoryButtons {
+    gap: 14px;
+  }
+  
+  .categoryButton {
+    padding: 10px 14px;
+  }
+  
+  .categoryButtonLabel {
+    font-size: 14px;
+  }
+  
+  .categoryButtonPercent {
+    font-size: 13px;
+  }
 }

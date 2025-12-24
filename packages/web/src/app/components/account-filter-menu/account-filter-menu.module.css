@@ -1,0 +1,57 @@
+/* Account Filter Menu Button - In Icon Bar */
+.filterButton {
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  pointer-events: auto;
+}
+
+.filterButton:hover {
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+/* Menu Content */
+.menuContent {
+  padding: 0;
+}
+
+.menuTitle {
+  padding: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--gray-a5);
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+/* Account List */
+.accountList {
+  padding: 0.5rem;
+}
+
+.accountItem {
+  padding: 1rem;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+  margin-bottom: 0.25rem;
+}
+
+.accountItem:hover {
+  background-color: var(--gray-a3);
+}
+
+.accountItemActive {
+  background-color: var(--accent-a4);
+  border: 1px solid var(--accent-a6);
+}
+
+.accountItemActive:hover {
+  background-color: var(--accent-a5);
+}

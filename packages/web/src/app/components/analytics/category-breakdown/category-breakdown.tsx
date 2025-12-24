@@ -5,7 +5,10 @@ import type { CustomCategory } from '@/types/custom-category'
 import { formatCurrency } from '../utils/format-currency'
 import { getCategoryConfig } from '../utils/category-config'
 import { validateKeywords } from '../utils/validate-keywords'
+import { getCategoryKeywords } from '../utils/category-keywords'
 import { CategoryData } from '../types/analytics-types'
+import { Dialog, Button, Flex, Text } from '@radix-ui/themes'
+import { Cross2Icon } from '@radix-ui/react-icons'
 import styles from './category-breakdown.module.css'
 
 type CategoryBreakdownProps = {
@@ -13,6 +16,7 @@ type CategoryBreakdownProps = {
   currency: string
   customCategories: CustomCategory[]
   onAddCategory: (name: string, keywords: string[]) => Promise<void>
+  onUpdateCategory: (id: string, updates: { name?: string; keywords?: string[]; color?: string }) => Promise<void>
   onDeleteCategory: (id: string) => Promise<void>
 }
 
@@ -21,6 +25,7 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({
   currency, 
   customCategories,
   onAddCategory,
+  onUpdateCategory,
   onDeleteCategory 
 }) => {
   const [isAdding, setIsAdding] = useState(false)
@@ -28,6 +33,11 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({
   const [keywords, setKeywords] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string>('')
+  const [selectedCategory, setSelectedCategory] = useState<{
+    label: string
+    keywords: string[]
+    categoryKey: string
+  } | null>(null)
   
   const categoryConfig = getCategoryConfig(customCategories)
   
@@ -96,6 +106,41 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({
       await onDeleteCategory(id)
     } catch (error) {
       console.error('Failed to delete category:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+  
+  const handleDeleteKeyword = async (keyword: string) => {
+    if (!selectedCategory) return
+    
+    if (!selectedCategory.categoryKey.startsWith('custom_')) {
+      return
+    }
+    
+    const customId = selectedCategory.categoryKey.replace('custom_', '')
+    const customCat = customCategories.find(c => c.id === customId)
+    
+    if (!customCat) return
+    
+    const updatedKeywords = customCat.keywords.filter(k => k !== keyword)
+    
+    if (updatedKeywords.length === 0) {
+      alert('A category must have at least one keyword')
+      return
+    }
+    
+    setLoading(true)
+    try {
+      await onUpdateCategory(customId, { keywords: updatedKeywords })
+      
+      setSelectedCategory({
+        ...selectedCategory,
+        keywords: updatedKeywords
+      })
+    } catch (error) {
+      console.error('Failed to delete keyword:', error)
+      alert('Failed to delete keyword. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -202,10 +247,22 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({
         {allCategories.slice(0, 10).map((cat) => {
           const config = categoryConfig[cat.category] || categoryConfig.other
           const isCustom = cat.category.startsWith('custom_')
+          const keywords = getCategoryKeywords(cat.category, customCategories)
           
           return (
             <div key={cat.category} className={styles.categoryItem}>
-              <div className={styles.categoryItemLeft}>
+              <div 
+                className={styles.categoryItemLeft}
+                onClick={() => {
+                  if (cat.category === 'other') return
+                  setSelectedCategory({ 
+                    label: config.label, 
+                    keywords,
+                    categoryKey: cat.category
+                  })
+                }}
+                style={{ cursor: cat.category === 'other' ? 'default' : 'pointer' }}
+              >
                 <div 
                   className={styles.categoryColor}
                   style={{ backgroundColor: config.color }}
@@ -219,21 +276,66 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({
                 <span className={styles.categoryAmount}>
                   {formatCurrency(cat.amount, currency)}
                 </span>
-                {isCustom && (
-                  <button 
-                    onClick={() => handleDelete(cat.category)}
-                    className={styles.deleteBtn}
-                    disabled={loading}
-                    title="Delete category"
-                  >
-                    ✕
-                  </button>
-                )}
+                <button 
+                  onClick={() => isCustom ? handleDelete(cat.category) : undefined}
+                  className={styles.deleteBtn}
+                  disabled={loading || !isCustom}
+                  title={isCustom ? "Delete category" : ""}
+                  type="button"
+                  style={{ visibility: isCustom ? 'visible' : 'hidden' }}
+                >
+                  <Cross2Icon width="14" height="14" />
+                </button>
               </div>
             </div>
           )
         })}
       </div>
+      
+      {/* Keywords Dialog */}
+      <Dialog.Root open={!!selectedCategory} onOpenChange={(open) => !open && setSelectedCategory(null)}>
+        <Dialog.Content maxWidth="450px">
+          <Dialog.Title>{selectedCategory?.label}</Dialog.Title>
+          <Dialog.Description size="2" mb="4">
+            Keywords that categorize transactions under this category
+          </Dialog.Description>
+
+          <Flex direction="column" gap="3">
+            <div className={styles.keywordsGrid}>
+              {selectedCategory?.keywords.map((keyword, index) => (
+                <div key={index} className={styles.keywordChip}>
+                  <span className={styles.keywordText}>
+                    {keyword.charAt(0).toUpperCase() + keyword.slice(1)}
+                  </span>
+                  {selectedCategory.categoryKey.startsWith('custom_') && (
+                    <button
+                      className={styles.keywordDeleteBtn}
+                      onClick={() => handleDeleteKeyword(keyword)}
+                      title="Delete keyword"
+                      type="button"
+                    >
+                      <Cross2Icon width="14" height="14" />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+            {selectedCategory?.keywords.length === 0 && (
+              <Text size="2" color="gray">
+                No keywords defined for this category
+              </Text>
+            )}
+          </Flex>
+
+          <Flex gap="3" mt="4" justify="end">
+            <Dialog.Close>
+              <Button variant="soft" color="gray">
+                Close
+              </Button>
+            </Dialog.Close>
+          </Flex>
+        </Dialog.Content>
+      </Dialog.Root>
     </div>
   )
 }

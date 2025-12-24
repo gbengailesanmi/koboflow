@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
-import { getSession, getAccounts, getTransactions, getBudget } from '@/lib/api-service'
+import { getSession, getAccounts, getTransactions, getBudget } from '@/app/api/api-service'
 import DashboardClient from './dashboard-client'
+import DashboardThemeWrapper from './utils/dashboard-theme'
 
 interface DashboardPageProps {
   params: Promise<{ customerId: string }>
@@ -23,16 +24,18 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
   const profile = {
     name: `${session.firstName} ${session.lastName}`,
     email: session.email,
-    currency: 'GBP',
+    currency: 'NGN',
     totalBudgetLimit: budgetRes?.totalBudgetLimit || 0,
   }
 
   return (
-    <DashboardClient
-      customerId={customerId}
-      accounts={accounts}
-      transactions={transactions}
-      profile={profile}
-    />
+    <DashboardThemeWrapper>
+      <DashboardClient
+        customerId={customerId}
+        accounts={accounts}
+        transactions={transactions}
+        profile={profile}
+      />
+    </DashboardThemeWrapper>
   )
 }

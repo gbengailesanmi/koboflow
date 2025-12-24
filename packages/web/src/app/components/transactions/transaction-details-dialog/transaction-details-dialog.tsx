@@ -1,6 +1,6 @@
 import { Dialog, Flex, Box, Text } from '@radix-ui/themes'
 import { Cross1Icon } from '@radix-ui/react-icons'
-import type { Transaction } from '@/types/transactions'
+import type { Transaction } from '@money-mapper/shared'
 
 type Props = {
   transaction: Transaction
@@ -31,7 +31,7 @@ export default function TransactionDetailsDialog({ transaction, onClose }: Props
           <br />
         </Text>
         <Text>
-          <strong>Booked Date:</strong> {new Date(transaction.bookedDate).toLocaleString()}
+          <strong>Booked Date:</strong> {new Date(transaction.date).toLocaleString()}
         </Text>
       </Box>
     </Dialog.Content>

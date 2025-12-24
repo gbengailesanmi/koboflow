@@ -1,20 +1,44 @@
 @reference "../../globals.css";
 
 .main {
-  @apply flex flex-col gap-4 p-4 min-h-screen overflow-y-visible w-[100%];
+  @apply flex flex-col gap-4 min-h-screen overflow-y-visible;
 }
 
 .AccountsGrid {
   @apply h-[45dvh] grid items-center justify-items-center;
-  
+  background: var(--card-bg);
+  box-shadow: var(--card-shadow);
+  transition: all 0.3s ease;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
 }
- /* border-2 border-solid border-amber- 600 */
+
+.AccountsGrid:hover {
+  box-shadow: var(--card-shadow-hover);
+}
+
 .Grid2 {
   @apply h-40 rounded-lg grid;
+  background: var(--card-bg);
+  box-shadow: var(--card-shadow);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.Grid2:hover {
+  box-shadow: var(--card-shadow-hover);
 }
 
 .TransactionsGrid {
   @apply h-[40dvh] rounded-2xl grid;
+  background: var(--card-bg);
+  box-shadow: var(--card-shadow);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.TransactionsGrid:hover {
+  box-shadow: var(--card-shadow-hover);
 }
 
 .TransactionsListWrapper {
@@ -23,12 +47,36 @@
 
 .Grid4 {
   @apply h-[50dvh] rounded-lg grid;
+  background: var(--card-bg);
+  box-shadow: var(--card-shadow);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.Grid4:hover {
+  box-shadow: var(--card-shadow-hover);
 }
 
 .Grid5 {
   @apply h-[50dvh] rounded-lg grid;
+  background: var(--card-bg);
+  box-shadow: var(--card-shadow);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.Grid5:hover {
+  box-shadow: var(--card-shadow-hover);
 }
 
 .Grid6 {
   @apply h-[50dvh] rounded-lg grid;
+  background: var(--card-bg);
+  box-shadow: var(--card-shadow);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.Grid6:hover {
+  box-shadow: var(--card-shadow-hover);
 }

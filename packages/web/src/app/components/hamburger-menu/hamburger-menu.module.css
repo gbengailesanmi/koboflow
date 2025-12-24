@@ -1,0 +1,111 @@
+/* Hamburger Button - Used in Page Header */
+.hamburgerButton {
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gray-12);
+  transition: opacity 0.2s ease;
+}
+
+.hamburgerButton:hover {
+  opacity: 0.7;
+}
+
+/* Expand Button */
+.expandButton {
+  background: transparent;
+  border: none;
+  padding: 0.25rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+}
+
+.expandButton:hover {
+  opacity: 0.7;
+}
+
+/* Menu Content */
+.menuContent {
+  padding: 0 !important;
+}
+
+.titleWrapper {
+  border-bottom: 1px solid var(--gray-a5);
+}
+
+.menuTitle {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+/* Section Styles */
+.section {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.sectionHeader {
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.sectionHeader:hover {
+  background-color: var(--gray-a3);
+}
+
+.sectionHeaderActive {
+  background-color: var(--accent-a3);
+}
+
+.sectionHeaderActive:hover {
+  background-color: var(--accent-a4);
+}
+
+.sectionLabel {
+  user-select: none;
+  letter-spacing: 0.5px;
+  color: var(--gray-12);
+}
+
+.sectionHeaderActive .sectionLabel {
+  color: var(--accent-11);
+}
+
+/* Item Styles */
+.item {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  color: var(--gray-11);
+}
+
+.item:hover {
+  background-color: var(--gray-a3);
+  color: var(--gray-12);
+}
+
+.item:active {
+  background-color: var(--gray-a4);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .hamburgerButton {
+    top: 1rem;
+    right: 1rem;
+  }
+}

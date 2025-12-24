@@ -2,10 +2,8 @@
 
 import React, { useState, useMemo, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useSelectedItems, useFilters } from '@/store'
 import type { Transaction, Account } from '@money-mapper/shared'
 import PageLayoutWithSidebar from '@/app/components/sidebar/sidebar'
-import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
 import { Dialog } from '@radix-ui/themes'
 import { DownloadIcon, UploadIcon, ArrowLeftIcon } from '@radix-ui/react-icons'
 import styles from './transactions.module.css'
@@ -14,7 +12,8 @@ import TransactionMonthPills from '@/app/components/transactions/transaction-mon
 import TransactionDetailsDialog from '@/app/components/transactions/transaction-details-dialog/transaction-details-dialog'
 import TransactionCard from '@/app/components/transactions/transaction-card/transaction-card'
 import TransactionsFilters from '@/app/components/transactions/transactions-filters/transactions-filters'
-import { useBaseColor } from '@/providers/base-colour-provider'
+import { useQueryState, useQueryStateNullable } from '@/hooks/use-query-state'
+import { useScrollRestoration } from '@/hooks/use-scroll-restoration'
 
 interface TransactionsClientProps {
   customerId: string
@@ -28,45 +27,24 @@ export default function TransactionsClient({
   transactions,
 }: TransactionsClientProps) {
   const router = useRouter()
-  const { setBaseColor } = useBaseColor()
 
-  // ✅ Use UI store for transaction selection
-  const { selectedTransactionId, setSelectedTransaction } = useSelectedItems()
+  // URL state for transaction selection, filters, and search
+  const [selectedTransactionId, setSelectedTransactionId] = useQueryStateNullable('txnId')
+  const [filterAccountId, setFilterAccountId] = useQueryState('accountId', '')
+  const [searchQuery, setSearchQuery] = useQueryState('search', '')
+  const [selectedMonth, setSelectedMonth] = useQueryStateNullable('month')
   
-  // ✅ Use UI store for filters
-  const { accountFilter, searchQuery, setSearchQuery, addAccountFilter, removeAccountFilter } = useFilters()
+  // Restore scroll position when navigating back
+  useScrollRestoration()
   
-  // Local state for selected month (specific to transactions page)
-  const [selectedMonth, setSelectedMonth] = useState<string | null>(null)
-  
-  // Get the actual transaction object from ID
   const selectedTransaction = selectedTransactionId 
     ? transactions.find(txn => txn.id === selectedTransactionId) || null
     : null
-  
-  // Get the filter account ID (use first account in filter array)
-  const filterAccountId = accountFilter.length > 0 ? accountFilter[0] : ''
-  
-  const setFilterAccountId = (accountId: string) => {
-    if (accountId) {
-      if (!accountFilter.includes(accountId)) {
-        addAccountFilter(accountId)
-      }
-    } else {
-      // Clear all account filters
-      accountFilter.forEach(id => removeAccountFilter(id))
-    }
-  }
-
-  useEffect(() => {
-    const colorWithTransparency = `${PAGE_COLORS.transactions}4D`
-    setBaseColor(colorWithTransparency)
-  }, [setBaseColor])
 
   const months = useMemo(() => {
     const monthSet = new Set<string>()
     transactions.forEach(txn => {
-      const newDate = new Date(txn.bookedDate)
+      const newDate = new Date(txn.date)
       const newMonth = newDate.toISOString().slice(0, 7)
       monthSet.add(newMonth)
     })
@@ -75,7 +53,7 @@ export default function TransactionsClient({
 
   const filteredTransactions = useMemo(() => {
     return transactions.filter(txn => {
-      const matchesAccount = !filterAccountId || txn.accountUniqueId === filterAccountId
+      const matchesAccount = !filterAccountId || txn.accountId === filterAccountId
       const matchesSearch = txn.narration.toLowerCase().includes(searchQuery.toLowerCase())
       return matchesAccount && matchesSearch
     })
@@ -84,7 +62,7 @@ export default function TransactionsClient({
   const transactionsByMonth = useMemo(() => {
     const map = new Map<string, string[]>()
     filteredTransactions.forEach(txn => {
-      const month = new Date(txn.bookedDate).toISOString().slice(0, 7)
+      const month = new Date(txn.date).toISOString().slice(0, 7)
       if (!map.has(month)) map.set(month, [])
       map.get(month)!.push(txn.id)
     })
@@ -114,10 +92,19 @@ export default function TransactionsClient({
 
   return (
     <PageLayoutWithSidebar customerId={customerId}>
-      <Dialog.Root onOpenChange={open => { if (!open) setSelectedTransaction(null) }}>
-        <div className={`${styles.PageGrid} page-gradient-background`}>
+      <Dialog.Root 
+        open={!!selectedTransactionId} 
+        onOpenChange={(open) => { 
+          if (!open) setSelectedTransactionId(null) 
+        }}
+      >
+        <div className={`${styles.PageGrid}`}>
           <div id="filters" className={styles.Header}>
-            <ArrowLeftIcon className="w-6 h-6" onClick={() => router.push(`/${customerId}/dashboard`)}/>
+            <ArrowLeftIcon 
+              className="w-6 h-6 cursor-pointer" 
+              onClick={() => router.back()}
+              aria-label="Go back"
+            />
             <h1 className="text-xl font-semibold mb-2">Transactions</h1>
             <div className={styles.Filters}>
               <TransactionsFilters
@@ -149,7 +136,7 @@ export default function TransactionsClient({
                   isDebit={isDebit}
                   amountClass={amountClass}
                   Icon={Icon}
-                  onClick={() => setSelectedTransaction(transaction.id)}
+                  onClick={() => setSelectedTransactionId(transaction.id)}
                   cardRef={el => { transactionRefs.current[transaction.id] = el }}
                 />
               )
@@ -161,7 +148,7 @@ export default function TransactionsClient({
         {selectedTransaction && (
           <TransactionDetailsDialog
             transaction={selectedTransaction}
-            onClose={() => setSelectedTransaction(null)}
+            onClose={() => setSelectedTransactionId(null)}
           />
         )}
       </Dialog.Root>

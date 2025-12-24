@@ -1,43 +1,107 @@
-import { formatNarration } from './format-narration'
-import { transactionIndexer, idHash } from './indexes/transaction-indexer'
+import { createHash } from 'crypto'
+import { transactionIndexer } from './indexes/transaction-indexer'
 
-async function insertTransactions(transactions: any[], customerId: string, connectDB: any) {
+function generateTransactionHash(
+  customerId: string,
+  accountNumber: string,
+  bankCode: string,
+  amount: number,
+  date: string,
+  narration: string,
+  type: string
+): string {
+  const data = `${customerId}${accountNumber}${bankCode}${amount}${date}${narration}${type}`
+  return createHash('sha256').update(data).digest('hex')
+}
+
+/**
+ * Insert Mono transactions in exact API format
+ * Stores the exact Mono transaction object plus metadata
+ */
+async function insertTransactions(
+  transactions: any[], 
+  customerId: string, 
+  accountId: string,
+  connectDB: any
+) {
   if (!Array.isArray(transactions) || transactions.length === 0) return
 
   if (!customerId) throw new Error('Customer ID is required')
+  if (!accountId) throw new Error('Account ID is required')
 
   const db = await connectDB()
   const txnCollection = db.collection('transactions')
-  await transactionIndexer(txnCollection) // Set up unique indexes on (customerId, accountUniqueId, Trxnid)
+  await transactionIndexer(txnCollection)
+
+  // Fetch account details to get stable identifiers (account number + bank code)
+  const accountCollection = db.collection('accounts')
+  const account = await accountCollection.findOne({ 
+    customerId,
+    id: accountId 
+  })
+
+  if (!account) {
+    throw new Error(`Account not found: ${accountId}`)
+  }
+
+  const accountNumber = account.account_number
+  const bankCode = account.institution.bank_code
 
   const records = transactions.map((txn: any) => ({
     id: txn.id,
-    transactionUniqueId: idHash(txn),
-    accountUniqueId: txn.accountUniqueId,
-    accountId: txn.accountId,
+    narration: txn.narration,
+    amount: txn.amount,
+    type: txn.type,
+    balance: txn.balance,
+    date: txn.date,
+    category: txn.category,
+    accountId,
     customerId,
-    amount: txn.amountFormatted,
-    unscaledValue: parseInt(txn.amount.value.unscaledValue, 10),
-    scale: parseInt(txn.amount.value.scale, 10),
-    narration: formatNarration(txn.descriptions?.original),
-    currencyCode: txn.amount?.currencyCode,
-    descriptions: txn.descriptions,
-    bookedDate: new Date(txn.dates.booked),
-    identifiers: txn.identifiers,
-    types: txn.types,
-    status: txn.status,
-    providerMutability: txn.providerMutability,
+    accountNumber,
+    bankCode,
+    hash: generateTransactionHash(
+      customerId,
+      accountNumber,
+      bankCode,
+      txn.amount,
+      txn.date,
+      txn.narration,
+      txn.type
+    ),
+  }))
+
+  const bulkOps = records.map((record) => ({
+    updateOne: {
+      filter: { 
+        customerId: record.customerId,
+        id: record.id 
+      },
+      update: { $set: record },
+      upsert: true,
+    },
   }))
 
   try {
-    await txnCollection.insertMany(records, { ordered: false })
+    const result = await txnCollection.bulkWrite(bulkOps, { ordered: false })
+    console.log(`Transaction insert result:`, {
+      inserted: result.upsertedCount,
+      updated: result.modifiedCount,
+      matched: result.matchedCount,
+      total: records.length,
+    })
   } catch (err: any) {
-    if (err.code !== 11000) throw err
+    console.error('Error inserting transactions:', err.message)
+    throw err
   }
 }
 
-async function bulkInsertTransactions(transactions: any[], customerId: string, connectDB: any) {
-  return insertTransactions(transactions, customerId, connectDB)
+async function bulkInsertTransactions(
+  transactions: any[], 
+  customerId: string, 
+  accountId: string,
+  connectDB: any
+) {
+  return insertTransactions(transactions, customerId, accountId, connectDB)
 }
 
 export { bulkInsertTransactions }

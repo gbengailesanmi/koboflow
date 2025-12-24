@@ -1,7 +1,7 @@
 import ThemeProviders from '@/providers/theme-providers'
 import { Open_Sans } from 'next/font/google'
-import BaseColorProvider from '@/providers/base-colour-provider'
 import SessionTimeoutProvider from '@/providers/session-timeout-provider'
+import { getSettings, getSession } from '@/app/api/api-service'
 
 import './globals.css'
 
@@ -10,18 +10,20 @@ const openSans = Open_Sans({
   subsets: ['latin']
 })
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const session = await getSession()
+  const settings = session ? await getSettings() : null
+  const userTheme = settings?.appearance?.theme || 'system'
+
   return (
     <html lang="en" className={openSans.variable} suppressHydrationWarning>
       <body>
-        <ThemeProviders>
-          <BaseColorProvider>
+        <ThemeProviders initialTheme={userTheme}>
             <SessionTimeoutProvider>
-              <div style={{ minHeight: '100vh', width: '100%' }}>
+              {/* <div style={{ minHeight: '100vh', width: '100%' }}> */}
                 {children}
-              </div>
+              {/* </div> */}
               </SessionTimeoutProvider>
-            </BaseColorProvider>
         </ThemeProviders>
       </body>
     </html>

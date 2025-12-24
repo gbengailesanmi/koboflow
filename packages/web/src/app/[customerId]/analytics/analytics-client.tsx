@@ -2,29 +2,34 @@
 
 import React, { useState, useMemo, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useSelectedItems, useToasts } from '@/store'
-import type { Account } from '@/types/account'
-import type { Transaction } from '@/types/transactions'
+import { Dialog } from '@radix-ui/themes'
+import type { Account } from '@money-mapper/shared'
+import type { Transaction } from '@money-mapper/shared'
 import type { CustomCategory } from '@/types/custom-category'
-import PageLayoutWithSidebar from '@/app/components/sidebar/sidebar'
-import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
-import Footer from '@/app/components/footer/footer'
+import { createCustomCategoryAction } from '@/app/actions/create-custom-category-action'
+import { deleteCustomCategoryAction } from '@/app/actions/delete-custom-category-action'
+import { updateCustomCategoryAction } from '@/app/actions/update-custom-category-action'
 import { PageHeader } from '@/app/components/page-header/page-header'
-import { useBaseColor } from '@/providers/base-colour-provider'
+import { PageLayout } from '@/app/components/page-layout/page-layout'
+import AccountFilterMenu from '@/app/components/account-filter-menu/account-filter-menu'
 import { categorizeTransaction } from '@/app/components/analytics/utils/categorize-transaction'
-import { formatCurrency } from '@/app/components/analytics/utils/format-currency'
 import { getCategoryConfig } from '@/app/components/analytics/utils/category-config'
 import { PieChart } from '@/app/components/analytics/pie-chart/pie-chart'
+import { TreemapChart } from '@/app/components/analytics/treemap-chart/treemap-chart'
+import { BubbleChart } from '@/app/components/analytics/bubble-chart/bubble-chart'
+import { BalanceHistoryChart } from '@/app/components/analytics/balance-history-chart/balance-history-chart'
 import { MonthOnMonthChart } from '@/app/components/analytics/month-on-month-chart/month-on-month-chart'
 import { RecurringPayments } from '@/app/components/analytics/recurring-payments/recurring-payments'
 import { StatsCards } from '@/app/components/analytics/stats-cards/stats-cards'
 import { CategoryBreakdown } from '@/app/components/analytics/category-breakdown/category-breakdown'
-import { BudgetOverview } from '@/app/components/analytics/budget-overview/budget-overview'
 import { DailySpendingComparison } from '@/app/components/analytics/daily-spending-comparison/daily-spending-comparison'
 import { AnalyticsCard } from '@/app/components/analytics/analytics-card/analytics-card'
+import { EmptyState } from '@/app/components/empty-state'
+import { ChartPlaceholder } from '@/app/components/chart-placeholder'
+import { useQueryStateNullable, useQueryState } from '@/hooks/use-query-state'
+import { useScrollRestoration } from '@/hooks/use-scroll-restoration'
 import { 
   Grid, 
-  Select, 
   Tabs,
   Text,
   Flex,
@@ -50,66 +55,66 @@ export default function AnalyticsClient({
   totalBudgetLimit
 }: AnalyticsClientProps) {
   const router = useRouter()
-  const { setBaseColor } = useBaseColor()
   
-  // ✅ Use UI store for account selection
-  const { selectedAccountId, setSelectedAccount } = useSelectedItems()
+  // URL state for account filter and settings
+  const [selectedAccountId, setSelectedAccountId] = useQueryStateNullable('accountId')
+  const [timePeriod, setTimePeriod] = useQueryState('period', 'month')
   
-  // ✅ Use UI store for toast notifications
-  const { showToast } = useToasts()
-
-  // Local state for time period (specific to analytics page)
-  const [timePeriod, setTimePeriod] = useState<'day' | 'month' | 'year'>('month')
+  // Local UI state
+  const [showAccountFilter, setShowAccountFilter] = useState(false)
+  const [currentChartIndex, setCurrentChartIndex] = useState(0)
   
-  // Use 'all' as default if no account is selected
+  // Restore scroll position when navigating back
+  useScrollRestoration()
+  
   const effectiveAccountId = selectedAccountId || 'all'
 
   const categoryConfig = useMemo(() => getCategoryConfig(customCategories), [customCategories])
-
-  useEffect(() => {
-    const colorWithTransparency = `${PAGE_COLORS.analytics}4D`
-    setBaseColor(colorWithTransparency)
-  }, [setBaseColor])
 
   const handleAddCategory = async (name: string, keywords: string[]) => {
     try {
       const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316']
       const randomColor = colors[Math.floor(Math.random() * colors.length)]
       
-      const response = await fetch('/api/custom-categories', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, keywords, color: randomColor })
+      await createCustomCategoryAction({ 
+        name, 
+        keywords, 
+        color: randomColor 
       })
       
-      if (response.ok) {
-        showToast('Category added successfully', 'success')
-        router.refresh()
-      } else {
-        showToast('Failed to add category', 'error')
-      }
+      router.refresh()
     } catch (error) {
       console.error('Failed to add category:', error)
-      showToast('Failed to add category', 'error')
     }
   }
 
   const handleDeleteCategory = async (id: string) => {
     try {
-      const response = await fetch(`/api/custom-categories?id=${id}`, {
-        method: 'DELETE'
-      })
-      
-      if (response.ok) {
-        showToast('Category deleted successfully', 'success')
-        router.refresh()
-      } else {
-        showToast('Failed to delete category', 'error')
-      }
+      await deleteCustomCategoryAction(id)
+      router.refresh()
     } catch (error) {
       console.error('Failed to delete category:', error)
-      showToast('Failed to delete category', 'error')
     }
+  }
+
+  const handleUpdateCategory = async (id: string, updates: { name?: string; keywords?: string[]; color?: string }) => {
+    try {
+      const result = await updateCustomCategoryAction(id, updates)
+      
+      if (result.success) {
+        router.refresh()
+      }
+    } catch (error) {
+      console.error('Failed to update category:', error)
+    }
+  }
+
+  const handleNextChart = () => {
+    setCurrentChartIndex((prev) => (prev + 1) % 4) // Cycle through 0, 1, 2, 3
+  }
+
+  const handlePrevChart = () => {
+    setCurrentChartIndex((prev) => (prev - 1 + 4) % 4) // Cycle through 0, 1, 2, 3
   }
 
   const processedTransactions = useMemo(() => {
@@ -117,18 +122,18 @@ export default function AnalyticsClient({
     
     if (effectiveAccountId !== 'all') {
       filteredByAccount = transactions.filter(transaction => 
-        transaction.accountUniqueId === effectiveAccountId
+        transaction.accountId === effectiveAccountId
       )
     }
     
     return filteredByAccount.map(transaction => {
-      const amount = parseFloat(transaction.amount)
+      const amount = transaction.amount
       return {
         ...transaction,
         numericAmount: Math.abs(amount),
         type: amount < 0 ? 'expense' : 'income',
         category: amount < 0 ? categorizeTransaction(transaction.narration, customCategories) : 'income',
-        date: new Date(transaction.bookedDate)
+        date: new Date(transaction.date)
       }
     })
   }, [transactions, effectiveAccountId, customCategories])
@@ -226,7 +231,7 @@ export default function AnalyticsClient({
     const prevIncome = prevMonthTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.numericAmount, 0)
     const prevExpense = prevMonthTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.numericAmount, 0)
     
-    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
     
     const currentDayOfMonth = now.getDate()
     const daysInPrevMonth = new Date(prevYear, prevMonth + 1, 0).getDate()
@@ -252,170 +257,213 @@ export default function AnalyticsClient({
     }
   }, [processedTransactions])
 
-  return (
-    <PageLayoutWithSidebar customerId={customerId}>
-      <div className={`${styles.container} page-gradient-background`}>
-        <div className={styles.headerSection}>
-          <PageHeader 
-            title="Insights" 
-            subtitle="Look into your spending patterns and trends"
+  const renderHeader = () => (
+    <>
+      <PageHeader 
+        title="Insights"
+        subtitle="Look into your spending patterns and trends"
+        showOptionsIcon={true}
+        onOptionsClick={() => setShowAccountFilter(true)}
+      />
+
+      {/* Account Filter Dialog */}
+      <Dialog.Root open={showAccountFilter} onOpenChange={setShowAccountFilter}>
+        <AccountFilterMenu 
+          accounts={accounts} 
+          currency={currency} 
+          asDialogContent={true}
+          open={showAccountFilter}
+          onOpenChange={setShowAccountFilter}
+        />
+      </Dialog.Root>
+    </>
+  )
+
+  const renderStickyContent = () => (
+    <>
+      <Box className={styles.timeRangeContainer}>
+        <Tabs.Root value={timePeriod} onValueChange={(value) => setTimePeriod(value as 'day' | 'month' | 'year')}>
+          <Tabs.List>
+            <Tabs.Trigger value="day">Day</Tabs.Trigger>
+            <Tabs.Trigger value="month">Month</Tabs.Trigger>
+            <Tabs.Trigger value="year">Year</Tabs.Trigger>
+          </Tabs.List>
+        </Tabs.Root>
+      </Box>
+
+      {/* Stats Cards */}
+      {processedTransactions.length > 0 && (
+        <Grid id="stats-cards" className={styles.statsGrid}>
+          <StatsCards 
+            totalIncome={totalIncome}
+            totalExpense={totalExpense}
+            netBalance={netBalance}
+            incomeTransactionCount={filteredTransactions.filter(t => t.type === 'income').length}
+            expenseTransactionCount={filteredTransactions.filter(t => t.type === 'expense').length}
+            currency={currency}
           />
+        </Grid>
+      )}
+    </>
+  )
 
-          <Flex className={styles.accountSelectorContainer} direction="column" gap="2">
-            <Text as="label" size="2" weight="medium">
-              Filter by Account:
-            </Text>
-            <Select.Root
-              value={effectiveAccountId}
-              onValueChange={(value) => setSelectedAccount(value === 'all' ? null : value)}
+  const renderBodyContent = () => (
+    <>
+      {processedTransactions.length === 0 ? (
+        <EmptyState
+          icon="📊"
+          title="No data to analyze yet"
+          description="Add some transactions to see analytics and insights"
+        />
+      ) : (
+        <>
+          <Grid id="expense-breakdown">
+            <AnalyticsCard
+              title="Expense Breakdown"
+              description="Visual breakdown of your spending by category"
+              showNavigation={categoryData.length > 0}
+              onNextChart={handleNextChart}
+              onPrevChart={handlePrevChart}
             >
-              <Select.Trigger className={styles.accountSelector} />
-              <Select.Content>
-                <Select.Item value="all">All Accounts</Select.Item>
-                {accounts.map((account) => (
-                  <Select.Item key={account.id} value={account.uniqueId}>
-                    {account.name} — {currency === 'GBP' ? '£' : formatCurrency(0, currency).charAt(0)}{Number(account.balance).toFixed(2)}
-                  </Select.Item>
-                ))}
-              </Select.Content>
-            </Select.Root>
-          </Flex>
-
-          <Box className={styles.timeRangeContainer}>
-            <Tabs.Root value={timePeriod} onValueChange={(value) => setTimePeriod(value as 'day' | 'month' | 'year')}>
-              <Tabs.List>
-                <Tabs.Trigger value="day">Day</Tabs.Trigger>
-                <Tabs.Trigger value="month">Month</Tabs.Trigger>
-                <Tabs.Trigger value="year">Year</Tabs.Trigger>
-              </Tabs.List>
-            </Tabs.Root>
-          </Box>
-        </div>
-
-        <main className={styles.main}>
-          {processedTransactions.length === 0 ? (
-            <div className={styles.emptyState}>
-              <div className={styles.emptyStateContent}>
-                <div className={styles.emptyStateIcon}>📊</div>
-                <h3 className={styles.emptyStateTitle}>No data to analyze yet</h3>
-                <p className={styles.emptyStateText}>
-                  Add some transactions to see analytics and insights
-                </p>
-              </div>
-            </div>
-          ) : (
-            <>
-              <Grid id="stats-cards" className={styles.statsGrid}>
-                <StatsCards 
-                  totalIncome={totalIncome}
-                  totalExpense={totalExpense}
-                  netBalance={netBalance}
-                  incomeTransactionCount={filteredTransactions.filter(t => t.type === 'income').length}
-                  expenseTransactionCount={filteredTransactions.filter(t => t.type === 'expense').length}
-                  currency={currency}
+              {categoryData.length === 0 ? (
+                <ChartPlaceholder
+                  icon="📈"
+                  message="No expense data for this period"
+                  type="no-data"
                 />
-              </Grid>
-
-              <Grid id="expense-breakdown" className={styles.analyticsCard}>
-                <AnalyticsCard
-                  title="📊 Expense Breakdown"
-                  description="Visual breakdown of your spending by category"
-                >
-                  {categoryData.length === 0 ? (
-                    <div className={styles.noData}>
-                      <div style={{ fontSize: '48px', marginBottom: '16px' }}>📈</div>
-                      No expense data for this period
-                    </div>
-                  ) : (
-                    <div className={styles.chartContainer}>
+              ) : (
+                <div className={styles.chartContainer}>
+                  <div className={styles.chartWrapper}>
+                    {currentChartIndex === 0 && (
                       <PieChart 
-                        data={categoryData.slice(0, 6)} 
+                        data={categoryData.slice(0, 9)} 
                         categoryConfig={categoryConfig}
                         currency={currency}
                       />
-                    </div>
-                  )}
-                </AnalyticsCard>
-              </Grid>
-
-              <Grid id="daily-comparison" className={styles.analyticsCard}>
-                <AnalyticsCard
-                  title="📈 Daily Expense Comparison"
-                  description="Compare daily expenses for the entire month between current and previous month"
-                >
-                  {(monthOnMonthData.currentMonth.expense === 0 && monthOnMonthData.prevMonth.expense === 0) ? (
-                    <div className={styles.noData}>
-                      <div style={{ fontSize: '48px', marginBottom: '16px' }}>📈</div>
-                      No expense data for comparison
-                    </div>
-                  ) : (
-                    <div className={styles.chartContainer}>
-                      <MonthOnMonthChart 
-                        data={monthOnMonthData}
+                    )}
+                    {currentChartIndex === 1 && (
+                      <TreemapChart 
+                        data={categoryData.slice(0, 10)} 
+                        categoryConfig={categoryConfig}
                         currency={currency}
-                        transactions={processedTransactions}
                       />
-                      <div className={styles.comparisonStats}>
-                        <DailySpendingComparison
-                          currentMonthAverage={monthOnMonthData.currentMonth.dailyAverage}
-                          prevMonthAverage={monthOnMonthData.prevMonth.dailyAverage}
-                          currentMonthName={monthOnMonthData.currentMonth.name}
-                          prevMonthName={monthOnMonthData.prevMonth.name}
-                          currency={currency}
-                        />
-                      </div>
-                    </div>
-                  )}
-                </AnalyticsCard>
-              </Grid>
+                    )}
+                    {currentChartIndex === 2 && (
+                      <BubbleChart 
+                        data={categoryData.slice(0, 9)} 
+                        categoryConfig={categoryConfig}
+                        currency={currency}
+                      />
+                    )}
+                    {currentChartIndex === 3 && (
+                      <ChartPlaceholder
+                        icon="📊"
+                        message="More chart types coming soon!"
+                        type="coming-soon"
+                      />
+                    )}
+                  </div>
+                </div>
+              )}
+            </AnalyticsCard>
+          </Grid>
 
-              <Grid id="spending-category" className={styles.analyticsCard}>
-                <AnalyticsCard
-                  title="🏷️ Spending by Category"
-                  description="Detailed breakdown of your expenses across different categories"
-                >
-                  <CategoryBreakdown 
-                    categoryData={categoryData}
+          <Grid id="daily-comparison">
+            <AnalyticsCard
+              title="Daily Expense"
+              description="Compare daily expenses for the entire month between current and previous month"
+            >
+              {(monthOnMonthData.currentMonth.expense === 0 && monthOnMonthData.prevMonth.expense === 0) ? (
+                <ChartPlaceholder
+                  icon="📈"
+                  message="No expense data for comparison"
+                  type="no-data"
+                />
+              ) : (
+                <div className={styles.chartContainer}>
+                  <MonthOnMonthChart 
+                    data={monthOnMonthData}
                     currency={currency}
-                    customCategories={customCategories}
-                    onAddCategory={handleAddCategory}
-                    onDeleteCategory={handleDeleteCategory}
-                  />
-                </AnalyticsCard>
-              </Grid>
-
-              <Grid id="recurring-payments" className={styles.analyticsCard}>
-                <AnalyticsCard
-                  title="🔄 Recurring Payments"
-                  description="Track your recurring expenses and upcoming payment predictions"
-                >
-                  <RecurringPayments 
                     transactions={processedTransactions}
-                    currency={currency}
-                    maxItems={5}
-                    showSeeMore={false}
                   />
-                </AnalyticsCard>
-              </Grid>
+                  <div className={styles.comparisonStats}>
+                    <DailySpendingComparison
+                      currentMonthAverage={monthOnMonthData.currentMonth.dailyAverage}
+                      prevMonthAverage={monthOnMonthData.prevMonth.dailyAverage}
+                      currentMonthName={monthOnMonthData.currentMonth.name}
+                      prevMonthName={monthOnMonthData.prevMonth.name}
+                      currency={currency}
+                    />
+                  </div>
+                </div>
+              )}
+            </AnalyticsCard>
+          </Grid>
 
-              <Grid id="budget-overview" className={styles.analyticsCard}>
-                <AnalyticsCard
-                  title="💰 Monthly Budget Overview"
-                  description="Track your progress against your monthly spending budget (current month)"
-                >
-                  <BudgetOverview
-                    monthlyExpense={monthlyExpense}
-                    totalBudgetLimit={totalBudgetLimit}
+          <Grid id="balance-history">
+            <AnalyticsCard
+              title={`${monthOnMonthData.currentMonth.name} vs ${monthOnMonthData.prevMonth.name}`}
+              description="Track your cumulative spending - compare any two months"
+            >
+              {(monthOnMonthData.currentMonth.expense === 0 && monthOnMonthData.prevMonth.expense === 0) ? (
+                <ChartPlaceholder
+                  icon="💰"
+                  message="No balance data for comparison"
+                  type="no-data"
+                />
+              ) : (
+                <div className={styles.chartContainer}>
+                  <BalanceHistoryChart 
+                    data={monthOnMonthData}
                     currency={currency}
+                    transactions={processedTransactions}
                   />
-                </AnalyticsCard>
-              </Grid>
-            </>
-          )}
-        </main>
-      </div>
-      
-      <Footer buttonColor='#222222' opacity={50} />
-    </PageLayoutWithSidebar>
+                </div>
+              )}
+            </AnalyticsCard>
+          </Grid>
+
+          <Grid id="spending-category">
+            <AnalyticsCard
+              title="Spending by Category"
+              description="Detailed breakdown of your expenses across different categories"
+            >
+              <CategoryBreakdown 
+                categoryData={categoryData}
+                currency={currency}
+                customCategories={customCategories}
+                onAddCategory={handleAddCategory}
+                onUpdateCategory={handleUpdateCategory}
+                onDeleteCategory={handleDeleteCategory}
+              />
+            </AnalyticsCard>
+          </Grid>
+
+          <Grid id="recurring-payments">
+            <AnalyticsCard
+              title="Recurring Payments"
+              description="Track your recurring expenses and upcoming payment predictions"
+            >
+              <RecurringPayments 
+                transactions={processedTransactions}
+                currency={currency}
+                maxItems={5}
+                showSeeMore={false}
+              />
+            </AnalyticsCard>
+          </Grid>
+        </>
+      )}
+    </>
+  )
+
+  return (
+    <PageLayout
+      header={renderHeader()}
+      stickySection={renderStickyContent()}
+      footer={{ buttonColor: '#222222', opacity: 50 }}
+    >
+      {renderBodyContent()}
+    </PageLayout>
   )
 }

@@ -1,0 +1,84 @@
+/* Page Layout Styles - Adopted from analytics.module.css */
+@reference "../../globals.css";
+
+/* Main Container */
+.container {
+  @apply min-h-screen;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+/* Header Section */
+.headerSection {
+  padding: 10px 16px 0;
+  margin: 0 auto;
+  max-width: 1400px;
+}
+
+@media (min-width: 768px) {
+  .headerSection {
+    padding-top: 50px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .headerSection {
+    padding-top: 60px;
+  }
+}
+
+/* Content Container - wraps both sticky and scrollable sections */
+.contentContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-width: 1400px;
+  margin: 0 auto;
+  overflow: hidden;
+  width: 100%;
+}
+
+/* Sticky Section */
+.stickySection {
+  flex-shrink: 0;
+  z-index: 100;
+  background: transparent;
+  width: 100%;
+}
+
+/* Empty State Styles */
+.emptyState {
+  @apply rounded-2xl shadow-xl mx-4;
+  backdrop-filter: blur(20px);
+  padding: 64px 32px;
+}
+
+/* Light mode empty state */
+:root .emptyState,
+.light .emptyState,
+.light-theme .emptyState {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+/* Dark mode empty state */
+.dark .emptyState,
+.dark-theme .emptyState {
+  background: rgba(30, 30, 35, 0.95);
+}
+
+.emptyStateContent {
+  @apply text-center;
+}
+
+.emptyStateIcon {
+  @apply text-5xl mb-4;
+}
+
+.emptyStateTitle {
+  @apply text-lg font-semibold mb-2;
+  color: var(--gray-12);
+}
+
+.emptyStateText {
+  color: var(--gray-11);
+}

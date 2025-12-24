@@ -4,9 +4,19 @@ import { connectDB } from '../mongo'
 export async function createBudgetIndexes() {
   const db = await connectDB()
   
+  try {
+    await db.collection('budgets').dropIndex('customerId_unique')
+  } catch (error) {
+  }
+  
   await db.collection('budgets').createIndex(
-    { customerId: 1 },
-    { unique: true, name: 'customerId_unique' }
+    { customerId: 1, isActive: -1 },
+    { name: 'customerId_isActive' }
+  )
+  
+  await db.collection('budgets').createIndex(
+    { customerId: 1, createdAt: -1 },
+    { name: 'customerId_createdAt' }
   )
   
   await db.collection('budgets').createIndex(
@@ -25,39 +35,14 @@ export async function createBudgetIndexes() {
   )
 }
 
-export async function migrateBudgetPeriod() {
-  const db = await connectDB()
-  const budgetsCollection = db.collection('budgets')
-  
-  const totalBudgets = await budgetsCollection.countDocuments()
-  
-  const result = await budgetsCollection.updateMany(
-    { period: { $exists: false } },
-    {
-      $set: {
-        period: {
-          type: 'current-month'
-        },
-        updatedAt: new Date()
-      }
-    }
-  )
-    
-  const budgetsWithPeriod = await budgetsCollection.countDocuments({
-    period: { $exists: true }
-  })
-}
-
 if (require.main === module) {
-  Promise.all([
-    createBudgetIndexes(),
-    migrateBudgetPeriod()
-  ])
+  createBudgetIndexes()
     .then(() => {
+      console.log('✅ Budget indexes created successfully')
       process.exit(0)
     })
     .catch((error) => {
-      console.error('❌ Failed:', error)
+      console.error('❌ Failed to create budget indexes:', error)
       process.exit(1)
     })
 }

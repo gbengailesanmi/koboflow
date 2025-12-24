@@ -15,20 +15,20 @@
 .title {
   font-size: 18px;
   font-weight: 600;
-  color: #111827;
+  color: var(--gray-12);
   margin: 0 0 4px 0;
 }
 
 .description {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--gray-11);
   margin: 0;
 }
 
 .addButton {
   padding: 8px 16px;
-  background: #3b82f6;
-  color: white;
+  background: var(--blue-9);
+  color: var(--blue-contrast);
   border: none;
   border-radius: 8px;
   font-size: 14px;
@@ -38,11 +38,11 @@
 }
 
 .addButton:hover {
-  background: #2563eb;
+  background: var(--blue-10);
 }
 
 .form {
-  background: #f9fafb;
+  background: var(--gray-2);
   border-radius: 8px;
   padding: 20px;
   margin-bottom: 24px;
@@ -60,28 +60,28 @@
   display: block;
   font-size: 14px;
   font-weight: 500;
-  color: #374151;
+  color: var(--gray-11);
   margin-bottom: 6px;
 }
 
 .input {
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--gray-6);
   border-radius: 6px;
   font-size: 14px;
-  color: #111827;
+  color: var(--gray-12);
 }
 
 .input:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: var(--blue-9);
+  box-shadow: 0 0 0 3px var(--blue-a3);
 }
 
 .helpText {
   font-size: 12px;
-  color: #6b7280;
+  color: var(--gray-11);
   margin: 6px 0 0 0;
 }
 
@@ -105,7 +105,7 @@
 }
 
 .colorOptionSelected {
-  border-color: #111827;
+  border-color: var(--gray-12);
   transform: scale(1.1);
 }
 
@@ -118,8 +118,8 @@
 .saveButton {
   flex: 1;
   padding: 10px 16px;
-  background: #10b981;
-  color: white;
+  background: var(--green-9);
+  color: var(--green-contrast);
   border: none;
   border-radius: 6px;
   font-size: 14px;
@@ -129,7 +129,7 @@
 }
 
 .saveButton:hover:not(:disabled) {
-  background: #059669;
+  background: var(--green-10);
 }
 
 .saveButton:disabled {
@@ -139,8 +139,8 @@
 
 .cancelButton {
   padding: 10px 16px;
-  background: #e5e7eb;
-  color: #374151;
+  background: var(--gray-3);
+  color: var(--gray-11);
   border: none;
   border-radius: 6px;
   font-size: 14px;
@@ -150,7 +150,7 @@
 }
 
 .cancelButton:hover:not(:disabled) {
-  background: #d1d5db;
+  background: var(--gray-4);
 }
 
 .cancelButton:disabled {

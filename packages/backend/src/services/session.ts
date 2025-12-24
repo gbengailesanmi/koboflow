@@ -62,7 +62,6 @@ export async function getSession(sessionId: string): Promise<SessionData | null>
   })
   
   if (session) {
-    // Update last accessed time
     await db.collection('sessions').updateOne(
       { sessionId },
       { $set: { lastAccessedAt: new Date() } }

@@ -2,7 +2,8 @@
 
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState, Suspense } from 'react'
-import { resendVerificationEmail } from '@/lib/api-service'
+import { resendVerificationEmailAction } from '@/app/actions/resend-verification-email-action'
+import { logger } from '@money-mapper/shared/utils'
 import styles from './verify-email.module.css'
 
 function VerifyEmailContent() {
@@ -17,22 +18,20 @@ function VerifyEmailContent() {
     const error = searchParams.get('error')
         
     if (verified === 'true') {
-      console.log('[VERIFY PAGE] Setting status to success')
+      logger.info({ module: 'verify-email-page' }, 'Email verification successful')
       setStatus('success')
       setMessage('Email verified successfully! Redirecting to login...')
       setTimeout(() => {
         router.push('/login')
       }, 2000)
     } else if (error) {
-      console.log('[VERIFY PAGE] Setting status to error:', error)
+      logger.error({ module: 'verify-email-page', error }, 'Email verification failed')
       setStatus('error')
       if (error === 'invalid') {
         setMessage('Invalid or expired verification token')
       } else {
         setMessage('An error occurred during verification')
       }
-    } else {
-      console.log('[VERIFY PAGE] No query params, staying in idle state')
     }
   }, [router, searchParams])
 
@@ -42,11 +41,11 @@ function VerifyEmailContent() {
 
     setResending(true)
     try {
-      const data: any = await resendVerificationEmail(email)
-      if (data.success) {
+      const result = await resendVerificationEmailAction(email)
+      if (result.success) {
         alert('Verification email sent! Please check your inbox.')
       } else {
-        alert(data.message || 'Failed to send verification email')
+        alert(result.message || 'Failed to send verification email')
       }
     } catch (error) {
       alert('An error occurred. Please try again.')

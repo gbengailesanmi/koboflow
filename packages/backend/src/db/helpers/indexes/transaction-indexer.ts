@@ -1,33 +1,19 @@
-import { hasher } from '../hasher'
-import { formatNarration } from '../format-narration'
-
-let transactionsIndexed = false
-
-async function transactionIndexer(txnCollection: any) {
-  if (transactionsIndexed) return
-
+export async function transactionIndexer(txnCollection: any) {
   await txnCollection.createIndex(
-    { customerId: 1, transactionUniqueId: 1 },
+    { customerId: 1, id: 1 },
     { unique: true }
   )
 
   await txnCollection.createIndex(
-    { customerId: 1, bookedDate: -1 }
+    { customerId: 1, date: -1 }
   )
 
-  transactionsIndexed = true
+  await txnCollection.createIndex(
+    { customerId: 1, accountNumber: 1, bankCode: 1, date: -1 }
+  )
+
+  await txnCollection.createIndex(
+    { hash: 1 },
+    { unique: true, sparse: true }
+  )
 }
-
-function idHash(txn: any) {
-  const str = [
-    txn.accountUniqueId,
-    txn.amount?.value?.unscaledValue ?? '',
-    txn.amount?.value?.scale ?? '',
-    txn.dates?.booked ?? '',
-    formatNarration(txn.descriptions?.original) ?? '',
-  ].join('|')
-
-  return hasher(str)
-}
-
-export { transactionIndexer, idHash }

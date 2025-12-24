@@ -1,32 +1,10 @@
 import { Router } from 'express'
 import { authMiddleware, AuthRequest } from '../middleware/middleware'
+import { getUserSettings, updateUserSettings } from '../services/settings'
+import { encryptPIN, decryptPIN } from '../services/pin-security'
 import { connectDB } from '../db/mongo'
 
 export const settingsRoutes = Router()
-
-async function getUserSettings(customerId: string) {
-  const db = await connectDB()
-  const settings = await db.collection('settings').findOne({ customerId })
-  return settings || {}
-}
-
-async function updateUserSettings(customerId: string, updates: any) {
-  const db = await connectDB()
-  const result = await db.collection('settings').findOneAndUpdate(
-    { customerId },
-    { 
-      $set: { 
-        ...updates,
-        updatedAt: new Date()
-      }
-    },
-    { 
-      upsert: true,
-      returnDocument: 'after'
-    }
-  )
-  return result
-}
 
 settingsRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
   try {
@@ -38,6 +16,10 @@ settingsRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
 
     const settings = await getUserSettings(customerId)
 
+    if (!settings) {
+      return res.status(404).json({ error: 'Settings not found' })
+    }
+
     res.json({ 
       success: true,
       settings
@@ -48,7 +30,7 @@ settingsRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
   }
 })
 
-settingsRoutes.post('/', authMiddleware, async (req: AuthRequest, res) => {
+settingsRoutes.patch('/', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
     
@@ -56,13 +38,19 @@ settingsRoutes.post('/', authMiddleware, async (req: AuthRequest, res) => {
       return res.status(401).json({ error: 'Unauthorized' })
     }
 
-    const { customerId: bodyCustomerId, ...updates } = req.body
+    const updates = req.body
 
-    if (bodyCustomerId && bodyCustomerId !== customerId) {
-      return res.status(401).json({ error: 'Unauthorized' })
+    if ('customerId' in updates) {
+      delete updates.customerId
     }
 
-    const updatedSettings = await updateUserSettings(customerId, updates)
+    const result = await updateUserSettings(customerId, updates)
+
+    if (!result.success) {
+      return res.status(500).json({ error: 'Failed to update settings' })
+    }
+
+    const updatedSettings = await getUserSettings(customerId)
 
     res.json({ 
       success: true,
@@ -83,29 +71,293 @@ settingsRoutes.delete('/account', authMiddleware, async (req: AuthRequest, res) 
       return res.status(401).json({ error: 'Unauthorized' })
     }
 
-    const { customerId: bodyCustomerId } = req.body
-
-    if (bodyCustomerId && bodyCustomerId !== customerId) {
-      return res.status(401).json({ error: 'Unauthorized' })
-    }
+    console.log('[Delete Account] Deleting account for customerId:', customerId)
 
     const db = await connectDB()
     
-    await Promise.all([
+    const results = await Promise.all([
       db.collection('users').deleteOne({ customerId }),
       db.collection('accounts').deleteMany({ customerId }),
       db.collection('transactions').deleteMany({ customerId }),
-      db.collection('budgets').deleteOne({ customerId }),
+      db.collection('budgets').deleteMany({ customerId }),
       db.collection('spending_categories').deleteMany({ customerId }),
-      db.collection('settings').deleteOne({ customerId })
+      db.collection('settings').deleteOne({ customerId }),
+      db.collection('sessions').deleteMany({ customerId })
     ])
+
+    res.clearCookie('session-id', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax'
+    })
+
+
+    console.log('[Delete Account] Deletion results:', {
+      users: results[0].deletedCount,
+      accounts: results[1].deletedCount,
+      transactions: results[2].deletedCount,
+      budgets: results[3].deletedCount,
+      spending_categories: results[4].deletedCount,
+      settings: results[5].deletedCount,
+      sessions: results[6].deletedCount,
+    })
 
     res.json({ 
       success: true,
       message: 'Account deleted successfully' 
     })
   } catch (error) {
-    console.error('Error deleting account:', error)
-    res.status(500).json({ error: 'Failed to delete account' })
+    console.error('[Delete Account] Error deleting account:', error)
+    res.status(500).json({ 
+      error: 'Failed to delete account',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    })
+  }
+})
+
+settingsRoutes.post('/pin/set', authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    const customerId = req.user?.customerId
+    
+    if (!customerId) {
+      return res.status(401).json({ error: 'Unauthorized' })
+    }
+
+    const { pin, password } = req.body
+
+    if (!pin || !password) {
+      return res.status(400).json({ error: 'PIN and password are required' })
+    }
+
+    if (!/^\d{4,6}$/.test(pin)) {
+      return res.status(400).json({ error: 'PIN must be 4-6 digits' })
+    }
+
+    const db = await connectDB()
+    const user = await db.collection('users').findOne({ customerId })
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' })
+    }
+
+    const bcrypt = await import('bcrypt')
+    const passwordMatch = await bcrypt.compare(password, user.password)
+    
+    if (!passwordMatch) {
+      return res.status(401).json({ error: 'Invalid password' })
+    }
+
+    const encryptedPIN = encryptPIN(pin, password)
+
+    const result = await updateUserSettings(customerId, {
+      security: {
+        pinHash: encryptedPIN,
+        faceId: false,
+        givePermission: false,
+      }
+    })
+
+    if (!result.success) {
+      return res.status(500).json({ error: 'Failed to set PIN' })
+    }
+
+    res.json({ 
+      success: true,
+      message: 'PIN set successfully'
+    })
+  } catch (error) {
+    console.error('Error setting PIN:', error)
+    res.status(500).json({ error: 'Failed to set PIN' })
+  }
+})
+
+settingsRoutes.post('/pin/change', authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    const customerId = req.user?.customerId
+    
+    if (!customerId) {
+      return res.status(401).json({ error: 'Unauthorized' })
+    }
+
+    const { oldPin, newPin, password } = req.body
+
+    if (!oldPin || !newPin || !password) {
+      return res.status(400).json({ error: 'Old PIN, new PIN, and password are required' })
+    }
+
+    if (!/^\d{4,6}$/.test(newPin)) {
+      return res.status(400).json({ error: 'New PIN must be 4-6 digits' })
+    }
+
+    const settings = await getUserSettings(customerId)
+    
+    if (!settings || !settings.security?.pinHash) {
+      return res.status(400).json({ error: 'No PIN is currently set' })
+    }
+
+    const db = await connectDB()
+    const user = await db.collection('users').findOne({ customerId })
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' })
+    }
+
+    const bcrypt = await import('bcrypt')
+    const passwordMatch = await bcrypt.compare(password, user.password)
+    
+    if (!passwordMatch) {
+      return res.status(401).json({ error: 'Invalid password' })
+    }
+
+    const decryptedOldPin = decryptPIN(settings.security.pinHash, password)
+    
+    if (!decryptedOldPin || decryptedOldPin !== oldPin) {
+      return res.status(401).json({ error: 'Invalid old PIN' })
+    }
+
+    const encryptedNewPIN = encryptPIN(newPin, password)
+
+    const result = await updateUserSettings(customerId, {
+      security: {
+        ...settings.security,
+        pinHash: encryptedNewPIN,
+      }
+    })
+
+    if (!result.success) {
+      return res.status(500).json({ error: 'Failed to change PIN' })
+    }
+
+    res.json({ 
+      success: true,
+      message: 'PIN changed successfully'
+    })
+  } catch (error) {
+    console.error('Error changing PIN:', error)
+    res.status(500).json({ error: 'Failed to change PIN' })
+  }
+})
+
+settingsRoutes.post('/pin/verify', authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    const customerId = req.user?.customerId
+    
+    if (!customerId) {
+      return res.status(401).json({ error: 'Unauthorized' })
+    }
+
+    const { pin, password } = req.body
+
+    if (!pin || !password) {
+      return res.status(400).json({ error: 'PIN and password are required' })
+    }
+
+    const settings = await getUserSettings(customerId)
+    
+    if (!settings || !settings.security?.pinHash) {
+      return res.status(400).json({ error: 'No PIN is set' })
+    }
+
+    const db = await connectDB()
+    const user = await db.collection('users').findOne({ customerId })
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' })
+    }
+
+    const bcrypt = await import('bcrypt')
+    const passwordMatch = await bcrypt.compare(password, user.password)
+    
+    if (!passwordMatch) {
+      return res.status(401).json({ error: 'Invalid password' })
+    }
+
+    const decryptedPin = decryptPIN(settings.security.pinHash, password)
+    
+    if (!decryptedPin || decryptedPin !== pin) {
+      return res.json({ 
+        success: false,
+        valid: false,
+        message: 'Invalid PIN'
+      })
+    }
+
+    res.json({ 
+      success: true,
+      valid: true,
+      message: 'PIN is valid'
+    })
+  } catch (error) {
+    console.error('Error verifying PIN:', error)
+    res.status(500).json({ error: 'Failed to verify PIN' })
+  }
+})
+
+settingsRoutes.post('/password/change', authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    const customerId = req.user?.customerId
+    
+    if (!customerId) {
+      return res.status(401).json({ error: 'Unauthorized' })
+    }
+
+    const { currentPassword, newPassword, confirmPassword } = req.body
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      return res.status(400).json({ error: 'All fields are required' })
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ error: 'New passwords do not match' })
+    }
+
+    if (newPassword.length < 8) {
+      return res.status(400).json({ error: 'New password must be at least 8 characters' })
+    }
+
+    const db = await connectDB()
+    const user = await db.collection('users').findOne({ customerId })
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' })
+    }
+
+    const bcrypt = await import('bcrypt')
+    const passwordMatch = await bcrypt.compare(currentPassword, user.password)
+    
+    if (!passwordMatch) {
+      return res.status(401).json({ error: 'Current password is incorrect' })
+    }
+
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10)
+
+    await db.collection('users').updateOne(
+      { customerId },
+      { $set: { password: hashedNewPassword, updatedAt: new Date() } }
+    )
+
+    const settings = await getUserSettings(customerId)
+    if (settings?.security?.pinHash) {
+      const decryptedPin = decryptPIN(settings.security.pinHash, currentPassword)
+      
+      if (decryptedPin) {
+        const newEncryptedPIN = encryptPIN(decryptedPin, newPassword)
+        
+        await updateUserSettings(customerId, {
+          security: {
+            ...settings.security,
+            pinHash: newEncryptedPIN,
+          }
+        })
+      }
+    }
+
+    res.json({ 
+      success: true,
+      message: 'Password changed successfully'
+    })
+  } catch (error) {
+    console.error('Error changing password:', error)
+    res.status(500).json({ error: 'Failed to change password' })
   }
 })

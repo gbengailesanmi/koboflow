@@ -1,14 +1,15 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState, useEffect, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
-import { updateAppSettings, deleteUserAccount, logoutUser } from '@/lib/api-client'
-import { useToasts } from '@/store'
+import { useTheme } from 'next-themes'
+import { updateSettingsAction } from '@/app/actions/update-settings-action'
+import { changeUserPINAction } from '@/app/actions/change-user-pin-action'
+import { changeUserPasswordAction } from '@/app/actions/change-user-password-action'
+import { deleteAccountAction } from '@/app/actions/delete-account-action'
 import Sidebar from '@/app/components/sidebar/sidebar'
-import { PAGE_COLORS } from '@/app/components/page-background/page-colors'
 import { PageHeader } from '@/app/components/page-header/page-header'
 import Footer from '@/app/components/footer/footer'
-import { useBaseColor } from '@/providers/base-colour-provider'
 import { 
   Grid, 
   Button, 
@@ -16,37 +17,21 @@ import {
   RadioCards, 
   Text,
   Flex,
+  TextField,
+  Callout,
 } from '@radix-ui/themes'
+import { InfoCircledIcon, CheckCircledIcon, ExclamationTriangleIcon, CrossCircledIcon } from '@radix-ui/react-icons'
 import styles from './settings.module.css'
+import type { UserSettings } from '@money-mapper/shared'
 
 type Theme = 'light' | 'dark' | 'system'
-
-type NotificationSettings = {
-  budgetAlerts: boolean
-  transactionUpdates: boolean
-  weeklyReports: boolean
-  monthlyReports: boolean
-}
-
-type AccentColours = {
-  analytics: string
-  budget: string
-  profile: string
-  settings: string
-  transactions: string
-  dashboard: string
-}
 
 type SettingsClientProps = {
   customerId: string
   firstName: string
   lastName: string
   email: string
-  initialTheme: Theme
-  initialAccentColor: string
-  initialNotifications: NotificationSettings
-  initialUseFaceId: boolean
-  initialPageColors: AccentColours
+  initialSettings: UserSettings | null
 }
 
 export default function SettingsClient({
@@ -54,101 +39,237 @@ export default function SettingsClient({
   firstName,
   lastName,
   email,
-  initialTheme,
-  initialAccentColor,
-  initialNotifications,
-  initialUseFaceId,
-  initialPageColors
+  initialSettings
 }: SettingsClientProps) {
   const router = useRouter()
-  const { setBaseColor } = useBaseColor()
-  
-  // ✅ Use UI store for toast notifications
-  const { showToast } = useToasts()
+  const { theme: currentTheme, setTheme: setNextTheme } = useTheme()
 
-  const [theme, setTheme] = useState<Theme>(initialTheme)
-  const [accentColor, setAccentColor] = useState(initialAccentColor)
-  const [notifications, setNotifications] = useState<NotificationSettings>(initialNotifications)
-  const [useFaceId, setUseFaceId] = useState(initialUseFaceId)
-  const [showPinModal, setShowPinModal] = useState(false)
-  const [showDeleteModal, setShowDeleteModal] = useState(false)
-  const [isSaving, setIsSaving] = useState(false)
-  const [isAccentColorsExpanded, setIsAccentColorsExpanded] = useState(false)
-  const [pageColors, setPageColors] = useState<AccentColours>(initialPageColors)
+  const [theme, setTheme] = useState<Theme>(initialSettings?.appearance?.theme || 'system')
+  const [emailChannel, setEmailChannel] = useState(initialSettings?.receiveOn?.email ?? true)
+  const [smsChannel, setSmsChannel] = useState(initialSettings?.receiveOn?.sms ?? false)
+  const [budgetAlerts, setBudgetAlerts] = useState(initialSettings?.notifications?.budgetAlerts ?? true)
+  const [weeklyBudgetReports, setWeeklyBudgetReports] = useState(initialSettings?.notifications?.weeklyBudgetReports ?? false)
+  const [monthlyReports, setMonthlyReports] = useState(initialSettings?.notifications?.monthlyReports ?? false)
+  const [weeklyTransactionReports, setWeeklyTransactionReports] = useState(initialSettings?.notifications?.weeklyTransactionReports ?? false)
+  const [transactionAlerts, setTransactionAlerts] = useState(initialSettings?.notifications?.transactionAlerts ?? true)
+  const [weeklyInsightReports, setWeeklyInsightReports] = useState(initialSettings?.notifications?.weeklyInsightReports ?? false)
+  const [showBalance, setShowBalance] = useState(initialSettings?.privacy?.showBalance ?? true)
+  const [faceId, setFaceId] = useState(initialSettings?.security?.faceId ?? false)
+  const [givePermission, setGivePermission] = useState(initialSettings?.security?.givePermission ?? false)
+
+  // Callout notification state
+  const [callout, setCallout] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null)
+
+  // Auto-dismiss callout after 5 seconds
+  useEffect(() => {
+    if (callout) {
+      const timer = setTimeout(() => setCallout(null), 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [callout])
 
   useEffect(() => {
-    const colorWithTransparency = `${pageColors.settings}4D`
-    setBaseColor(colorWithTransparency)
-  }, [pageColors.settings, setBaseColor])
+    if (currentTheme && currentTheme !== 'system' && currentTheme !== theme) {
+      setTheme(currentTheme as Theme)
+    }
+  }, [currentTheme, theme])
+  
+  const [showPinModal, setShowPinModal] = useState(false)
+  const [showPasswordModal, setShowPasswordModal] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  
+  const [pinForm, setPinForm] = useState({
+    currentPIN: '',
+    newPIN: '',
+    confirmPIN: '',
+    password: '',
+  })
+  const [isChangingPIN, setIsChangingPIN] = useState(false)
+  
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  })
+  const [isChangingPassword, setIsChangingPassword] = useState(false)
+  
+  const [isSaving, setIsSaving] = useState(false)
 
-  const accentColors = [
-    { name: 'Blue', value: 'blue', color: '#3b82f6' },
-    { name: 'Purple', value: 'purple', color: '#a855f7' },
-    { name: 'Green', value: 'green', color: '#10b981' },
-    { name: 'Orange', value: 'orange', color: '#f97316' },
-    { name: 'Pink', value: 'pink', color: '#ec4899' },
-    { name: 'Red', value: 'red', color: '#ef4444' },
-    { name: 'Teal', value: 'teal', color: '#14b8a6' },
-    { name: 'Indigo', value: 'indigo', color: '#6366f1' },
-  ]
+  const hasPIN = !!initialSettings?.security?.pinHash
 
-  const savePreferences = async () => {
+  const userName = `${firstName} ${lastName}` || ''
+
+  const saveSettings = async (overrides?: Partial<{
+    theme: Theme
+    emailChannel: boolean
+    smsChannel: boolean
+    budgetAlerts: boolean
+    weeklyBudgetReports: boolean
+    monthlyReports: boolean
+    weeklyTransactionReports: boolean
+    transactionAlerts: boolean
+    weeklyInsightReports: boolean
+    showBalance: boolean
+    faceId: boolean
+    givePermission: boolean
+  }>) => {
     setIsSaving(true)
+    
     try {
-      await updateAppSettings({
-        theme,
-        accentColor,
-        notifications: {
-          email: notifications
+      const settingsData = {
+        appearance: {
+          theme: overrides?.theme ?? theme,
         },
-        pageColors
-      })
+        receiveOn: {
+          email: overrides?.emailChannel ?? emailChannel,
+          sms: overrides?.smsChannel ?? smsChannel,
+        },
+        notifications: {
+          budgetAlerts: overrides?.budgetAlerts ?? budgetAlerts,
+          weeklyBudgetReports: overrides?.weeklyBudgetReports ?? weeklyBudgetReports,
+          monthlyReports: overrides?.monthlyReports ?? monthlyReports,
+          weeklyTransactionReports: overrides?.weeklyTransactionReports ?? weeklyTransactionReports,
+          transactionAlerts: overrides?.transactionAlerts ?? transactionAlerts,
+          weeklyInsightReports: overrides?.weeklyInsightReports ?? weeklyInsightReports,
+        },
+        security: {
+          faceId: overrides?.faceId ?? faceId,
+          givePermission: overrides?.givePermission ?? givePermission,
+        },
+        privacy: {
+          showBalance: overrides?.showBalance ?? showBalance,
+        }
+      }
+      
+      const result = await updateSettingsAction(settingsData as any)
 
-      document.documentElement.setAttribute('data-theme', theme)
-      document.documentElement.style.setProperty('--accent-color', accentColors.find(c => c.value === accentColor)?.color || '#3b82f6')
-      showToast('Settings saved successfully', 'success')
-      router.refresh()
-    } catch (error) {
-      console.error('Failed to save preferences:', error)
-      showToast('Failed to save settings', 'error')
+      if (result.success) {
+        // showToast('Settings saved successfully', 'success')
+        router.refresh()
+      } else {
+        // showToast(result.message || 'Failed to save settings', 'error')
+      }
+    } catch (error: any) {
+      console.error('Failed to save settings:', error)
+      const errorMessage = error?.message || 'Failed to save settings. Please check your connection.'
+      // showToast(errorMessage, 'error')
     } finally {
       setIsSaving(false)
     }
   }
 
-  const handleLogout = async () => {
+  const handleChangePIN = async (e: FormEvent) => {
+    e.preventDefault()
+    
+    if (!pinForm.currentPIN || !pinForm.newPIN || !pinForm.confirmPIN || !pinForm.password) {
+      // showToast('Please fill in all fields', 'error')
+      return
+    }
+
+    if (pinForm.newPIN !== pinForm.confirmPIN) {
+      // showToast('New PINs do not match', 'error')
+      return
+    }
+
+    if (!/^\d{4,6}$/.test(pinForm.newPIN)) {
+      // showToast('PIN must be 4-6 digits', 'error')
+      return
+    }
+
+    setIsChangingPIN(true)
     try {
-      await logoutUser()
-      router.push('/login')
+      const result = await changeUserPINAction(
+        pinForm.currentPIN,
+        pinForm.newPIN,
+        pinForm.password
+      )
+
+      if (result.success) {
+        // showToast('PIN changed successfully', 'success')
+        setShowPinModal(false)
+        setPinForm({ currentPIN: '', newPIN: '', confirmPIN: '', password: '' })
+        router.refresh()
+      } else {
+        // showToast(result.message || 'Failed to change PIN', 'error')
+      }
     } catch (error) {
-      console.error('Logout failed:', error)
-      showToast('Logout failed', 'error')
-      router.push('/login')
+      console.error('PIN change error:', error)
+      // showToast('Network error', 'error')
+    } finally {
+      setIsChangingPIN(false)
+    }
+  }
+
+  const handleChangePassword = async (e: FormEvent) => {
+    e.preventDefault()
+
+    if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
+      // showToast('Please fill in all fields', 'error')
+      return
+    }
+
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      // showToast('New passwords do not match', 'error')
+      return
+    }
+
+    if (passwordForm.newPassword.length < 8) {
+      // showToast('Password must be at least 8 characters', 'error')
+      return
+    }
+
+    setIsChangingPassword(true)
+    try {
+      const result = await changeUserPasswordAction(
+        passwordForm.currentPassword,
+        passwordForm.newPassword,
+        passwordForm.confirmPassword
+      )
+
+      if (result.success) {
+        // showToast('Password changed successfully', 'success')
+        setShowPasswordModal(false)
+        setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' })
+        router.refresh()
+      } else {
+        // showToast(result.message || 'Failed to change password', 'error')
+      }
+    } catch (error) {
+      console.error('Password change error:', error)
+      // showToast('Network error', 'error')
+    } finally {
+      setIsChangingPassword(false)
     }
   }
 
   const handleDeleteAccount = async () => {
     try {
-      await deleteUserAccount()
-      showToast('Account deleted successfully', 'success')
-      router.push('/signup')
+      const result = await deleteAccountAction()
+      if (result.success) {
+        // showToast('Account deleted successfully', 'success')
+        router.push('/signup')
+      } else {
+        // showToast(result.message || 'Failed to delete account', 'error')
+      }
     } catch (error) {
       console.error('Failed to delete account:', error)
-      showToast('Failed to delete account', 'error')
+      // showToast('Failed to delete account', 'error')
     }
   }
 
-  const userName = `${firstName} ${lastName}` || ''
+  const handleLogout = async () => {
+    router.push('/login')
+  }
 
   return (
     <Sidebar customerId={customerId}>
       <>
-        <div className={`${styles.container} page-gradient-background`}>
+        <div className={`${styles.container}`}>
           <main className={styles.main}>
             <PageHeader 
               title="Settings" 
               subtitle="Manage your account preferences"
-              backTo={`/${customerId}/dashboard`}
+              backTo={`/\${customerId}/dashboard`}
             />
 
             {/* User Profile */}
@@ -179,8 +300,10 @@ export default function SettingsClient({
                 <RadioCards.Root
                   value={theme}
                   onValueChange={(value) => {
-                    setTheme(value as Theme)
-                    savePreferences()
+                    const newTheme = value as Theme
+                    setTheme(newTheme)
+                    setNextTheme(newTheme)
+                    saveSettings({ theme: newTheme })
                   }}
                   columns="3"
                 >
@@ -204,53 +327,43 @@ export default function SettingsClient({
                   </RadioCards.Item>
                 </RadioCards.Root>
               </div>
-
-              {/* Accent Colors */}
-              <div className={styles.settingItem} style={{ flexDirection: 'column', alignItems: 'stretch' }}>
-                <button 
-                  className={styles.dropdownHeader}
-                  onClick={() => setIsAccentColorsExpanded(!isAccentColorsExpanded)}
-                >
-                  <div className={styles.settingInfo}>
-                    <label className={styles.settingLabel}>Accent Colours</label>
-                    <p className={styles.settingDescription}>Customize page colors</p>
-                  </div>
-                  <span className={`${styles.dropdownArrow} ${isAccentColorsExpanded ? styles.dropdownArrowOpen : ''}`}>
-                    ▼
-                  </span>
-                </button>
-
-                {isAccentColorsExpanded && (
-                  <div className={styles.dropdownContent}>
-                    {['analytics', 'budget', 'transactions', 'profile', 'settings', 'dashboard'].map((page) => (
-                      <div key={page} className={styles.pageColorItem}>
-                        <div className={styles.pageColorLabel}>
-                          <div 
-                            className={styles.pageColorDot}
-                            style={{ backgroundColor: `${pageColors[page as keyof AccentColours]}80` }}
-                          />
-                          <span className={styles.pageColorName}>{page.charAt(0).toUpperCase() + page.slice(1)}</span>
-                        </div>
-                        <input
-                          type="text"
-                          value={pageColors[page as keyof AccentColours]}
-                          onChange={(e) => {
-                            const value = e.target.value
-                            if (/^#[0-9A-Fa-f]{0,6}$/.test(value)) {
-                              setPageColors({ ...pageColors, [page]: value })
-                            }
-                          }}
-                          onBlur={() => savePreferences()}
-                          className={styles.hexInput}
-                          placeholder={PAGE_COLORS[page as keyof typeof PAGE_COLORS]}
-                          maxLength={7}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
             </Grid>
+
+            {/* Receive On */}
+            <div id="receive-on" className={styles.section}>
+              <h3 className={styles.sectionTitle}>
+                <span className={styles.sectionIcon}>📮</span>
+                Receive On
+              </h3>
+              
+              <div className={styles.settingItem}>
+                <div className={styles.settingInfo}>
+                  <Text as="label" size="2" weight="medium">Email</Text>
+                  <Text size="2" color="gray">Receive notifications via email</Text>
+                </div>
+                <Switch
+                  checked={emailChannel}
+                  onCheckedChange={(checked) => {
+                    setEmailChannel(checked)
+                    saveSettings({ emailChannel: checked })
+                  }}
+                />
+              </div>
+
+              <div className={styles.settingItem}>
+                <div className={styles.settingInfo}>
+                  <Text as="label" size="2" weight="medium">SMS</Text>
+                  <Text size="2" color="gray">Receive notifications via text message</Text>
+                </div>
+                <Switch
+                  checked={smsChannel}
+                  onCheckedChange={(checked) => {
+                    setSmsChannel(checked)
+                    saveSettings({ smsChannel: checked })
+                  }}
+                />
+              </div>
+            </div>
 
             {/* Notifications */}
             <div id="notifications" className={styles.section}>
@@ -265,38 +378,24 @@ export default function SettingsClient({
                   <Text size="2" color="gray">Get notified when approaching budget limits</Text>
                 </div>
                 <Switch
-                  checked={notifications.budgetAlerts}
+                  checked={budgetAlerts}
                   onCheckedChange={(checked) => {
-                    setNotifications({ ...notifications, budgetAlerts: checked })
-                    savePreferences()
+                    setBudgetAlerts(checked)
+                    saveSettings({ budgetAlerts: checked })
                   }}
                 />
               </div>
 
               <div className={styles.settingItem}>
                 <div className={styles.settingInfo}>
-                  <Text as="label" size="2" weight="medium">Transaction Updates</Text>
-                  <Text size="2" color="gray">Receive alerts for new transactions</Text>
+                  <Text as="label" size="2" weight="medium">Weekly Budget Reports</Text>
+                  <Text size="2" color="gray">Summary of your weekly budget performance</Text>
                 </div>
                 <Switch
-                  checked={notifications.transactionUpdates}
+                  checked={weeklyBudgetReports}
                   onCheckedChange={(checked) => {
-                    setNotifications({ ...notifications, transactionUpdates: checked })
-                    savePreferences()
-                  }}
-                />
-              </div>
-
-              <div className={styles.settingItem}>
-                <div className={styles.settingInfo}>
-                  <Text as="label" size="2" weight="medium">Weekly Reports</Text>
-                  <Text size="2" color="gray">Summary of your weekly spending</Text>
-                </div>
-                <Switch
-                  checked={notifications.weeklyReports}
-                  onCheckedChange={(checked) => {
-                    setNotifications({ ...notifications, weeklyReports: checked })
-                    savePreferences()
+                    setWeeklyBudgetReports(checked)
+                    saveSettings({ weeklyBudgetReports: checked })
                   }}
                 />
               </div>
@@ -307,10 +406,52 @@ export default function SettingsClient({
                   <Text size="2" color="gray">Detailed monthly financial overview</Text>
                 </div>
                 <Switch
-                  checked={notifications.monthlyReports}
+                  checked={monthlyReports}
                   onCheckedChange={(checked) => {
-                    setNotifications({ ...notifications, monthlyReports: checked })
-                    savePreferences()
+                    setMonthlyReports(checked)
+                    saveSettings({ monthlyReports: checked })
+                  }}
+                />
+              </div>
+
+              <div className={styles.settingItem}>
+                <div className={styles.settingInfo}>
+                  <Text as="label" size="2" weight="medium">Weekly Transaction Reports</Text>
+                  <Text size="2" color="gray">Summary of your weekly transactions</Text>
+                </div>
+                <Switch
+                  checked={weeklyTransactionReports}
+                  onCheckedChange={(checked) => {
+                    setWeeklyTransactionReports(checked)
+                    saveSettings({ weeklyTransactionReports: checked })
+                  }}
+                />
+              </div>
+
+              <div className={styles.settingItem}>
+                <div className={styles.settingInfo}>
+                  <Text as="label" size="2" weight="medium">Transaction Alerts</Text>
+                  <Text size="2" color="gray">Receive alerts for new transactions</Text>
+                </div>
+                <Switch
+                  checked={transactionAlerts}
+                  onCheckedChange={(checked) => {
+                    setTransactionAlerts(checked)
+                    saveSettings({ transactionAlerts: checked })
+                  }}
+                />
+              </div>
+
+              <div className={styles.settingItem}>
+                <div className={styles.settingInfo}>
+                  <Text as="label" size="2" weight="medium">Weekly Insight Reports</Text>
+                  <Text size="2" color="gray">Get insights and spending patterns weekly</Text>
+                </div>
+                <Switch
+                  checked={weeklyInsightReports}
+                  onCheckedChange={(checked) => {
+                    setWeeklyInsightReports(checked)
+                    saveSettings({ weeklyInsightReports: checked })
                   }}
                 />
               </div>
@@ -325,12 +466,29 @@ export default function SettingsClient({
               
               <div className={styles.settingItem}>
                 <div className={styles.settingInfo}>
-                  <Text as="label" size="2" weight="medium">Change PIN</Text>
-                  <Text size="2" color="gray">Update your security PIN</Text>
+                  <Text as="label" size="2" weight="medium">
+                    {hasPIN ? 'Change PIN' : 'Set PIN'}
+                  </Text>
+                  <Text size="2" color="gray">
+                    {hasPIN ? 'Update your security PIN' : 'Set up a 4-6 digit security PIN'}
+                  </Text>
                 </div>
                 <Button 
                   variant="soft"
                   onClick={() => setShowPinModal(true)}
+                >
+                  {hasPIN ? 'Change' : 'Set Up'}
+                </Button>
+              </div>
+
+              <div className={styles.settingItem}>
+                <div className={styles.settingInfo}>
+                  <Text as="label" size="2" weight="medium">Change Password</Text>
+                  <Text size="2" color="gray">Update your account password</Text>
+                </div>
+                <Button 
+                  variant="soft"
+                  onClick={() => setShowPasswordModal(true)}
                 >
                   Change
                 </Button>
@@ -338,20 +496,52 @@ export default function SettingsClient({
 
               <div className={styles.settingItem}>
                 <div className={styles.settingInfo}>
-                  <label className={styles.settingLabel}>Face ID</label>
-                  <p className={styles.settingDescription}>Use Face ID for quick access</p>
+                  <Text as="label" size="2" weight="medium">Face ID / Touch ID</Text>
+                  <Text size="2" color="gray">Use biometric authentication for quick access</Text>
                 </div>
-                <label className={styles.toggle}>
-                  <input
-                    type="checkbox"
-                    checked={useFaceId}
-                    onChange={(e) => {
-                      setUseFaceId(e.target.checked)
-                      savePreferences()
-                    }}
-                  />
-                  <span className={styles.toggleSlider}></span>
-                </label>
+                <Switch
+                  checked={faceId}
+                  onCheckedChange={(checked) => {
+                    setFaceId(checked)
+                    saveSettings({ faceId: checked })
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Privacy */}
+            <div id="privacy" className={styles.section}>
+              <h3 className={styles.sectionTitle}>
+                <span className={styles.sectionIcon}>🔐</span>
+                Privacy
+              </h3>
+              
+              <div className={styles.settingItem}>
+                <div className={styles.settingInfo}>
+                  <Text as="label" size="2" weight="medium">Show Balance</Text>
+                  <Text size="2" color="gray">Display account balances on dashboard</Text>
+                </div>
+                <Switch
+                  checked={showBalance}
+                  onCheckedChange={(checked) => {
+                    setShowBalance(checked)
+                    saveSettings({ showBalance: checked })
+                  }}
+                />
+              </div>
+
+              <div className={styles.settingItem}>
+                <div className={styles.settingInfo}>
+                  <Text as="label" size="2" weight="medium">Data Sharing Permissions</Text>
+                  <Text size="2" color="gray">Allow Money Mapper to access financial data for insights</Text>
+                </div>
+                <Switch
+                  checked={givePermission}
+                  onCheckedChange={(checked) => {
+                    setGivePermission(checked)
+                    saveSettings({ givePermission: checked })
+                  }}
+                />
               </div>
             </div>
 
@@ -431,41 +621,123 @@ export default function SettingsClient({
             {showPinModal && (
               <div className={styles.modal} onClick={() => setShowPinModal(false)}>
                 <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-                  <h3 className={styles.modalTitle}>Change PIN</h3>
-                  <p className={styles.modalDescription}>Enter your current PIN and new PIN</p>
+                  <h3 className={styles.modalTitle}>
+                    {hasPIN ? 'Change PIN' : 'Set PIN'}
+                  </h3>
+                  <p className={styles.modalDescription}>
+                    {hasPIN 
+                      ? 'Enter your current PIN and new PIN' 
+                      : 'Create a 4-6 digit PIN for quick access'}
+                  </p>
                   
-                  <div className={styles.modalForm}>
-                    <input
+                  <form onSubmit={handleChangePIN} className={styles.modalForm}>
+                    {hasPIN && (
+                      <TextField.Root
+                        type="password"
+                        placeholder="Current PIN"
+                        value={pinForm.currentPIN}
+                        onChange={(e) => setPinForm({ ...pinForm, currentPIN: e.target.value })}
+                        maxLength={6}
+                        required
+                      />
+                    )}
+                    <TextField.Root
                       type="password"
-                      placeholder="Current PIN"
-                      className={styles.modalInput}
+                      placeholder="New PIN (4-6 digits)"
+                      value={pinForm.newPIN}
+                      onChange={(e) => setPinForm({ ...pinForm, newPIN: e.target.value })}
                       maxLength={6}
+                      required
                     />
-                    <input
-                      type="password"
-                      placeholder="New PIN"
-                      className={styles.modalInput}
-                      maxLength={6}
-                    />
-                    <input
+                    <TextField.Root
                       type="password"
                       placeholder="Confirm New PIN"
-                      className={styles.modalInput}
+                      value={pinForm.confirmPIN}
+                      onChange={(e) => setPinForm({ ...pinForm, confirmPIN: e.target.value })}
                       maxLength={6}
+                      required
                     />
-                  </div>
+                    <TextField.Root
+                      type="password"
+                      placeholder="Your Account Password"
+                      value={pinForm.password}
+                      onChange={(e) => setPinForm({ ...pinForm, password: e.target.value })}
+                      required
+                    />
 
-                  <div className={styles.modalActions}>
-                    <button 
-                      className={styles.modalCancel}
-                      onClick={() => setShowPinModal(false)}
-                    >
-                      Cancel
-                    </button>
-                    <button className={styles.modalConfirm}>
-                      Update PIN
-                    </button>
-                  </div>
+                    <div className={styles.modalActions}>
+                      <Button 
+                        type="button"
+                        variant="soft"
+                        color="gray"
+                        onClick={() => setShowPinModal(false)}
+                        disabled={isChangingPIN}
+                      >
+                        Cancel
+                      </Button>
+                      <Button 
+                        type="submit"
+                        disabled={isChangingPIN}
+                      >
+                        {isChangingPIN ? 'Updating...' : hasPIN ? 'Update PIN' : 'Set PIN'}
+                      </Button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+
+            {/* Password Change Modal */}
+            {showPasswordModal && (
+              <div className={styles.modal} onClick={() => setShowPasswordModal(false)}>
+                <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+                  <h3 className={styles.modalTitle}>Change Password</h3>
+                  <p className={styles.modalDescription}>
+                    Enter your current password and new password
+                    {hasPIN && ' (Your PIN will be automatically re-encrypted)'}
+                  </p>
+                  
+                  <form onSubmit={handleChangePassword} className={styles.modalForm}>
+                    <TextField.Root
+                      type="password"
+                      placeholder="Current Password"
+                      value={passwordForm.currentPassword}
+                      onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
+                      required
+                    />
+                    <TextField.Root
+                      type="password"
+                      placeholder="New Password (min 8 characters)"
+                      value={passwordForm.newPassword}
+                      onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                      required
+                    />
+                    <TextField.Root
+                      type="password"
+                      placeholder="Confirm New Password"
+                      value={passwordForm.confirmPassword}
+                      onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                      required
+                    />
+
+                    <div className={styles.modalActions}>
+                      <Button 
+                        type="button"
+                        variant="soft"
+                        color="gray"
+                        onClick={() => setShowPasswordModal(false)}
+                        disabled={isChangingPassword}
+                      >
+                        Cancel
+                      </Button>
+                      <Button 
+                        type="submit"
+                        disabled={isChangingPassword}
+                      >
+                        {isChangingPassword ? 'Updating...' : 'Update Password'}
+                      </Button>
+                    </div>
+                  </form>
                 </div>
               </div>
             )}
@@ -487,18 +759,19 @@ export default function SettingsClient({
                   </div>
 
                   <div className={styles.modalActions}>
-                    <button 
-                      className={styles.modalCancel}
+                    <Button 
+                      variant="soft"
+                      color="gray"
                       onClick={() => setShowDeleteModal(false)}
                     >
                       Cancel
-                    </button>
-                    <button 
-                      className={styles.modalDelete}
+                    </Button>
+                    <Button 
+                      color="red"
                       onClick={handleDeleteAccount}
                     >
                       Delete Account
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>

@@ -1,4 +1,4 @@
-/* Page Layout with Sidebar */
+/* Page Layout without Sidebar */
 .layout {
   display: flex;
   min-height: 100vh;
@@ -6,22 +6,6 @@
 }
 
 .content {
-  margin-left: 13%;
-  width: 87%;
+  width: 100%;
   min-height: 100vh;
-}
-
-/* Responsive */
-@media (max-width: 1024px) {
-  .content {
-    margin-left: 200px;
-    width: calc(100% - 200px);
-  }
-}
-
-@media (max-width: 768px) {
-  .content {
-    margin-left: 0;
-    width: 100%;
-  }
 }

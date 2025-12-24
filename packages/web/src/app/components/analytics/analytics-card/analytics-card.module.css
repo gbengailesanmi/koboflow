@@ -1,54 +1,104 @@
 @reference "../../../globals.css";
 
+/* Card Wrapper for navigation positioning */
+.cardWrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* Mobile-first base styles */
 .card {
-  @apply rounded-2xl overflow-visible mx-4 mb-8;
-  background: rgba(255, 255, 255, 0.95);
+  @apply rounded-md overflow-visible mx-0 mb-8;
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
+  background: var(--card-bg);
+  box-shadow: var(--card-shadow);
 }
 
 .card:hover {
-  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--card-shadow-hover);
 }
 
 .cardHeader {
-  @apply p-6 pb-4;
-}
-
-.cardTitle {
-  @apply text-xl font-bold text-gray-800 mb-2;
-}
-
-.cardDescription {
-  @apply text-sm text-gray-600;
+  @apply p-3;
 }
 
 .cardContent {
-  @apply p-6 pt-0;
+  @apply p-2 pb-8;
   overflow: visible;
+  position: relative;
 }
 
-@media (max-width: 768px) {
+/* Tablet and larger screens */
+@media (min-width: 768px) {
   .card {
-    @apply mx-2;
+    @apply mx-4;
   }
   
   .cardHeader {
-    @apply p-4 pb-3;
-  }
-  
-  .cardTitle {
-    @apply text-lg;
-  }
-  
-  .cardDescription {
-    @apply text-xs;
+    @apply p-6 pb-4;
   }
   
   .cardContent {
-    @apply p-4 pt-0;
-    overflow: visible;
+    @apply p-2 pb-10;
+  }
+}
+
+/* Navigation Chevrons */
+.navigationChevrons {
+  position: absolute;
+  top: 45%;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+  z-index: 5;
+  padding: 0 8px;
+}
+
+.chevronButton {
+  pointer-events: auto;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.2s ease;
+}
+
+.chevronButton svg {
+  color: var(--gray-8);
+  width: 5rem;
+  height: 5rem;
+  transition: filter 0.2s ease;
+}
+
+.chevronButton:hover {
+  transform: scale(1.1);
+}
+
+.chevronButton:hover svg {
+  filter: brightness(3);
+}
+
+.chevronButton:active {
+  transform: scale(1.8);
+}
+
+.chevronButton:active svg {
+  filter: brightness(5);
+}
+
+@media (min-width: 768px) {
+  .navigationChevrons {
+    padding: 0 16px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .navigationChevrons {
+    padding: 0 24px;
   }
 }

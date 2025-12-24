@@ -7,9 +7,10 @@ import { HomeIcon, Pencil2Icon, MixerHorizontalIcon, BackpackIcon } from '@radix
 interface FooterProps {
   buttonColor?: string
   opacity?: number // Opacity value from 0-100 (e.g., 2, 75, 100)
+  scrollContainerRef?: React.RefObject<HTMLElement | null> // Optional custom scroll container
 }
 
-export default function Footer({ buttonColor, opacity = 75 }: FooterProps) {
+export default function Footer({ buttonColor, opacity = 75, scrollContainerRef }: FooterProps) {
   const params = useParams()
   const pathname = usePathname()
   const customerId = params.customerId as string
@@ -18,7 +19,9 @@ export default function Footer({ buttonColor, opacity = 75 }: FooterProps) {
 
   useEffect(() => {
     const handleScroll = () => {
-      const currentScrollY = window.scrollY
+      const currentScrollY = scrollContainerRef?.current 
+        ? scrollContainerRef.current.scrollTop 
+        : window.scrollY
 
       if (currentScrollY < 10) {
         setIsVisible(true)
@@ -31,12 +34,18 @@ export default function Footer({ buttonColor, opacity = 75 }: FooterProps) {
       setLastScrollY(currentScrollY)
     }
 
-    window.addEventListener('scroll', handleScroll, { passive: true })
+    const scrollElement = scrollContainerRef?.current || window
+
+    if (scrollElement) {
+      scrollElement.addEventListener('scroll', handleScroll, { passive: true })
+    }
 
     return () => {
-      window.removeEventListener('scroll', handleScroll)
+      if (scrollElement) {
+        scrollElement.removeEventListener('scroll', handleScroll)
+      }
     }
-  }, [lastScrollY])
+  }, [lastScrollY, scrollContainerRef])
 
   const buttonStyle = buttonColor 
     ? { color: buttonColor }

@@ -41,3 +41,17 @@ export type SessionPayload = {
   userId: string | number
   expiresAt: Date
 }
+
+export type CustomerDetailsFromMono = {
+  full_name: string
+  bvn: string
+  phone: string
+  gender: string
+  dob: string
+  address_line1: string
+  state_of_origin?: string
+  lga_of_origin?: string
+  marital_status: string
+  created_at: string
+  updated_at: string
+}
