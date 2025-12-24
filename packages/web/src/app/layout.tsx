@@ -1,6 +1,5 @@
-import ThemeProviders from '@/providers/theme-providers'
+import Providers from './providers'
 import { Open_Sans } from 'next/font/google'
-import SessionTimeoutProvider from '@/providers/session-timeout-provider'
 import { getSettings, getSession } from '@/app/api/api-service'
 
 import './globals.css'
@@ -18,13 +17,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en" className={openSans.variable} suppressHydrationWarning>
       <body>
-        <ThemeProviders initialTheme={userTheme}>
-            <SessionTimeoutProvider>
-              {/* <div style={{ minHeight: '100vh', width: '100%' }}> */}
-                {children}
-              {/* </div> */}
-              </SessionTimeoutProvider>
-        </ThemeProviders>
+        <Providers initialTheme={userTheme}>
+            {children}
+        </Providers>
       </body>
     </html>
   )
