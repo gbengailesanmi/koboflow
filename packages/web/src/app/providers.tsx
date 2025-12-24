@@ -1,7 +1,7 @@
 'use client'
 
 import ThemeProviders from '@/providers/theme-providers'
-import SessionTimeoutProvider from '@/providers/session-timeout-provider'
+// import SessionTimeoutProvider from '@/providers/session-timeout-provider'
 
 export default function Providers({
   children,
@@ -12,9 +12,9 @@ export default function Providers({
 }) {
   return (
     <ThemeProviders initialTheme={initialTheme}>
-      <SessionTimeoutProvider>
+      {/* <SessionTimeoutProvider> */}
         {children}
-      </SessionTimeoutProvider>
+      {/* </SessionTimeoutProvider> */}
     </ThemeProviders>
   )
 }

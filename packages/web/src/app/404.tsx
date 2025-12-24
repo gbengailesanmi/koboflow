@@ -1,4 +1,3 @@
-// Minimal custom 404 page for Next.js App Router
 export default function NotFound() {
   return (
     <div style={{ padding: '40px', textAlign: 'center' }}>
