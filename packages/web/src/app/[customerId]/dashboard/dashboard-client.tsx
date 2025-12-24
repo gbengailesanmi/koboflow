@@ -38,9 +38,6 @@ export default function DashboardClient({
   
   useScrollRestoration()
 
-  const effectiveAccountId = selectedAccountId ?? accounts[0]?.id ?? null
-
-
   const filteredTransactions = selectedAccountId
     ? transactions.filter(txn => txn.accountId === selectedAccountId)
     : transactions
