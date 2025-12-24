@@ -1,3 +1,4 @@
+'use client'
 /**
  * Mono Connect Widget Hook
  * Provides a React hook for integrating Mono Connect widget
