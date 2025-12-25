@@ -11,22 +11,20 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
+      "import": "./dist/index.js"
     },
     "./utils": {
       "types": "./dist/utils/index.d.ts",
-      "default": "./dist/utils/index.js"
-    },
-    "./types": {
-      "types": "./dist/types/index.d.ts",
-      "default": "./dist/types/index.js"
+      "import": "./dist/utils/index.js"
     },
     "./constants": {
       "types": "./dist/constants/index.d.ts",
-      "default": "./dist/constants/index.js"
+      "import": "./dist/constants/index.js"
+    },
+    "./types": {
+      "types": "./dist/types/index.d.ts"
     }
   },
-
   "scripts": {
     "build": "tsc -b",
     "clean": "rm -rf dist"
@@ -35,8 +33,5 @@
   "dependencies": {
     "pino": "^9.6.0",
     "zod": "^4.0.13"
-  },
-  "devDependencies": {
-    "typescript": "^5.3.3"
   }
 }

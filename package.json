@@ -7,13 +7,13 @@
   ],
   "scripts": {
     "build": "yarn workspace @money-mapper/shared build && yarn workspace @money-mapper/web build",
+    "build:shared": "yarn workspace @money-mapper/shared build",
     "postinstall": "yarn workspace @money-mapper/shared build && yarn workspace @money-mapper/web build",
     "dev:web": "yarn workspace @money-mapper/web dev",
     "dev:backend": "yarn workspace @money-mapper/backend dev",
     "dev:mobile": "yarn workspace @money-mapper/mobile start",
     "build:web": "yarn workspace @money-mapper/web build",
     "build:backend": "yarn workspace @money-mapper/backend build",
-    "build:shared": "yarn workspace @money-mapper/shared build",
     "lint": "yarn workspaces run lint",
     "clean": "rm -rf node_modules packages/*/node_modules packages/*/.next packages/*/dist"
   },
