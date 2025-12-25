@@ -14,12 +14,15 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
 
-    "types": ["node"],
+    "strict": true,
     "skipLibCheck": true,
 
-
-    "baseUrl": "src"
+    "baseUrl": ".",
+    "paths": {
+      "@money-mapper/shared": ["../shared/dist"],
+      "@money-mapper/shared/*": ["../shared/dist/*"]
+    }
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+  "exclude": ["node_modules", "dist"]
 }
