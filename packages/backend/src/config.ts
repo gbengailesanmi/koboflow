@@ -1,5 +1,4 @@
 const config = {
-  BASE_URI: process.env.BASE_URI,
   NODE_ENV: process.env.NODE_ENV,
   IS_PRODUCTION: process.env.NODE_ENV === 'production',
   BACKEND_PORT: process.env.BACKEND_PORT,
@@ -11,7 +10,6 @@ const config = {
   MONO_PUBLIC_KEY: process.env.MONO_PUBLIC_KEY,
   MONO_SECRET_KEY: process.env.MONO_SECRET_KEY,
   FRONTEND_URL: process.env.FRONTEND_URL,
-  FRONTEND_PORT: process.env.FRONTEND_PORT,
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
   GOOGLE_REDIRECT_URI: process.env.GOOGLE_REDIRECT_URI
