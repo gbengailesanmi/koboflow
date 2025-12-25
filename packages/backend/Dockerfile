@@ -16,6 +16,7 @@ ENV NODE_ENV=production
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/packages/backend/dist ./packages/backend/dist
 COPY --from=build /app/packages/backend/package.json ./packages/backend/package.json
+COPY --from=build /app/packages/shared ./packages/shared
 
 EXPOSE 3001
 CMD ["node", "packages/backend/dist/server.js"]
