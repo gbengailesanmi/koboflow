@@ -6,7 +6,6 @@ COPY packages ./packages
 
 RUN yarn install --frozen-lockfile
 
-RUN yarn workspace @money-mapper/shared build
 RUN yarn workspace @money-mapper/backend build
 
 FROM node:20-alpine
