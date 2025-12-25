@@ -1,7 +1,8 @@
-import type { NextConfig } from "next"
+import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  reactStrictMode: false, // prevent fetching data twice
+  reactStrictMode: false,
+  transpilePackages: ['@money-mapper/shared'],
 }
 
 export default nextConfig

@@ -6,6 +6,7 @@
     "packages/*"
   ],
   "scripts": {
+    "build": "yarn workspace @money-mapper/shared build && yarn workspace @money-mapper/web build",
     "dev:web": "yarn workspace @money-mapper/web dev",
     "dev:backend": "yarn workspace @money-mapper/backend dev",
     "dev:mobile": "yarn workspace @money-mapper/mobile start",
