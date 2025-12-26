@@ -6,7 +6,8 @@
       "outputs": [
         ".next/**",
         "dist/**"
-      ]
+      ],
+    "env": ["BACKEND_URL", "NODE_ENV"]
     },
     "dev": {
       "cache": false
