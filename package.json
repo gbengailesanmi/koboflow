@@ -6,19 +6,13 @@
     "packages/*"
   ],
   "scripts": {
-    "build:shared": "yarn workspace @money-mapper/shared build",
-    "build:web": "yarn workspace @money-mapper/web build",
-    "build:backend": "yarn build:shared && yarn workspace @money-mapper/backend build",
-    "build": "yarn build:shared && yarn build:web && yarn build:backend",
-
-
-    "dev:backend": "yarn workspace @money-mapper/backend dev",
-    "dev:mobile": "yarn workspace @money-mapper/mobile start",
-
-    "lint": "yarn workspaces run lint",
+    "build": "turbo run build",
+    "dev": "turbo run dev --parallel",
+    "lint": "turbo run lint",
     "clean": "rm -rf node_modules packages/*/node_modules packages/*/.next packages/*/dist"
   },
   "devDependencies": {
+    "turbo": "^2.7.2",
     "typescript": "^5.3.3"
   },
   "resolutions": {
