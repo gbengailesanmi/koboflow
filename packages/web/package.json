@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "whereami": "pwd && ls && cat package.json | head -n 5",
     "build": "next build",
     "build:web": "next build",
     "start": "next start",
