@@ -29,7 +29,7 @@
     }
   },
   "scripts": {
-    "build": "npx tsc -b",
+    "build": "tsc -b",
     "clean": "rm -rf dist"
   },
 
