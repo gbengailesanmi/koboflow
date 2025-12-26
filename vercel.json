@@ -1,4 +1,0 @@
-{
-  "buildCommand": "cd ../.. && yarn turbo run build --filter=@money-mapper/web",
-  "framework": "nextjs"
-}
