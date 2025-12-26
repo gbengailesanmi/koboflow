@@ -7,9 +7,8 @@
   ],
   "scripts": {
     "build:shared": "yarn workspace @money-mapper/shared build",
-    "build:web": "yarn build:shared && yarn workspace @money-mapper/web build",
+    "build:web": "yarn workspace @money-mapper/web build",
     "build:backend": "yarn build:shared && yarn workspace @money-mapper/backend build",
-    "whereami": "pwd && ls && cat package.json | head -n 5",
     "build": "yarn build:shared && yarn build:web && yarn build:backend",
 
 
