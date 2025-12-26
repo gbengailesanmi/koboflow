@@ -43,3 +43,5 @@ db.sh
 backup_*/
 *.backup
 *.old
+
+.turbo/
