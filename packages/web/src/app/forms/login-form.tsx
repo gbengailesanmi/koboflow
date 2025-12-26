@@ -110,7 +110,7 @@ export default function LoginForm({ isTimeout = false }: { isTimeout?: boolean }
       <button
         type="button"
         onClick={() => {
-          const backendUrl = config.BACKEND_URL
+          const backendUrl = config.NEXT_PUBLIC_BACKEND_URL
           window.location.href = `${backendUrl}/api/auth/google`
         }}
         style={{

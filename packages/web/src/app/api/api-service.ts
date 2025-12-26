@@ -22,7 +22,7 @@ export interface SessionUser {
 
 export type Settings = UserSettings
 
-const BACKEND_URL = config.BACKEND_URL
+const BACKEND_URL = config.NEXT_PUBLIC_BACKEND_URL
 
 
 /**

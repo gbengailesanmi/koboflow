@@ -7,7 +7,11 @@
         ".next/**",
         "dist/**"
       ],
-    "env": ["BACKEND_URL", "NODE_ENV"]
+    "env": [
+      "NODE_ENV",
+      "NEXT_PUBLIC_MONO_PUBLIC_KEY",
+      "NEXT_PUBLIC_BACKEND_URL"
+      ]
     },
     "dev": {
       "cache": false

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import config from '@/config'
 
-const BACKEND_URL = config.BACKEND_URL
+const BACKEND_URL = config.NEXT_PUBLIC_BACKEND_URL
 
 export async function GET(request: NextRequest) {
   const token = request.nextUrl.searchParams.get('token')

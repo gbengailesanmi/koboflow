@@ -16,7 +16,7 @@ export async function getSession(): Promise<SessionData | null> {
       return null
     }
 
-    const BACKEND_URL = config.BACKEND_URL
+    const BACKEND_URL = config.NEXT_PUBLIC_BACKEND_URL
     const response = await fetch(`${BACKEND_URL}/api/session`, {
       headers: {
         Cookie: `auth-token=${token}`,

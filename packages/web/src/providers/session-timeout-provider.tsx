@@ -43,7 +43,7 @@ export default function SessionTimeoutProvider({ children }: SessionTimeoutProvi
 
       setShowWarning(false)
 
-      const BACKEND_URL = config.BACKEND_URL
+      const BACKEND_URL = config.NEXT_PUBLIC_BACKEND_URL
       await fetch(`${BACKEND_URL}/api/session`, { 
         method: 'DELETE',
         credentials: 'include', // Send cookies
