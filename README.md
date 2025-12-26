@@ -12,7 +12,7 @@ yarn dev
 - Backend API: http://localhost:3001
 - Web app: http://localhost:3000
 
-## 📦 Project Structure
+## 📦 Project Structured
 
 ```
 packages/
