@@ -22,7 +22,7 @@ export interface SessionUser {
 
 export type Settings = UserSettings
 
-const BACKEND_URL = config.NEXT_PUBLIC_BACKEND_URL
+const BACKEND_URL = ''
 
 
 /**
@@ -34,12 +34,11 @@ async function serverFetch(
   options: RequestInit = {}
 ): Promise<Response> {
   const cookieStore = await cookies()
-  const sessionId = cookieStore.get('session-id')?.value
-
   const headers = new Headers(options.headers)
 
-  if (sessionId) {
-    headers.set('Cookie', `session-id=${sessionId}`)
+  const session = cookieStore.get('session-id')
+  if (session) {
+    headers.set('Cookie', `session-id=${session.value}`)
   }
 
   if (options.body && !headers.has('Content-Type')) {
@@ -49,8 +48,7 @@ async function serverFetch(
   return fetch(url, {
     ...options,
     headers,
-    credentials: 'include',
-    cache: options.cache ?? 'force-cache',
+    cache: options.cache ?? 'no-store',
   })
 }
 
