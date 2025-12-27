@@ -11,6 +11,8 @@ import { initializeUserCategories } from '../db/helpers/spending-categories-help
 import { logger } from '@money-mapper/shared/utils'
 
 export const authRoutes = Router()
+const isProd = config.IS_PRODUCTION
+console.log('fffffqt', isProd)
 
 authRoutes.post('/signup', async (req, res) => {
   try {
@@ -127,12 +129,13 @@ authRoutes.post('/login', async (req, res) => {
 
     const cookieOptions = {
       httpOnly: true,
-      secure: config.IS_PRODUCTION,
-      sameSite: 'lax' as const,
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      path: '/'
+      secure: isProd,              
+      sameSite: isProd ? 'none' as const : 'lax' as const,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      path: '/',
     }
-    
+
+
     if (!config.IS_PRODUCTION) {
       const cookieValue = `session-id=${sessionId}; Max-Age=604800; Path=/; Domain=localhost; HttpOnly; SameSite=Lax`
       res.setHeader('Set-Cookie', cookieValue)
@@ -165,8 +168,8 @@ authRoutes.post('/logout', authMiddleware, async (req: AuthRequest, res) => {
 
     res.clearCookie('session-id', {
       httpOnly: true,
-      secure: config.IS_PRODUCTION,
-      sameSite: 'lax',
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',       // cross-site only in prod
       path: '/'
     })
     
@@ -196,7 +199,7 @@ authRoutes.post('/logout-all', authMiddleware, async (req: AuthRequest, res) => 
     res.clearCookie('session-id', {
       httpOnly: true,
       secure: config.IS_PRODUCTION,
-      sameSite: 'lax',
+      sameSite: isProd ? 'none' : 'lax',
       path: '/'
     })
     
@@ -784,7 +787,7 @@ authRoutes.get('/google/callback', async (req, res) => {
     const cookieOptions = {
       httpOnly: true,
       secure: config.IS_PRODUCTION,
-      sameSite: 'lax' as const,
+      sameSite: isProd ? 'none' as const : 'lax' as const,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       path: '/'
     }
