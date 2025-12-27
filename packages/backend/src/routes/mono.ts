@@ -1,3 +1,4 @@
+// /Users/gbenga.ilesanmi/Github/PD/money-mapper/packages/backend/src/routes/mono.ts
 import { Router } from 'express'
 import { authMiddleware, AuthRequest } from '../middleware/middleware'
 import {
@@ -30,10 +31,17 @@ monoRoutes.post('/auth', authMiddleware, async (req: AuthRequest, res) => {
     if (!code) {
       return res.status(400).json({ success: false, error: 'Missing authorization code' })
     }
-
-    const accountId = await exchangeToken(code)
-    logger.info({ module: 'mono', customerId, accountId }, 'Token exchanged successfully')
     
+    const accountId = await exchangeToken(code)
+    console.log('codecdecdece', code, accountId)
+
+    logger.info({ module: 'mono', customerId, accountId }, 'Token exchanged successfully')
+    logger.info({
+      module: 'mono',
+      body: req.body,
+      headers: req.headers['content-type'],
+    }, 'Mono auth request received')
+
     res.json({ success: true, accountId })
   } catch (err: any) {
     logger.error({ module: 'mono', error: err.message }, 'Token exchange failed')

@@ -1,3 +1,4 @@
+// /Users/gbenga.ilesanmi/Github/PD/money-mapper/packages/backend/src/routes/auth.ts
 import { Router } from 'express'
 import bcrypt from 'bcrypt'
 import { randomUUID } from 'crypto'

@@ -70,12 +70,6 @@ app.get('/health', (_req: Request, res: Response) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() })
 })
 
-app.use((req, _res, next) => {
-  console.log('[CORS] Origin:', req.headers.origin)
-  next()
-})
-
-
 app.use('/api/auth', authRoutes)
 app.use('/api/session', sessionRoutes)
 app.use('/api/mono', monoRoutes)
@@ -95,7 +89,7 @@ app.use((err: any, _req: Request, res: Response, _next: any) => {
 
 app.listen(BACKEND_PORT, () => {
   console.log(`🚀 Backend server running on port ${BACKEND_PORT}`)
-  console.log(`🧪 Test Mode: ${!config.IS_PRODUCTION ? 'ENABLED ✅' : 'DISABLED ❌'}`)
+  console.log(`🧪 Test Mode: ${!config.IS_PRODUCTION ? '✅' : '❌'}`)
   if (!config.IS_PRODUCTION) {
     console.log(`   → Account numbers will be normalized for testing`)
   }
