@@ -33,7 +33,7 @@ async function serverFetch(
   url: string,
   options: RequestInit = {}
 ): Promise<Response> {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const sessionId = cookieStore.get('session-id')?.value
 
   const headers = new Headers(options.headers)
