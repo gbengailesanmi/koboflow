@@ -1,4 +1,4 @@
-'use server'
+'server only'
 
 import { cookies } from 'next/headers'
 import config from '../../config'
@@ -29,12 +29,15 @@ const BACKEND_URL = config.NEXT_PUBLIC_BACKEND_URL
  * Server-side fetch helper with session cookie forwarding
  * Automatically includes session-id cookie from Next.js server context
  */
-async function serverFetch(url: string, options: RequestInit = {}): Promise<Response> {
-  const cookieStore = await cookies()
+async function serverFetch(
+  url: string,
+  options: RequestInit = {}
+): Promise<Response> {
+  const cookieStore = cookies() // ❗️ NO await
   const sessionId = cookieStore.get('session-id')?.value
 
   const headers = new Headers(options.headers)
-  
+
   if (sessionId) {
     headers.set('Cookie', `session-id=${sessionId}`)
   }
@@ -46,8 +49,8 @@ async function serverFetch(url: string, options: RequestInit = {}): Promise<Resp
   return fetch(url, {
     ...options,
     headers,
-    credentials: 'include',
-    cache: options.cache || 'force-cache',
+    // credentials is irrelevant server-side, but harmless
+    cache: options.cache ?? 'force-cache',
   })
 }
 
