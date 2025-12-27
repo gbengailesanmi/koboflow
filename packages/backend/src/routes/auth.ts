@@ -684,28 +684,12 @@ authRoutes.get('/google', (req, res) => {
   res.redirect(authUrl)
 })
 
-authRoutes.get('/google/callback', async (req, res) => {
+authRoutes.post('/google/callback', async (req, res) => {
   try {
-    const { code } = req.query
+    const { code } = req.body
 
     if (!code || typeof code !== 'string') {
-      return res.redirect('/login?error=oauth_failed')
-    }
-    
-
-    const clientId = config.GOOGLE_CLIENT_ID
-    const clientSecret = config.GOOGLE_CLIENT_SECRET
-    const redirectUri = config.GOOGLE_REDIRECT_URI
-
-    if (!clientId || !clientSecret) {
-      return res.redirect('/login?error=oauth_not_configured')
-    }
-
-    if (!redirectUri) {
-      return res.status(500).json({ 
-        success: false, 
-        message: 'Set GOOGLE_REDIRECT_URI in environment config.' 
-      })
+      return res.status(400).json({ message: 'Missing OAuth code' })
     }
 
     const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
@@ -713,30 +697,28 @@ authRoutes.get('/google/callback', async (req, res) => {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
         code,
-        client_id: clientId,
-        client_secret: clientSecret,
-        redirect_uri: redirectUri,
+        client_id: config.GOOGLE_CLIENT_ID!,
+        client_secret: config.GOOGLE_CLIENT_SECRET!,
+        redirect_uri: config.GOOGLE_REDIRECT_URI!,
         grant_type: 'authorization_code',
       }),
     })
 
     if (!tokenResponse.ok) {
-      console.error('Google token exchange failed:', await tokenResponse.text())
-      return res.redirect('/login?error=oauth_token_failed')
+      return res.status(401).json({ message: 'Google token exchange failed' })
     }
 
     const tokens = await tokenResponse.json()
 
-    const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+    const userInfoRes = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
       headers: { Authorization: `Bearer ${tokens.access_token}` },
     })
 
-    if (!userInfoResponse.ok) {
-      console.error('Google userinfo failed:', await userInfoResponse.text())
-      return res.redirect('/login?error=oauth_userinfo_failed')
+    if (!userInfoRes.ok) {
+      return res.status(401).json({ message: 'Google user fetch failed' })
     }
 
-    const googleUser = await userInfoResponse.json()
+    const googleUser = await userInfoRes.json()
     const email = googleUser.email.toLowerCase()
 
     const db = await connectDB()
@@ -744,27 +726,20 @@ authRoutes.get('/google/callback', async (req, res) => {
 
     if (!user) {
       const customerId = randomUUID()
-      
+
       await db.collection('users').insertOne({
         email,
-        firstName: googleUser.given_name || googleUser.name?.split(' ')[0] || 'User',
-        lastName: googleUser.family_name || googleUser.name?.split(' ').slice(1).join(' ') || '',
+        firstName: googleUser.given_name || 'User',
+        lastName: googleUser.family_name || '',
         customerId,
-        emailVerified: true, // Google emails are pre-verified
-        createdAt: new Date(),
+        emailVerified: true,
         authProvider: 'google',
-        googleId: googleUser.id,
+        createdAt: new Date(),
       })
 
       await createUserSettings(customerId)
-      
+
       user = await db.collection('users').findOne({ email })
-    } else if (!user.emailVerified) {
-      await db.collection('users').updateOne(
-        { _id: user._id },
-        { $set: { emailVerified: true } }
-      )
-      user.emailVerified = true
     }
 
     const sessionId = await createSession(
@@ -776,35 +751,20 @@ authRoutes.get('/google/callback', async (req, res) => {
       req.ip
     )
 
-    const frontendUrl = config.FRONTEND_URL
-
     res.cookie('session-id', sessionId, {
       httpOnly: true,
-      secure: isProd,
-      sameSite: isProd ? 'none' : 'lax',
+      secure: config.IS_PRODUCTION,
+      sameSite: config.IS_PRODUCTION ? 'none' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: '/',
     })
 
-    res.send(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>Redirecting...</title>
-        </head>
-        <body>
-          <p>Login successful! Redirecting...</p>
-          <script>
-            setTimeout(() => {
-              window.location.href = '${frontendUrl}/${user.customerId}/dashboard';
-            }, 50);
-          </script>
-        </body>
-      </html>
-    `)
-  } catch (error) {
-    console.error('Google OAuth callback error:', error)
-    const frontendUrl = config.FRONTEND_URL
-    res.redirect(`${frontendUrl}/login?error=oauth_error`)
+    return res.status(200).json({
+      success: true,
+      customerId: user.customerId,
+    })
+  } catch (err) {
+    console.error('Google OAuth error:', err)
+    return res.status(500).json({ message: 'OAuth failed' })
   }
 })
