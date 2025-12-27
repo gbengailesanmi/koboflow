@@ -126,21 +126,13 @@ authRoutes.post('/login', async (req, res) => {
       req.ip
     )
 
-    const cookieOptions = {
+    res.cookie('session-id', sessionId, {
       httpOnly: true,
-      secure: isProd,              
-      sameSite: isProd ? 'none' as const : 'lax' as const,
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: '/',
-    }
-
-
-    if (!config.IS_PRODUCTION) {
-      const cookieValue = `session-id=${sessionId}; Max-Age=604800; Path=/; Domain=localhost; HttpOnly; SameSite=Lax`
-      res.setHeader('Set-Cookie', cookieValue)
-    } else {
-      res.cookie('session-id', sessionId, cookieOptions)
-    }
+    })
 
     res.json({
       success: true,
@@ -783,23 +775,16 @@ authRoutes.get('/google/callback', async (req, res) => {
       req.ip
     )
 
-    const cookieOptions = {
-      httpOnly: true,
-      secure: config.IS_PRODUCTION,
-      sameSite: isProd ? 'none' as const : 'lax' as const,
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      path: '/'
-    }
-
-    if (!config.IS_PRODUCTION) {
-      const cookieValue = `session-id=${sessionId}; Max-Age=604800; Path=/; Domain=localhost; HttpOnly; SameSite=Lax`
-      res.setHeader('Set-Cookie', cookieValue)
-    } else {
-      res.cookie('session-id', sessionId, cookieOptions)
-    }
-    
     const frontendUrl = config.FRONTEND_URL
-    
+
+    res.cookie('session-id', sessionId, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      path: '/',
+    })
+
     res.send(`
       <!DOCTYPE html>
       <html>

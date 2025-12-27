@@ -88,7 +88,8 @@ settingsRoutes.delete('/account', authMiddleware, async (req: AuthRequest, res) 
     res.clearCookie('session-id', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax'
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' as const : 'lax' as const,
+      path: '/'
     })
 
 

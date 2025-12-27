@@ -46,7 +46,7 @@ sessionRoutes.delete('/', authMiddleware, async (req: AuthRequest, res) => {
     res.clearCookie('session-id', {
       httpOnly: true,
       secure: config.IS_PRODUCTION,
-      sameSite: 'lax',
+      sameSite: config.IS_PRODUCTION ? 'none' as const : 'lax' as const,
       path: '/'
     })
     
