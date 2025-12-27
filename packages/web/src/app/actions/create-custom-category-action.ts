@@ -1,7 +1,7 @@
 'use server'
 
 import { revalidateTag } from 'next/cache'
-import { createCustomCategory } from '../api/api-service'
+import { createCustomCategory } from '../../lib/server/api-service'
 import { CustomCategory } from '@money-mapper/shared'
 
 /**

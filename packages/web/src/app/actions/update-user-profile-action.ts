@@ -1,7 +1,7 @@
 'use server'
 
 import { revalidateTag } from 'next/cache'
-import { updateUserProfile } from '../api/api-service'
+import { updateUserProfile } from '../../lib/server/api-service'
 
 /**
  * Server Action: Update user profile

@@ -1,7 +1,7 @@
 'use server'
 
 import { logger } from '@money-mapper/shared/utils'
-import { signup as signupService } from '../api/api-service'
+import { signup as signupService } from '../../lib/server/api-service'
 
 /**
  * Server Action to signup a new user

@@ -1,7 +1,7 @@
 'use server'
 
 import { revalidateTag } from 'next/cache'
-import { logout as logoutService } from '../api/api-service'
+import { logout as logoutService } from '../../lib/server/api-service'
 
 /**
  * Server Action to logout current user session

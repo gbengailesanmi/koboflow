@@ -1,7 +1,7 @@
 'use server'
 
 import { revalidateTag } from 'next/cache'
-import { patchBudget } from '../api/api-service'
+import { patchBudget } from '../../lib/server/api-service'
 import { BudgetPeriod, CategoryBudget } from '@money-mapper/shared'
 
 /**

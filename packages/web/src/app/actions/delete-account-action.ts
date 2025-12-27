@@ -1,7 +1,7 @@
 'use server'
 
 import { revalidateTag } from 'next/cache'
-import { deleteAccount } from '../api/api-service'
+import { deleteAccount } from '../../lib/server/api-service'
 
 /**
  * Server Action: Delete user account and all associated data

@@ -1,4 +1,4 @@
-'server only'
+'server-only'
 
 import { cookies } from 'next/headers'
 import config from '../../config'
@@ -33,7 +33,7 @@ async function serverFetch(
   url: string,
   options: RequestInit = {}
 ): Promise<Response> {
-  const cookieStore = cookies() // ❗️ NO await
+  const cookieStore = cookies()
   const sessionId = cookieStore.get('session-id')?.value
 
   const headers = new Headers(options.headers)

@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { getSession, getAccounts, getTransactions, getCustomCategories, getBudget } from '@/app/api/api-service'
+import { getSession, getAccounts, getTransactions, getCustomCategories, getBudget } from '@/lib/server/api-service'
 import AnalyticsClient from './analytics-client'
 
 type PageProps = {

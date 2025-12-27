@@ -1,7 +1,7 @@
 'use server'
 
 import { revalidateTag } from 'next/cache'
-import { logoutAll as logoutAllService } from '../api/api-service'
+import { logoutAll as logoutAllService } from '../../lib/server/api-service'
 
 /**
  * Server Action to logout from all devices

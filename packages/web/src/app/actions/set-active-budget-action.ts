@@ -1,7 +1,7 @@
 'use server'
 
 import { revalidateTag } from 'next/cache'
-import { setActiveBudget as setActiveBudgetService } from '../api/api-service'
+import { setActiveBudget as setActiveBudgetService } from '../../lib/server/api-service'
 
 /**
  * Server Action to set a budget as active

@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { getSession, getTransactions, getCustomCategories, getBudgets } from '@/app/api/api-service'
+import { getSession, getTransactions, getCustomCategories, getBudgets } from '@/lib/server/api-service'
 import BudgetClient from './budget-client'
 
 type PageProps = {

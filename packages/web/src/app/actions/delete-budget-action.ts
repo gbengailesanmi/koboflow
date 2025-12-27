@@ -1,7 +1,7 @@
 'use server'
 
 import { revalidateTag } from 'next/cache'
-import { deleteBudgetById as deleteBudgetByIdService } from '../api/api-service'
+import { deleteBudgetById as deleteBudgetByIdService } from '../../lib/server/api-service'
 
 /**
  * Server Action: Delete a budget by ID

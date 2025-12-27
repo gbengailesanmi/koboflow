@@ -1,7 +1,7 @@
 'use server'
 
 import { revalidateTag } from 'next/cache'
-import { deleteCustomCategory } from '../api/api-service'
+import { deleteCustomCategory } from '../../lib/server/api-service'
 
 /**
  * Server Action: Delete custom category

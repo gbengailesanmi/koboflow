@@ -8,7 +8,7 @@ import {
   syncMonoTransactions,
   getMonoAccountIdentity,
   getCustomerDetailsFromMono
-} from '@/app/api/api-service'
+} from '@/lib/server/api-service'
 
 export async function processMonoConnection(code: string): Promise<{
   success: boolean

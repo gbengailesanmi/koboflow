@@ -1,7 +1,7 @@
 'use server'
 
 import { logger } from '@money-mapper/shared/utils'
-import { resendVerificationEmail as resendVerificationEmailService } from '../api/api-service'
+import { resendVerificationEmail as resendVerificationEmailService } from '../../lib/server/api-service'
 
 /**
  * Server Action to resend verification email

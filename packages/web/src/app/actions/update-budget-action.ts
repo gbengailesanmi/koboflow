@@ -4,7 +4,7 @@ import { revalidateTag } from 'next/cache'
 import { 
   updateBudgetById as updateBudgetByIdService, 
   patchBudget as patchBudgetService
-} from '../api/api-service'
+} from '../../lib/server/api-service'
 import type { CategoryBudget, BudgetPeriod } from '@money-mapper/shared'
 
 /**

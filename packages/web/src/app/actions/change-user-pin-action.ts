@@ -1,7 +1,7 @@
 'use server'
 
 import { revalidateTag } from 'next/cache'
-import { changeUserPIN } from '../api/api-service'
+import { changeUserPIN } from '../../lib/server/api-service'
 
 /**
  * Server Action: Change existing PIN

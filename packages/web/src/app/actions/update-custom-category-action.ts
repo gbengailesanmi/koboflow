@@ -1,7 +1,7 @@
 'use server'
 
 import { revalidateTag } from 'next/cache'
-import { updateCustomCategory } from '../api/api-service'
+import { updateCustomCategory } from '../../lib/server/api-service'
 
 /**
  * Server Action: Update custom category

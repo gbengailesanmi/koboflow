@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { getSession, getSettings } from '@/app/api/api-service'
+import { getSession, getSettings } from '@/lib/server/api-service'
 import SettingsClient from './settings-client'
 
 type PageProps = {

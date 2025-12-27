@@ -1,7 +1,7 @@
 'use server'
 
 import { revalidateTag } from 'next/cache'
-import { changeUserPassword } from '../api/api-service'
+import { changeUserPassword } from '../../lib/server/api-service'
 
 /**
  * Server Action: Change user password (automatically re-encrypts PIN if set)

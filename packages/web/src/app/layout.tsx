@@ -1,6 +1,6 @@
 import Providers from './providers'
 import { Open_Sans } from 'next/font/google'
-import { getSettings, getSession } from '@/app/api/api-service'
+import { getSettings, getSession } from '@/lib/server/api-service'
 
 import './globals.css'
 

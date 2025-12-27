@@ -1,7 +1,7 @@
 'use server'
 
 import { revalidateTag } from 'next/cache'
-import { updateSettings } from '../api/api-service'
+import { updateSettings } from '../../lib/server/api-service'
 import { UserSettings } from '@money-mapper/shared'
 
 /**

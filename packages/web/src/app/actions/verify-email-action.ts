@@ -2,7 +2,7 @@
 
 import { revalidateTag } from 'next/cache'
 import { logger } from '@money-mapper/shared/utils'
-import { verifyEmail as verifyEmailService } from '../api/api-service'
+import { verifyEmail as verifyEmailService } from '../../lib/server/api-service'
 
 /**
  * Server Action to verify user email with token

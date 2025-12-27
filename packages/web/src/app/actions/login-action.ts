@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { logger } from '@money-mapper/shared/utils'
-import { login as loginService } from '../api/api-service'
+import { login as loginService } from '../../lib/server/api-service'
 
 /**
  * Server Action to login a user
