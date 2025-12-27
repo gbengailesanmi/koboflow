@@ -1,8 +1,4 @@
 'use client'
-/**
- * Mono Connect Widget Hook
- * Provides a React hook for integrating Mono Connect widget
- */
 
 import { useCallback, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -21,18 +17,22 @@ export function useMonoConnect({ onSuccess, onError }: UseMonoConnectOptions = {
   const openMonoWidget = useCallback(async () => {
     try {
       setIsLoading(true)
-      
+
+      const monoKey = config.MONO_PUBLIC_KEY
+      if (!monoKey) {
+        throw new Error('MONO_PUBLIC_KEY is not configured')
+      }
+
       const Connect = (await import('@mono.co/connect.js')).default
 
       const monoInstance = new Connect({
-        key: config.MONO_PUBLIC_KEY,
+        key: monoKey,
         scope: 'auth',
-        
+
         onSuccess: async ({ code }: { code: string }) => {
-          
           try {
             const result = await processMonoConnection(code)
-            
+
             if (!result.success) {
               throw new Error(result.message || 'Failed to link account')
             }
