@@ -16,6 +16,9 @@ export const authMiddleware = async (req: AuthRequest, res: Response, next: Next
   try {
     const sessionId = req.cookies?.['session-id']
 
+    console.log('[cookiessss in auth]', req.headers.cookie, sessionId)
+    console.log('[AUTH]', req.headers.cookie)
+
     if (!sessionId) {
       return res.status(401).json({ error: "Authentication required" })
     }

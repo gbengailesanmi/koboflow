@@ -12,6 +12,7 @@ import { logger } from '@money-mapper/shared/utils'
 
 export const authRoutes = Router()
 const isProd = config.IS_PRODUCTION
+console.log('ddsdffgf', config.IS_PRODUCTION)
 
 authRoutes.post('/signup', async (req, res) => {
   try {

@@ -33,7 +33,7 @@ async function serverFetch(
   url: string,
   options: RequestInit = {}
 ): Promise<Response> {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
 
   return fetch(url, {
     ...options,
