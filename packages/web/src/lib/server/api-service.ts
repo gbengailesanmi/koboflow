@@ -49,7 +49,7 @@ async function serverFetch(
   return fetch(url, {
     ...options,
     headers,
-    // credentials is irrelevant server-side, but harmless
+    credentials: 'include',
     cache: options.cache ?? 'force-cache',
   })
 }
