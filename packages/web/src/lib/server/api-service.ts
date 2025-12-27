@@ -694,9 +694,13 @@ export async function exchangeMonoToken(code: string): Promise<{
   try {
     const response = await serverFetch(`${BACKEND_URL}/api/mono/auth`, {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({ code }),
       cache: 'no-store',
     })
+
     return await response.json()
   } catch (error: any) {
     console.error('exchangeMonoToken error:', error)
