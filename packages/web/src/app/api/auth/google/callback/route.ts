@@ -23,8 +23,13 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(new URL('/login?error=oauth_failed', req.url))
   }
 
-  // 2️⃣ Create frontend response
-  const response = NextResponse.redirect(new URL('/dashboard', req.url))
+  // 🔑 NEW: read customerId from backend response
+  const { customerId } = await backendRes.json()
+
+  // 2️⃣ Redirect to the CORRECT dashboard route
+  const response = NextResponse.redirect(
+    new URL(`/${customerId}/dashboard`, req.url)
+  )
 
   // 3️⃣ Forward ALL Set-Cookie headers
   const setCookies = backendRes.headers.getSetCookie()
