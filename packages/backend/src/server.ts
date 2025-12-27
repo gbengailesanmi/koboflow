@@ -70,6 +70,12 @@ app.get('/health', (_req: Request, res: Response) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() })
 })
 
+app.use((req, _res, next) => {
+  console.log('[CORS] Origin:', req.headers.origin)
+  next()
+})
+
+
 app.use('/api/auth', authRoutes)
 app.use('/api/session', sessionRoutes)
 app.use('/api/mono', monoRoutes)

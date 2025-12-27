@@ -33,24 +33,19 @@ async function serverFetch(
   url: string,
   options: RequestInit = {}
 ): Promise<Response> {
-  const cookieStore = await cookies()
-  const headers = new Headers(options.headers)
-
-  const session = cookieStore.get('session-id')
-  if (session) {
-    headers.set('Cookie', `session-id=${session.value}`)
-  }
-
-  if (options.body && !headers.has('Content-Type')) {
-    headers.set('Content-Type', 'application/json')
-  }
+  const cookieStore = cookies()
 
   return fetch(url, {
     ...options,
-    headers,
+    headers: {
+      ...options.headers,
+      Cookie: cookieStore.toString()
+    },
     cache: options.cache ?? 'no-store',
   })
 }
+
+
 
 /**
  * Parse JSON response with error handling
