@@ -739,6 +739,9 @@ export async function syncMonoTransactions(
       `${BACKEND_URL}/api/mono/sync-transactions/${accountId}`,
       { 
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify(options || {}),
         cache: 'no-store' 
       }

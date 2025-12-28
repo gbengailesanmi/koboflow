@@ -299,7 +299,7 @@ monoRoutes.post('/sync-transactions/:accountId', authMiddleware, async (req: Aut
       return res.status(400).json({ success: false, error: 'Missing accountId' })
     }
 
-    const { start, end } = req.body
+    const { start, end } = req.body ?? {}
 
     // Step 1: Check account data status first
     const accountDetails = await fetchAccountDetails(accountId)
