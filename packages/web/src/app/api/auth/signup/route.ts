@@ -1,43 +1,64 @@
-import { NextRequest, NextResponse } from 'next/server'
-import config from '@/config'
+import { NextResponse } from 'next/server'
+import clientPromise from '@/lib/mongo/mongo'
+import bcrypt from 'bcrypt'
+import { randomUUID } from 'crypto'
 
-export const dynamic = 'force-dynamic'
-
-/**
- * POST /api/auth/signup
- * Proxies signup to backend and forwards Set-Cookie header to browser
- */
-export async function POST(request: NextRequest) {
+export async function POST(req: Request) {
   try {
-    const body = await request.json()
-    const { firstName, lastName, email, password, passwordConfirm } = body
+    const body = await req.json()
+    const { email, password, firstName, lastName } = body
 
-    if (!firstName || !lastName || !email || !password || !passwordConfirm) {
+    // 1️⃣ Basic validation
+    if (!email || !password || !firstName || !lastName) {
       return NextResponse.json(
-        { success: false, message: 'All fields are required' },
+        { message: 'All fields are required' },
         { status: 400 }
       )
     }
 
-    const response = await fetch(`${config.NEXT_PUBLIC_BACKEND_URL}/api/auth/signup`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ firstName, lastName, email, password, passwordConfirm }),
-    })
-
-    const data = await response.json()
-    const res = NextResponse.json(data, { status: response.status })
-
-    const setCookie = response.headers.get('set-cookie')
-    if (setCookie) {
-      res.headers.set('set-cookie', setCookie)
+    if (password.length < 8) {
+      return NextResponse.json(
+        { message: 'Password must be at least 8 characters' },
+        { status: 400 }
+      )
     }
 
-    return res
-  } catch (error: any) {
-    console.error('[API] Signup error:', error)
+    const normalizedEmail = email.trim().toLowerCase()
+
+    const db = (await clientPromise).db()
+
+    // 2️⃣ Check existing user
+    const existing = await db
+      .collection('users')
+      .findOne({ email: normalizedEmail })
+
+    if (existing) {
+      return NextResponse.json(
+        { message: 'Email already registered' },
+        { status: 400 }
+      )
+    }
+
+    // 3️⃣ Create user
+    await db.collection('users').insertOne({
+      email: normalizedEmail,
+      password: await bcrypt.hash(password, 10),
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      customerId: randomUUID(),
+      emailVerified: false,
+      authProvider: 'credentials',
+      createdAt: new Date(),
+    })
+
     return NextResponse.json(
-      { success: false, message: error.message || 'Signup failed' },
+      { success: true },
+      { status: 201 }
+    )
+  } catch (err) {
+    console.error('Signup error:', err)
+    return NextResponse.json(
+      { message: 'Signup failed' },
       { status: 500 }
     )
   }

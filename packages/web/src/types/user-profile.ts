@@ -1,6 +1,13 @@
-export type UserProfile = {
-  name: string
-  email: string
-  currency: string
-  totalBudgetLimit: number
+import { DefaultSession } from 'next-auth'
+
+declare module 'next-auth' {
+  interface Session {
+    user: {
+      customerId?: string
+    } & DefaultSession['user']
+  }
+
+  interface User {
+    customerId?: string
+  }
 }

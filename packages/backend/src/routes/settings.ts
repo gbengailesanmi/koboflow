@@ -1,12 +1,12 @@
 import { Router } from 'express'
-import { authMiddleware, AuthRequest } from '../middleware/middleware'
+import { requireAuth, AuthRequest } from '../middleware/middleware'
 import { getUserSettings, updateUserSettings } from '../services/settings'
 import { encryptPIN, decryptPIN } from '../services/pin-security'
 import { connectDB } from '../db/mongo'
 
 export const settingsRoutes = Router()
 
-settingsRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
+settingsRoutes.get('/', requireAuth, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
     
@@ -30,7 +30,7 @@ settingsRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
   }
 })
 
-settingsRoutes.patch('/', authMiddleware, async (req: AuthRequest, res) => {
+settingsRoutes.patch('/', requireAuth, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
     
@@ -63,7 +63,7 @@ settingsRoutes.patch('/', authMiddleware, async (req: AuthRequest, res) => {
   }
 })
 
-settingsRoutes.delete('/account', authMiddleware, async (req: AuthRequest, res) => {
+settingsRoutes.delete('/account', requireAuth, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
     
@@ -82,15 +82,8 @@ settingsRoutes.delete('/account', authMiddleware, async (req: AuthRequest, res) 
       db.collection('budgets').deleteMany({ customerId }),
       db.collection('spending_categories').deleteMany({ customerId }),
       db.collection('settings').deleteOne({ customerId }),
-      db.collection('sessions').deleteMany({ customerId })
     ])
 
-    res.clearCookie('session-id', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' as const : 'lax' as const,
-      path: '/'
-    })
 
 
     console.log('[Delete Account] Deletion results:', {
@@ -99,8 +92,7 @@ settingsRoutes.delete('/account', authMiddleware, async (req: AuthRequest, res) 
       transactions: results[2].deletedCount,
       budgets: results[3].deletedCount,
       spending_categories: results[4].deletedCount,
-      settings: results[5].deletedCount,
-      sessions: results[6].deletedCount,
+      settings: results[5].deletedCount
     })
 
     res.json({ 
@@ -116,7 +108,7 @@ settingsRoutes.delete('/account', authMiddleware, async (req: AuthRequest, res) 
   }
 })
 
-settingsRoutes.post('/pin/set', authMiddleware, async (req: AuthRequest, res) => {
+settingsRoutes.post('/pin/set', requireAuth, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
     
@@ -172,7 +164,7 @@ settingsRoutes.post('/pin/set', authMiddleware, async (req: AuthRequest, res) =>
   }
 })
 
-settingsRoutes.post('/pin/change', authMiddleware, async (req: AuthRequest, res) => {
+settingsRoutes.post('/pin/change', requireAuth, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
     
@@ -239,7 +231,7 @@ settingsRoutes.post('/pin/change', authMiddleware, async (req: AuthRequest, res)
   }
 })
 
-settingsRoutes.post('/pin/verify', authMiddleware, async (req: AuthRequest, res) => {
+settingsRoutes.post('/pin/verify', requireAuth, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
     
@@ -294,7 +286,7 @@ settingsRoutes.post('/pin/verify', authMiddleware, async (req: AuthRequest, res)
   }
 })
 
-settingsRoutes.post('/password/change', authMiddleware, async (req: AuthRequest, res) => {
+settingsRoutes.post('/password/change', requireAuth, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
     

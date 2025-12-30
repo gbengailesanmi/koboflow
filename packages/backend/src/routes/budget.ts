@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { authMiddleware, AuthRequest } from '../middleware/middleware'
+import { requireAuth, AuthRequest } from '../middleware/middleware'
 import { 
   getBudgets, 
   getActiveBudget, 
@@ -16,7 +16,7 @@ import { connectDB } from '../db/mongo'
 
 export const budgetRoutes = Router()
 
-budgetRoutes.get('/all', authMiddleware, async (req: AuthRequest, res) => {
+budgetRoutes.get('/all', requireAuth, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
     
@@ -32,7 +32,7 @@ budgetRoutes.get('/all', authMiddleware, async (req: AuthRequest, res) => {
   }
 })
 
-budgetRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
+budgetRoutes.get('/', requireAuth, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
     
@@ -61,7 +61,7 @@ budgetRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
   }
 })
 
-budgetRoutes.get('/:budgetId', authMiddleware, async (req: AuthRequest, res) => {
+budgetRoutes.get('/:budgetId', requireAuth, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
     const { budgetId } = req.params
@@ -83,7 +83,7 @@ budgetRoutes.get('/:budgetId', authMiddleware, async (req: AuthRequest, res) => 
   }
 })
 
-budgetRoutes.post('/create', authMiddleware, async (req: AuthRequest, res) => {
+budgetRoutes.post('/create', requireAuth, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
     
@@ -152,7 +152,7 @@ budgetRoutes.post('/create', authMiddleware, async (req: AuthRequest, res) => {
   }
 })
 
-budgetRoutes.put('/:budgetId', authMiddleware, async (req: AuthRequest, res) => {
+budgetRoutes.put('/:budgetId', requireAuth, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
     const { budgetId } = req.params
@@ -210,7 +210,7 @@ budgetRoutes.put('/:budgetId', authMiddleware, async (req: AuthRequest, res) => 
   }
 })
 
-budgetRoutes.post('/:budgetId/activate', authMiddleware, async (req: AuthRequest, res) => {
+budgetRoutes.post('/:budgetId/activate', requireAuth, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
     const { budgetId } = req.params
@@ -231,7 +231,7 @@ budgetRoutes.post('/:budgetId/activate', authMiddleware, async (req: AuthRequest
   }
 })
 
-budgetRoutes.delete('/:budgetId', authMiddleware, async (req: AuthRequest, res) => {
+budgetRoutes.delete('/:budgetId', requireAuth, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
     const { budgetId } = req.params
@@ -257,7 +257,7 @@ budgetRoutes.delete('/:budgetId', authMiddleware, async (req: AuthRequest, res) 
   }
 })
 
-budgetRoutes.post('/', authMiddleware, async (req: AuthRequest, res) => {
+budgetRoutes.post('/', requireAuth, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
     
@@ -320,7 +320,7 @@ budgetRoutes.post('/', authMiddleware, async (req: AuthRequest, res) => {
   }
 })
 
-budgetRoutes.patch('/', authMiddleware, async (req: AuthRequest, res) => {
+budgetRoutes.patch('/', requireAuth, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
     

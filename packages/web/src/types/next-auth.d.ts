@@ -1,26 +1,13 @@
-import { DefaultSession } from "next-auth"
-import { JWT } from "next-auth/jwt"
+import 'express'
 
-declare module "next-auth" {
-  interface Session {
-    user: {
-      customerId?: string
-    } & DefaultSession["user"]
-  }
-
-  interface User {
-    customerId?: string
-  }
-}
-
-declare module "next-auth/jwt" {
-  interface JWT {
-    customerId?: string
-  }
-}
-
-declare module "@auth/core/adapters" {
-  interface AdapterUser {
-    customerId?: string
+declare module 'express-serve-static-core' {
+  interface Request {
+    user?: {
+      userId: string
+      customerId: string
+      email: string
+      firstName?: string
+      lastName?: string
+    }
   }
 }
