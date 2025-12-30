@@ -11,7 +11,7 @@ import { PageHeader } from '@/app/components/page-header/page-header'
 import { PageLayout } from '@/app/components/page-layout/page-layout'
 import { BudgetSwitcher } from '@/app/components/budget-switcher'
 import { useScrollRestoration } from '@/hooks/use-scroll-restoration'
-import type { Transaction } from '@money-mapper/shared'
+import type { EnrichedTransaction } from '@money-mapper/shared'
 import type { CustomCategory } from '@/types/custom-category'
 import type { Budget } from '@money-mapper/shared'
 import { categorizeTransaction } from '@/app/components/analytics/utils/categorize-transaction'
@@ -42,7 +42,7 @@ type BudgetClientProps = {
   customerId: string
   allBudgets: Budget[]
   initialBudget: BudgetData
-  transactions: Transaction[]
+  transactions: EnrichedTransaction[]
   customCategories: CustomCategory[]
   currency: string
 }

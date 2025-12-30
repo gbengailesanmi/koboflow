@@ -4,7 +4,7 @@ import { cookies } from 'next/headers'
 import config from '../../config'
 import type {
   Account,
-  Transaction,
+  EnrichedTransaction,
   Budget,
   CustomCategory,
   CategoryBudget,
@@ -133,13 +133,13 @@ export async function getAccounts(): Promise<Account[]> {
  * Cache tag: 'transactions'
  * Revalidates: After create, update, delete transaction, or Mono callback
  */
-export async function getTransactions(): Promise<Transaction[]> {
+export async function getTransactions(): Promise<EnrichedTransaction[]> {
   try {
     const response = await serverFetch(`${BACKEND_URL}/api/transactions`, {
       next: { tags: ['transactions'] },
     })
 
-    const data = await parseResponse<{ status: string; message: string; timestamp: string; data: Transaction[] }>(response)
+    const data = await parseResponse<{ status: string; message: string; timestamp: string; data: EnrichedTransaction[] }>(response)
     return data.data || []
   } catch (error) {
     console.error('getTransactions error:', error)

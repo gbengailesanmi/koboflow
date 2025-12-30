@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import type { Transaction, Account } from '@money-mapper/shared'
+import type { EnrichedTransaction, Account } from '@money-mapper/shared'
 import PageLayoutWithSidebar from '@/app/components/sidebar/sidebar'
 import { Dialog } from '@radix-ui/themes'
 import { DownloadIcon, UploadIcon, ArrowLeftIcon } from '@radix-ui/react-icons'
@@ -18,7 +18,7 @@ import { useScrollRestoration } from '@/hooks/use-scroll-restoration'
 interface TransactionsClientProps {
   customerId: string
   accounts: Account[]
-  transactions: Transaction[]
+  transactions: EnrichedTransaction[]
 }
 
 export default function TransactionsClient({

@@ -11,12 +11,12 @@ import TransactionsColumn from '@/app/components/transactions/transactions-colum
 import { categorizeTransaction } from '@/app/components/analytics/utils/categorize-transaction'
 import { useQueryStateNullable } from '@/hooks/use-query-state'
 import { useScrollRestoration } from '@/hooks/use-scroll-restoration'
-import type { Account, Transaction } from '@money-mapper/shared'
+import type { Account, EnrichedTransaction } from '@money-mapper/shared'
 
 interface DashboardClientProps {
   customerId: string
   accounts: Account[]
-  transactions: Transaction[]
+  transactions: EnrichedTransaction[]
   profile: {
     name: string
     email: string

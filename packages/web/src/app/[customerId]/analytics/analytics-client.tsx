@@ -4,7 +4,7 @@ import React, { useState, useMemo, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Dialog } from '@radix-ui/themes'
 import type { Account } from '@money-mapper/shared'
-import type { Transaction } from '@money-mapper/shared'
+import type { EnrichedTransaction } from '@money-mapper/shared'
 import type { CustomCategory } from '@/types/custom-category'
 import { createCustomCategoryAction } from '@/app/actions/create-custom-category-action'
 import { deleteCustomCategoryAction } from '@/app/actions/delete-custom-category-action'
@@ -40,7 +40,7 @@ import styles from './analytics.module.css'
 type AnalyticsClientProps = {
   customerId: string
   accounts: Account[]
-  transactions: Transaction[]
+  transactions: EnrichedTransaction[]
   customCategories: CustomCategory[]
   currency: string
   totalBudgetLimit: number

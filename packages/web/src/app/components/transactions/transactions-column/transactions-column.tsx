@@ -1,17 +1,17 @@
 'use client'
 
-import type { Transaction } from '@money-mapper/shared'
+import type { EnrichedTransaction } from '@money-mapper/shared'
 import { Box, Card, Flex, Text, Dialog } from '@radix-ui/themes'
 import { Cross1Icon, DownloadIcon, UploadIcon } from '@radix-ui/react-icons'
 import styles from './transactions-column.module.css'
 import { useState } from 'react'
 
 type TrxnRowProps = {
-  transactions: Transaction[]
+  transactions: EnrichedTransaction[]
 }
 
 export default function TransactionsColumn({ transactions }: TrxnRowProps) {
-  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null)
+  const [selectedTransaction, setSelectedTransaction] = useState<EnrichedTransaction | null>(null)
 
   return (
     <Dialog.Root
