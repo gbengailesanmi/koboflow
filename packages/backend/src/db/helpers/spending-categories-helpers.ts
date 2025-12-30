@@ -1,8 +1,5 @@
 import { connectDB } from '../mongo'
-import { 
-  UserSpendingCategories, 
-  SpendingCategory, 
-  SpendingCategoryInput,
+import {
   UserCategories,
   Category,
   CategoryInput

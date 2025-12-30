@@ -11,6 +11,7 @@
     "clean": "rm -rf .next"
   },
   "dependencies": {
+    "@auth/mongodb-adapter": "^3.11.1",
     "@fontsource/roboto": "^5.2.6",
     "@money-mapper/shared": "*",
     "@mono.co/connect.js": "^2.1.0",

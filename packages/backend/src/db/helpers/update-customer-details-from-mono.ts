@@ -1,4 +1,4 @@
-import { MonoAccountIdentity } from '../../services/mono'
+import type { MonoAccountIdentity } from '@money-mapper/shared'
 
 /**
  * Update customer details from Mono identity data in the users collection

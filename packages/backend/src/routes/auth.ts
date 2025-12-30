@@ -14,6 +14,7 @@ import { logger } from '@money-mapper/shared/utils'
 export const authRoutes = Router()
 const isProd = config.IS_PRODUCTION
 
+// ------------------------------------- SIGN UP ------------------------------------- //
 authRoutes.post('/signup', async (req, res) => {
   try {
     const { firstName, lastName, email, password, passwordConfirm } = req.body
@@ -90,6 +91,7 @@ authRoutes.post('/signup', async (req, res) => {
   }
 })
 
+// ------------------------------------- LOGIN ------------------------------------- //
 authRoutes.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body
@@ -150,6 +152,7 @@ authRoutes.post('/login', async (req, res) => {
   }
 })
 
+// ------------------------------------- LOGOUT ------------------------------------- //
 authRoutes.post('/logout', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const sessionId = req.sessionId
@@ -178,6 +181,7 @@ authRoutes.post('/logout', authMiddleware, async (req: AuthRequest, res) => {
   }
 })
 
+// ------------------------------ LOG OUT ALL DEVICES ------------------------------ //
 authRoutes.post('/logout-all', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
@@ -208,6 +212,7 @@ authRoutes.post('/logout-all', authMiddleware, async (req: AuthRequest, res) => 
   }
 })
 
+// ----------------------------------- SESSIONS ----------------------------------- //
 authRoutes.get('/sessions', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const customerId = req.user?.customerId
@@ -239,6 +244,7 @@ authRoutes.get('/sessions', authMiddleware, async (req: AuthRequest, res) => {
   }
 })
 
+// ----------------------------- GET VERIFY EMAIL ----------------------------- //
 authRoutes.get('/verify-email', async (req, res) => {
   try {
     const { token } = req.query
@@ -305,6 +311,7 @@ authRoutes.get('/verify-email', async (req, res) => {
   }
 })
 
+// ----------------------------- POST VERIFY EMAIL ----------------------------- //
 authRoutes.post('/verify-email', async (req, res) => {
   try {
     const { token } = req.body
@@ -371,6 +378,7 @@ authRoutes.post('/verify-email', async (req, res) => {
   }
 })
 
+// ------------------------ RESEND VERIFICATION EMAIL ------------------------ //
 authRoutes.post('/resend-verification', async (req, res) => {
   try {
     const { email } = req.body
@@ -439,6 +447,7 @@ authRoutes.post('/resend-verification', async (req, res) => {
   }
 })
 
+// ------------------------------- NORMAL USER OAUTH ------------------------------- //
 authRoutes.post('/oauth-user', async (req, res) => {
   try {
     const { email, name, provider } = req.body
@@ -530,6 +539,7 @@ authRoutes.post('/oauth-user', async (req, res) => {
   }
 })
 
+// ------------------------------- GET USER ------------------------------- //
 authRoutes.get('/user/:customerId', async (req, res) => {
   try {
     const { customerId } = req.params
@@ -570,6 +580,7 @@ authRoutes.get('/user/:customerId', async (req, res) => {
   }
 })
 
+// ------------------------------- UPDATE USER ------------------------------- //
 authRoutes.patch('/user/:customerId', async (req, res) => {
   try {
     const { customerId } = req.params
@@ -661,6 +672,7 @@ authRoutes.patch('/user/:customerId', async (req, res) => {
   }
 })
 
+// ------------------------------- GOOGLE OAUTH ------------------------------- //
 authRoutes.get('/google', (req, res) => {
   const clientId = config.GOOGLE_CLIENT_ID
   const redirectUri = config.GOOGLE_REDIRECT_URI
@@ -684,6 +696,7 @@ authRoutes.get('/google', (req, res) => {
   res.redirect(authUrl)
 })
 
+// ------------------------- GOOGLE OAUTH CALLBACK ------------------------- //
 authRoutes.post('/google/callback', async (req, res) => {
   try {
     const { code } = req.body

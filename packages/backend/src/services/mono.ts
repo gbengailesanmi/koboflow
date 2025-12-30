@@ -1,175 +1,8 @@
 import config from '../config'
 import { normaliseTestAccountNumber, normaliseAccountBVNToIdentity } from '../test-helpers/account-normalizer'
+import { MonoTransaction, MonoAuthResponse, MonoAccountDetails, MonoAccountIdentity, MonoAccountBalance, MonoTransactionsResponse, MonoCreditWorthinessRequest, MonoStatementOptions, MonoEarnings, MonoAssets } from '@money-mapper/shared'
 
 const MONO_API_BASE = 'https://api.withmono.com/v2'
-
-export interface MonoCustomer {
-  name: string
-  email: string
-}
-
-export interface MonoMeta {
-  ref?: string
-}
-
-export interface MonoInitiateRequest {
-  customer: {
-    name?: string
-    email?: string
-    id?: string
-  }
-  meta?: {
-    ref?: string
-  }
-  scope: 'auth' | 'reauth'
-  institution?: {
-    id?: string
-    auth_method?: 'mobile_banking' | 'internet_banking'
-  }
-  redirect_url: string
-  account?: string
-}
-
-export interface MonoInitiateResponse {
-  status: string
-  message: string
-  timestamp: string
-  data: {
-    mono_url: string
-    customer: string
-    meta?: {
-      ref?: string
-    }
-    scope: string
-    institution: Record<string, any>
-    redirect_url: string
-    is_multi: boolean
-    created_at: string
-  }
-}
-
-export interface MonoAuthResponse {
-  status: string
-  message: string
-  timestamp: string
-  data: {
-    id: string
-  }
-}
-
-export interface MonoAccountDetails {
-  account: {
-    id: string
-    name: string
-    account_number: string
-    currency: string
-    balance: number
-    bvn: string | null
-    type: string
-    institution: {
-      name: string
-      bank_code: string
-      type: string
-    }
-  }
-  customer: {
-    id: string
-  }
-  meta: {
-    data_status: 'AVAILABLE' | 'PARTIAL' | 'UNAVAILABLE' | 'FAILED' | 'PROCESSING'
-    auth_method: string
-    data_request_id?: string
-    session_id?: string
-    retrieved_data?: string[]
-  }
-}
-
-export interface MonoAccountIdentity {
-  full_name: string
-  email: string
-  phone: string
-  gender: string
-  dob: string
-  bvn: string
-  marital_status: string
-  address_line1: string
-  address_line2: string
-}
-
-export interface MonoAccountBalance {
-  ledger_balance: number
-  available_balance: number
-  currency: string
-}
-
-export interface MonoTransaction {
-  id: string
-  narration: string
-  amount: number
-  type: 'debit' | 'credit'
-  category: string | null
-  currency: string
-  balance: number
-  date: string
-}
-
-export interface MonoTransactionsResponse {
-  status: string
-  message: string
-  timestamp: string
-  data: MonoTransaction[]
-  meta: {
-    total: number
-    page: number
-    previous: string | null
-    next: string | null
-  }
-}
-
-export interface MonoCreditWorthinessRequest {
-  bvn: string
-  principal: number
-  interest_rate: number
-  term: number
-  run_credit_check: boolean
-  existing_loans?: Array<{
-    tenor: number
-    date_opened: string
-    closed_date: string
-    institution: string
-    currency: string
-    repayment_amount: number
-    opening_balance: number
-    loan_status: string
-    repayment_schedule: Array<Record<string, string>>
-  }>
-}
-
-export interface MonoStatementOptions {
-  period: 'last1month' | 'last2months' | 'last3months' | 'last6months' | 'last12months'
-  output?: 'json' | 'pdf'
-}
-
-export interface MonoEarnings {
-  total_earnings: number
-  currency: string
-  earnings: Array<{
-    date: string
-    amount: number
-    type: string
-  }>
-}
-
-export interface MonoAssets {
-  total_value: number
-  currency: string
-  assets: Array<{
-    name: string
-    type: string
-    value: number
-    units: number
-  }>
-}
 
 async function monoFetch<T>(
   endpoint: string,
@@ -317,6 +150,11 @@ export async function fetchAllTransactions(
     type?: 'debit' | 'credit'
   } = {}
 ): Promise<MonoTransaction[]> {
+  const ready = await waitForTransactionsReady(accountId)
+
+  if (!ready) {
+    return []
+  }
   const allTransactions: MonoTransaction[] = []
   let page = 1
   let hasMore = true
@@ -415,13 +253,13 @@ export async function fetchStatementInsights(accountId: string): Promise<any> {
   return response.data
 }
 
-export async function syncAccount(accountId: string): Promise<{ status: string }> {
-  const response = await monoFetch<{ data: { status: string } }>(
-    `/accounts/${accountId}/sync`,
-    { method: 'POST' }
-  )
-  return response.data
-}
+// export async function syncAccount(accountId: string): Promise<{ status: string }> {
+//   const response = await monoFetch<{ data: { status: string } }>(
+//     `/accounts/${accountId}/sync`,
+//     { method: 'POST' }
+//   )
+//   return response.data
+// }
 
 export function formatAccountForStorage(
   response: MonoAccountDetails,
@@ -471,6 +309,43 @@ export function formatAccountForStorage(
     provider: 'mono',
   }
 }
+
+const sleep = (ms: number) =>
+  new Promise(resolve => setTimeout(resolve, ms))
+
+/**
+ * Waits until Mono reports that transactions are ready for an account
+ * Polls account details and checks meta.retrieved_data
+ */
+export async function waitForTransactionsReady(
+  accountId: string,
+  options?: {
+    intervalMs?: number
+    maxAttempts?: number
+  }
+): Promise<boolean> {
+  const intervalMs = options?.intervalMs ?? 10_000 // 10s
+  const maxAttempts = options?.maxAttempts ?? 12   // ~2 minutes
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const details = await fetchAccountDetails(accountId)
+
+    const retrieved = details.data.meta.retrieved_data ?? []
+    const ready = retrieved.includes('transactions')
+
+    if (ready) {
+      console.log('[Mono] Transactions are ready')
+      return true
+    }
+    console.log(
+      `[Mono] Transactions not ready (attempt ${attempt}/${maxAttempts})`
+    )
+    await sleep(intervalMs)
+  }
+  console.warn('[Mono] Timed out waiting for transactions to be ready')
+  return false
+}
+
 
 // Re-export test helper for convenience
 export { normaliseTestAccountNumber } from '../test-helpers/account-normalizer'

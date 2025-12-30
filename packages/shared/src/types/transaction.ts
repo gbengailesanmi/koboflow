@@ -1,3 +1,5 @@
+// packages/shared/src/types/transaction.ts
+
 export type MonoTransaction = {
   id: string
   narration: string
@@ -5,15 +7,23 @@ export type MonoTransaction = {
   type: 'debit' | 'credit'
   balance: number
   date: string
-  category: string
+  category: string | null
 }
 
-export type Transaction = MonoTransaction & {
-  accountId: string        // Mono's account ID (can change on re-link)
-  customerId: string       // Your app's customer ID
-  accountNumber?: string   // Stable: Bank account number
-  bankCode?: string        // Stable: Bank code
-  hash?: string            // SHA-256 hash for duplicate detection
+export type EnrichedTransaction = {
+  id: string
+  narration: string
+  amount: number
+  type: 'debit' | 'credit'
+  balance: number
+  date: string
+  category: string
+
+  accountId: string
+  customerId: string
+  accountNumber?: string
+  bankCode?: string
+  hash?: string
 }
 
 export type MonoTransactionsResponse = {
@@ -33,7 +43,7 @@ export type TransactionsResponse = {
   status: string
   message: string
   timestamp: string
-  data: Transaction[]
+  data: EnrichedTransaction[]
   meta: {
     total: number
     page: number
