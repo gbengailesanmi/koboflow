@@ -4,6 +4,7 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import bcrypt from 'bcrypt'
 import { randomUUID } from 'crypto'
 import { getDb } from '@/lib/mongo/mongo'
+import config from '@/config'
 
 console.log('[AUTH] NextAuth route loaded', process.env.NEXTAUTH_SECRET)
 
@@ -11,6 +12,21 @@ export const authOptions: AuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: 'jwt',
+  },
+
+  cookies: {
+    sessionToken: {
+      name:
+        config.IS_PRODUCTION
+          ? '__Secure-next-auth.session-token'
+          : 'next-auth.session-token',
+      options: {
+        httpOnly: true,
+        sameSite: config.IS_PRODUCTION ? 'lax' : 'none',
+        path: '/',
+        secure: config.IS_PRODUCTION,
+      },
+    },
   },
 
   providers: [
@@ -61,10 +77,6 @@ export const authOptions: AuthOptions = {
   ],
 
   callbacks: {
-    /**
-     * 🔐 Runs for BOTH Google + Credentials
-     * This is where Google users MUST be created
-     */
     async signIn({ user, account }) {
       if (account?.provider === 'google') {
         const db = await getDb()
@@ -92,16 +104,12 @@ export const authOptions: AuthOptions = {
       return true
     },
 
-    /**
-     * 🔑 Persist DB identity into JWT
-     */
     async jwt({ token, user }) {
       if (user) {
         token.customerId = (user as any).customerId
         token.firstName = (user as any).firstName
         token.lastName = (user as any).lastName
       }
-
       return token
     },
 
