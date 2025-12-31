@@ -1,39 +1,30 @@
+/// packages/backend/src/middleware/middleware.ts
 import type { Request, Response, NextFunction } from 'express'
+import { getToken } from 'next-auth/jwt'
 
 console.log('Middleware loaded', process.env.NEXTAUTH_SECRET)
+
 export async function requireAuth(
   req: Request,
   res: Response,
   next: NextFunction
 ) {
   try {
-    // Dynamic import of jose
-    const { jwtDecrypt } = await import('jose')
-    
-    const token =
-      req.cookies['next-auth.session-token'] ||
-      req.cookies['__Secure-next-auth.session-token']
+    const token = await getToken({
+      req,
+      secret: process.env.NEXTAUTH_SECRET,
+    })
 
-    console.log('Auth token:', token)
-    
     if (!token) {
       return res.status(401).json({ error: 'Unauthenticated' })
     }
 
-    // Decrypt the JWE token
-    const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET!)
-    const { payload } = await jwtDecrypt(token, secret)
-
-    if (!payload?.customerId || !payload?.email) {
-      return res.status(401).json({ error: 'Invalid token payload' })
-    }
-
     req.user = {
-      userId: (payload.sub as string) ?? (payload.customerId as string),
-      customerId: payload.customerId as string,
-      email: payload.email as string,
-      firstName: payload.firstName as string,
-      lastName: payload.lastName as string,
+      userId: token.sub as string,
+      customerId: token.customerId as string,
+      email: token.email as string,
+      firstName: token.firstName as string,
+      lastName: token.lastName as string,
     }
 
     next()
