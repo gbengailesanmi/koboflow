@@ -98,7 +98,10 @@ export default function SignupForm() {
       {/* Google signup/login */}
       <button
         type="button"
-        onClick={() => signIn('google')}
+        onClick={() => signIn('google', {
+            callbackUrl: '/',
+            prompt: 'select_account',
+          })}
         className="w-full border p-3"
       >
         Continue with Google

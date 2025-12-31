@@ -22,9 +22,9 @@ export const authOptions: AuthOptions = {
           : 'next-auth.session-token',
       options: {
         httpOnly: true,
-        sameSite: config.IS_PRODUCTION ? 'lax' : 'none',
+        sameSite: 'none',
         path: '/',
-        secure: config.IS_PRODUCTION,
+        secure: true,
       },
     },
   },
@@ -34,6 +34,12 @@ export const authOptions: AuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      authorization: {
+        params: {
+          scope: 'openid email profile',
+          prompt: 'consent',
+        },
+      },
     }),
 
     // -------------- CREDENTIALS --------------
@@ -84,7 +90,11 @@ export const authOptions: AuthOptions = {
 
         const existing = await db.collection('users').findOne({ email })
 
-        if (!existing) {
+        if (existing && existing.authProvider !== account.provider) { //block provider mixing
+          return false
+        }
+
+        if (account.provider === 'google' && !existing) {
           const customerId = randomUUID()
 
           await db.collection('users').insertOne({
@@ -105,11 +115,19 @@ export const authOptions: AuthOptions = {
     },
 
     async jwt({ token, user }) {
-      if (user) {
-        token.customerId = (user as any).customerId
-        token.firstName = (user as any).firstName
-        token.lastName = (user as any).lastName
+      if (user?.email) {
+        const db = await getDb()
+        const dbUser = await db.collection('users').findOne({
+          email: user.email.toLowerCase(),
+        })
+
+        if (dbUser) {
+          token.customerId = dbUser.customerId
+          token.firstName = dbUser.firstName
+          token.lastName = dbUser.lastName
+        }
       }
+
       return token
     },
 

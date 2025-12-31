@@ -76,7 +76,15 @@ export default function LoginForm({
         {pending ? 'Logging in…' : 'Log in'}
       </button>
 
-      <button type="button" onClick={() => signIn('google')}>
+      <button
+        type="button"
+        onClick={() =>
+          signIn('google', {
+            callbackUrl: '/',
+            prompt: 'select_account',
+          })
+        }
+      >
         Continue with Google
       </button>
     </form>
