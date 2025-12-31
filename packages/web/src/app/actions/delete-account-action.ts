@@ -13,14 +13,14 @@ export async function deleteAccountAction(): Promise<{ success: boolean; message
     const result = await deleteAccount()
 
     if (result.success) {
-      revalidateTag('session', 'fetch')
-      revalidateTag('accounts', 'fetch')
-      revalidateTag('transactions', 'fetch')
-      revalidateTag('budget', 'fetch')
-      revalidateTag('budgets', 'fetch')
-      revalidateTag('settings', 'fetch')
-      revalidateTag('categories', 'fetch')
-      revalidateTag('sessions-list', 'fetch')
+      revalidateTag('session', 'default')
+      revalidateTag('accounts', 'default')
+      revalidateTag('transactions', 'default')
+      revalidateTag('budget', 'default')
+      revalidateTag('budgets', 'default')
+      revalidateTag('settings', 'default')
+      revalidateTag('categories', 'default')
+      revalidateTag('sessions-list', 'default')
     }
 
     return result

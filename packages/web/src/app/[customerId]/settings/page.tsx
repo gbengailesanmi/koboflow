@@ -16,7 +16,7 @@ export default async function SettingsPage({ params }: PageProps) {
     getSettings(),
   ])
 
-  if (!session || session.user.customerId !== customerId) {
+  if (!session?.user?.customerId || session.user.customerId !== customerId) {
     redirect('/login')
   }
 

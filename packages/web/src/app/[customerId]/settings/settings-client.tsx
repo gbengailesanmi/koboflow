@@ -71,6 +71,22 @@ export default function SettingsClient({
     })
   }
 
+  const handleDeleteAccount = async () => {
+    const confirmed = window.confirm(
+      'This will permanently delete your account and all data. This action cannot be undone.'
+    )
+
+    if (!confirmed) return
+
+    const result = await deleteAccountAction()
+
+    if (result.success) {
+      await signOut({ callbackUrl: '/login' })
+    } else {
+      alert(result.message || 'Failed to delete account')
+    }
+  }
+
   return (
     <Sidebar customerId={customerId}>
       <>
@@ -98,7 +114,14 @@ export default function SettingsClient({
             {/* Account Actions */}
             <div className={styles.section}>
               <div className={styles.dangerZone}>
-                <button 
+                <button
+                  className={styles.deleteButton}
+                  onClick={handleDeleteAccount}
+                >
+                  🗑️ Delete account
+                </button>
+
+                <button
                   className={styles.logoutButton}
                   onClick={handleLogout}
                 >
