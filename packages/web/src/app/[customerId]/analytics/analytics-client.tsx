@@ -1,10 +1,11 @@
 ///Users/gbenga.ilesanmi/Github/PD/money-mapper/packages/web/src/app/[customerId]/analytics/analytics-client.tsx
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Dialog } from '@radix-ui/themes'
 import type { Account, EnrichedTransaction } from '@money-mapper/shared'
+import type {  } from '@money-mapper/shared'
 import type { CustomCategory } from '@/types/custom-category'
 import { createCustomCategoryAction } from '@/app/actions/create-custom-category-action'
 import { deleteCustomCategoryAction } from '@/app/actions/delete-custom-category-action'
