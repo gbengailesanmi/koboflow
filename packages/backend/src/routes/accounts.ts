@@ -1,10 +1,10 @@
 import { Router } from 'express'
-import { requireAuth, AuthRequest } from '../middleware/middleware'
+import { requireAuth } from '../middleware/middleware'
 import { connectDB } from '../db/mongo'
 
 export const accountRoutes = Router()
 
-accountRoutes.get('/', requireAuth, async (req: AuthRequest, res) => {
+accountRoutes.get('/', requireAuth, async (req, res) => {
   try {
     const customerId = req.user?.customerId
     
@@ -61,7 +61,7 @@ accountRoutes.get('/', requireAuth, async (req: AuthRequest, res) => {
   }
 })
 
-accountRoutes.get('/:id', requireAuth, async (req: AuthRequest, res) => {
+accountRoutes.get('/:id', requireAuth, async (req, res) => {
   try {
     const customerId = req.user?.customerId
     const { id } = req.params

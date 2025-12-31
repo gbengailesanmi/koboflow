@@ -1,10 +1,10 @@
 import { Router } from 'express'
-import { requireAuth, AuthRequest } from '../middleware/middleware'
+import { requireAuth } from '../middleware/middleware'
 import { connectDB } from '../db/mongo'
 
 export const transactionRoutes = Router()
 
-transactionRoutes.get('/', requireAuth, async (req: AuthRequest, res) => {
+transactionRoutes.get('/', requireAuth, async (req, res) => {
   try {
     const customerId = req.user?.customerId
     

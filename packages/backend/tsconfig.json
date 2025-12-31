@@ -8,16 +8,17 @@
     "module": "Node16",
     "moduleResolution": "Node16",
 
-    "allowJs": true,
-    "checkJs": false,
-
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-
     "strict": true,
+    "esModuleInterop": true,
     "skipLibCheck": true,
 
     "baseUrl": ".",
+    "types": ["node", "express"],
+    "typeRoots": [
+      "./src/types",
+      "./node_modules/@types"
+    ],
+
     "paths": {
       "@money-mapper/shared": ["../shared/dist"],
       "@money-mapper/shared/*": ["../shared/dist/*"]

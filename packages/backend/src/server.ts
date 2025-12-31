@@ -4,7 +4,9 @@ dotenv.config()
 import config from './config'
 import express, { Express, Request, Response } from 'express'
 import cors from 'cors'
+import cookieParser from 'cookie-parser'
 
+// routes
 import { authRoutes } from './routes/auth'
 import { budgetRoutes } from './routes/budget'
 import { transactionRoutes } from './routes/transactions'
@@ -17,7 +19,7 @@ const app: Express = express()
 const BACKEND_PORT = config.BACKEND_PORT
 
 // -----------------------------------------------------------------------------
-// CORS — allow frontend cookies (NextAuth session)
+// CORS — MUST allow credentials
 // -----------------------------------------------------------------------------
 const allowedOrigins =
   config.ALLOWED_ORIGINS?.split(',').map(o => o.trim()) ?? [
@@ -27,20 +29,14 @@ const allowedOrigins =
 app.use(
   cors({
     origin: allowedOrigins,
-    credentials: true,
+    credentials: true, // 👈 REQUIRED FOR COOKIES
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   })
 )
 
 // -----------------------------------------------------------------------------
-// Body parsing
-// -----------------------------------------------------------------------------
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
-
-// -----------------------------------------------------------------------------
-// Webhook raw body (Mono)
+// Webhook raw body (Mono) — MUST come BEFORE express.json
 // -----------------------------------------------------------------------------
 app.use(
   '/api/mono/webhook',
@@ -50,6 +46,13 @@ app.use(
     },
   })
 )
+
+// -----------------------------------------------------------------------------
+// Body + cookie parsing (ORDER MATTERS)
+// -----------------------------------------------------------------------------
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
+app.use(cookieParser()) // 👈 THIS WAS THE MISSING RUNTIME PIECE
 
 // -----------------------------------------------------------------------------
 // Request logging
@@ -72,9 +75,9 @@ app.get('/health', (_req, res) => {
 })
 
 // -----------------------------------------------------------------------------
-// Routes
+// Routes (AFTER cookieParser)
 // -----------------------------------------------------------------------------
-app.use('/api/auth', authRoutes) // signup / verify / profile ONLY
+app.use('/api/auth', authRoutes)
 app.use('/api/mono', monoRoutes)
 app.use('/api/budget', budgetRoutes)
 app.use('/api/transactions', transactionRoutes)

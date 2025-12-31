@@ -1,4 +1,4 @@
-import { connectDB } from '../db/mongo.js'
+import { connectDB } from '../db/mongo'
 import { UserSettings, DEFAULT_SETTINGS } from '@money-mapper/shared'
 
 export async function createUserSettings(customerId: string): Promise<{ success: boolean; settingsId?: any; error?: any }> {
@@ -46,7 +46,7 @@ export async function getUserSettings(customerId: string): Promise<UserSettings 
       return null
     }
     
-    return settings as UserSettings
+    return settings as unknown as UserSettings
   } catch (error) {
     console.error('Error getting user settings:', error)
     throw error

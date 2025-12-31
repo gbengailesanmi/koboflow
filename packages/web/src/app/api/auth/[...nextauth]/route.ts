@@ -2,11 +2,13 @@ import NextAuth, { type AuthOptions } from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import bcrypt from 'bcrypt'
+import { randomUUID } from 'crypto'
 import { getDb } from '@/lib/mongo/mongo'
 
-console.log('[AUTH] NextAuth route loaded')
+console.log('[AUTH] NextAuth route loaded', process.env.NEXTAUTH_SECRET)
 
 export const authOptions: AuthOptions = {
+  secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: 'jwt',
   },
@@ -59,7 +61,40 @@ export const authOptions: AuthOptions = {
   ],
 
   callbacks: {
-    // 🔑 MOST IMPORTANT PART
+    /**
+     * 🔐 Runs for BOTH Google + Credentials
+     * This is where Google users MUST be created
+     */
+    async signIn({ user, account }) {
+      if (account?.provider === 'google') {
+        const db = await getDb()
+        const email = user.email!.toLowerCase()
+
+        const existing = await db.collection('users').findOne({ email })
+
+        if (!existing) {
+          const customerId = randomUUID()
+
+          await db.collection('users').insertOne({
+            customerId,
+            email,
+            firstName: user.name?.split(' ')[0] ?? '',
+            lastName: user.name?.split(' ').slice(1).join(' ') ?? '',
+            emailVerified: true,
+            authProvider: 'google',
+            createdAt: new Date(),
+          })
+
+          console.log('[AUTH][GOOGLE] user created', { email, customerId })
+        }
+      }
+
+      return true
+    },
+
+    /**
+     * 🔑 Persist DB identity into JWT
+     */
     async jwt({ token, user }) {
       if (user) {
         token.customerId = (user as any).customerId

@@ -1,56 +1,44 @@
-// packages/backend/src/middleware/middleware.ts
 import type { Request, Response, NextFunction } from 'express'
-import fetch from 'node-fetch'
 
-export interface AuthRequest extends Request {
-  user?: {
-    userId: string          // ← REQUIRED to satisfy existing contract
-    customerId: string
-    email: string
-    firstName?: string
-    lastName?: string
-  }
-}
-
+console.log('Middleware loaded', process.env.NEXTAUTH_SECRET)
 export async function requireAuth(
-  req: AuthRequest,
+  req: Request,
   res: Response,
   next: NextFunction
 ) {
   try {
-    const cookieHeader = req.headers.cookie
-    if (!cookieHeader) {
+    // Dynamic import of jose
+    const { jwtDecrypt } = await import('jose')
+    
+    const token =
+      req.cookies['next-auth.session-token'] ||
+      req.cookies['__Secure-next-auth.session-token']
+
+    console.log('Auth token:', token)
+    
+    if (!token) {
       return res.status(401).json({ error: 'Unauthenticated' })
     }
 
-    const authRes = await fetch(
-      `${process.env.WEB_URL}/api/auth/session`,
-      {
-        headers: { cookie: cookieHeader },
-      }
-    )
+    // Decrypt the JWE token
+    const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET!)
+    const { payload } = await jwtDecrypt(token, secret)
 
-    if (!authRes.ok) {
-      return res.status(401).json({ error: 'Invalid session' })
-    }
-
-    const session = await authRes.json()
-
-    if (!session?.user?.customerId || !session?.user?.email) {
-      return res.status(401).json({ error: 'Invalid session payload' })
+    if (!payload?.customerId || !payload?.email) {
+      return res.status(401).json({ error: 'Invalid token payload' })
     }
 
     req.user = {
-      userId: session.user.customerId,
-      customerId: session.user.customerId,
-      email: session.user.email,
-      firstName: session.user.name?.split(' ')[0],
-      lastName: session.user.name?.split(' ').slice(1).join(' '),
+      userId: (payload.sub as string) ?? (payload.customerId as string),
+      customerId: payload.customerId as string,
+      email: payload.email as string,
+      firstName: payload.firstName as string,
+      lastName: payload.lastName as string,
     }
 
     next()
-  } catch (error) {
-    console.error('[Auth middleware]', error)
-    return res.status(401).json({ error: 'Authentication failed' })
+  } catch (err) {
+    console.error('[Auth middleware]', err)
+    return res.status(401).json({ error: 'Invalid or expired token' })
   }
 }

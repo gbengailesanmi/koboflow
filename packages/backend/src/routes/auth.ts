@@ -5,7 +5,7 @@ import { connectDB } from '../db/mongo'
 import { sendVerificationEmail } from '../services/email'
 import { createUserSettings } from '../services/settings'
 import { initializeUserCategories } from '../db/helpers/spending-categories-helpers'
-import { requireAuth, AuthRequest } from '../middleware/middleware'
+import { requireAuth } from '../middleware/middleware'
 import { logger } from '@money-mapper/shared/utils'
 
 export const authRoutes = Router()
@@ -140,7 +140,7 @@ authRoutes.post('/resend-verification', async (req, res) => {
 })
 
 // ----------------------------------- GET USER ----------------------------------- //
-authRoutes.get('/me', requireAuth, async (req: AuthRequest, res) => {
+authRoutes.get('/me', requireAuth, async (req, res) => {
   const db = await connectDB()
   const user = await db.collection('users').findOne({
     customerId: req.user!.customerId,
@@ -160,7 +160,7 @@ authRoutes.get('/me', requireAuth, async (req: AuthRequest, res) => {
 })
 
 // ----------------------------------- UPDATE USER ----------------------------------- //
-authRoutes.patch('/me', requireAuth, async (req: AuthRequest, res) => {
+authRoutes.patch('/me', requireAuth, async (req, res) => {
   const { firstName, lastName } = req.body
 
   if (!firstName || !lastName) {

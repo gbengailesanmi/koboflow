@@ -29,23 +29,26 @@ const BACKEND_URL = config.NEXT_PUBLIC_BACKEND_URL
  * Server-side fetch helper with session cookie forwarding
  * Automatically includes session-id cookie from Next.js server context
  */
-async function serverFetch(
+export async function serverFetch(
   url: string,
   options: RequestInit = {}
 ): Promise<Response> {
   const cookieStore = await cookies()
 
+  const cookieHeader = cookieStore
+    .getAll()
+    .map(c => `${c.name}=${c.value}`)
+    .join('; ')
+
   return fetch(url, {
     ...options,
     headers: {
       ...options.headers,
-      Cookie: cookieStore.toString()
+      Cookie: cookieHeader,
     },
     cache: options.cache ?? 'no-store',
   })
 }
-
-
 
 /**
  * Parse JSON response with error handling

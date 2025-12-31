@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { requireAuth, AuthRequest } from '../middleware/middleware'
+import { requireAuth } from '../middleware/middleware'
 import {
   getCategories,
   getCustomCategories,
@@ -11,7 +11,7 @@ import {
 
 export const categoryRoutes = Router()
 
-categoryRoutes.get('/', requireAuth, async (req: AuthRequest, res) => {
+categoryRoutes.get('/', requireAuth, async (req, res) => {
   try {
     const customerId = req.user?.customerId
     
@@ -28,7 +28,7 @@ categoryRoutes.get('/', requireAuth, async (req: AuthRequest, res) => {
   }
 })
 
-categoryRoutes.get('/custom', requireAuth, async (req: AuthRequest, res) => {
+categoryRoutes.get('/custom', requireAuth, async (req, res) => {
   try {
     const customerId = req.user?.customerId
     
@@ -45,7 +45,7 @@ categoryRoutes.get('/custom', requireAuth, async (req: AuthRequest, res) => {
   }
 })
 
-categoryRoutes.post('/', requireAuth, async (req: AuthRequest, res) => {
+categoryRoutes.post('/', requireAuth, async (req, res) => {
   try {
     const customerId = req.user?.customerId
     
@@ -81,7 +81,7 @@ categoryRoutes.post('/', requireAuth, async (req: AuthRequest, res) => {
   }
 })
 
-categoryRoutes.patch('/:id', requireAuth, async (req: AuthRequest, res) => {
+categoryRoutes.patch('/:id', requireAuth, async (req, res) => {
   try {
     const customerId = req.user?.customerId
     
@@ -119,7 +119,7 @@ categoryRoutes.patch('/:id', requireAuth, async (req: AuthRequest, res) => {
   }
 })
 
-categoryRoutes.delete('/:id', requireAuth, async (req: AuthRequest, res) => {
+categoryRoutes.delete('/:id', requireAuth, async (req, res) => {
   try {
     const customerId = req.user?.customerId
     

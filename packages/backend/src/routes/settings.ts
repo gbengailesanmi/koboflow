@@ -1,12 +1,12 @@
 import { Router } from 'express'
-import { requireAuth, AuthRequest } from '../middleware/middleware'
+import { requireAuth } from '../middleware/middleware'
 import { getUserSettings, updateUserSettings } from '../services/settings'
 import { encryptPIN, decryptPIN } from '../services/pin-security'
 import { connectDB } from '../db/mongo'
 
 export const settingsRoutes = Router()
 
-settingsRoutes.get('/', requireAuth, async (req: AuthRequest, res) => {
+settingsRoutes.get('/', requireAuth, async (req, res) => {
   try {
     const customerId = req.user?.customerId
     
@@ -30,7 +30,7 @@ settingsRoutes.get('/', requireAuth, async (req: AuthRequest, res) => {
   }
 })
 
-settingsRoutes.patch('/', requireAuth, async (req: AuthRequest, res) => {
+settingsRoutes.patch('/', requireAuth, async (req, res) => {
   try {
     const customerId = req.user?.customerId
     
@@ -63,7 +63,7 @@ settingsRoutes.patch('/', requireAuth, async (req: AuthRequest, res) => {
   }
 })
 
-settingsRoutes.delete('/account', requireAuth, async (req: AuthRequest, res) => {
+settingsRoutes.delete('/account', requireAuth, async (req, res) => {
   try {
     const customerId = req.user?.customerId
     
@@ -108,7 +108,7 @@ settingsRoutes.delete('/account', requireAuth, async (req: AuthRequest, res) => 
   }
 })
 
-settingsRoutes.post('/pin/set', requireAuth, async (req: AuthRequest, res) => {
+settingsRoutes.post('/pin/set', requireAuth, async (req, res) => {
   try {
     const customerId = req.user?.customerId
     
@@ -164,7 +164,7 @@ settingsRoutes.post('/pin/set', requireAuth, async (req: AuthRequest, res) => {
   }
 })
 
-settingsRoutes.post('/pin/change', requireAuth, async (req: AuthRequest, res) => {
+settingsRoutes.post('/pin/change', requireAuth, async (req, res) => {
   try {
     const customerId = req.user?.customerId
     
@@ -231,7 +231,7 @@ settingsRoutes.post('/pin/change', requireAuth, async (req: AuthRequest, res) =>
   }
 })
 
-settingsRoutes.post('/pin/verify', requireAuth, async (req: AuthRequest, res) => {
+settingsRoutes.post('/pin/verify', requireAuth, async (req, res) => {
   try {
     const customerId = req.user?.customerId
     
@@ -286,7 +286,7 @@ settingsRoutes.post('/pin/verify', requireAuth, async (req: AuthRequest, res) =>
   }
 })
 
-settingsRoutes.post('/password/change', requireAuth, async (req: AuthRequest, res) => {
+settingsRoutes.post('/password/change', requireAuth, async (req, res) => {
   try {
     const customerId = req.user?.customerId
     

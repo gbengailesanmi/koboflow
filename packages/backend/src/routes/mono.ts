@@ -1,6 +1,6 @@
 // src/routes/mono.ts
 import { Router } from 'express'
-import { requireAuth, AuthRequest } from '../middleware/middleware'
+import { requireAuth } from '../middleware/middleware'
 import {
   exchangeToken,
   fetchAccountDetails,
@@ -22,7 +22,7 @@ export const monoRoutes = Router()
 /* AUTH */
 /* -------------------------------------------------------------------------- */
 
-monoRoutes.post('/auth', requireAuth, async (req: AuthRequest, res) => {
+monoRoutes.post('/auth', requireAuth, async (req, res) => {
   try {
     const customerId = req.user?.customerId
     if (!customerId) {
@@ -49,7 +49,7 @@ monoRoutes.post('/auth', requireAuth, async (req: AuthRequest, res) => {
 /* ACCOUNT DETAILS */
 /* -------------------------------------------------------------------------- */
 
-monoRoutes.get('/details/:accountId', requireAuth, async (req: AuthRequest, res) => {
+monoRoutes.get('/details/:accountId', requireAuth, async (req, res) => {
   try {
     const customerId = req.user?.customerId
     if (!customerId) {
@@ -68,7 +68,7 @@ monoRoutes.get('/details/:accountId', requireAuth, async (req: AuthRequest, res)
   }
 })
 
-monoRoutes.get('/identity/:accountId', requireAuth, async (req: AuthRequest, res) => {
+monoRoutes.get('/identity/:accountId', requireAuth, async (req, res) => {
   try {
     const customerId = req.user?.customerId
     if (!customerId) {
@@ -89,7 +89,7 @@ monoRoutes.get('/identity/:accountId', requireAuth, async (req: AuthRequest, res
 /* IMPORT ACCOUNT */
 /* -------------------------------------------------------------------------- */
 
-monoRoutes.post('/import/:accountId', requireAuth, async (req: AuthRequest, res) => {
+monoRoutes.post('/import/:accountId', requireAuth, async (req, res) => {
   const customerId = req.user?.customerId
 
   try {
@@ -134,7 +134,7 @@ monoRoutes.post('/import/:accountId', requireAuth, async (req: AuthRequest, res)
 /* SYNC TRANSACTIONS */
 /* -------------------------------------------------------------------------- */
 
-monoRoutes.post('/sync-transactions/:accountId', requireAuth, async (req: AuthRequest, res) => {
+monoRoutes.post('/sync-transactions/:accountId', requireAuth, async (req, res) => {
   try {
     const customerId = req.user?.customerId
     const { accountId } = req.params

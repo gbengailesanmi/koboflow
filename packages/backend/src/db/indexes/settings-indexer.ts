@@ -1,4 +1,4 @@
-import { connectDB } from '../mongo.js'
+import { connectDB } from '../mongo'
 
 async function createSettingsIndexes() {
   try {

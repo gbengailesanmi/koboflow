@@ -15,7 +15,7 @@ const COLLECTION = 'spending_categories'
  */
 export async function getUserCategories(customerId: string): Promise<UserCategories> {
   const db = await connectDB()
-  const collection = db.collection(COLLECTION)
+  const collection = db.collection<UserCategories>(COLLECTION)
   
   let userCategories = await collection.findOne({ customerId }) as UserCategories | null
   
@@ -35,7 +35,7 @@ export async function getUserCategories(customerId: string): Promise<UserCategor
       console.log(`[Categories]    - ${cat.name} (${cat.keywords.length} keywords, ${cat.color})`)
     })
     
-    const newDoc: UserCategories = {
+    const newDoc: Omit<UserCategories, '_id'> = {
       customerId,
       categories: defaultCategories,
       createdAt: now,
@@ -77,7 +77,7 @@ export async function addCategory(
   await getUserCategories(customerId)
   
   const db = await connectDB()
-  const collection = db.collection(COLLECTION)
+  const collection = db.collection<UserCategories>(COLLECTION)
   
   console.log(`[Categories] Adding custom category for user: ${customerId}`)
   console.log(`[Categories]    - Name: ${input.name}`)
@@ -118,7 +118,7 @@ export async function updateCategory(
   updates: Partial<Pick<Category, 'name' | 'keywords' | 'color'>>
 ): Promise<boolean> {
   const db = await connectDB()
-  const collection = db.collection(COLLECTION)
+  const collection = db.collection<UserCategories>(COLLECTION)
   
   const userCategories = await getUserCategories(customerId)
   const categoryIndex = userCategories.categories.findIndex(cat => cat.id === categoryId)
@@ -163,7 +163,7 @@ export async function deleteCategory(
   categoryId: string
 ): Promise<boolean> {
   const db = await connectDB()
-  const collection = db.collection(COLLECTION)
+  const collection = db.collection<UserCategories>(COLLECTION)
   
   const userCategories = await getUserCategories(customerId)
   const category = userCategories.categories.find(cat => cat.id === categoryId)
