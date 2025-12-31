@@ -3,8 +3,8 @@
 import React from 'react'
 import { Treemap, ResponsiveContainer, Tooltip } from 'recharts'
 import { TreemapNode } from 'recharts/types/chart/Treemap'
-import { CategoryData } from '../types/analytics-types'
-import { formatCurrency } from '../utils/format-currency'
+import { CategoryData } from '../../analytics/types/analytics-types'
+import { formatCurrency } from '../../analytics/utils/format-currency'
 import styles from './treemap-chart.module.css'
 
 type TreemapChartProps = {

@@ -1,3 +1,4 @@
+///Users/gbenga.ilesanmi/Github/PD/money-mapper/packages/backend/src/server.ts
 import dotenv from 'dotenv'
 dotenv.config()
 

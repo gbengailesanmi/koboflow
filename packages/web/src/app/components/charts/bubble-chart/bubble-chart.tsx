@@ -2,8 +2,8 @@
 
 import React from 'react'
 import { ScatterChart, Scatter, XAxis, YAxis, ZAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
-import { CategoryData } from '../types/analytics-types'
-import { formatCurrency } from '../utils/format-currency'
+import { CategoryData } from '../../analytics/types/analytics-types'
+import { formatCurrency } from '../../analytics/utils/format-currency'
 import styles from './bubble-chart.module.css'
 
 type BubbleChartProps = {

@@ -2,8 +2,8 @@
 
 import React from 'react'
 import { PieChart as RechartsPie, Pie, Tooltip, Cell, ResponsiveContainer } from 'recharts'
-import { CategoryData } from '../types/analytics-types'
-import { formatCurrency } from '../utils/format-currency'
+import { CategoryData } from '../../analytics/types/analytics-types'
+import { formatCurrency } from '../../analytics/utils/format-currency'
 import styles from './pie-chart.module.css'
 
 type PieChartProps = {

@@ -119,7 +119,7 @@ export default function DashboardClient({
           </div>
 
           <div className={styles.TransactionsListWrapper}>
-            <TransactionsColumn transactions={filteredTransactions.slice(0, 10)} />
+            <TransactionsColumn transactions={filteredTransactions.slice(0, 5)} />
           </div>
 
           <div

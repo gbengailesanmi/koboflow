@@ -1,10 +1,10 @@
+///Users/gbenga.ilesanmi/Github/PD/money-mapper/packages/web/src/app/[customerId]/analytics/analytics-client.tsx
 'use client'
 
 import React, { useState, useMemo, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Dialog } from '@radix-ui/themes'
-import type { Account } from '@money-mapper/shared'
-import type { EnrichedTransaction } from '@money-mapper/shared'
+import type { Account, EnrichedTransaction } from '@money-mapper/shared'
 import type { CustomCategory } from '@/types/custom-category'
 import { createCustomCategoryAction } from '@/app/actions/create-custom-category-action'
 import { deleteCustomCategoryAction } from '@/app/actions/delete-custom-category-action'
@@ -12,20 +12,24 @@ import { updateCustomCategoryAction } from '@/app/actions/update-custom-category
 import { PageHeader } from '@/app/components/page-header/page-header'
 import { PageLayout } from '@/app/components/page-layout/page-layout'
 import AccountFilterMenu from '@/app/components/account-filter-menu/account-filter-menu'
-import { categorizeTransaction } from '@/app/components/analytics/utils/categorize-transaction'
-import { getCategoryConfig } from '@/app/components/analytics/utils/category-config'
-import { PieChart } from '@/app/components/analytics/pie-chart/pie-chart'
-import { TreemapChart } from '@/app/components/analytics/treemap-chart/treemap-chart'
-import { BubbleChart } from '@/app/components/analytics/bubble-chart/bubble-chart'
-import { BalanceHistoryChart } from '@/app/components/analytics/balance-history-chart/balance-history-chart'
-import { MonthOnMonthChart } from '@/app/components/analytics/month-on-month-chart/month-on-month-chart'
-import { RecurringPayments } from '@/app/components/analytics/recurring-payments/recurring-payments'
-import { StatsCards } from '@/app/components/analytics/stats-cards/stats-cards'
-import { CategoryBreakdown } from '@/app/components/analytics/category-breakdown/category-breakdown'
-import { DailySpendingComparison } from '@/app/components/analytics/daily-spending-comparison/daily-spending-comparison'
-import { AnalyticsCard } from '@/app/components/analytics/analytics-card/analytics-card'
+import { categorizeTransaction, getCategoryConfig } from '@/app/components/analytics/utils'
+import {
+  PieChart,
+  TreemapChart,
+  BubbleChart,
+  BalanceHistoryChart,
+  MonthOnMonthChart,
+  ChartPlaceholder,
+} from '@/app/components/charts'
+import {
+  AnalyticsCard,
+  RecurringPayments,
+  StatsCards,
+  CategoryBreakdown,
+  DailySpendingComparison,
+  // CustomCategoriesManager
+} from '@/app/components/analytics'
 import { EmptyState } from '@/app/components/empty-state'
-import { ChartPlaceholder } from '@/app/components/chart-placeholder'
 import { useQueryStateNullable, useQueryState } from '@/hooks/use-query-state'
 import { useScrollRestoration } from '@/hooks/use-scroll-restoration'
 import { 

@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react'
 import { Select, Flex, Text } from '@radix-ui/themes'
-import { MonthOnMonthChart } from '../month-on-month-chart/month-on-month-chart'
+import { MonthOnMonthChart } from '../../../charts/month-on-month-chart/month-on-month-chart'
 import { DailySpendingComparison } from '../daily-spending-comparison/daily-spending-comparison'
 import styles from './custom-date-comparison.module.css'
 

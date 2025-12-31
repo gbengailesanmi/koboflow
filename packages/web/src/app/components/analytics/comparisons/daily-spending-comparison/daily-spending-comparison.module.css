@@ -1,4 +1,4 @@
-@reference "../../../globals.css";
+@reference "../../../../globals.css";
 
 .comparisonStat {
   @apply mt-6 p-6 rounded-xl;

@@ -42,10 +42,10 @@ async function insertTransactions(
     throw new Error(`Account not found: ${accountId}`)
   }
 
-  const debugTransactions = transactions.slice(0, 3) // debug
+  // const debugTransactions = transactions.slice(0, 3) // debug
 
 
-  const enrichedTransactions: EnrichedTransaction[] = debugTransactions.map(txn => ({
+  const enrichedTransactions: EnrichedTransaction[] = transactions.map(txn => ({
     id: txn.id,
     narration: txn.narration,
     amount: txn.amount,

@@ -1,10 +1,14 @@
 import { MongoClient, Db } from 'mongodb'
+import { logger } from '@money-mapper/shared'
+import config from '@/config'
 
-const uri = process.env.MONGODB_URI
-const DB_NAME = 'moneymapper_db'
+const uri = config.MONGODB_URI
+const DB_NAME = config.MONGO_DB_NAME
 
-if (!uri) {
-  throw new Error('❌ MONGODB_URI is not defined in web environment')
+if (!uri || !DB_NAME) {
+  const error = '[web] MONGODB_URI or MONGO_DB_NAME environment variable is not defined'
+  logger.error(error)
+  throw new Error(error)
 }
 
 declare global {
@@ -17,22 +21,13 @@ let clientPromise: Promise<MongoClient>
 if (!global._mongoClientPromise) {
   const client = new MongoClient(uri)
   global._mongoClientPromise = client.connect().then((client) => {
-    console.log('[MONGO] connected')
-    console.log('[MONGO] using database:', DB_NAME)
     return client
   })
 }
 
 clientPromise = global._mongoClientPromise
-
-/**
- * 🔹 Use this when a library (NextAuth adapter) needs the client
- */
 export default clientPromise
 
-/**
- * 🔹 Use this everywhere YOU query Mongo
- */
 export async function getDb(): Promise<Db> {
   const client = await clientPromise
   return client.db(DB_NAME)

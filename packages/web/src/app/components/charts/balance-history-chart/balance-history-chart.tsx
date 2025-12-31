@@ -3,7 +3,7 @@
 import React, { useMemo, useEffect, useState } from 'react'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts'
 import { Select, Flex, Text } from '@radix-ui/themes'
-import { formatCurrency } from '../utils/format-currency'
+import { formatCurrency } from '../../analytics/utils/format-currency'
 import styles from './balance-history-chart.module.css'
 
 type BalanceHistoryChartProps = {

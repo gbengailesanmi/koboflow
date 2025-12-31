@@ -2,7 +2,7 @@
 
 import React, { useMemo, useEffect, useState } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts'
-import { formatCurrency } from '../utils/format-currency'
+import { formatCurrency } from '../../analytics/utils/format-currency'
 import styles from './month-on-month-chart.module.css'
 
 type MonthOnMonthChartProps = {

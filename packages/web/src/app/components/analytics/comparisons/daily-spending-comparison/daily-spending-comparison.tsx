@@ -1,5 +1,5 @@
 import React from 'react'
-import { formatCurrency } from '../utils/format-currency'
+import { formatCurrency } from '../../utils/format-currency'
 import styles from './daily-spending-comparison.module.css'
 
 type DailySpendingComparisonProps = {
