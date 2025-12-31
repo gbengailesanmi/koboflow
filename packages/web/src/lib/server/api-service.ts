@@ -60,51 +60,6 @@ async function parseResponse<T>(response: Response): Promise<T> {
   return response.json()
 }
 
-
-/**
- * Get current session user
- * Cache tag: 'session'
- * Revalidates: After login, logout, profile updates
- */
-export async function getSession(): Promise<SessionUser | null> {
-  try {
-    const response = await serverFetch(`${BACKEND_URL}/api/session`, {
-      next: { tags: ['session'] },
-    })
-
-    if (!response.ok) {
-      return null
-    }
-
-    const data = await parseResponse<{ success: boolean; user: SessionUser }>(response)
-
-    return data.success ? data.user : null
-  } catch (error) {
-    console.error('getSession error:', error)
-    return null
-  }
-}
-
-/**
- * Get all active sessions for current user
- * Cache tag: 'sessions-list'
- * Revalidates: After logout, logout-all
- */
-export async function getActiveSessions(): Promise<any[]> {
-  try {
-    const response = await serverFetch(`${BACKEND_URL}/api/auth/sessions`, {
-      next: { tags: ['sessions-list'] },
-    })
-
-    const data = await parseResponse<{ success: boolean; sessions: any[] }>(response)
-    return data.sessions || []
-  } catch (error) {
-    console.error('getActiveSessions error:', error)
-    return []
-  }
-}
-
-
 /**
  * Get all accounts for current user
  * Cache tag: 'accounts'
@@ -257,77 +212,6 @@ export async function getCustomCategories(): Promise<CustomCategory[]> {
     console.error('getCustomCategories error:', error)
     return []
   }
-}
-
-
-/**
- * Login user
- * Pure API call - used by server actions for server-side auth checks
- */
-export async function login(email: string, password: string): Promise<{
-  success: boolean
-  message?: string
-  requiresVerification?: boolean
-  user?: any
-}> {
-  const response = await serverFetch(`${BACKEND_URL}/api/auth/login`, {
-    method: 'POST',
-    body: JSON.stringify({ email, password }),
-    cache: 'no-store',
-  })
-
-  return await response.json()
-}
-
-/**
- * Signup new user
- * Pure API call - used by server actions
- */
-export async function signup(userData: {
-  firstName: string
-  lastName: string
-  email: string
-  password: string
-  passwordConfirm: string
-}): Promise<{
-  success: boolean
-  message?: string
-  requiresVerification?: boolean
-  user?: any
-}> {
-  const response = await serverFetch(`${BACKEND_URL}/api/auth/signup`, {
-    method: 'POST',
-    body: JSON.stringify(userData),
-    cache: 'no-store',
-  })
-
-  return await response.json()
-}
-
-/**
- * Logout current session
- * Pure API call - revalidation handled by action layer
- */
-export async function logout(): Promise<{ success: boolean; message?: string }> {
-  const response = await serverFetch(`${BACKEND_URL}/api/auth/logout`, {
-    method: 'POST',
-    cache: 'no-store',
-  })
-
-  return await response.json()
-}
-
-/**
- * Logout from all devices
- * Pure API call - revalidation handled by action layer
- */
-export async function logoutAll(): Promise<{ success: boolean; message?: string }> {
-  const response = await serverFetch(`${BACKEND_URL}/api/auth/logout-all`, {
-    method: 'POST',
-    cache: 'no-store',
-  })
-
-  return await response.json()
 }
 
 /**
@@ -799,7 +683,7 @@ export async function getCustomerDetailsFromMono(): Promise<{
 }> {
   try {
     const response = await serverFetch(
-      `${BACKEND_URL}/api/session/customer-details`,
+      `${BACKEND_URL}/api/customer-details`,
       { next: { tags: ['customer-details'] } }
     )
     return await response.json()

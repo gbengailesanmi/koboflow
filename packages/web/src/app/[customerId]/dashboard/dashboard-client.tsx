@@ -18,7 +18,8 @@ interface DashboardClientProps {
   accounts: Account[]
   transactions: EnrichedTransaction[]
   profile: {
-    name: string
+    firstName: string
+    lastName: string
     email: string
     currency: string
     totalBudgetLimit: number

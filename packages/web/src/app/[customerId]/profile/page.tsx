@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { getSession } from '@/lib/server/api-service'
+import { getAuthSession } from '@/lib/server/get-server-session'
 import ProfileClient from './profile-client'
 
 type PageProps = {
@@ -11,18 +11,18 @@ type PageProps = {
 export default async function ProfilePage({ params }: PageProps) {
   const { customerId } = await params
 
-  const session = await getSession()
+  const session = await getAuthSession()
 
-  if (!session || session.customerId !== customerId) {
+  if (!session || session.user.customerId !== customerId) {
     redirect('/login')
   }
 
   return (
     <ProfileClient
       customerId={customerId}
-      firstName={session.firstName}
-      lastName={session.lastName}
-      email={session.email}
+      firstName={session.user.firstName ?? ''}
+      lastName={session.user.lastName ?? ''}
+      email={session.user.email ?? ''}
     />
   )
 }

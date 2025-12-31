@@ -31,6 +31,12 @@ authRoutes.post('/signup', async (req, res) => {
     const normalizedEmail = email.trim().toLowerCase()
     const db = await connectDB()
 
+        console.log('[SIGNUPcedce][DEBUG]', {
+      dbName: db.databaseName,
+      mongoUri: process.env.MONGODB_URI,
+      emailRaw: email,
+      emailNormalized: normalizedEmail,
+    })
     const existing = await db.collection('users').findOne({ email: normalizedEmail })
     if (existing) {
       return res.status(400).json({ message: 'Email already registered.' })

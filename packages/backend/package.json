@@ -12,7 +12,6 @@
     "index:sessions": "ts-node src/db/indexes/session-indexer.ts"
   },
   "dependencies": {
-    "@auth/mongodb-adapter": "^3.11.1",
     "@money-mapper/shared": "*",
     "@types/node-fetch": "^2.6.13",
     "bcrypt": "^6.0.0",

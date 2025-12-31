@@ -1,13 +1,18 @@
-import 'express'
+// /Users/gbenga.ilesanmi/Github/PD/money-mapper/packages/web/src/types/next-auth.d.ts
+import { DefaultSession, DefaultUser } from 'next-auth'
 
-declare module 'express-serve-static-core' {
-  interface Request {
-    user?: {
-      userId: string
+declare module 'next-auth' {
+  interface Session {
+    user: {
       customerId: string
-      email: string
       firstName?: string
       lastName?: string
-    }
+    } & DefaultSession['user']
+  }
+
+  interface User extends DefaultUser {
+    customerId: string
+    firstName?: string
+    lastName?: string
   }
 }
