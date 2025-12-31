@@ -115,10 +115,10 @@ export const authOptions: AuthOptions = {
     },
 
     async jwt({ token, user }) {
-      if (user?.email) {
-        const db = await getDb()
+      const db = await getDb()
+      if (user) {
         const dbUser = await db.collection('users').findOne({
-          email: user.email.toLowerCase(),
+          email: user.email!.toLowerCase(),
         })
 
         if (!dbUser) {
@@ -126,18 +126,41 @@ export const authOptions: AuthOptions = {
           return token
         }
 
-        if (dbUser) {
-          token.customerId = dbUser.customerId
-          token.firstName = dbUser.firstName
-          token.lastName = dbUser.lastName
+        token.customerId = dbUser.customerId
+        token.firstName = dbUser.firstName
+        token.lastName = dbUser.lastName
+        
+        if (!token.sessionId) {
           token.sessionId = randomUUID()
         }
+
+        return token
+      }
+
+      if (!token.customerId) {
+        token.invalid = true
+        return token
+      }
+
+      const dbUser = await db.collection('users').findOne({
+        customerId: token.customerId,
+      })
+
+      if (!dbUser) {
+        token.invalid = true
       }
 
       return token
     },
 
     async session({ session, token }) {
+      if (token.invalid) {
+        return {
+          ...session,
+          user: undefined,
+        }
+      }
+      
       if (session.user) {
         session.user.customerId = token.customerId as string
         session.user.firstName = token.firstName as string

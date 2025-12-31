@@ -1,7 +1,7 @@
 ///Users/gbenga.ilesanmi/Github/PD/money-mapper/packages/web/src/app/[customerId]/analytics/analytics-client.tsx
 'use client'
 
-import React, { useState, useMemo, useEffect } from 'react'
+import React, { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Dialog } from '@radix-ui/themes'
 import type { Account, EnrichedTransaction } from '@money-mapper/shared'
