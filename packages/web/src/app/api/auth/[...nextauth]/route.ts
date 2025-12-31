@@ -121,10 +121,16 @@ export const authOptions: AuthOptions = {
           email: user.email.toLowerCase(),
         })
 
+        if (!dbUser) {
+          token.invalid = true
+          return token
+        }
+
         if (dbUser) {
           token.customerId = dbUser.customerId
           token.firstName = dbUser.firstName
           token.lastName = dbUser.lastName
+          token.sessionId = randomUUID()
         }
       }
 
