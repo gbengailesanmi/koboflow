@@ -8,29 +8,32 @@ import {
 } from '../../lib/server/api-service'
 import type { CustomCategory } from '@money-mapper/shared'
 
-export const categoryCreateAction = (
+export async function categoryCreateAction(
   data: { name: string; keywords: string[]; color?: string }
-): Promise<CustomCategory | null> =>
-  actionFactory({
+): Promise<CustomCategory | null> {
+  return actionFactory({
     actionName: 'category.create',
     handler: () => createCustomCategory(data),
     revalidate: ['categories'],
   })
+}
 
-export const categoryUpdateAction = (
+export async function categoryUpdateAction(
   categoryId: string,
   updates: { name?: string; keywords?: string[]; color?: string }
-) =>
-  actionFactory({
+) {
+  return actionFactory({
     actionName: 'category.update',
     handler: () => updateCustomCategory(categoryId, updates),
     revalidate: ['categories'],
   })
+}
 
-export const categoryDeleteAction = (categoryId: string) =>
-  actionFactory({
+export async function categoryDeleteAction(categoryId: string) {
+  return actionFactory({
     actionName: 'category.delete',
     handler: () => deleteCustomCategory(categoryId),
     revalidate: ['categories'],
   })
+}
   

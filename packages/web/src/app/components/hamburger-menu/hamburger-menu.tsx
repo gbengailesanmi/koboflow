@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import { HamburgerMenuIcon, ChevronDownIcon, ChevronRightIcon } from '@radix-ui/react-icons'
 import { Dialog, Flex, Text, Box, ScrollArea, Switch } from '@radix-ui/themes'
-import { updateSettingsAction } from '@/app/actions/update-settings-action'
+import { settingsUpdateAction } from '@/app/actions/settings.actions'
 import type { UserSettings } from '@money-mapper/shared'
 import styles from './hamburger-menu.module.css'
 
@@ -43,7 +43,7 @@ export default function HamburgerMenu({ customerId }: HamburgerMenuProps) {
     setTheme(newTheme)
     
     try {
-      const result = await updateSettingsAction({
+      const result = await settingsUpdateAction({
         appearance: { theme: newTheme }
       } as Partial<UserSettings>)
       

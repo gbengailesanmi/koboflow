@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic'
 
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState, Suspense } from 'react'
-import { resendVerificationEmailAction } from '@/app/actions/resend-verification-email-action'
+import { securityResendVerificationEmailAction } from '@/app/actions/security.actions'
 import { logger } from '@money-mapper/shared/utils'
 import styles from './verify-email.module.css'
 
@@ -44,7 +44,7 @@ function VerifyEmailContent() {
 
     setResending(true)
     try {
-      const result = await resendVerificationEmailAction(email)
+      const result = await securityResendVerificationEmailAction(email)
       if (result.success) {
         alert('Verification email sent! Please check your inbox.')
       } else {

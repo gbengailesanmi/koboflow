@@ -2,10 +2,7 @@
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { updateBudgetAction } from '@/app/actions/update-budget-action'
-import { createBudgetAction } from '@/app/actions/create-budget-action'
-import { setActiveBudgetAction } from '@/app/actions/set-active-budget-action'
-import { deleteBudgetByIdAction } from '@/app/actions/delete-budget-action'
+import { budgetUpdateAction, budgetCreateAction, budgetSetActiveAction, budgetDeleteAction } from '@/app/actions/budget.actions'
 import Sidebar from '@/app/components/sidebar/sidebar'
 import { PageHeader } from '@/app/components/page-header/page-header'
 import { PageLayout } from '@/app/components/page-layout/page-layout'
@@ -96,7 +93,7 @@ export default function BudgetClient({
 
     try {
       setIsSaving(true)
-      const result = await updateBudgetAction(budgetData._id, {
+      const result = await budgetUpdateAction(budgetData._id, {
         name: updates.name,
         totalBudgetLimit: updates.totalBudgetLimit,
         categories: updates.categories,
@@ -117,7 +114,7 @@ export default function BudgetClient({
 
   const handleSwitchBudget = useCallback(async (budgetId: string) => {
     try {
-      const result = await setActiveBudgetAction(budgetId)
+      const result = await budgetSetActiveAction(budgetId)
       if (result.success) {
         router.refresh()
       } else {
@@ -130,7 +127,7 @@ export default function BudgetClient({
 
   const handleCreateBudget = useCallback(async (name: string) => {
     try {
-      const result = await createBudgetAction(
+      const result = await budgetCreateAction(
         name,
         0, // Default budget limit
         [], // Empty categories
@@ -150,7 +147,7 @@ export default function BudgetClient({
 
   const handleDeleteBudget = useCallback(async (budgetId: string) => {
     try {
-      const result = await deleteBudgetByIdAction(budgetId)
+      const result = await budgetDeleteAction(budgetId)
       if (result.success) {
         router.refresh()
       } else {

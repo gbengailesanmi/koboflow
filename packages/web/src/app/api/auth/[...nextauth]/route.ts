@@ -6,10 +6,8 @@ import { randomUUID } from 'crypto'
 import { getDb } from '@/lib/mongo/mongo'
 import config from '@/config'
 
-console.log('[AUTH] NextAuth route loaded', process.env.NEXTAUTH_SECRET)
-
 export const authOptions: AuthOptions = {
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: config.NEXTAUTH_SECRET,
   session: {
     strategy: 'jwt',
   },

@@ -4,12 +4,12 @@ import { actionFactory } from './factory.action'
 import { updateSettings } from '../../lib/server/api-service'
 import type { UserSettings } from '@money-mapper/shared'
 
-export const settingsUpdateAction = (
+export async function settingsUpdateAction(
   settings: Partial<UserSettings>
-) =>
-  actionFactory({
+) {
+  return actionFactory({
     actionName: 'settings.update',
     handler: () => updateSettings(settings),
     revalidate: ['settings', 'session'],
   })
-  
+}

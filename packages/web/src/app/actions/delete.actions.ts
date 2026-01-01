@@ -3,8 +3,8 @@
 import { actionFactory } from './factory.action'
 import { deleteAccount } from '../../lib/server/api-service'
 
-export const deleteAccountAction = () =>
-  actionFactory({
+export async function deleteAccountAction() {
+  return actionFactory({
     actionName: 'delete.account',
     handler: () => deleteAccount(),
     revalidate: [
@@ -18,4 +18,4 @@ export const deleteAccountAction = () =>
       'sessions-list',
     ],
   })
-  
+}

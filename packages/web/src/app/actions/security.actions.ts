@@ -8,39 +8,42 @@ import {
   resendVerificationEmail,
 } from '../../lib/server/api-service'
 
-export const securityChangePasswordAction = (
+export async function securityChangePasswordAction(
   currentPassword: string,
   newPassword: string,
   confirmPassword: string
-) =>
-  actionFactory({
+) {
+  return actionFactory({
     actionName: 'security.changePassword',
     handler: () =>
       changeUserPassword(currentPassword, newPassword, confirmPassword),
     revalidate: ['settings', 'session'],
   })
+}
 
-export const securityChangePINAction = (
+export async function securityChangePINAction(
   oldPin: string,
   newPin: string,
   password: string
-) =>
-  actionFactory({
+) {
+  return actionFactory({
     actionName: 'security.changePIN',
     handler: () => changeUserPIN(oldPin, newPin, password),
     revalidate: ['settings'],
   })
+}
 
-export const securitySetPINAction = (pin: string, password: string) =>
-  actionFactory({
+export async function securitySetPINAction(pin: string, password: string) {
+  return actionFactory({
     actionName: 'security.setPIN',
     handler: () => setUserPIN(pin, password),
     revalidate: ['settings'],
   })
+}
 
-export const securityResendVerificationEmailAction = (email: string) =>
-  actionFactory({
+export async function securityResendVerificationEmailAction(email: string) {
+  return actionFactory({
     actionName: 'security.resendVerificationEmail',
     handler: () => resendVerificationEmail(email),
   })
-  
+}

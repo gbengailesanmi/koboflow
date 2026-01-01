@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { processMonoConnection } from '@/app/actions/mono-actions'
+import { monoProcessConnectionAction } from '@/app/actions/mono-actions'
 import config from '@/config'
 
 interface UseMonoConnectOptions {
@@ -31,7 +31,7 @@ export function useMonoConnect({ onSuccess, onError }: UseMonoConnectOptions = {
 
         onSuccess: async ({ code }: { code: string }) => {
           try {
-            const result = await processMonoConnection(code)
+            const result = await monoProcessConnectionAction(code)
 
             if (!result.success) {
               throw new Error(result.message || 'Failed to link account')

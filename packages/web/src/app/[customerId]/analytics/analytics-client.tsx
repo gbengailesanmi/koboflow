@@ -7,9 +7,7 @@ import { Dialog } from '@radix-ui/themes'
 import type { Account, EnrichedTransaction } from '@money-mapper/shared'
 import type {  } from '@money-mapper/shared'
 import type { CustomCategory } from '@/types/custom-category'
-import { createCustomCategoryAction } from '@/app/actions/create-custom-category-action'
-import { deleteCustomCategoryAction } from '@/app/actions/delete-custom-category-action'
-import { updateCustomCategoryAction } from '@/app/actions/update-custom-category-action'
+import { categoryCreateAction, categoryDeleteAction, categoryUpdateAction } from '@/app/actions/category.actions'
 import { PageHeader } from '@/app/components/page-header/page-header'
 import { PageLayout } from '@/app/components/page-layout/page-layout'
 import AccountFilterMenu from '@/app/components/account-filter-menu/account-filter-menu'
@@ -81,7 +79,7 @@ export default function AnalyticsClient({
       const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316']
       const randomColor = colors[Math.floor(Math.random() * colors.length)]
       
-      await createCustomCategoryAction({ 
+      await categoryCreateAction({ 
         name, 
         keywords, 
         color: randomColor 
@@ -95,7 +93,7 @@ export default function AnalyticsClient({
 
   const handleDeleteCategory = async (id: string) => {
     try {
-      await deleteCustomCategoryAction(id)
+      await categoryDeleteAction(id)
       router.refresh()
     } catch (error) {
       console.error('Failed to delete category:', error)
@@ -104,7 +102,7 @@ export default function AnalyticsClient({
 
   const handleUpdateCategory = async (id: string, updates: { name?: string; keywords?: string[]; color?: string }) => {
     try {
-      const result = await updateCustomCategoryAction(id, updates)
+      const result = await categoryUpdateAction(id, updates)
       
       if (result.success) {
         router.refresh()

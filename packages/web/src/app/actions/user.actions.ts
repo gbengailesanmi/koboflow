@@ -3,7 +3,7 @@
 import { actionFactory } from './factory.action'
 import { updateUserProfile } from '../../lib/server/api-service'
 
-export const userUpdateProfileAction = (
+export async function userUpdateProfileAction(
   customerId: string,
   updates: {
     firstName?: string
@@ -11,8 +11,8 @@ export const userUpdateProfileAction = (
     email?: string
     totalBudgetLimit?: number
   }
-) =>
-  actionFactory({
+) {
+  return actionFactory({
     actionName: 'user.updateProfile',
     handler: () => updateUserProfile(customerId, updates),
     revalidate:
@@ -20,4 +20,4 @@ export const userUpdateProfileAction = (
         ? ['session', 'budget', 'budgets']
         : ['session'],
   })
-  
+}

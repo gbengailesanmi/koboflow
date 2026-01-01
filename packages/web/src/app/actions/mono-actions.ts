@@ -13,8 +13,8 @@ import {
 /**
  * Mono: Connect account, import it, sync transactions
  */
-export const monoProcessConnectionAction = (code: string) =>
-  actionFactory({
+export async function monoProcessConnectionAction(code: string) {
+  return actionFactory({
     actionName: 'mono.processConnection',
     revalidate: ['accounts', 'transactions', 'customer-details'],
     handler: async () => {
@@ -71,22 +71,24 @@ export const monoProcessConnectionAction = (code: string) =>
       }
     },
   })
+}
 
 /**
  * Mono: Fetch account identity
  */
-export const monoFetchAccountIdentityAction = (accountId: string) =>
-  actionFactory({
+export async function monoFetchAccountIdentityAction(accountId: string) {
+  return actionFactory({
     actionName: 'mono.fetchAccountIdentity',
     handler: () => getMonoAccountIdentity(accountId),
   })
+}
 
 /**
  * Mono: Fetch customer details
  */
-export const monoFetchCustomerDetailsAction = () =>
-  actionFactory({
+export async function monoFetchCustomerDetailsAction() {
+  return actionFactory({
     actionName: 'mono.fetchCustomerDetails',
     handler: () => getCustomerDetailsFromMono(),
   })
-  
+}
