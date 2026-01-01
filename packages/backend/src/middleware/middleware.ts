@@ -1,43 +1,34 @@
-import { Request, Response, NextFunction } from 'express'
-import { getSession } from '../services/session'
+/// packages/backend/src/middleware/middleware.ts
+import type { Request, Response, NextFunction } from 'express'
+import { getToken } from 'next-auth/jwt'
+import { logger } from '@money-mapper/shared'
 
-export interface AuthRequest extends Request {
-  user?: {
-    userId: string
-    customerId: string
-    email: string
-    firstName?: string
-    lastName?: string
-  }
-  sessionId?: string
-}
-
-export const authMiddleware = async (req: AuthRequest, res: Response, next: NextFunction) => {
+export async function requireAuth(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   try {
-    const sessionId = req.cookies?.['session-id']
+    const token = await getToken({
+      req,
+      secret: process.env.NEXTAUTH_SECRET,
+    })
 
-    if (!sessionId) {
-      return res.status(401).json({ error: "Authentication required" })
-    }
-
-    const session = await getSession(sessionId)
-
-    if (!session) {
-      return res.status(401).json({ error: "Invalid or expired session" })
+    if (!token) {
+      return res.status(401).json({ error: 'Unauthenticated' })
     }
 
     req.user = {
-      userId: session.customerId, // Using customerId as userId for consistency
-      customerId: session.customerId,
-      email: session.email,
-      firstName: session.firstName,
-      lastName: session.lastName
+      userId: token.sub as string,
+      customerId: token.customerId as string,
+      email: token.email as string,
+      firstName: token.firstName as string,
+      lastName: token.lastName as string,
     }
-    req.sessionId = sessionId
 
     next()
   } catch (err) {
-    console.error("Auth error:", err)
-    return res.status(401).json({ error: "Authentication failed" })
+    logger.error({ module: 'auth-middleware', err }, 'Authentication failed')
+    return res.status(401).json({ error: 'Invalid or expired token' })
   }
 }

@@ -26,7 +26,6 @@ export function useSessionStorage<T>(
       const item = window.sessionStorage.getItem(key)
       return item ? JSON.parse(item) : initialValue
     } catch (error) {
-      console.warn(`Error loading sessionStorage key "${key}":`, error)
       return initialValue
     }
   })
@@ -42,7 +41,7 @@ export function useSessionStorage<T>(
           window.sessionStorage.setItem(key, JSON.stringify(valueToStore))
         }
       } catch (error) {
-        console.warn(`Error saving to sessionStorage key "${key}":`, error)
+        // Error handled silently
       }
     },
     [key, storedValue]
@@ -79,9 +78,8 @@ export function clearAllAppSessionStorage(): void {
         window.sessionStorage.removeItem(key)
       }
     })
-    console.log('Cleared all app sessionStorage')
   } catch (error) {
-    console.warn('Error clearing app sessionStorage:', error)
+    // Error handled silently
   }
 }
 
@@ -100,8 +98,7 @@ export function clearCustomerSessionStorage(customerId: string): void {
         window.sessionStorage.removeItem(key)
       }
     })
-    console.log(`Cleared sessionStorage for customer: ${customerId}`)
   } catch (error) {
-    console.warn(`Error clearing sessionStorage for customer ${customerId}:`, error)
+    // Error handled silently
   }
 }

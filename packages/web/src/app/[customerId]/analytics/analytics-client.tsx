@@ -1,31 +1,34 @@
+///Users/gbenga.ilesanmi/Github/PD/money-mapper/packages/web/src/app/[customerId]/analytics/analytics-client.tsx
 'use client'
 
 import React, { useState, useMemo, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Dialog } from '@radix-ui/themes'
-import type { Account } from '@money-mapper/shared'
-import type { Transaction } from '@money-mapper/shared'
+import type { Account, EnrichedTransaction } from '@money-mapper/shared'
+import type {  } from '@money-mapper/shared'
 import type { CustomCategory } from '@/types/custom-category'
-import { createCustomCategoryAction } from '@/app/actions/create-custom-category-action'
-import { deleteCustomCategoryAction } from '@/app/actions/delete-custom-category-action'
-import { updateCustomCategoryAction } from '@/app/actions/update-custom-category-action'
+import { categoryCreateAction, categoryDeleteAction, categoryUpdateAction } from '@/app/actions/category.actions'
 import { PageHeader } from '@/app/components/page-header/page-header'
 import { PageLayout } from '@/app/components/page-layout/page-layout'
 import AccountFilterMenu from '@/app/components/account-filter-menu/account-filter-menu'
-import { categorizeTransaction } from '@/app/components/analytics/utils/categorize-transaction'
-import { getCategoryConfig } from '@/app/components/analytics/utils/category-config'
-import { PieChart } from '@/app/components/analytics/pie-chart/pie-chart'
-import { TreemapChart } from '@/app/components/analytics/treemap-chart/treemap-chart'
-import { BubbleChart } from '@/app/components/analytics/bubble-chart/bubble-chart'
-import { BalanceHistoryChart } from '@/app/components/analytics/balance-history-chart/balance-history-chart'
-import { MonthOnMonthChart } from '@/app/components/analytics/month-on-month-chart/month-on-month-chart'
-import { RecurringPayments } from '@/app/components/analytics/recurring-payments/recurring-payments'
-import { StatsCards } from '@/app/components/analytics/stats-cards/stats-cards'
-import { CategoryBreakdown } from '@/app/components/analytics/category-breakdown/category-breakdown'
-import { DailySpendingComparison } from '@/app/components/analytics/daily-spending-comparison/daily-spending-comparison'
-import { AnalyticsCard } from '@/app/components/analytics/analytics-card/analytics-card'
+import { categorizeTransaction, getCategoryConfig } from '@/app/components/analytics/utils'
+import {
+  PieChart,
+  TreemapChart,
+  BubbleChart,
+  BalanceHistoryChart,
+  MonthOnMonthChart,
+  ChartPlaceholder,
+} from '@/app/components/charts'
+import {
+  AnalyticsCard,
+  RecurringPayments,
+  StatsCards,
+  CategoryBreakdown,
+  DailySpendingComparison,
+  // CustomCategoriesManager
+} from '@/app/components/analytics'
 import { EmptyState } from '@/app/components/empty-state'
-import { ChartPlaceholder } from '@/app/components/chart-placeholder'
 import { useQueryStateNullable, useQueryState } from '@/hooks/use-query-state'
 import { useScrollRestoration } from '@/hooks/use-scroll-restoration'
 import { 
@@ -40,7 +43,7 @@ import styles from './analytics.module.css'
 type AnalyticsClientProps = {
   customerId: string
   accounts: Account[]
-  transactions: Transaction[]
+  transactions: EnrichedTransaction[]
   customCategories: CustomCategory[]
   currency: string
   totalBudgetLimit: number
@@ -76,7 +79,7 @@ export default function AnalyticsClient({
       const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316']
       const randomColor = colors[Math.floor(Math.random() * colors.length)]
       
-      await createCustomCategoryAction({ 
+      await categoryCreateAction({ 
         name, 
         keywords, 
         color: randomColor 
@@ -84,28 +87,28 @@ export default function AnalyticsClient({
       
       router.refresh()
     } catch (error) {
-      console.error('Failed to add category:', error)
+      // Error handled
     }
   }
 
   const handleDeleteCategory = async (id: string) => {
     try {
-      await deleteCustomCategoryAction(id)
+      await categoryDeleteAction(id)
       router.refresh()
     } catch (error) {
-      console.error('Failed to delete category:', error)
+      // Error handled
     }
   }
 
   const handleUpdateCategory = async (id: string, updates: { name?: string; keywords?: string[]; color?: string }) => {
     try {
-      const result = await updateCustomCategoryAction(id, updates)
+      const result = await categoryUpdateAction(id, updates)
       
       if (result.success) {
         router.refresh()
       }
     } catch (error) {
-      console.error('Failed to update category:', error)
+      // Error handled
     }
   }
 

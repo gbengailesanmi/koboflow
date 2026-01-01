@@ -1,10 +1,12 @@
+///Users/gbenga.ilesanmi/Github/PD/money-mapper/packages/web/src/lib/server/api-service.ts
 'server-only'
 
 import { cookies } from 'next/headers'
 import config from '../../config'
+import { logger } from '@money-mapper/shared'
 import type {
   Account,
-  Transaction,
+  EnrichedTransaction,
   Budget,
   CustomCategory,
   CategoryBudget,
@@ -29,23 +31,26 @@ const BACKEND_URL = config.NEXT_PUBLIC_BACKEND_URL
  * Server-side fetch helper with session cookie forwarding
  * Automatically includes session-id cookie from Next.js server context
  */
-async function serverFetch(
+export async function serverFetch(
   url: string,
   options: RequestInit = {}
 ): Promise<Response> {
   const cookieStore = await cookies()
 
+  const cookieHeader = cookieStore
+    .getAll()
+    .map(c => `${c.name}=${c.value}`)
+    .join('; ')
+
   return fetch(url, {
     ...options,
     headers: {
       ...options.headers,
-      Cookie: cookieStore.toString()
+      Cookie: cookieHeader,
     },
     cache: options.cache ?? 'no-store',
   })
 }
-
-
 
 /**
  * Parse JSON response with error handling
@@ -59,51 +64,6 @@ async function parseResponse<T>(response: Response): Promise<T> {
   }
   return response.json()
 }
-
-
-/**
- * Get current session user
- * Cache tag: 'session'
- * Revalidates: After login, logout, profile updates
- */
-export async function getSession(): Promise<SessionUser | null> {
-  try {
-    const response = await serverFetch(`${BACKEND_URL}/api/session`, {
-      next: { tags: ['session'] },
-    })
-
-    if (!response.ok) {
-      return null
-    }
-
-    const data = await parseResponse<{ success: boolean; user: SessionUser }>(response)
-
-    return data.success ? data.user : null
-  } catch (error) {
-    console.error('getSession error:', error)
-    return null
-  }
-}
-
-/**
- * Get all active sessions for current user
- * Cache tag: 'sessions-list'
- * Revalidates: After logout, logout-all
- */
-export async function getActiveSessions(): Promise<any[]> {
-  try {
-    const response = await serverFetch(`${BACKEND_URL}/api/auth/sessions`, {
-      next: { tags: ['sessions-list'] },
-    })
-
-    const data = await parseResponse<{ success: boolean; sessions: any[] }>(response)
-    return data.sessions || []
-  } catch (error) {
-    console.error('getActiveSessions error:', error)
-    return []
-  }
-}
-
 
 /**
  * Get all accounts for current user
@@ -122,7 +82,7 @@ export async function getAccounts(): Promise<Account[]> {
       : []
     return accounts
   } catch (error) {
-    console.error('getAccounts error:', error)
+    logger.error({ module: 'api-service', error }, 'getAccounts error')
     return []
   }
 }
@@ -133,16 +93,16 @@ export async function getAccounts(): Promise<Account[]> {
  * Cache tag: 'transactions'
  * Revalidates: After create, update, delete transaction, or Mono callback
  */
-export async function getTransactions(): Promise<Transaction[]> {
+export async function getTransactions(): Promise<EnrichedTransaction[]> {
   try {
     const response = await serverFetch(`${BACKEND_URL}/api/transactions`, {
       next: { tags: ['transactions'] },
     })
 
-    const data = await parseResponse<{ status: string; message: string; timestamp: string; data: Transaction[] }>(response)
+    const data = await parseResponse<{ status: string; message: string; timestamp: string; data: EnrichedTransaction[] }>(response)
     return data.data || []
   } catch (error) {
-    console.error('getTransactions error:', error)
+    logger.error({ module: 'api-service', error }, 'getTransactions error')
     return []
   }
 }
@@ -162,7 +122,7 @@ export async function getBudgets(): Promise<Budget[]> {
     const data = await parseResponse<{ success: boolean; budgets: Budget[] }>(response)
     return data.budgets || []
   } catch (error) {
-    console.error('getBudgets error:', error)
+    logger.error({ module: 'api-service', error }, 'getBudgets error')
     return []
   }
 }
@@ -181,7 +141,7 @@ export async function getBudget(): Promise<Budget | null> {
     const data = await parseResponse<Budget>(response)
     return data
   } catch (error) {
-    console.error('getBudget error:', error)
+    logger.error({ module: 'api-service', error }, 'getBudget error')
     return null
   }
 }
@@ -199,7 +159,7 @@ export async function getBudgetById(budgetId: string): Promise<Budget | null> {
     const data = await parseResponse<Budget>(response)
     return data
   } catch (error) {
-    console.error('getBudgetById error:', error)
+    logger.error({ module: 'api-service', budgetId, error }, 'getBudgetById error')
     return null
   }
 }
@@ -219,7 +179,7 @@ export async function getSettings(): Promise<Settings | null> {
     const data = await parseResponse<{ success: boolean; settings: Settings }>(response)
     return data.settings || null
   } catch (error) {
-    console.error('getSettings error:', error)
+    logger.error({ module: 'api-service', error }, 'getSettings error')
     return null
   }
 }
@@ -239,7 +199,7 @@ export async function getCategories(): Promise<CustomCategory[]> {
     const data = await parseResponse<CustomCategory[]>(response)
     return data || []
   } catch (error) {
-    console.error('getCategories error:', error)
+    logger.error({ module: 'api-service', error }, 'getCategories error')
     return []
   }
 }
@@ -254,80 +214,9 @@ export async function getCustomCategories(): Promise<CustomCategory[]> {
     const categories = await getCategories()
     return categories.filter(cat => !cat.isDefault)
   } catch (error) {
-    console.error('getCustomCategories error:', error)
+    logger.error({ module: 'api-service', error }, 'getCustomCategories error')
     return []
   }
-}
-
-
-/**
- * Login user
- * Pure API call - used by server actions for server-side auth checks
- */
-export async function login(email: string, password: string): Promise<{
-  success: boolean
-  message?: string
-  requiresVerification?: boolean
-  user?: any
-}> {
-  const response = await serverFetch(`${BACKEND_URL}/api/auth/login`, {
-    method: 'POST',
-    body: JSON.stringify({ email, password }),
-    cache: 'no-store',
-  })
-
-  return await response.json()
-}
-
-/**
- * Signup new user
- * Pure API call - used by server actions
- */
-export async function signup(userData: {
-  firstName: string
-  lastName: string
-  email: string
-  password: string
-  passwordConfirm: string
-}): Promise<{
-  success: boolean
-  message?: string
-  requiresVerification?: boolean
-  user?: any
-}> {
-  const response = await serverFetch(`${BACKEND_URL}/api/auth/signup`, {
-    method: 'POST',
-    body: JSON.stringify(userData),
-    cache: 'no-store',
-  })
-
-  return await response.json()
-}
-
-/**
- * Logout current session
- * Pure API call - revalidation handled by action layer
- */
-export async function logout(): Promise<{ success: boolean; message?: string }> {
-  const response = await serverFetch(`${BACKEND_URL}/api/auth/logout`, {
-    method: 'POST',
-    cache: 'no-store',
-  })
-
-  return await response.json()
-}
-
-/**
- * Logout from all devices
- * Pure API call - revalidation handled by action layer
- */
-export async function logoutAll(): Promise<{ success: boolean; message?: string }> {
-  const response = await serverFetch(`${BACKEND_URL}/api/auth/logout-all`, {
-    method: 'POST',
-    cache: 'no-store',
-  })
-
-  return await response.json()
 }
 
 /**
@@ -678,7 +567,7 @@ export async function getUserByCustomerId(customerId: string): Promise<{
 
     return await response.json()
   } catch (error: any) {
-    console.error('getUserByCustomerId error:', error)
+    logger.error({ module: 'api-service', customerId, error }, 'getUserByCustomerId error')
     return {
       success: false,
       message: error.message || 'Failed to fetch user',
@@ -703,7 +592,7 @@ export async function exchangeMonoToken(code: string): Promise<{
 
     return await response.json()
   } catch (error: any) {
-    console.error('exchangeMonoToken error:', error)
+    logger.error({ module: 'api-service', error }, 'exchangeMonoToken error')
     return { success: false, message: error.message }
   }
 }
@@ -721,7 +610,7 @@ export async function importMonoAccount(accountId: string): Promise<{
     )
     return await response.json()
   } catch (error: any) {
-    console.error('importMonoAccount error:', error)
+    logger.error({ module: 'api-service', accountId, error }, 'importMonoAccount error')
     return { success: false, message: error.message }
   }
 }
@@ -748,7 +637,7 @@ export async function syncMonoTransactions(
     )
     return await response.json()
   } catch (error: any) {
-    console.error('syncMonoTransactions error:', error)
+    logger.error({ module: 'api-service', accountId, error }, 'syncMonoTransactions error')
     return { success: false, message: error.message }
   }
 }
@@ -775,7 +664,7 @@ export async function getMonoAccountIdentity(accountId: string): Promise<{
     )
     return await response.json()
   } catch (error: any) {
-    console.error('getMonoAccountIdentity error:', error)
+    logger.error({ module: 'api-service', accountId, error }, 'getMonoAccountIdentity error')
     return { success: false, message: error.message }
   }
 }
@@ -799,12 +688,12 @@ export async function getCustomerDetailsFromMono(): Promise<{
 }> {
   try {
     const response = await serverFetch(
-      `${BACKEND_URL}/api/session/customer-details`,
+      `${BACKEND_URL}/api/customer-details`,
       { next: { tags: ['customer-details'] } }
     )
     return await response.json()
   } catch (error: any) {
-    console.error('getCustomerDetailsFromMono error:', error)
+    logger.error({ module: 'api-service', error }, 'getCustomerDetailsFromMono error')
     return { success: false, message: error.message }
   }
 }

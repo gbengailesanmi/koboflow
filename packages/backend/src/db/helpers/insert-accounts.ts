@@ -66,7 +66,7 @@ async function insertAccounts(accounts: any[], customerId: string, connectDB: an
       if (err.message.includes('bvn_1_account_number_1')) {
         throw new Error('This account is already linked to this BVN')
       }
-      throw new Error('Duplicate account detected')
+      throw new Error('Duplicate account')
     }
     throw err
   }

@@ -1,4 +1,5 @@
-import { MonoAccountIdentity } from '../../services/mono'
+import type { MonoAccountIdentity } from '@money-mapper/shared'
+import { logger } from '@money-mapper/shared'
 
 /**
  * Update customer details from Mono identity data in the users collection
@@ -47,11 +48,17 @@ async function updateCustomerDetailsFromMono(
       throw new Error(`Customer not found: ${customerId}`)
     }
 
-    console.log(`[Update Customer Details] ✅ Updated for customerId: ${customerId}`)
-    console.log(`[Update Customer Details]    - BVN: ${identity.bvn}`)
-    console.log(`[Update Customer Details]    - Name: ${identity.full_name}`)
+    logger.info({
+      module: 'update-customer-details-from-mono',
+      customerId,
+      bvn: identity.bvn,
+      name: identity.full_name
+    }, 'Updated customer details')
   } catch (err: any) {
-    console.error(`[Update Customer Details] ❌ Error updating customer details:`, err)
+    logger.error({
+      module: 'update-customer-details-from-mono',
+      error: err
+    }, 'Error updating customer details')
     throw err
   }
 }

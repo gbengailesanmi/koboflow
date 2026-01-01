@@ -1,5 +1,6 @@
 
 import { connectDB } from '../mongo'
+import { logger } from '@money-mapper/shared'
 
 export async function createBudgetIndexes() {
   const db = await connectDB()
@@ -38,11 +39,11 @@ export async function createBudgetIndexes() {
 if (require.main === module) {
   createBudgetIndexes()
     .then(() => {
-      console.log('✅ Budget indexes created successfully')
+      logger.info({ module: 'budget-indexer' }, 'Budget indexes created successfully')
       process.exit(0)
     })
     .catch((error) => {
-      console.error('❌ Failed to create budget indexes:', error)
+      logger.error({ module: 'budget-indexer', error }, 'Failed to create budget indexes')
       process.exit(1)
     })
 }

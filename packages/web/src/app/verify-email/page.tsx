@@ -5,8 +5,7 @@ export const dynamic = 'force-dynamic'
 
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState, Suspense } from 'react'
-import { resendVerificationEmailAction } from '@/app/actions/resend-verification-email-action'
-import { logger } from '@money-mapper/shared/utils'
+import { securityResendVerificationEmailAction } from '@/app/actions/security.actions'
 import styles from './verify-email.module.css'
 
 function VerifyEmailContent() {
@@ -21,14 +20,12 @@ function VerifyEmailContent() {
     const error = searchParams.get('error')
         
     if (verified === 'true') {
-      logger.info({ module: 'verify-email-page' }, 'Email verification successful')
       setStatus('success')
       setMessage('Email verified successfully! Redirecting to login...')
       setTimeout(() => {
         router.push('/login')
       }, 2000)
     } else if (error) {
-      logger.error({ module: 'verify-email-page', error }, 'Email verification failed')
       setStatus('error')
       if (error === 'invalid') {
         setMessage('Invalid or expired verification token')
@@ -44,7 +41,7 @@ function VerifyEmailContent() {
 
     setResending(true)
     try {
-      const result = await resendVerificationEmailAction(email)
+      const result = await securityResendVerificationEmailAction(email)
       if (result.success) {
         alert('Verification email sent! Please check your inbox.')
       } else {

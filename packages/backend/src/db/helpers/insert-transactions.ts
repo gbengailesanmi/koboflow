@@ -1,28 +1,26 @@
 import { createHash } from 'crypto'
+import { EnrichedTransaction, MonoTransaction, logger } from '@money-mapper/shared'
 import { transactionIndexer } from './indexes/transaction-indexer'
 
-function generateTransactionHash(
-  customerId: string,
-  accountNumber: string,
-  bankCode: string,
-  amount: number,
-  date: string,
-  narration: string,
-  type: string
-): string {
-  const data = `${customerId}${accountNumber}${bankCode}${amount}${date}${narration}${type}`
+function generateTransactionHash(txn: EnrichedTransaction): string {
+  const data = [
+    txn.customerId,
+    txn.accountNumber,
+    txn.bankCode,
+    txn.amount,
+    txn.date,
+    txn.narration,
+    txn.type,
+  ].join('|')
+
   return createHash('sha256').update(data).digest('hex')
 }
 
-/**
- * Insert Mono transactions in exact API format
- * Stores the exact Mono transaction object plus metadata
- */
 async function insertTransactions(
-  transactions: any[], 
-  customerId: string, 
+  transactions: MonoTransaction[],
+  customerId: string,
   accountId: string,
-  connectDB: any
+  connectDB: () => Promise<any>
 ) {
   if (!Array.isArray(transactions) || transactions.length === 0) return
 
@@ -33,73 +31,78 @@ async function insertTransactions(
   const txnCollection = db.collection('transactions')
   await transactionIndexer(txnCollection)
 
-  // Fetch account details to get stable identifiers (account number + bank code)
+  // Fetch account for stable identifiers
   const accountCollection = db.collection('accounts')
-  const account = await accountCollection.findOne({ 
+  const account = await accountCollection.findOne({
     customerId,
-    id: accountId 
+    id: accountId,
   })
 
   if (!account) {
     throw new Error(`Account not found: ${accountId}`)
   }
 
-  const accountNumber = account.account_number
-  const bankCode = account.institution.bank_code
+  // const debugTransactions = transactions.slice(0, 3) // debug
 
-  const records = transactions.map((txn: any) => ({
+
+  const enrichedTransactions: EnrichedTransaction[] = transactions.map(txn => ({
     id: txn.id,
     narration: txn.narration,
     amount: txn.amount,
     type: txn.type,
     balance: txn.balance,
     date: txn.date,
-    category: txn.category,
-    accountId,
+
+
+    category: txn.category ?? 'uncategorised',
+
     customerId,
-    accountNumber,
-    bankCode,
-    hash: generateTransactionHash(
-      customerId,
-      accountNumber,
-      bankCode,
-      txn.amount,
-      txn.date,
-      txn.narration,
-      txn.type
-    ),
+    accountId,
+    accountNumber: account.account_number,
+    bankCode: account.institution.bank_code,
   }))
 
-  const bulkOps = records.map((record) => ({
+
+  const records: EnrichedTransaction[] = enrichedTransactions.map(txn => ({
+    ...txn,
+    hash: generateTransactionHash(txn),
+  }))
+
+  const bulkOps = records.map(record => ({
     updateOne: {
-      filter: { 
+      filter: {
         customerId: record.customerId,
-        id: record.id 
+        hash: record.hash,
       },
-      update: { $set: record },
+      update: { $setOnInsert: record },
       upsert: true,
     },
   }))
 
   try {
     const result = await txnCollection.bulkWrite(bulkOps, { ordered: false })
-    console.log(`Transaction insert result:`, {
+
+    logger.info({
+      module: 'insert-transactions',
       inserted: result.upsertedCount,
-      updated: result.modifiedCount,
       matched: result.matchedCount,
+      modified: result.modifiedCount,
       total: records.length,
-    })
+    }, 'Transaction insert result')
   } catch (err: any) {
-    console.error('Error inserting transactions:', err.message)
+    logger.error({
+      module: 'insert-transactions',
+      error: err.message,
+    }, 'Error inserting transactions')
     throw err
   }
 }
 
 async function bulkInsertTransactions(
-  transactions: any[], 
-  customerId: string, 
+  transactions: MonoTransaction[],
+  customerId: string,
   accountId: string,
-  connectDB: any
+  connectDB: () => Promise<any>
 ) {
   return insertTransactions(transactions, customerId, accountId, connectDB)
 }

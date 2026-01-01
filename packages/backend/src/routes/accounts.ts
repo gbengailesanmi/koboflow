@@ -1,10 +1,11 @@
 import { Router } from 'express'
-import { authMiddleware, AuthRequest } from '../middleware/middleware'
+import { requireAuth } from '../middleware/middleware'
 import { connectDB } from '../db/mongo'
+import { logger } from '@money-mapper/shared'
 
 export const accountRoutes = Router()
 
-accountRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
+accountRoutes.get('/', requireAuth, async (req, res) => {
   try {
     const customerId = req.user?.customerId
     
@@ -52,7 +53,7 @@ accountRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
       },
     })
   } catch (error) {
-    console.error('Get accounts error:', error)
+    logger.error({ module: 'accounts-routes', error }, 'Failed to get accounts')
     res.status(500).json({
       status: 'failed',
       message: 'Failed to fetch accounts',
@@ -61,7 +62,7 @@ accountRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
   }
 })
 
-accountRoutes.get('/:id', authMiddleware, async (req: AuthRequest, res) => {
+accountRoutes.get('/:id', requireAuth, async (req, res) => {
   try {
     const customerId = req.user?.customerId
     const { id } = req.params
@@ -113,7 +114,7 @@ accountRoutes.get('/:id', authMiddleware, async (req: AuthRequest, res) => {
       },
     })
   } catch (error) {
-    console.error('Get account error:', error)
+    logger.error({ module: 'accounts-routes', accountId: req.params.id, error }, 'Failed to get account')
     res.status(500).json({
       status: 'failed',
       message: 'Failed to fetch account',

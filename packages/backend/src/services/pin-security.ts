@@ -1,4 +1,5 @@
 import crypto from 'crypto'
+import { logger } from '@money-mapper/shared'
 
 const ALGORITHM = 'aes-256-gcm'
 const KEY_LENGTH = 32
@@ -58,7 +59,7 @@ export function decryptPIN(encryptedPIN: string, password: string): string | nul
     
     return decrypted
   } catch (error) {
-    console.error('Failed to decrypt PIN:', error)
+    logger.error({ module: 'pin-security', error }, 'Failed to decrypt PIN')
     return null
   }
 }

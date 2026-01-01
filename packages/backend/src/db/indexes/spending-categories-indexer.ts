@@ -5,6 +5,7 @@
  */
 
 import { connectDB } from '../mongo'
+import { logger } from '@money-mapper/shared'
 
 const COLLECTION = 'spending_categories'
 
@@ -12,7 +13,7 @@ export async function ensureUserCategoriesIndexes() {
   const db = await connectDB()
   const collection = db.collection(COLLECTION)
 
-  console.log(`Creating indexes for ${COLLECTION} collection...`)
+  logger.info({ module: 'spending-categories-indexer', collection: COLLECTION }, 'Creating indexes for collection')
 
   await collection.createIndex(
     { customerId: 1 },
@@ -29,17 +30,17 @@ export async function ensureUserCategoriesIndexes() {
     { name: 'idx_categories_keywords' }
   )
 
-  console.log(`✓ ${COLLECTION} indexes created successfully`)
+  logger.info({ module: 'spending-categories-indexer', collection: COLLECTION }, 'Indexes created successfully')
 }
 
 if (require.main === module) {
   ensureUserCategoriesIndexes()
     .then(() => {
-      console.log('Index creation completed')
+      logger.info({ module: 'spending-categories-indexer' }, 'Index creation completed')
       process.exit(0)
     })
     .catch((error) => {
-      console.error('Index creation failed:', error)
+      logger.error({ module: 'spending-categories-indexer', error }, 'Index creation failed')
       process.exit(1)
     })
 }

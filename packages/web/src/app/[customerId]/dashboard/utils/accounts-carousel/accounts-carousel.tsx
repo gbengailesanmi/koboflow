@@ -45,10 +45,9 @@ export default function AccountsCarousel({
 
   const { openMonoWidget, isLoading: isConnecting } = useMonoConnect({
     onSuccess: () => {
-      console.log('[AccountsCarousel] Account linked successfully!')
+      // Success handled
     },
     onError: (error) => {
-      console.error('[AccountsCarousel] Failed to link account:', error)
       alert(`Failed to link account: ${error}`)
     },
   })
@@ -60,7 +59,7 @@ export default function AccountsCarousel({
         setSlideHue(JSON.parse(saved))
       }
     } catch (e) {
-      console.warn('Failed to load hues from localStorage', e)
+      // Error handled
     }
   }, [])
 
@@ -68,7 +67,7 @@ export default function AccountsCarousel({
     try {
       localStorage.setItem(HUE_LOCAL_STORAGE_KEY, JSON.stringify(slideHue))
     } catch (e) {
-      console.warn('Failed to save hues to localStorage', e)
+      // Error handled
     }
   }, [slideHue])
 
@@ -191,7 +190,7 @@ export default function AccountsCarousel({
             key: 'details',
             icon: <ZoomInIcon width="35" height="35" />,
             label: 'Details',
-            onClick: () => console.log('Details clicked'),
+            onClick: () => {},
           },
           {
             key: 'analytics',
@@ -203,7 +202,7 @@ export default function AccountsCarousel({
             key: 'more',
             icon: <ListBulletIcon width="35" height="35" />,
             label: 'More',
-            onClick: () => console.log('More clicked'),
+            onClick: () => {},
           },
         ]}
       />

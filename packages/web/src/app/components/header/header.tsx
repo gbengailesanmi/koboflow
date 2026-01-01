@@ -1,17 +1,12 @@
 import React from 'react'
 import styles from './Header.module.css'
 import { useParams, useRouter } from 'next/navigation'
-import { PersonIcon, GearIcon } from '@radix-ui/react-icons'
+import { GearIcon } from '@radix-ui/react-icons'
 
 export default function Header() {
   const params = useParams()
   const router = useRouter()
   const customerId = params.customerId as string
-
-  
-  const handleProfileClick = () => {
-    router.push(`/${customerId}/profile`)
-  }
 
   const handleSettingsClick = () => {
     router.push(`/${customerId}/settings`)
@@ -19,9 +14,6 @@ export default function Header() {
 
   return (
     <div className={styles.HeaderWrapper}>
-      <HeaderIconButton className={styles.SettingsButton} onClick={handleProfileClick}>
-        <PersonIcon width='25' height='25' />
-      </HeaderIconButton>
       <HeaderIconButton className={styles.SettingsButton} onClick={handleSettingsClick}>
         <GearIcon width='25' height='25' />
       </HeaderIconButton>

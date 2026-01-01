@@ -2,12 +2,11 @@
   "name": "@money-mapper/shared",
   "version": "1.0.0",
   "private": true,
-
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-
-  "files": ["dist"],
-
+  "files": [
+    "dist"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -26,13 +25,17 @@
     },
     "./types": {
       "types": "./dist/types/index.d.ts"
+    },
+    "./schemas": {
+      "types": "./dist/schemas/index.d.ts",
+      "import": "./dist/schemas/index.js",
+      "require": "./dist/schemas/index.js"
     }
   },
   "scripts": {
     "build": "tsc -b",
     "clean": "rm -rf dist"
   },
-
   "dependencies": {
     "pino": "^9.6.0",
     "zod": "^4.0.13"

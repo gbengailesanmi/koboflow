@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import { HamburgerMenuIcon, ChevronDownIcon, ChevronRightIcon } from '@radix-ui/react-icons'
 import { Dialog, Flex, Text, Box, ScrollArea, Switch } from '@radix-ui/themes'
-import { updateSettingsAction } from '@/app/actions/update-settings-action'
+import { settingsUpdateAction } from '@/app/actions/settings.actions'
 import type { UserSettings } from '@money-mapper/shared'
 import styles from './hamburger-menu.module.css'
 
@@ -43,15 +43,11 @@ export default function HamburgerMenu({ customerId }: HamburgerMenuProps) {
     setTheme(newTheme)
     
     try {
-      const result = await updateSettingsAction({
+      await settingsUpdateAction({
         appearance: { theme: newTheme }
       } as Partial<UserSettings>)
-      
-      if (!result.success) {
-        console.error('Failed to save theme preference:', result.message)
-      }
     } catch (error) {
-      console.error('Failed to save theme:', error)
+      // Error handled
     }
   }
 
@@ -86,15 +82,6 @@ export default function HamburgerMenu({ customerId }: HamburgerMenuProps) {
       ]
     },
     {
-      id: 'profile',
-      label: 'PROFILE',
-      items: [
-        { id: 'user-info', label: 'User Information', scrollTo: 'user-info' },
-        { id: 'currency-settings', label: 'Currency Settings', scrollTo: 'currency-settings' },
-        { id: 'about', label: 'About', scrollTo: 'about' },
-      ]
-    },
-    {
       id: 'settings',
       label: 'SETTINGS',
       items: [
@@ -113,7 +100,6 @@ export default function HamburgerMenu({ customerId }: HamburgerMenuProps) {
     if (pathname.includes('/analytics')) return 'analytics'
     if (pathname.includes('/budget')) return 'budget'
     if (pathname.includes('/transactions')) return 'transactions'
-    if (pathname.includes('/profile')) return 'profile'
     if (pathname.includes('/settings')) return 'settings'
     return null
   }

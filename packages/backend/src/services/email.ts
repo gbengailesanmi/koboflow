@@ -1,5 +1,6 @@
 import { Resend } from 'resend'
 import config from '../config'
+import { logger } from '@money-mapper/shared'
 
 const resend = new Resend(config.RESEND_API_KEY)
 
@@ -79,13 +80,13 @@ export async function sendVerificationEmail(
     })
 
     if (error) {
-      console.error('Error sending verification email:', error)
+      logger.error({ module: 'email-service', error }, 'Error sending verification email')
       return { success: false, error }
     }
 
     return { success: true, data }
   } catch (error) {
-    console.error('Failed to send verification email:', error)
+    logger.error({ module: 'email-service', error }, 'Failed to send verification email')
     return { success: false, error }
   }
 }

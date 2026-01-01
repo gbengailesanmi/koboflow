@@ -1,12 +1,13 @@
 import { Router } from 'express'
-import { authMiddleware, AuthRequest } from '../middleware/middleware'
+import { requireAuth } from '../middleware/middleware'
 import { getUserSettings, updateUserSettings } from '../services/settings'
 import { encryptPIN, decryptPIN } from '../services/pin-security'
 import { connectDB } from '../db/mongo'
+import { logger } from '@money-mapper/shared'
 
 export const settingsRoutes = Router()
 
-settingsRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
+settingsRoutes.get('/', requireAuth, async (req, res) => {
   try {
     const customerId = req.user?.customerId
     
@@ -25,12 +26,12 @@ settingsRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
       settings
     })
   } catch (error) {
-    console.error('Error fetching settings:', error)
+    logger.error({ module: 'settings-routes', error }, 'Error fetching settings')
     res.status(500).json({ error: 'Failed to fetch settings' })
   }
 })
 
-settingsRoutes.patch('/', authMiddleware, async (req: AuthRequest, res) => {
+settingsRoutes.patch('/', requireAuth, async (req, res) => {
   try {
     const customerId = req.user?.customerId
     
@@ -58,12 +59,12 @@ settingsRoutes.patch('/', authMiddleware, async (req: AuthRequest, res) => {
       settings: updatedSettings
     })
   } catch (error) {
-    console.error('Error updating settings:', error)
+    logger.error({ module: 'settings-routes', error }, 'Error updating settings')
     res.status(500).json({ error: 'Failed to update settings' })
   }
 })
 
-settingsRoutes.delete('/account', authMiddleware, async (req: AuthRequest, res) => {
+settingsRoutes.delete('/account', requireAuth, async (req, res) => {
   try {
     const customerId = req.user?.customerId
     
@@ -71,7 +72,7 @@ settingsRoutes.delete('/account', authMiddleware, async (req: AuthRequest, res) 
       return res.status(401).json({ error: 'Unauthorized' })
     }
 
-    console.log('[Delete Account] Deleting account for customerId:', customerId)
+    logger.info({ module: 'settings-routes', customerId }, 'Deleting account')
 
     const db = await connectDB()
     
@@ -82,33 +83,27 @@ settingsRoutes.delete('/account', authMiddleware, async (req: AuthRequest, res) 
       db.collection('budgets').deleteMany({ customerId }),
       db.collection('spending_categories').deleteMany({ customerId }),
       db.collection('settings').deleteOne({ customerId }),
-      db.collection('sessions').deleteMany({ customerId })
     ])
 
-    res.clearCookie('session-id', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' as const : 'lax' as const,
-      path: '/'
-    })
 
 
-    console.log('[Delete Account] Deletion results:', {
+    logger.info({
+      module: 'settings-routes',
+      customerId,
       users: results[0].deletedCount,
       accounts: results[1].deletedCount,
       transactions: results[2].deletedCount,
       budgets: results[3].deletedCount,
       spending_categories: results[4].deletedCount,
-      settings: results[5].deletedCount,
-      sessions: results[6].deletedCount,
-    })
+      settings: results[5].deletedCount
+    }, 'Account deletion results')
 
     res.json({ 
       success: true,
       message: 'Account deleted successfully' 
     })
   } catch (error) {
-    console.error('[Delete Account] Error deleting account:', error)
+    logger.error({ module: 'settings-routes', error }, 'Error deleting account')
     res.status(500).json({ 
       error: 'Failed to delete account',
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -116,7 +111,7 @@ settingsRoutes.delete('/account', authMiddleware, async (req: AuthRequest, res) 
   }
 })
 
-settingsRoutes.post('/pin/set', authMiddleware, async (req: AuthRequest, res) => {
+settingsRoutes.post('/pin/set', requireAuth, async (req, res) => {
   try {
     const customerId = req.user?.customerId
     
@@ -167,12 +162,12 @@ settingsRoutes.post('/pin/set', authMiddleware, async (req: AuthRequest, res) =>
       message: 'PIN set successfully'
     })
   } catch (error) {
-    console.error('Error setting PIN:', error)
+    logger.error({ module: 'settings-routes', error }, 'Error setting PIN')
     res.status(500).json({ error: 'Failed to set PIN' })
   }
 })
 
-settingsRoutes.post('/pin/change', authMiddleware, async (req: AuthRequest, res) => {
+settingsRoutes.post('/pin/change', requireAuth, async (req, res) => {
   try {
     const customerId = req.user?.customerId
     
@@ -234,12 +229,12 @@ settingsRoutes.post('/pin/change', authMiddleware, async (req: AuthRequest, res)
       message: 'PIN changed successfully'
     })
   } catch (error) {
-    console.error('Error changing PIN:', error)
+    logger.error({ module: 'settings-routes', error }, 'Error changing PIN')
     res.status(500).json({ error: 'Failed to change PIN' })
   }
 })
 
-settingsRoutes.post('/pin/verify', authMiddleware, async (req: AuthRequest, res) => {
+settingsRoutes.post('/pin/verify', requireAuth, async (req, res) => {
   try {
     const customerId = req.user?.customerId
     
@@ -289,12 +284,12 @@ settingsRoutes.post('/pin/verify', authMiddleware, async (req: AuthRequest, res)
       message: 'PIN is valid'
     })
   } catch (error) {
-    console.error('Error verifying PIN:', error)
+    logger.error({ module: 'settings-routes', error }, 'Error verifying PIN')
     res.status(500).json({ error: 'Failed to verify PIN' })
   }
 })
 
-settingsRoutes.post('/password/change', authMiddleware, async (req: AuthRequest, res) => {
+settingsRoutes.post('/password/change', requireAuth, async (req, res) => {
   try {
     const customerId = req.user?.customerId
     
@@ -358,7 +353,7 @@ settingsRoutes.post('/password/change', authMiddleware, async (req: AuthRequest,
       message: 'Password changed successfully'
     })
   } catch (error) {
-    console.error('Error changing password:', error)
+    logger.error({ module: 'settings-routes', error }, 'Error changing password')
     res.status(500).json({ error: 'Failed to change password' })
   }
 })

@@ -55,15 +55,6 @@ export default function SidebarNav({ customerId }: SidebarNavProps) {
       ]
     },
     {
-      id: 'profile',
-      label: 'PROFILE',
-      items: [
-        { id: 'user-info', label: 'User Information', scrollTo: 'user-info' },
-        { id: 'currency-settings', label: 'Currency Settings', scrollTo: 'currency-settings' },
-        { id: 'about', label: 'About', scrollTo: 'about' },
-      ]
-    },
-    {
       id: 'settings',
       label: 'SETTINGS',
       items: [
@@ -82,7 +73,6 @@ export default function SidebarNav({ customerId }: SidebarNavProps) {
     if (pathname.includes('/analytics')) return 'analytics'
     if (pathname.includes('/budget')) return 'budget'
     if (pathname.includes('/transactions')) return 'transactions'
-    if (pathname.includes('/profile')) return 'profile'
     if (pathname.includes('/settings')) return 'settings'
     return null
   }

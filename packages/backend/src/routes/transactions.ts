@@ -1,10 +1,11 @@
 import { Router } from 'express'
-import { authMiddleware, AuthRequest } from '../middleware/middleware'
+import { requireAuth } from '../middleware/middleware'
 import { connectDB } from '../db/mongo'
+import { logger } from '@money-mapper/shared'
 
 export const transactionRoutes = Router()
 
-transactionRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
+transactionRoutes.get('/', requireAuth, async (req, res) => {
   try {
     const customerId = req.user?.customerId
     
@@ -130,7 +131,7 @@ transactionRoutes.get('/', authMiddleware, async (req: AuthRequest, res) => {
       },
     })
   } catch (error) {
-    console.error('Get transactions error:', error)
+    logger.error({ module: 'transactions-routes', error }, 'Get transactions error')
     res.status(500).json({
       status: 'error',
       message: 'Failed to fetch transactions',

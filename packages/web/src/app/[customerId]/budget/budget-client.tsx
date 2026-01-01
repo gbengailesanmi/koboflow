@@ -2,25 +2,21 @@
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { updateBudgetAction } from '@/app/actions/update-budget-action'
-import { createBudgetAction } from '@/app/actions/create-budget-action'
-import { setActiveBudgetAction } from '@/app/actions/set-active-budget-action'
-import { deleteBudgetByIdAction } from '@/app/actions/delete-budget-action'
+import { budgetUpdateAction, budgetCreateAction, budgetSetActiveAction, budgetDeleteAction } from '@/app/actions/budget.actions'
 import Sidebar from '@/app/components/sidebar/sidebar'
 import { PageHeader } from '@/app/components/page-header/page-header'
 import { PageLayout } from '@/app/components/page-layout/page-layout'
 import { BudgetSwitcher } from '@/app/components/budget-switcher'
 import { useScrollRestoration } from '@/hooks/use-scroll-restoration'
-import type { Transaction } from '@money-mapper/shared'
+import type { EnrichedTransaction } from '@money-mapper/shared'
 import type { CustomCategory } from '@/types/custom-category'
-import type { Budget } from '@money-mapper/shared'
+import type { Budget, BudgetPeriod, BudgetPeriodType } from '@money-mapper/shared'
 import { categorizeTransaction } from '@/app/components/analytics/utils/categorize-transaction'
 import { formatCurrency } from '@/app/components/analytics/utils/format-currency'
 import { getCategoryConfig } from '@/app/components/analytics/utils/category-config'
 import { BudgetProgress } from '@/app/components/budget-progress'
 import { EmptyState } from '@/app/components/empty-state'
 import { StatusAlert } from '@/app/components/status-alert'
-import type { BudgetPeriod, BudgetPeriodType } from '@/types/budget'
 import { Dialog, Button, Flex, Text, Progress, Grid } from '@radix-ui/themes'
 import styles from './budget.module.css'
 
@@ -42,7 +38,7 @@ type BudgetClientProps = {
   customerId: string
   allBudgets: Budget[]
   initialBudget: BudgetData
-  transactions: Transaction[]
+  transactions: EnrichedTransaction[]
   customCategories: CustomCategory[]
   currency: string
 }
@@ -90,13 +86,12 @@ export default function BudgetClient({
 
   const saveBudget = useCallback(async (updates: Partial<BudgetData>) => {
     if (!budgetData._id) {
-      console.error('No active budget to update')
       return
     }
 
     try {
       setIsSaving(true)
-      const result = await updateBudgetAction(budgetData._id, {
+      const result = await budgetUpdateAction(budgetData._id, {
         name: updates.name,
         totalBudgetLimit: updates.totalBudgetLimit,
         categories: updates.categories,
@@ -105,11 +100,9 @@ export default function BudgetClient({
       
       if (result.success) {
         router.refresh()
-      } else {
-        console.error(result.message || 'Failed to save budget')
       }
     } catch (error) {
-      console.error('Failed to save budget:', error)
+      // Error handled
     } finally {
       setIsSaving(false)
     }
@@ -117,20 +110,18 @@ export default function BudgetClient({
 
   const handleSwitchBudget = useCallback(async (budgetId: string) => {
     try {
-      const result = await setActiveBudgetAction(budgetId)
+      const result = await budgetSetActiveAction(budgetId)
       if (result.success) {
         router.refresh()
-      } else {
-        console.error(result.message || 'Failed to switch budget')
       }
     } catch (error) {
-      console.error('Failed to switch budget:', error)
+      // Error handled
     }
   }, [router])
 
   const handleCreateBudget = useCallback(async (name: string) => {
     try {
-      const result = await createBudgetAction(
+      const result = await budgetCreateAction(
         name,
         0, // Default budget limit
         [], // Empty categories
@@ -140,24 +131,20 @@ export default function BudgetClient({
       
       if (result.success) {
         router.refresh()
-      } else {
-        console.error(result.message || 'Failed to create budget')
       }
     } catch (error) {
-      console.error('Failed to create budget:', error)
+      // Error handled
     }
   }, [router])
 
   const handleDeleteBudget = useCallback(async (budgetId: string) => {
     try {
-      const result = await deleteBudgetByIdAction(budgetId)
+      const result = await budgetDeleteAction(budgetId)
       if (result.success) {
         router.refresh()
-      } else {
-        console.error(result.message || 'Failed to delete budget')
       }
     } catch (error) {
-      console.error('Failed to delete budget:', error)
+      // Error handled
     }
   }, [router])
 

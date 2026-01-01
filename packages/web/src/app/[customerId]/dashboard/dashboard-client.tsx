@@ -11,14 +11,15 @@ import TransactionsColumn from '@/app/components/transactions/transactions-colum
 import { categorizeTransaction } from '@/app/components/analytics/utils/categorize-transaction'
 import { useQueryStateNullable } from '@/hooks/use-query-state'
 import { useScrollRestoration } from '@/hooks/use-scroll-restoration'
-import type { Account, Transaction } from '@money-mapper/shared'
+import type { Account, EnrichedTransaction } from '@money-mapper/shared'
 
 interface DashboardClientProps {
   customerId: string
   accounts: Account[]
-  transactions: Transaction[]
+  transactions: EnrichedTransaction[]
   profile: {
-    name: string
+    firstName: string
+    lastName: string
     email: string
     currency: string
     totalBudgetLimit: number
@@ -118,7 +119,7 @@ export default function DashboardClient({
           </div>
 
           <div className={styles.TransactionsListWrapper}>
-            <TransactionsColumn transactions={filteredTransactions.slice(0, 10)} />
+            <TransactionsColumn transactions={filteredTransactions.slice(0, 5)} />
           </div>
 
           <div

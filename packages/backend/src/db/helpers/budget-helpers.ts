@@ -4,10 +4,25 @@ import { ObjectId } from 'mongodb'
 
 export async function getBudgets(customerId: string): Promise<Budget[]> {
   const db = await connectDB()
-  return db.collection('budgets')
+  const docs = await db.collection('budgets')
     .find({ customerId })
     .sort({ isActive: -1, createdAt: -1 })
-    .toArray() as Promise<Budget[]>
+    .toArray();
+
+  return docs.map(doc => {
+    const { _id, customerId, name, isActive, totalBudgetLimit, categories, period, createdAt, updatedAt } = doc;
+    return {
+      id: _id.toString(),
+      customerId,
+      name,
+      isActive,
+      totalBudgetLimit,
+      categories,
+      period,
+      createdAt,
+      updatedAt
+    } as Budget;
+  });
 }
 
 export async function getBudgetById(customerId: string, budgetId: string): Promise<Budget | null> {

@@ -1,11 +1,9 @@
 import { connectDB } from '../mongo'
-import { 
-  UserSpendingCategories, 
-  SpendingCategory, 
-  SpendingCategoryInput,
+import {
   UserCategories,
   Category,
-  CategoryInput
+  CategoryInput,
+  logger
 } from '@money-mapper/shared'
 import { DEFAULT_CATEGORIES } from '@money-mapper/shared'
 import { randomUUID } from 'crypto'
@@ -18,12 +16,12 @@ const COLLECTION = 'spending_categories'
  */
 export async function getUserCategories(customerId: string): Promise<UserCategories> {
   const db = await connectDB()
-  const collection = db.collection(COLLECTION)
+  const collection = db.collection<UserCategories>(COLLECTION)
   
   let userCategories = await collection.findOne({ customerId }) as UserCategories | null
   
   if (!userCategories) {
-    console.log(`[Categories] Creating new categories document for user: ${customerId}`)
+    logger.info({ module: 'spending-categories-helpers', customerId }, 'Creating new categories document for user')
     
     const now = new Date()
     const defaultCategories: Category[] = DEFAULT_CATEGORIES.map(cat => ({
@@ -33,12 +31,20 @@ export async function getUserCategories(customerId: string): Promise<UserCategor
       updatedAt: now
     }))
     
-    console.log(`[Categories] Generated ${defaultCategories.length} default categories:`)
+    logger.info({ 
+      module: 'spending-categories-helpers',
+      count: defaultCategories.length 
+    }, 'Generated default categories')
     defaultCategories.forEach(cat => {
-      console.log(`[Categories]    - ${cat.name} (${cat.keywords.length} keywords, ${cat.color})`)
+      logger.debug({ 
+        module: 'spending-categories-helpers',
+        name: cat.name,
+        keywordsCount: cat.keywords.length,
+        color: cat.color
+      }, 'Category details')
     })
     
-    const newDoc: UserCategories = {
+    const newDoc: Omit<UserCategories, '_id'> = {
       customerId,
       categories: defaultCategories,
       createdAt: now,
@@ -46,7 +52,10 @@ export async function getUserCategories(customerId: string): Promise<UserCategor
     }
     
     await collection.insertOne(newDoc)
-    console.log(`[Categories] ✅ Document inserted into ${COLLECTION} collection`)
+    logger.info({ 
+      module: 'spending-categories-helpers',
+      collection: COLLECTION 
+    }, 'Document inserted into collection')
     
     userCategories = await collection.findOne({ customerId }) as UserCategories | null
   }
@@ -80,12 +89,15 @@ export async function addCategory(
   await getUserCategories(customerId)
   
   const db = await connectDB()
-  const collection = db.collection(COLLECTION)
+  const collection = db.collection<UserCategories>(COLLECTION)
   
-  console.log(`[Categories] Adding custom category for user: ${customerId}`)
-  console.log(`[Categories]    - Name: ${input.name}`)
-  console.log(`[Categories]    - Keywords: ${input.keywords.join(', ')}`)
-  console.log(`[Categories]    - Color: ${input.color || '#6b7280'}`)
+  logger.info({ 
+    module: 'spending-categories-helpers',
+    customerId,
+    name: input.name,
+    keywords: input.keywords,
+    color: input.color || '#6b7280'
+  }, 'Adding custom category for user')
   
   const now = new Date()
   const newCategory: Category = {
@@ -107,7 +119,10 @@ export async function addCategory(
     }
   )
   
-  console.log(`[Categories] ✅ Category added. Modified count: ${result.modifiedCount}`)
+  logger.info({ 
+    module: 'spending-categories-helpers',
+    modifiedCount: result.modifiedCount 
+  }, 'Category added')
   
   return newCategory
 }
@@ -121,7 +136,7 @@ export async function updateCategory(
   updates: Partial<Pick<Category, 'name' | 'keywords' | 'color'>>
 ): Promise<boolean> {
   const db = await connectDB()
-  const collection = db.collection(COLLECTION)
+  const collection = db.collection<UserCategories>(COLLECTION)
   
   const userCategories = await getUserCategories(customerId)
   const categoryIndex = userCategories.categories.findIndex(cat => cat.id === categoryId)
@@ -166,7 +181,7 @@ export async function deleteCategory(
   categoryId: string
 ): Promise<boolean> {
   const db = await connectDB()
-  const collection = db.collection(COLLECTION)
+  const collection = db.collection<UserCategories>(COLLECTION)
   
   const userCategories = await getUserCategories(customerId)
   const category = userCategories.categories.find(cat => cat.id === categoryId)

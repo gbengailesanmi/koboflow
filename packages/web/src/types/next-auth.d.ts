@@ -1,26 +1,18 @@
-import { DefaultSession } from "next-auth"
-import { JWT } from "next-auth/jwt"
+// /Users/gbenga.ilesanmi/Github/PD/money-mapper/packages/web/src/types/next-auth.d.ts
+import { DefaultSession, DefaultUser } from 'next-auth'
 
-declare module "next-auth" {
+declare module 'next-auth' {
   interface Session {
     user: {
-      customerId?: string
-    } & DefaultSession["user"]
+      customerId: string
+      firstName?: string
+      lastName?: string
+    } & DefaultSession['user']
   }
 
-  interface User {
-    customerId?: string
-  }
-}
-
-declare module "next-auth/jwt" {
-  interface JWT {
-    customerId?: string
-  }
-}
-
-declare module "@auth/core/adapters" {
-  interface AdapterUser {
-    customerId?: string
+  interface User extends DefaultUser {
+    customerId: string
+    firstName?: string
+    lastName?: string
   }
 }

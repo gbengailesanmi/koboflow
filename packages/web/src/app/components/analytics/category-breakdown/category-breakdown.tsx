@@ -88,7 +88,6 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({
       setKeywords('')
       setIsAdding(false)
     } catch (error) {
-      console.error('Failed to add category:', error)
       setError('Failed to add category. Please try again.')
     } finally {
       setLoading(false)
@@ -105,7 +104,7 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({
     try {
       await onDeleteCategory(id)
     } catch (error) {
-      console.error('Failed to delete category:', error)
+      // Error handled
     } finally {
       setLoading(false)
     }
@@ -139,7 +138,6 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({
         keywords: updatedKeywords
       })
     } catch (error) {
-      console.error('Failed to delete keyword:', error)
       alert('Failed to delete keyword. Please try again.')
     } finally {
       setLoading(false)
