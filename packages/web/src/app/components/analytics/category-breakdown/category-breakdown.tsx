@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState, useMemo } from 'react'
-import { logger } from '@money-mapper/shared'
 import type { CustomCategory } from '@/types/custom-category'
 import { formatCurrency } from '../utils/format-currency'
 import { getCategoryConfig } from '../utils/category-config'
@@ -89,7 +88,6 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({
       setKeywords('')
       setIsAdding(false)
     } catch (error) {
-      logger.error({ module: 'category-breakdown', error }, 'Failed to add category')
       setError('Failed to add category. Please try again.')
     } finally {
       setLoading(false)
@@ -106,7 +104,7 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({
     try {
       await onDeleteCategory(id)
     } catch (error) {
-      logger.error({ module: 'category-breakdown', categoryId: id, error }, 'Failed to delete category')
+      // Error handled
     } finally {
       setLoading(false)
     }
@@ -140,7 +138,6 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({
         keywords: updatedKeywords
       })
     } catch (error) {
-      logger.error({ module: 'category-breakdown', categoryId: customId, keyword, error }, 'Failed to delete keyword')
       alert('Failed to delete keyword. Please try again.')
     } finally {
       setLoading(false)

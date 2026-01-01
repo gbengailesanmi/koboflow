@@ -7,7 +7,6 @@ import { signOut } from 'next-auth/react'
 import { settingsUpdateAction } from '@/app/actions/settings.actions'
 import { securityChangePINAction, securityChangePasswordAction } from '@/app/actions/security.actions'
 import { deleteUserAction } from '@/app/actions/user.actions'
-import { logger } from '@money-mapper/shared'
 import Sidebar from '@/app/components/sidebar/sidebar'
 import { PageHeader } from '@/app/components/page-header/page-header'
 import Footer from '@/app/components/footer/footer'
@@ -91,7 +90,7 @@ export default function SettingsClient({
         appearance: { theme: newTheme }
       } as Partial<UserSettings>)
     } catch (error) {
-      logger.error({ module: 'settings-client', error }, 'Failed to save theme')
+      // Error handled
     }
   }
 

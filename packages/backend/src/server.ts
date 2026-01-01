@@ -31,7 +31,7 @@ const allowedOrigins =
 app.use(
   cors({
     origin: allowedOrigins,
-    credentials: true, // 👈 REQUIRED FOR COOKIES
+    credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   })
@@ -63,7 +63,7 @@ app.use((req: Request, res: Response, next) => {
   const start = Date.now()
   res.on('finish', () => {
     logger.info(
-      { module: 'server', method: req.method, path: req.path, statusCode: res.statusCode, duration: Date.now() - start },
+      { module: 'server', method: req.method, path: req.path, statusCode: res.statusCode, duration: `${Date.now() - start}ms` },
       'HTTP request completed'
     )
   })
@@ -103,5 +103,5 @@ app.use((err: any, _req: Request, res: Response, _next: any) => {
 // Boot
 // -----------------------------------------------------------------------------
 app.listen(BACKEND_PORT, () => {
-  logger.info({ module: 'server', port: BACKEND_PORT }, 'Backend server started')
+  logger.info({ module: '[server]', port: BACKEND_PORT }, 'Server started')
 })

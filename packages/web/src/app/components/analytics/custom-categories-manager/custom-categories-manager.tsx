@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState } from 'react'
-import { logger } from '@money-mapper/shared/utils'
 import type { CustomCategory } from '@/types/custom-category'
 import styles from './custom-categories-manager.module.css'
 
@@ -53,7 +52,6 @@ export function CustomCategoriesManager({
 
       setFormData({ name: '', keywords: '', color: defaultColors[0] })
     } catch (error: any) {
-      logger.error({ module: 'custom-categories-manager', error: error.message }, 'Error saving category')
       alert('Failed to save category. Please try again.')
     } finally {
       setLoading(false)
@@ -82,7 +80,6 @@ export function CustomCategoriesManager({
     try {
       await onDelete(id)
     } catch (error: any) {
-      logger.error({ module: 'custom-categories-manager', categoryId: id, error: error.message }, 'Error deleting category')
       alert('Failed to delete category. Please try again.')
     } finally {
       setLoading(false)

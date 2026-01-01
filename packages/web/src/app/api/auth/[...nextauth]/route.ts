@@ -57,12 +57,12 @@ export const authOptions: AuthOptions = {
 
         const user = await db.collection('users').findOne({ email })
 
-        logger.info({ 
-          module: 'auth-nextauth',
-          email,
-          found: !!user,
-          emailVerified: user?.emailVerified,
-        }, 'Credentials login attempt')
+        // logger.info({ 
+        //   module: 'auth-nextauth',
+        //   email,
+        //   found: !!user,
+        //   emailVerified: user?.emailVerified,
+        // }, 'Credentials login attempt')
 
         if (!user || !user.password) return null
         if (!user.emailVerified) return null
@@ -167,7 +167,7 @@ export const authOptions: AuthOptions = {
         session.user.lastName = token.lastName as string
       }
 
-      logger.info({ module: 'auth-nextauth', user: session.user }, 'Session created')
+      // logger.info({ module: 'auth-nextauth', user: session.user }, 'Session created')
       return session
     },
   },

@@ -5,7 +5,6 @@ import Sidebar from '@/app/components/sidebar/sidebar'
 import { UserInfoCard } from '@/app/components/user-info-card'
 import { PageHeader } from '@/app/components/page-header/page-header'
 import Footer from '@/app/components/footer/footer'
-import { logger } from '@money-mapper/shared'
 import type { CustomerDetailsFromMono } from '@money-mapper/shared'
 import styles from './personal-details.module.css'
 
@@ -33,7 +32,6 @@ export default function PersonalDetailsClient({
         const data = await response.json()
         setCustomerDetails(data.customerDetailsFromMono)
       } catch (err) {
-        logger.error({ module: 'personal-details-client', err }, 'Error fetching customer details')
         setError(err instanceof Error ? err.message : 'Unknown error')
       } finally {
         setIsLoading(false)

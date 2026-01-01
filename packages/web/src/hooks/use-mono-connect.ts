@@ -3,7 +3,6 @@
 import { useCallback, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { monoProcessConnectionAction } from '@/app/actions/mono-actions'
-import { logger } from '@money-mapper/shared'
 import config from '@/config'
 
 interface UseMonoConnectOptions {
@@ -41,7 +40,6 @@ export function useMonoConnect({ onSuccess, onError }: UseMonoConnectOptions = {
             onSuccess?.()
             router.refresh()
           } catch (error: any) {
-            logger.error({ module: 'mono-connect', error }, 'Mono widget error')
             onError?.(error.message || 'Failed to link account')
           } finally {
             setIsLoading(false)
@@ -62,7 +60,6 @@ export function useMonoConnect({ onSuccess, onError }: UseMonoConnectOptions = {
       monoInstance.setup()
       monoInstance.open()
     } catch (error: any) {
-      logger.error({ module: 'mono-connect', error }, 'Failed to open Mono widget')
       onError?.(error.message || 'Failed to open Mono widget')
       setIsLoading(false)
     }

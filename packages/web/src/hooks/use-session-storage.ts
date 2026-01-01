@@ -12,7 +12,6 @@
  */
 
 import { useState, useCallback } from 'react'
-import { logger } from '@money-mapper/shared'
 
 export function useSessionStorage<T>(
   key: string,
@@ -27,7 +26,6 @@ export function useSessionStorage<T>(
       const item = window.sessionStorage.getItem(key)
       return item ? JSON.parse(item) : initialValue
     } catch (error) {
-      logger.warn({ module: 'session-storage', key, error }, 'Error loading sessionStorage key')
       return initialValue
     }
   })
@@ -43,7 +41,7 @@ export function useSessionStorage<T>(
           window.sessionStorage.setItem(key, JSON.stringify(valueToStore))
         }
       } catch (error) {
-        logger.warn({ module: 'session-storage', key, error }, 'Error saving to sessionStorage key')
+        // Error handled silently
       }
     },
     [key, storedValue]
@@ -80,9 +78,8 @@ export function clearAllAppSessionStorage(): void {
         window.sessionStorage.removeItem(key)
       }
     })
-    logger.info({ module: 'session-storage' }, 'Cleared all app sessionStorage')
   } catch (error) {
-    logger.warn({ module: 'session-storage', error }, 'Error clearing app sessionStorage')
+    // Error handled silently
   }
 }
 
@@ -101,8 +98,7 @@ export function clearCustomerSessionStorage(customerId: string): void {
         window.sessionStorage.removeItem(key)
       }
     })
-    logger.info({ module: 'session-storage', customerId }, 'Cleared sessionStorage for customer')
   } catch (error) {
-    logger.warn({ module: 'session-storage', customerId, error }, 'Error clearing sessionStorage for customer')
+    // Error handled silently
   }
 }

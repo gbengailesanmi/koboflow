@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import { userUpdateProfileAction } from '@/app/actions/user.actions'
 import Sidebar from '@/app/components/sidebar/sidebar'
 import { UserInfoCard } from '@/app/components/user-info-card'
-import { logger } from '@money-mapper/shared'
 import { 
   Pencil1Icon, 
   CheckIcon, 
@@ -52,12 +51,10 @@ export default function ProfileClient({
 
   const handleSave = async () => {
     if (!formData.firstName?.trim() || !formData.lastName?.trim() || !formData.email?.trim()) {
-      logger.warn({ module: 'profile-client' }, 'First name, last name, and email are required')
       return
     }
 
     if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      logger.warn({ module: 'profile-client', email: formData.email }, 'Invalid email address')
       return
     }
 
@@ -71,7 +68,6 @@ export default function ProfileClient({
       })
 
       if (!result.success) {
-        logger.error({ module: 'profile-client', message: result.message }, 'Failed to update profile')
         return
       }
 
@@ -80,7 +76,7 @@ export default function ProfileClient({
       router.refresh()
 
     } catch (err: any) {
-      logger.error({ module: 'profile-client', err }, err.message || 'An unexpected error occurred')
+      // Error handled
     } finally {
       setSavingProfile(false)
     }

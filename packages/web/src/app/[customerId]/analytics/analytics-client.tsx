@@ -4,7 +4,6 @@
 import React, { useState, useMemo, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Dialog } from '@radix-ui/themes'
-import { logger } from '@money-mapper/shared'
 import type { Account, EnrichedTransaction } from '@money-mapper/shared'
 import type {  } from '@money-mapper/shared'
 import type { CustomCategory } from '@/types/custom-category'
@@ -88,7 +87,7 @@ export default function AnalyticsClient({
       
       router.refresh()
     } catch (error) {
-      logger.error({ module: 'analytics-client', error }, 'Failed to add category')
+      // Error handled
     }
   }
 
@@ -97,7 +96,7 @@ export default function AnalyticsClient({
       await categoryDeleteAction(id)
       router.refresh()
     } catch (error) {
-      logger.error({ module: 'analytics-client', categoryId: id, error }, 'Failed to delete category')
+      // Error handled
     }
   }
 
@@ -109,7 +108,7 @@ export default function AnalyticsClient({
         router.refresh()
       }
     } catch (error) {
-      logger.error({ module: 'analytics-client', categoryId: id, error }, 'Failed to update category')
+      // Error handled
     }
   }
 

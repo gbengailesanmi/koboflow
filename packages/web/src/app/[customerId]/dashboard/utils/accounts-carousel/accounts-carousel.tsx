@@ -12,7 +12,6 @@ import AccountsPills from '../../utils/account-pills/accounts-pills'
 import { useParams, useRouter } from 'next/navigation'
 import { useMonoConnect } from '@/hooks/use-mono-connect'
 import { useHorizontalScrollRestoration } from '@/hooks/use-scroll-restoration'
-import { logger } from '@money-mapper/shared'
 import styles from './accounts-carousel.module.css'
 
 const HUE_LOCAL_STORAGE_KEY = 'accounts-carousel-slide-hue'
@@ -46,10 +45,9 @@ export default function AccountsCarousel({
 
   const { openMonoWidget, isLoading: isConnecting } = useMonoConnect({
     onSuccess: () => {
-      logger.info({ module: 'accounts-carousel' }, 'Account linked successfully')
+      // Success handled
     },
     onError: (error) => {
-      logger.error({ module: 'accounts-carousel', error }, 'Failed to link account')
       alert(`Failed to link account: ${error}`)
     },
   })
@@ -61,7 +59,7 @@ export default function AccountsCarousel({
         setSlideHue(JSON.parse(saved))
       }
     } catch (e) {
-      logger.warn({ module: 'accounts-carousel', error: e }, 'Failed to load hues from localStorage')
+      // Error handled
     }
   }, [])
 
@@ -69,7 +67,7 @@ export default function AccountsCarousel({
     try {
       localStorage.setItem(HUE_LOCAL_STORAGE_KEY, JSON.stringify(slideHue))
     } catch (e) {
-      logger.warn({ module: 'accounts-carousel', error: e }, 'Failed to save hues to localStorage')
+      // Error handled
     }
   }, [slideHue])
 
@@ -192,7 +190,7 @@ export default function AccountsCarousel({
             key: 'details',
             icon: <ZoomInIcon width="35" height="35" />,
             label: 'Details',
-            onClick: () => logger.info({ module: 'accounts-carousel' }, 'Details clicked'),
+            onClick: () => {},
           },
           {
             key: 'analytics',
@@ -204,7 +202,7 @@ export default function AccountsCarousel({
             key: 'more',
             icon: <ListBulletIcon width="35" height="35" />,
             label: 'More',
-            onClick: () => logger.info({ module: 'accounts-carousel' }, 'More clicked'),
+            onClick: () => {},
           },
         ]}
       />

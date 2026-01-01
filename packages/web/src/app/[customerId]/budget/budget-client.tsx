@@ -3,7 +3,6 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { budgetUpdateAction, budgetCreateAction, budgetSetActiveAction, budgetDeleteAction } from '@/app/actions/budget.actions'
-import { logger } from '@money-mapper/shared'
 import Sidebar from '@/app/components/sidebar/sidebar'
 import { PageHeader } from '@/app/components/page-header/page-header'
 import { PageLayout } from '@/app/components/page-layout/page-layout'
@@ -87,7 +86,6 @@ export default function BudgetClient({
 
   const saveBudget = useCallback(async (updates: Partial<BudgetData>) => {
     if (!budgetData._id) {
-      logger.warn({ module: 'budget-client' }, 'No active budget to update')
       return
     }
 
@@ -102,11 +100,9 @@ export default function BudgetClient({
       
       if (result.success) {
         router.refresh()
-      } else {
-        logger.error({ module: 'budget-client', message: result.message }, 'Failed to save budget')
       }
     } catch (error) {
-      logger.error({ module: 'budget-client', error }, 'Failed to save budget')
+      // Error handled
     } finally {
       setIsSaving(false)
     }
@@ -117,11 +113,9 @@ export default function BudgetClient({
       const result = await budgetSetActiveAction(budgetId)
       if (result.success) {
         router.refresh()
-      } else {
-        logger.error({ module: 'budget-client', budgetId, message: result.message }, 'Failed to switch budget')
       }
     } catch (error) {
-      logger.error({ module: 'budget-client', budgetId, error }, 'Failed to switch budget')
+      // Error handled
     }
   }, [router])
 
@@ -137,11 +131,9 @@ export default function BudgetClient({
       
       if (result.success) {
         router.refresh()
-      } else {
-        logger.error({ module: 'budget-client', name, message: result.message }, 'Failed to create budget')
       }
     } catch (error) {
-      logger.error({ module: 'budget-client', name, error }, 'Failed to create budget')
+      // Error handled
     }
   }, [router])
 
@@ -150,11 +142,9 @@ export default function BudgetClient({
       const result = await budgetDeleteAction(budgetId)
       if (result.success) {
         router.refresh()
-      } else {
-        logger.error({ module: 'budget-client', budgetId, message: result.message }, 'Failed to delete budget')
       }
     } catch (error) {
-      logger.error({ module: 'budget-client', budgetId, error }, 'Failed to delete budget')
+      // Error handled
     }
   }, [router])
 
