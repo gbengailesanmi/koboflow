@@ -1,7 +1,7 @@
 // packages/web/src/app/layout.tsx
 import Providers from './providers'
 import { Open_Sans } from 'next/font/google'
-import { getAuthSession } from '@/lib/server/get-server-session'
+import { getServerSession } from '@/lib/server/get-server-session'
 import { getSettings } from '@/lib/server/api-service'
 
 import './globals.css'
@@ -16,7 +16,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const session = await getAuthSession()
+  const session = await getServerSession()
 
   const settings =
     session?.user?.customerId

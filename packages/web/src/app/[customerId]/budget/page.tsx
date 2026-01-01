@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { getTransactions, getCustomCategories, getBudgets } from '@/lib/server/api-service'
 import BudgetClient from './budget-client'
-import { getAuthSession } from '@/lib/server/get-server-session'
+import { getServerSession } from '@/lib/server/get-server-session'
 
 type PageProps = {
   params: Promise<{
@@ -13,7 +13,7 @@ export default async function BudgetPage({ params }: PageProps) {
   const { customerId } = await params
 
   const [session, transactions, customCategories, budgets] = await Promise.all([
-    getAuthSession(),
+    getServerSession(),
     getTransactions(),
     getCustomCategories(),
     getBudgets(),

@@ -23,10 +23,10 @@ export async function actionFactory<T>({
       )
     }
 
-    logger.info(`[ACTION:${actionName}]`, result)
+    logger.info(`[ACTION: ${actionName}]`, result)
     return result
   } catch (error: any) {
-    logger.error(`[ACTION:${actionName}]`, error)
+    logger.error(`[ACTION: ${actionName}]`, error)
     return {
       success: false,
       message: error.message || 'Action failed',

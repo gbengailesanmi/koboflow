@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { getAccounts, getTransactions, getCustomCategories, getBudget } from '@/lib/server/api-service'
 import AnalyticsClient from './analytics-client'
-import { getAuthSession } from '@/lib/server/get-server-session'
+import { getServerSession } from '@/lib/server/get-server-session'
 
 type PageProps = {
   params: Promise<{
@@ -13,7 +13,7 @@ export default async function AnalyticsPage({ params }: PageProps) {
   const { customerId } = await params
 
   const [session, accounts, transactions, customCategories, budgetRes] = await Promise.all([
-    getAuthSession(),
+    getServerSession(),
     getAccounts(),
     getTransactions(),
     getCustomCategories(),

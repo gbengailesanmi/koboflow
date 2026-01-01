@@ -9,6 +9,5 @@ export interface User {
   lastName?: string
   emailVerified: boolean
   authProvider: AuthProvider
-  sessionVersion: number
   createdAt: Date
 }
