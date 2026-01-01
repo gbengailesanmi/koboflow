@@ -14,19 +14,5 @@ export default async function PersonalDetailsPage({
     redirect('/login')
   }
 
-  return (
-    <PersonalDetailsClient
-      customerId={customerId}
-      firstName={session.user.firstName || ''}
-      lastName={session.user.lastName || ''}
-      email={session.user.email || ''}
-      bvn={session.user.customerDetailsFromMono?.bvn || ''}
-      dob={session.user.customerDetailsFromMono?.dob || ''}
-      phone={session.user.customerDetailsFromMono?.phone || ''}
-      gender={session.user.customerDetailsFromMono?.gender || ''}
-      addressLine1={session.user.customerDetailsFromMono?.address_line1 || ''}
-      addressLine2={session.user.customerDetailsFromMono?.address_line2 || ''}
-      maritalStatus={session.user.customerDetailsFromMono?.marital_status || ''}
-    />
-  )
+  return <PersonalDetailsClient customerId={customerId} />
 }

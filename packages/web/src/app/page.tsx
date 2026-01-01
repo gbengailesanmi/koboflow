@@ -2,11 +2,12 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
+import { logger } from '@money-mapper/shared'
 
 export default async function LandingPage() {
   const session = await getServerSession(authOptions)
 
-  console.log('[LANDING PAGE][DEBUG] session:', session)
+  logger.info({ module: 'landing-page', session }, 'Landing page accessed')
 
   if (session?.user?.customerId) {
     redirect(`/${session.user.customerId}/dashboard`)

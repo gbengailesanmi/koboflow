@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { requireAuth } from '../middleware/middleware'
 import { connectDB } from '../db/mongo'
+import { logger } from '@money-mapper/shared'
 
 export const transactionRoutes = Router()
 
@@ -130,7 +131,7 @@ transactionRoutes.get('/', requireAuth, async (req, res) => {
       },
     })
   } catch (error) {
-    console.error('Get transactions error:', error)
+    logger.error({ module: 'transactions-routes', error }, 'Get transactions error')
     res.status(500).json({
       status: 'error',
       message: 'Failed to fetch transactions',

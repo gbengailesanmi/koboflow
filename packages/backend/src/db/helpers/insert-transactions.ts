@@ -1,5 +1,5 @@
 import { createHash } from 'crypto'
-import { EnrichedTransaction, MonoTransaction } from '@money-mapper/shared'
+import { EnrichedTransaction, MonoTransaction, logger } from '@money-mapper/shared'
 import { transactionIndexer } from './indexes/transaction-indexer'
 
 function generateTransactionHash(txn: EnrichedTransaction): string {
@@ -82,14 +82,18 @@ async function insertTransactions(
   try {
     const result = await txnCollection.bulkWrite(bulkOps, { ordered: false })
 
-    console.log('Transaction insert result:', {
+    logger.info({
+      module: 'insert-transactions',
       inserted: result.upsertedCount,
       matched: result.matchedCount,
       modified: result.modifiedCount,
       total: records.length,
-    })
+    }, 'Transaction insert result')
   } catch (err: any) {
-    console.error('Error inserting transactions:', err.message)
+    logger.error({
+      module: 'insert-transactions',
+      error: err.message,
+    }, 'Error inserting transactions')
     throw err
   }
 }

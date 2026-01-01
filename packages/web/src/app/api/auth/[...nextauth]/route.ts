@@ -5,6 +5,7 @@ import bcrypt from 'bcrypt'
 import { randomUUID } from 'crypto'
 import { getDb } from '@/lib/mongo/mongo'
 import config from '@/config'
+import { logger } from '@money-mapper/shared'
 
 export const authOptions: AuthOptions = {
   secret: config.NEXTAUTH_SECRET,
@@ -56,11 +57,12 @@ export const authOptions: AuthOptions = {
 
         const user = await db.collection('users').findOne({ email })
 
-        console.log('[AUTH][CREDENTIALS] lookup', {
+        logger.info({ 
+          module: 'auth-nextauth',
           email,
           found: !!user,
           emailVerified: user?.emailVerified,
-        })
+        }, 'Credentials login attempt')
 
         if (!user || !user.password) return null
         if (!user.emailVerified) return null
@@ -105,7 +107,7 @@ export const authOptions: AuthOptions = {
             createdAt: new Date(),
           })
 
-          console.log('[AUTH][GOOGLE] user created', { email, customerId })
+          logger.info({ module: 'auth-nextauth', email, customerId }, 'Google user created')
         }
       }
 
@@ -165,7 +167,7 @@ export const authOptions: AuthOptions = {
         session.user.lastName = token.lastName as string
       }
 
-      console.log('[AUTH][SESSION]', session.user)
+      logger.info({ module: 'auth-nextauth', user: session.user }, 'Session created')
       return session
     },
   },

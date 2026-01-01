@@ -1,8 +1,7 @@
 /// packages/backend/src/middleware/middleware.ts
 import type { Request, Response, NextFunction } from 'express'
 import { getToken } from 'next-auth/jwt'
-
-console.log('Middleware loaded', process.env.NEXTAUTH_SECRET)
+import { logger } from '@money-mapper/shared'
 
 export async function requireAuth(
   req: Request,
@@ -29,7 +28,7 @@ export async function requireAuth(
 
     next()
   } catch (err) {
-    console.error('[Auth middleware]', err)
+    logger.error({ module: 'auth-middleware', err }, 'Authentication failed')
     return res.status(401).json({ error: 'Invalid or expired token' })
   }
 }

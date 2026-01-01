@@ -25,6 +25,11 @@
     },
     "./types": {
       "types": "./dist/types/index.d.ts"
+    },
+    "./schemas": {
+      "types": "./dist/schemas/index.d.ts",
+      "import": "./dist/schemas/index.js",
+      "require": "./dist/schemas/index.js"
     }
   },
   "scripts": {

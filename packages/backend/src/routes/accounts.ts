@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { requireAuth } from '../middleware/middleware'
 import { connectDB } from '../db/mongo'
+import { logger } from '@money-mapper/shared'
 
 export const accountRoutes = Router()
 
@@ -52,7 +53,7 @@ accountRoutes.get('/', requireAuth, async (req, res) => {
       },
     })
   } catch (error) {
-    console.error('Get accounts error:', error)
+    logger.error({ module: 'accounts-routes', error }, 'Failed to get accounts')
     res.status(500).json({
       status: 'failed',
       message: 'Failed to fetch accounts',
@@ -113,7 +114,7 @@ accountRoutes.get('/:id', requireAuth, async (req, res) => {
       },
     })
   } catch (error) {
-    console.error('Get account error:', error)
+    logger.error({ module: 'accounts-routes', accountId: req.params.id, error }, 'Failed to get account')
     res.status(500).json({
       status: 'failed',
       message: 'Failed to fetch account',

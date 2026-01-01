@@ -1,4 +1,5 @@
 import { connectDB } from '../mongo'
+import { logger } from '@money-mapper/shared'
 
 async function createSettingsIndexes() {
   try {
@@ -20,7 +21,7 @@ async function createSettingsIndexes() {
 
     process.exit(0)
   } catch (error) {
-    console.error('Error creating settings indexes:', error)
+    logger.error({ module: 'settings-indexer', error }, 'Error creating settings indexes')
     process.exit(1)
   }
 }

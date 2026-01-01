@@ -1,5 +1,6 @@
 import { MongoClient, Db } from 'mongodb'
 import config from '../config'
+import { logger } from '@money-mapper/shared'
 
 const uri = config.MONGODB_URI
 const dbName = config.MONGO_DB_NAME
@@ -34,7 +35,7 @@ export async function connectDB(): Promise<Db> {
     const client = new MongoClient(uri as string)
     globalThis.__mongoClientPromise = client.connect().then(async () => {
       globalThis.__mongoClient = client
-      console.log('MongoDB online ✅')
+      logger.info({ module: 'mongo', dbName }, 'MongoDB connection established')
 
       const db = client.db(dbName)
       await ensureIndexes(db)

@@ -12,6 +12,7 @@ import AccountsPills from '../../utils/account-pills/accounts-pills'
 import { useParams, useRouter } from 'next/navigation'
 import { useMonoConnect } from '@/hooks/use-mono-connect'
 import { useHorizontalScrollRestoration } from '@/hooks/use-scroll-restoration'
+import { logger } from '@money-mapper/shared'
 import styles from './accounts-carousel.module.css'
 
 const HUE_LOCAL_STORAGE_KEY = 'accounts-carousel-slide-hue'
@@ -45,10 +46,10 @@ export default function AccountsCarousel({
 
   const { openMonoWidget, isLoading: isConnecting } = useMonoConnect({
     onSuccess: () => {
-      console.log('[AccountsCarousel] Account linked successfully!')
+      logger.info({ module: 'accounts-carousel' }, 'Account linked successfully')
     },
     onError: (error) => {
-      console.error('[AccountsCarousel] Failed to link account:', error)
+      logger.error({ module: 'accounts-carousel', error }, 'Failed to link account')
       alert(`Failed to link account: ${error}`)
     },
   })
@@ -60,7 +61,7 @@ export default function AccountsCarousel({
         setSlideHue(JSON.parse(saved))
       }
     } catch (e) {
-      console.warn('Failed to load hues from localStorage', e)
+      logger.warn({ module: 'accounts-carousel', error: e }, 'Failed to load hues from localStorage')
     }
   }, [])
 
@@ -68,7 +69,7 @@ export default function AccountsCarousel({
     try {
       localStorage.setItem(HUE_LOCAL_STORAGE_KEY, JSON.stringify(slideHue))
     } catch (e) {
-      console.warn('Failed to save hues to localStorage', e)
+      logger.warn({ module: 'accounts-carousel', error: e }, 'Failed to save hues to localStorage')
     }
   }, [slideHue])
 
@@ -191,7 +192,7 @@ export default function AccountsCarousel({
             key: 'details',
             icon: <ZoomInIcon width="35" height="35" />,
             label: 'Details',
-            onClick: () => console.log('Details clicked'),
+            onClick: () => logger.info({ module: 'accounts-carousel' }, 'Details clicked'),
           },
           {
             key: 'analytics',
@@ -203,7 +204,7 @@ export default function AccountsCarousel({
             key: 'more',
             icon: <ListBulletIcon width="35" height="35" />,
             label: 'More',
-            onClick: () => console.log('More clicked'),
+            onClick: () => logger.info({ module: 'accounts-carousel' }, 'More clicked'),
           },
         ]}
       />

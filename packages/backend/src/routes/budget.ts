@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import { requireAuth } from '../middleware/middleware'
+import { logger } from '@money-mapper/shared'
 import {
   getBudgets,
   getActiveBudget,
@@ -23,7 +24,7 @@ budgetRoutes.get('/all', requireAuth, async (req, res) => {
     const budgets = await getBudgets(customerId)
     res.json({ success: true, budgets })
   } catch (error) {
-    console.error('Error fetching budgets:', error)
+    logger.error({ module: 'budget-routes', error }, 'Failed to fetch budgets')
     res.status(500).json({ error: 'Failed to fetch budgets' })
   }
 })
@@ -48,7 +49,7 @@ budgetRoutes.get('/', requireAuth, async (req, res) => {
 
     res.json(budget)
   } catch (error) {
-    console.error('Error fetching budget:', error)
+    logger.error({ module: 'budget-routes', error }, 'Failed to fetch active budget')
     res.status(500).json({ error: 'Failed to fetch budget' })
   }
 })
@@ -67,7 +68,7 @@ budgetRoutes.get('/:budgetId', requireAuth, async (req, res) => {
 
     res.json(budget)
   } catch (error) {
-    console.error('Error fetching budget:', error)
+    logger.error({ module: 'budget-routes', budgetId: req.params.budgetId, error }, 'Failed to fetch budget by ID')
     res.status(500).json({ error: 'Failed to fetch budget' })
   }
 })
@@ -112,7 +113,7 @@ budgetRoutes.post('/create', requireAuth, async (req, res) => {
 
     res.json({ success: true, budgetId })
   } catch (error: any) {
-    console.error('Error creating budget:', error)
+    logger.error({ module: 'budget-routes', error }, 'Failed to create budget')
     res.status(500).json({ error: error.message ?? 'Failed to create budget' })
   }
 })
@@ -144,7 +145,7 @@ budgetRoutes.put('/:budgetId', requireAuth, async (req, res) => {
     await updateBudgetById(customerId, budgetId, updates)
     res.json({ success: true })
   } catch (error) {
-    console.error('Error updating budget:', error)
+    logger.error({ module: 'budget-routes', budgetId: req.params.budgetId, error }, 'Failed to update budget')
     res.status(500).json({ error: 'Failed to update budget' })
   }
 })
@@ -156,7 +157,7 @@ budgetRoutes.post('/:budgetId/activate', requireAuth, async (req, res) => {
     await setActiveBudget(req.user!.customerId, budgetId)
     res.json({ success: true })
   } catch (error) {
-    console.error('Error activating budget:', error)
+    logger.error({ module: 'budget-routes', budgetId: req.params.budgetId, error }, 'Failed to activate budget')
     res.status(500).json({ error: 'Failed to activate budget' })
   }
 })
@@ -168,7 +169,7 @@ budgetRoutes.delete('/:budgetId', requireAuth, async (req, res) => {
     await deleteBudget(req.user!.customerId, budgetId)
     res.json({ success: true })
   } catch (error: any) {
-    console.error('Error deleting budget:', error)
+    logger.error({ module: 'budget-routes', budgetId: req.params.budgetId, error }, 'Failed to delete budget')
     res.status(500).json({ error: error.message ?? 'Failed to delete budget' })
   }
 })
@@ -200,7 +201,7 @@ budgetRoutes.patch('/', requireAuth, async (req, res) => {
 
     res.json({ success: true })
   } catch (error) {
-    console.error('Error updating budget:', error)
+    logger.error({ module: 'budget-routes', error }, 'Failed to update budget (PATCH)')
     res.status(500).json({ error: 'Failed to update budget' })
   }
 })

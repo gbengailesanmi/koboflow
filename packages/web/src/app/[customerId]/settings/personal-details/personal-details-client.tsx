@@ -1,108 +1,97 @@
 'use client'
 
-import { DetailPage } from '@/app/components/detail-page'
-import { PersonIcon, EnvelopeClosedIcon, MobileIcon, HomeIcon, CalendarIcon, IdCardIcon } from '@radix-ui/react-icons'
+import { useState, useEffect } from 'react'
+import Sidebar from '@/app/components/sidebar/sidebar'
+import { UserInfoCard } from '@/app/components/user-info-card'
+import { PageHeader } from '@/app/components/page-header/page-header'
+import Footer from '@/app/components/footer/footer'
+import { logger } from '@money-mapper/shared'
+import type { CustomerDetailsFromMono } from '@money-mapper/shared'
+import styles from './personal-details.module.css'
 
 type PersonalDetailsClientProps = {
   customerId: string
-  firstName: string
-  lastName: string
-  email: string
-  bvn: string
-  dob: string
-  phone: string
-  gender: string
-  addressLine1: string
-  addressLine2: string
-  maritalStatus: string
 }
 
 export default function PersonalDetailsClient({
   customerId,
-  firstName,
-  lastName,
-  email,
-  bvn,
-  dob,
-  phone,
-  gender,
-  addressLine1,
-  addressLine2,
-  maritalStatus,
 }: PersonalDetailsClientProps) {
-  const formatDate = (dateString: string) => {
-    if (!dateString) return '—'
-    try {
-      const date = new Date(dateString)
-      return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      })
-    } catch {
-      return dateString
+  const [customerDetails, setCustomerDetails] = useState<CustomerDetailsFromMono | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    async function fetchCustomerDetails() {
+      try {
+        setIsLoading(true)
+        const response = await fetch('/api/user/details')
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch customer details')
+        }
+
+        const data = await response.json()
+        setCustomerDetails(data.customerDetailsFromMono)
+      } catch (err) {
+        logger.error({ module: 'personal-details-client', err }, 'Error fetching customer details')
+        setError(err instanceof Error ? err.message : 'Unknown error')
+      } finally {
+        setIsLoading(false)
+      }
     }
-  }
 
-  const formatAddress = () => {
-    const parts = [addressLine1, addressLine2].filter(Boolean)
-    return parts.length > 0 ? parts.join(', ') : '—'
-  }
+    fetchCustomerDetails()
+  }, [])
 
-  const detailItems = [
-    {
-      label: 'First Name',
-      value: firstName,
-      icon: <PersonIcon />,
-    },
-    {
-      label: 'Last Name',
-      value: lastName,
-      icon: <PersonIcon />,
-    },
-    {
-      label: 'Email Address',
-      value: email,
-      icon: <EnvelopeClosedIcon />,
-    },
-    {
-      label: 'Phone Number',
-      value: phone,
-      icon: <MobileIcon />,
-    },
-    {
-      label: 'BVN',
-      value: bvn ? `${bvn.slice(0, 3)}****${bvn.slice(-3)}` : '—',
-      icon: <IdCardIcon />,
-    },
-    {
-      label: 'Date of Birth',
-      value: formatDate(dob),
-      icon: <CalendarIcon />,
-    },
-    {
-      label: 'Gender',
-      value: gender ? gender.charAt(0).toUpperCase() + gender.slice(1).toLowerCase() : '—',
-      icon: <PersonIcon />,
-    },
-    {
-      label: 'Marital Status',
-      value: maritalStatus ? maritalStatus.charAt(0).toUpperCase() + maritalStatus.slice(1).toLowerCase() : '—',
-      icon: <PersonIcon />,
-    },
-    {
-      label: 'Address',
-      value: formatAddress(),
-      icon: <HomeIcon />,
-    },
-  ]
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <div className={styles.emptyState}>
+          <p className={styles.emptyText}>Loading your personal details...</p>
+        </div>
+      )
+    }
+
+    if (error) {
+      return (
+        <div className={styles.emptyState}>
+          <p className={styles.emptyText}>Error: {error}</p>
+        </div>
+      )
+    }
+
+    if (!customerDetails) {
+      return (
+        <div className={styles.emptyState}>
+          <p className={styles.emptyText}>
+            No bank account linked yet. Link your bank account to view your verified personal details.
+          </p>
+        </div>
+      )
+    }
+
+    return (
+      <UserInfoCard
+        title="Bank Verification Details"
+        subtitle="Information verified from your linked bank account"
+        customerDetailsFromMono={customerDetails}
+      />
+    )
+  }
 
   return (
-    <DetailPage
-      title="Personal Details"
-      subtitle="Your personal information from your bank verification"
-      items={detailItems}
-      customerId={customerId}
-    />
+    <Sidebar customerId={customerId}>
+      <div className={styles.container}>
+        <div className={styles.wrapper}>
+          <PageHeader 
+            title="Personal Details"
+            subtitle="Your personal information from bank verification"
+          />
+          
+          {renderContent()}
+        </div>
+        <Footer buttonColor='#222222' opacity={50} />
+      </div>
+    </Sidebar>
   )
 }

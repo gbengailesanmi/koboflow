@@ -3,6 +3,7 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { budgetUpdateAction, budgetCreateAction, budgetSetActiveAction, budgetDeleteAction } from '@/app/actions/budget.actions'
+import { logger } from '@money-mapper/shared'
 import Sidebar from '@/app/components/sidebar/sidebar'
 import { PageHeader } from '@/app/components/page-header/page-header'
 import { PageLayout } from '@/app/components/page-layout/page-layout'
@@ -10,14 +11,13 @@ import { BudgetSwitcher } from '@/app/components/budget-switcher'
 import { useScrollRestoration } from '@/hooks/use-scroll-restoration'
 import type { EnrichedTransaction } from '@money-mapper/shared'
 import type { CustomCategory } from '@/types/custom-category'
-import type { Budget } from '@money-mapper/shared'
+import type { Budget, BudgetPeriod, BudgetPeriodType } from '@money-mapper/shared'
 import { categorizeTransaction } from '@/app/components/analytics/utils/categorize-transaction'
 import { formatCurrency } from '@/app/components/analytics/utils/format-currency'
 import { getCategoryConfig } from '@/app/components/analytics/utils/category-config'
 import { BudgetProgress } from '@/app/components/budget-progress'
 import { EmptyState } from '@/app/components/empty-state'
 import { StatusAlert } from '@/app/components/status-alert'
-import type { BudgetPeriod, BudgetPeriodType } from '@/types/budget'
 import { Dialog, Button, Flex, Text, Progress, Grid } from '@radix-ui/themes'
 import styles from './budget.module.css'
 
@@ -87,7 +87,7 @@ export default function BudgetClient({
 
   const saveBudget = useCallback(async (updates: Partial<BudgetData>) => {
     if (!budgetData._id) {
-      console.error('No active budget to update')
+      logger.warn({ module: 'budget-client' }, 'No active budget to update')
       return
     }
 
@@ -103,10 +103,10 @@ export default function BudgetClient({
       if (result.success) {
         router.refresh()
       } else {
-        console.error(result.message || 'Failed to save budget')
+        logger.error({ module: 'budget-client', message: result.message }, 'Failed to save budget')
       }
     } catch (error) {
-      console.error('Failed to save budget:', error)
+      logger.error({ module: 'budget-client', error }, 'Failed to save budget')
     } finally {
       setIsSaving(false)
     }
@@ -118,10 +118,10 @@ export default function BudgetClient({
       if (result.success) {
         router.refresh()
       } else {
-        console.error(result.message || 'Failed to switch budget')
+        logger.error({ module: 'budget-client', budgetId, message: result.message }, 'Failed to switch budget')
       }
     } catch (error) {
-      console.error('Failed to switch budget:', error)
+      logger.error({ module: 'budget-client', budgetId, error }, 'Failed to switch budget')
     }
   }, [router])
 
@@ -138,10 +138,10 @@ export default function BudgetClient({
       if (result.success) {
         router.refresh()
       } else {
-        console.error(result.message || 'Failed to create budget')
+        logger.error({ module: 'budget-client', name, message: result.message }, 'Failed to create budget')
       }
     } catch (error) {
-      console.error('Failed to create budget:', error)
+      logger.error({ module: 'budget-client', name, error }, 'Failed to create budget')
     }
   }, [router])
 
@@ -151,10 +151,10 @@ export default function BudgetClient({
       if (result.success) {
         router.refresh()
       } else {
-        console.error(result.message || 'Failed to delete budget')
+        logger.error({ module: 'budget-client', budgetId, message: result.message }, 'Failed to delete budget')
       }
     } catch (error) {
-      console.error('Failed to delete budget:', error)
+      logger.error({ module: 'budget-client', budgetId, error }, 'Failed to delete budget')
     }
   }, [router])
 

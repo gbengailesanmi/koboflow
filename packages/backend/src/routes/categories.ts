@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import { requireAuth } from '../middleware/middleware'
+import { logger } from '@money-mapper/shared'
 import {
   getCategories,
   getCustomCategories,
@@ -23,7 +24,7 @@ categoryRoutes.get('/', requireAuth, async (req, res) => {
     
     res.json(categories)
   } catch (error) {
-    console.error('Error fetching categories:', error)
+    logger.error({ module: 'categories-routes', error }, 'Failed to fetch categories')
     res.status(500).json({ error: 'Failed to fetch categories' })
   }
 })
@@ -40,7 +41,7 @@ categoryRoutes.get('/custom', requireAuth, async (req, res) => {
     
     res.json(customCategories)
   } catch (error) {
-    console.error('Error fetching custom categories:', error)
+    logger.error({ module: 'categories-routes', error }, 'Failed to fetch custom categories')
     res.status(500).json({ error: 'Failed to fetch custom categories' })
   }
 })
@@ -55,15 +56,15 @@ categoryRoutes.post('/', requireAuth, async (req, res) => {
 
     const { name, keywords, color } = req.body
     
-    console.log('[Categories POST] Received request:', { customerId, name, keywords, color })
+    logger.info({ module: 'categories-routes', customerId, name, keywordsCount: keywords?.length }, 'Category creation request')
 
     if (!name?.trim()) {
-      console.log('[Categories POST] ❌ Validation failed: Category name is required')
+      logger.warn({ module: 'categories-routes', customerId }, 'Category name is required')
       return res.status(400).json({ error: 'Category name is required' })
     }
 
     if (!Array.isArray(keywords) || keywords.length === 0) {
-      console.log('[Categories POST] ❌ Validation failed: At least one keyword is required')
+      logger.warn({ module: 'categories-routes', customerId }, 'At least one keyword is required')
       return res.status(400).json({ error: 'At least one keyword is required' })
     }
 
@@ -73,10 +74,10 @@ categoryRoutes.post('/', requireAuth, async (req, res) => {
       color: color || '#6b7280'
     })
 
-    console.log('[Categories POST] ✅ Category created successfully:', category.id)
+    logger.info({ module: 'categories-routes', categoryId: category.id }, 'Category created successfully')
     res.json(category)
   } catch (error) {
-    console.error('[Categories POST] ❌ Error creating category:', error)
+    logger.error({ module: 'categories-routes', error }, 'Failed to create category')
     res.status(500).json({ error: 'Failed to create category' })
   }
 })
@@ -111,7 +112,7 @@ categoryRoutes.patch('/:id', requireAuth, async (req, res) => {
 
     res.json({ success: true })
   } catch (error: any) {
-    console.error('Error updating category:', error)
+    logger.error({ module: 'categories-routes', categoryId: req.params.id, error }, 'Failed to update category')
     if (error.message === 'Cannot edit default categories') {
       return res.status(403).json({ error: error.message })
     }
@@ -141,7 +142,7 @@ categoryRoutes.delete('/:id', requireAuth, async (req, res) => {
 
     res.json({ success: true })
   } catch (error: any) {
-    console.error('Error deleting category:', error)
+    logger.error({ module: 'categories-routes', categoryId: req.params.id, error }, 'Failed to delete category')
     if (error.message === 'Cannot delete default categories') {
       return res.status(403).json({ error: error.message })
     }

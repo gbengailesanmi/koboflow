@@ -1,11 +1,11 @@
 import { connectDB } from '../db/mongo'
-import { UserSettings, DEFAULT_SETTINGS } from '@money-mapper/shared'
+import { UserSettings, DEFAULT_SETTINGS, logger } from '@money-mapper/shared'
 
 export async function createUserSettings(customerId: string): Promise<{ success: boolean; settingsId?: any; error?: any }> {
   try {
     const db = await connectDB()
     
-    console.log(`[Settings] Creating settings for user: ${customerId}`)
+    logger.info({ module: 'settings-service', customerId }, 'Creating settings for user')
     
     const settings: UserSettings = {
       customerId,
@@ -16,14 +16,17 @@ export async function createUserSettings(customerId: string): Promise<{ success:
 
     const result = await db.collection('settings').insertOne(settings)
     
-    console.log(`[Settings] ✅ Settings created with ID: ${result.insertedId}`)
-    console.log(`[Settings]    - Theme: ${DEFAULT_SETTINGS.appearance.theme}`)
-    console.log(`[Settings]    - Email notifications: ${DEFAULT_SETTINGS.receiveOn.email}`)
-    console.log(`[Settings]    - Budget alerts: ${DEFAULT_SETTINGS.notifications.budgetAlerts}`)
+    logger.info({
+      module: 'settings-service',
+      settingsId: result.insertedId,
+      theme: DEFAULT_SETTINGS.appearance.theme,
+      emailNotifications: DEFAULT_SETTINGS.receiveOn.email,
+      budgetAlerts: DEFAULT_SETTINGS.notifications.budgetAlerts
+    }, 'Settings created')
 
     return { success: true, settingsId: result.insertedId }
   } catch (error) {
-    console.error('[Settings] ❌ Error creating user settings:', error)
+    logger.error({ module: 'settings-service', error }, 'Error creating user settings')
     return { success: false, error }
   }
 }
@@ -48,7 +51,7 @@ export async function getUserSettings(customerId: string): Promise<UserSettings 
     
     return settings as unknown as UserSettings
   } catch (error) {
-    console.error('Error getting user settings:', error)
+    logger.error({ module: 'settings-service', error }, 'Error getting user settings')
     throw error
   }
 }
@@ -91,7 +94,7 @@ export async function updateUserSettings(
 
     return { success: true, modifiedCount: result.modifiedCount }
   } catch (error) {
-    console.error('Error updating user settings:', error)
+    logger.error({ module: 'settings-service', error }, 'Error updating user settings')
     return { success: false, error }
   }
 }

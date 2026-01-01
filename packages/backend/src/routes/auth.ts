@@ -7,6 +7,7 @@ import { createUserSettings } from '../services/settings'
 import { initializeUserCategories } from '../db/helpers/spending-categories-helpers'
 import { requireAuth } from '../middleware/middleware'
 import { logger } from '@money-mapper/shared/utils'
+import { UpdateUserProfileSchema } from '@money-mapper/shared/schemas'
 
 export const authRoutes = Router()
 
@@ -31,12 +32,12 @@ authRoutes.post('/signup', async (req, res) => {
     const normalizedEmail = email.trim().toLowerCase()
     const db = await connectDB()
 
-        console.log('[SIGNUPcedce][DEBUG]', {
+    logger.info({ 
+      module: 'auth',
       dbName: db.databaseName,
-      mongoUri: process.env.MONGODB_URI,
-      emailRaw: email,
       emailNormalized: normalizedEmail,
-    })
+    }, 'User signup attempt')
+    
     const existing = await db.collection('users').findOne({ email: normalizedEmail })
     if (existing) {
       return res.status(400).json({ message: 'Email already registered.' })
@@ -161,24 +162,103 @@ authRoutes.get('/me', requireAuth, async (req, res) => {
 
 // ----------------------------------- UPDATE USER ----------------------------------- //
 authRoutes.patch('/me', requireAuth, async (req, res) => {
-  const { firstName, lastName } = req.body
+  try {
+    // Validate input using Zod schema
+    const validatedData = UpdateUserProfileSchema.parse(req.body)
 
-  if (!firstName || !lastName) {
-    return res.status(400).json({ message: 'First and last name required' })
-  }
-
-  const db = await connectDB()
-
-  await db.collection('users').updateOne(
-    { customerId: req.user!.customerId },
-    {
-      $set: {
-        firstName: firstName.trim(),
-        lastName: lastName.trim(),
-        updatedAt: new Date(),
-      },
+    if (!validatedData.firstName || !validatedData.lastName) {
+      return res.status(400).json({ message: 'First and last name required' })
     }
-  )
 
-  return res.json({ success: true })
+    const db = await connectDB()
+
+    const updateFields: any = {
+      updatedAt: new Date(),
+    }
+
+    if (validatedData.firstName) {
+      updateFields.firstName = validatedData.firstName.trim()
+    }
+    if (validatedData.lastName) {
+      updateFields.lastName = validatedData.lastName.trim()
+    }
+    if (validatedData.email) {
+      updateFields.email = validatedData.email.trim().toLowerCase()
+    }
+
+    await db.collection('users').updateOne(
+      { customerId: req.user!.customerId },
+      { $set: updateFields }
+    )
+
+    logger.info({ module: 'auth', customerId: req.user!.customerId }, 'User profile updated')
+
+    return res.json({ success: true })
+  } catch (err: any) {
+    if (err.name === 'ZodError') {
+      logger.error({ module: 'auth', err }, 'Validation error updating profile')
+      return res.status(400).json({ 
+        message: 'Validation error', 
+        errors: err.errors 
+      })
+    }
+    
+    logger.error({ module: 'auth', err }, 'Error updating profile')
+    return res.status(500).json({ message: 'Failed to update profile' })
+  }
+})
+
+// ----------------------------------- UPDATE USER BY CUSTOMER ID ----------------------------------- //
+authRoutes.patch('/user/:customerId', requireAuth, async (req, res) => {
+  try {
+    const { customerId } = req.params
+
+    // Ensure user can only update their own profile
+    if (req.user!.customerId !== customerId) {
+      return res.status(403).json({ message: 'Forbidden' })
+    }
+
+    // Validate input using Zod schema
+    const validatedData = UpdateUserProfileSchema.parse(req.body)
+
+    const db = await connectDB()
+
+    const updateFields: any = {
+      updatedAt: new Date(),
+    }
+
+    if (validatedData.firstName) {
+      updateFields.firstName = validatedData.firstName.trim()
+    }
+    if (validatedData.lastName) {
+      updateFields.lastName = validatedData.lastName.trim()
+    }
+    if (validatedData.email) {
+      updateFields.email = validatedData.email.trim().toLowerCase()
+    }
+
+    const result = await db.collection('users').updateOne(
+      { customerId },
+      { $set: updateFields }
+    )
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ message: 'User not found' })
+    }
+
+    logger.info({ module: 'auth', customerId }, 'User profile updated via customerId')
+
+    return res.json({ success: true })
+  } catch (err: any) {
+    if (err.name === 'ZodError') {
+      logger.error({ module: 'auth', err }, 'Validation error updating profile')
+      return res.status(400).json({ 
+        message: 'Validation error', 
+        errors: err.errors 
+      })
+    }
+    
+    logger.error({ module: 'auth', err }, 'Error updating profile')
+    return res.status(500).json({ message: 'Failed to update profile' })
+  }
 })

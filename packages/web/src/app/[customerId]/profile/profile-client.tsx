@@ -4,31 +4,41 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { userUpdateProfileAction } from '@/app/actions/user.actions'
 import Sidebar from '@/app/components/sidebar/sidebar'
-import { Pencil1Icon, CheckIcon, Cross2Icon, PersonIcon, EnvelopeClosedIcon } from '@radix-ui/react-icons'
+import { UserInfoCard } from '@/app/components/user-info-card'
+import { logger } from '@money-mapper/shared'
+import { 
+  Pencil1Icon, 
+  CheckIcon, 
+  Cross2Icon, 
+  PersonIcon, 
+  EnvelopeClosedIcon,
+} from '@radix-ui/react-icons'
 import Footer from '@/app/components/footer/footer'
 import { PageHeader } from '@/app/components/page-header/page-header'
 import { 
   Button, 
   TextField, 
-  Select, 
   Text,
   Flex,
   Box,
 } from '@radix-ui/themes'
 import styles from './profile.module.css'
+import type { CustomerDetailsFromMono } from '@money-mapper/shared'
 
 type ProfileClientProps = {
   customerId: string
   firstName: string
   lastName: string
   email: string
+  customerDetailsFromMono?: CustomerDetailsFromMono
 }
 
 export default function ProfileClient({
   customerId,
   firstName,
   lastName,
-  email
+  email,
+  customerDetailsFromMono,
 }: ProfileClientProps) {
   const router = useRouter()
 
@@ -42,12 +52,12 @@ export default function ProfileClient({
 
   const handleSave = async () => {
     if (!formData.firstName?.trim() || !formData.lastName?.trim() || !formData.email?.trim()) {
-      console.error('First name, last name, and email are required')
+      logger.warn({ module: 'profile-client' }, 'First name, last name, and email are required')
       return
     }
 
     if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      console.error('Please enter a valid email address')
+      logger.warn({ module: 'profile-client', email: formData.email }, 'Invalid email address')
       return
     }
 
@@ -61,7 +71,7 @@ export default function ProfileClient({
       })
 
       if (!result.success) {
-        console.error(result.message || 'Failed to update profile')
+        logger.error({ module: 'profile-client', message: result.message }, 'Failed to update profile')
         return
       }
 
@@ -70,7 +80,7 @@ export default function ProfileClient({
       router.refresh()
 
     } catch (err: any) {
-      console.error(err.message || 'An unexpected error occurred')
+      logger.error({ module: 'profile-client', err }, err.message || 'An unexpected error occurred')
     } finally {
       setSavingProfile(false)
     }
@@ -92,10 +102,10 @@ export default function ProfileClient({
           <div>
             <PageHeader 
               title="Profile" 
-              subtitle="Manage your account settings and preferences"
+              subtitle="Manage your account settings and personal information"
             />
 
-            {/* User Info Card */}
+            {/* Editable User Info Card */}
             <div id="user-info" className={styles.profileCard}>
               {/* Customer ID Section */}
               <div className={styles.customerIdSection}>
@@ -195,6 +205,16 @@ export default function ProfileClient({
                 )}
               </Flex>
             </div>
+
+            {/* Bank Verification Details (Read-only) - Using Reusable Component */}
+            {customerDetailsFromMono && (
+              <UserInfoCard
+                title="Bank Verification Details"
+                subtitle="Information verified from your linked bank account"
+                customerDetailsFromMono={customerDetailsFromMono}
+                className={styles.kycSection}
+              />
+            )}
           </div>
         </div>
         

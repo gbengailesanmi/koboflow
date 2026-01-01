@@ -1,5 +1,6 @@
 import config from '../config'
 import { normaliseTestAccountNumber, normaliseAccountBVNToIdentity } from '../test-helpers/account-normalizer'
+import { logger } from '@money-mapper/shared'
 import { MonoTransaction, MonoAuthResponse, MonoAccountDetails, MonoAccountIdentity, MonoAccountBalance, MonoTransactionsResponse, MonoCreditWorthinessRequest, MonoStatementOptions, MonoEarnings, MonoAssets } from '@money-mapper/shared'
 
 const MONO_API_BASE = 'https://api.withmono.com/v2'
@@ -10,7 +11,7 @@ async function monoFetch<T>(
 ): Promise<T> {
   const url = `${MONO_API_BASE}${endpoint}`
   
-  console.log(`[Mono] ${options.method || 'GET'} ${url}`)
+  logger.info({ module: 'mono-service', method: options.method || 'GET', url }, 'Mono API request')
   
   const response = await fetch(url, {
     ...options,
@@ -32,17 +33,17 @@ async function monoFetch<T>(
   try {
     data = JSON.parse(text)
   } catch (e) {
-    console.error(`[Mono] Invalid JSON response:`, text.substring(0, 200))
+    logger.error({ module: 'mono-service', endpoint, response: text.substring(0, 200) }, 'Invalid JSON response from Mono')
     throw new Error(`Invalid JSON from Mono API: ${endpoint}`)
   }
 
   if (!response.ok) {
     const errorMessage = data.message || data.error || `Request failed with status ${response.status}`
-    console.error(`[Mono] API Error:`, errorMessage)
+    logger.error({ module: 'mono-service', endpoint, errorMessage }, 'Mono API error')
     throw new Error(errorMessage)
   }
 
-  console.log(`[Mono] Response:`, JSON.stringify(data).substring(0, 200))
+  logger.info({ module: 'mono-service', response: JSON.stringify(data).substring(0, 200) }, 'Mono API response')
   return data
 }
 
@@ -166,14 +167,14 @@ export async function fetchAllTransactions(
   
   if (options.start) {
     requestOptions.start = formatDate(options.start)
-    console.log(`[Mono] Using start date: ${requestOptions.start}`)
+    logger.info({ module: 'mono-service', start: requestOptions.start }, 'Using start date for transactions')
   } else {
-    console.log(`[Mono] No start date filter - fetching all available transactions`)
+    logger.info({ module: 'mono-service' }, 'No start date filter - fetching all available transactions')
   }
   
   if (options.end) {
     requestOptions.end = formatDate(options.end)
-    console.log(`[Mono] Using end date: ${requestOptions.end}`)
+    logger.info({ module: 'mono-service', end: requestOptions.end }, 'Using end date for transactions')
   }
   
   if (options.narration) {
@@ -185,13 +186,13 @@ export async function fetchAllTransactions(
   }
   
   while (hasMore) {
-    console.log(`[Mono] Fetching transactions page ${page}`)
+    logger.info({ module: 'mono-service', page }, 'Fetching transactions page')
     requestOptions.page = page
     
     const response = await fetchTransactions(accountId, requestOptions)
     
     const transactions = response.data || []
-    console.log(`[Mono] Got ${transactions.length} transactions on page ${page}`)
+    logger.info({ module: 'mono-service', page, count: transactions.length }, 'Got transactions for page')
     
     allTransactions.push(...transactions)
     
@@ -199,12 +200,12 @@ export async function fetchAllTransactions(
     page++
     
     if (page > 100) {
-      console.warn('[Mono] Reached page limit (100), stopping pagination')
+      logger.warn({ module: 'mono-service' }, 'Reached page limit (100), stopping pagination')
       break
     }
   }
   
-  console.log(`[Mono] Total transactions fetched: ${allTransactions.length}`)
+  logger.info({ module: 'mono-service', total: allTransactions.length }, 'Total transactions fetched')
   return allTransactions
 }
 
@@ -334,15 +335,13 @@ export async function waitForTransactionsReady(
     const ready = retrieved.includes('transactions')
 
     if (ready) {
-      console.log('[Mono] Transactions are ready')
+      logger.info({ module: 'mono-service', accountId }, 'Transactions are ready')
       return true
     }
-    console.log(
-      `[Mono] Transactions not ready (attempt ${attempt}/${maxAttempts})`
-    )
+    logger.info({ module: 'mono-service', accountId, attempt, maxAttempts }, 'Transactions not ready yet')
     await sleep(intervalMs)
   }
-  console.warn('[Mono] Timed out waiting for transactions to be ready')
+  logger.warn({ module: 'mono-service', accountId }, 'Timed out waiting for transactions to be ready')
   return false
 }
 

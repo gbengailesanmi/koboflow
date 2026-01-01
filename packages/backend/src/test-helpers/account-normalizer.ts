@@ -1,4 +1,5 @@
 import config from '../config'
+import { logger } from '@money-mapper/shared'
 
 export function normaliseTestAccountNumber(
   accountNumber: string,
@@ -13,7 +14,12 @@ export function normaliseTestAccountNumber(
   }
 
   const normalized = `${accountNumber}-${bankCode}`
-  console.log(`[Test Mode] Normalized account: ${accountNumber} → ${normalized} (${bankCode})`)
+  logger.debug({
+    module: 'account-normalizer',
+    original: accountNumber,
+    normalized,
+    bankCode
+  }, 'Normalized test account')
   
   return normalized
 }

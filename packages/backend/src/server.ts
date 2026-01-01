@@ -6,6 +6,7 @@ import config from './config'
 import express, { Express, Request, Response } from 'express'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
+import { logger } from '@money-mapper/shared'
 
 // routes
 import { authRoutes } from './routes/auth'
@@ -61,8 +62,9 @@ app.use(cookieParser()) // 👈 THIS WAS THE MISSING RUNTIME PIECE
 app.use((req: Request, res: Response, next) => {
   const start = Date.now()
   res.on('finish', () => {
-    console.log(
-      `[${req.method}] ${req.path} - ${res.statusCode} (${Date.now() - start}ms)`
+    logger.info(
+      { module: 'server', method: req.method, path: req.path, statusCode: res.statusCode, duration: Date.now() - start },
+      'HTTP request completed'
     )
   })
   next()
@@ -90,7 +92,7 @@ app.use('/api/categories', categoryRoutes)
 // Error handler
 // -----------------------------------------------------------------------------
 app.use((err: any, _req: Request, res: Response, _next: any) => {
-  console.error(err)
+  logger.error({ module: 'server', err }, 'Server error occurred')
   res.status(500).json({
     error: 'Something went wrong',
     message: config.IS_PRODUCTION ? undefined : err.message,
@@ -101,5 +103,5 @@ app.use((err: any, _req: Request, res: Response, _next: any) => {
 // Boot
 // -----------------------------------------------------------------------------
 app.listen(BACKEND_PORT, () => {
-  console.log(`🚀 Backend running on port ${BACKEND_PORT}`)
+  logger.info({ module: 'server', port: BACKEND_PORT }, 'Backend server started')
 })
