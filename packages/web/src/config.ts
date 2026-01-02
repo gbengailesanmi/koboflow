@@ -13,7 +13,9 @@ const config = {
   MONGO_DB_NAME: process.env.MONGO_DB_NAME,
 
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
-  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID
+  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+
+  API_KEY: process.env.API_KEY
 } as const
 
 export default config

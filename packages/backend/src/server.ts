@@ -7,6 +7,7 @@ import express, { Express, Request, Response } from 'express'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import { logger } from '@money-mapper/shared'
+import { verifySignature } from './middleware/signature-verifier'
 
 // routes
 import { authRoutes } from './routes/auth'
@@ -34,7 +35,7 @@ app.use(
     origin: allowedOrigins,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-internal-api-signature'],
   })
 )
 
@@ -79,8 +80,7 @@ app.get('/health', (_req, res) => {
 })
 
 // -----------------------------------------------------------------------------
-// Routes (AFTER cookieParser)
-// -----------------------------------------------------------------------------
+app.use('/api', verifySignature)
 app.use('/api/auth', authRoutes)
 app.use('/api/mono', monoRoutes)
 app.use('/api/budget', budgetRoutes)

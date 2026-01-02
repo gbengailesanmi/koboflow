@@ -11,6 +11,7 @@ export const authOptions: AuthOptions = {
   secret: config.NEXTAUTH_SECRET,
   session: {
     strategy: 'jwt',
+    maxAge: 1 * 60 * 60
   },
 
   cookies: {

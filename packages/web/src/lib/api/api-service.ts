@@ -4,6 +4,7 @@
 import { cookies } from 'next/headers'
 import config from '../../config'
 import { logger } from '@money-mapper/shared'
+import { addApiSignature } from '../auth/signature-signer'
 import type {
   Account,
   EnrichedTransaction,
@@ -27,10 +28,6 @@ export type Settings = UserSettings
 const BACKEND_URL = config.NEXT_PUBLIC_BACKEND_URL
 
 
-/**
- * Server-side fetch helper with session cookie forwarding
- * Automatically includes session-id cookie from Next.js server context
- */
 export async function serverFetch(
   url: string,
   options: RequestInit = {}
@@ -42,12 +39,14 @@ export async function serverFetch(
     .map(c => `${c.name}=${c.value}`)
     .join('; ')
 
+  const signedHeaders = addApiSignature({
+    ...(options.headers as Record<string, string> || {}),
+    Cookie: cookieHeader,
+  })
+
   return fetch(url, {
     ...options,
-    headers: {
-      ...options.headers,
-      Cookie: cookieHeader,
-    },
+    headers: signedHeaders,
     cache: options.cache ?? 'no-store',
   })
 }
