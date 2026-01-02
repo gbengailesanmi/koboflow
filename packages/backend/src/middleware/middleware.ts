@@ -15,9 +15,18 @@ export async function requireAuth(
       hasCookieHeader: !!req.headers.cookie,
     })
 
+    const isProd = process.env.NODE_ENV === 'production'
+    const cookieName = isProd 
+      ? '__Secure-next-auth.session-token'
+      : 'next-auth.session-token'
+
+    console.log('🍪 [Auth Middleware] Looking for cookie', { cookieName, isProd })
+
     const token = await getToken({
       req,
       secret: process.env.NEXTAUTH_SECRET,
+      secureCookie: isProd,
+      cookieName,
     })
 
     console.log('🎫 [Auth Middleware] Token result', {
