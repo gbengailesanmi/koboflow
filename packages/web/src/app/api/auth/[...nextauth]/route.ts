@@ -12,7 +12,6 @@ export const authOptions: AuthOptions = {
   session: {
     strategy: 'jwt',
   },
-  ...(config.NEXTAUTH_URL && { url: config.NEXTAUTH_URL }),
 
   cookies: {
     sessionToken: {
@@ -22,9 +21,9 @@ export const authOptions: AuthOptions = {
           : 'next-auth.session-token',
       options: {
         httpOnly: true,
-        sameSite: 'none',
+        sameSite: 'lax',
         path: '/',
-        secure: true,
+        secure: config.IS_PRODUCTION,
       },
     },
   },
