@@ -1,8 +1,8 @@
 import { redirect } from 'next/navigation'
-import { getAccounts, getTransactions, getBudget } from '@/lib/server/api-service'
+import { getAccounts, getTransactions, getBudget } from '@/lib/api/api-service'
 import DashboardClient from './dashboard-client'
 import DashboardThemeWrapper from './utils/dashboard-theme'
-import { getServerSession } from '@/lib/server/get-server-session'
+import { getServerSession } from '@/lib/api/get-server-session'
 
 interface DashboardPageProps {
   params: Promise<{ customerId: string }>

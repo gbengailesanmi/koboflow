@@ -1,7 +1,7 @@
 'use server'
 
 import { actionFactory } from './factory.action'
-import { updateSettings } from '../../lib/server/api-service'
+import { updateSettings } from '../../lib/api/api-service'
 import type { UserSettings } from '@money-mapper/shared'
 
 export async function settingsUpdateAction(

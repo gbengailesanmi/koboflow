@@ -6,7 +6,7 @@ import {
   changeUserPIN,
   setUserPIN,
   resendVerificationEmail,
-} from '../../lib/server/api-service'
+} from '../../lib/api/api-service'
 
 export async function securityChangePasswordAction(
   currentPassword: string,

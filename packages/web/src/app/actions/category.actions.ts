@@ -5,7 +5,7 @@ import {
   createCustomCategory,
   updateCustomCategory,
   deleteCustomCategory,
-} from '../../lib/server/api-service'
+} from '../../lib/api/api-service'
 import type { CustomCategory } from '@money-mapper/shared'
 
 export async function categoryCreateAction(

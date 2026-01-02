@@ -1,8 +1,8 @@
 'use server'
 
 import { actionFactory } from './factory.action'
-import { updateUserProfile } from '../../lib/server/api-service'
-import { deleteAccount } from '../../lib/server/api-service'
+import { updateUserProfile } from '../../lib/api/api-service'
+import { deleteAccount } from '../../lib/api/api-service'
 
 export async function userUpdateProfileAction(
   customerId: string,

@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
-import { getSettings } from '@/lib/server/api-service'
+import { getSettings } from '@/lib/api/api-service'
 import SettingsClient from './settings-client'
-import { getServerSession } from '@/lib/server/get-server-session'
+import { getServerSession } from '@/lib/api/get-server-session'
 type PageProps = {
   params: Promise<{
     customerId: string

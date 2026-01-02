@@ -1,5 +1,5 @@
 // /Users/gbenga.ilesanmi/Github/PD/money-mapper/packages/web/src/types/next-auth.d.ts
-import { DefaultSession, DefaultUser } from 'next-auth'
+import { DefaultSession } from 'next-auth'
 
 declare module 'next-auth' {
   interface Session {
@@ -10,7 +10,8 @@ declare module 'next-auth' {
     } & DefaultSession['user']
   }
 
-  interface User extends DefaultUser {
+  interface User {
+    id?: string
     customerId: string
     firstName?: string
     lastName?: string

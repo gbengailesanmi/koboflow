@@ -8,7 +8,7 @@ import {
   syncMonoTransactions,
   getMonoAccountIdentity,
   getCustomerDetailsFromMono,
-} from '@/lib/server/api-service'
+} from '@/lib/api/api-service'
 
 /**
  * Mono: Connect account, import it, sync transactions

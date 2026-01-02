@@ -1,5 +1,5 @@
-import { getServerSession } from '@/lib/server/get-server-session'
-import { getSettings } from '@/lib/server/api-service'
+import { getServerSession } from '@/lib/api/get-server-session'
+import { getSettings } from '@/lib/api/api-service'
 import { redirect } from 'next/navigation'
 import ManageNotificationsClient from './manage-notifications-client'
 

@@ -1,4 +1,4 @@
-import { getServerSession } from '@/lib/server/get-server-session'
+import { getServerSession } from '@/lib/api/get-server-session'
 import { redirect } from 'next/navigation'
 import PersonalDetailsClient from './personal-details-client'
 

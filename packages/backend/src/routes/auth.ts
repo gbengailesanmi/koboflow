@@ -8,12 +8,13 @@ import { initializeUserCategories } from '../db/helpers/spending-categories-help
 import { requireAuth } from '../middleware/middleware'
 import { logger } from '@money-mapper/shared/utils'
 import { UpdateUserProfileSchema } from '@money-mapper/shared/schemas'
+import { loginRateLimiter, oauthRateLimiter, apiRateLimiter } from '../utils/rate-limiter'
 
 export const authRoutes = Router()
 
 // ------------------------------------- SIGN UP ------------------------------------- //
 // Used ONLY by credentials signup (NextAuth will handle login)
-authRoutes.post('/signup', async (req, res) => {
+authRoutes.post('/signup', loginRateLimiter, async (req, res) => {
   try {
     const { firstName, lastName, email, password, passwordConfirm } = req.body
 
@@ -81,7 +82,7 @@ authRoutes.post('/signup', async (req, res) => {
 })
 
 // ----------------------------------- VERIFY EMAIL ----------------------------------- //
-authRoutes.post('/verify-email', async (req, res) => {
+authRoutes.post('/verify-email', apiRateLimiter, async (req, res) => {
   const { token } = req.body
   if (!token) {
     return res.status(400).json({ message: 'Token required' })
@@ -109,7 +110,7 @@ authRoutes.post('/verify-email', async (req, res) => {
 })
 
 // ----------------------------- RESEND VERIFICATION EMAIL ----------------------------- //
-authRoutes.post('/resend-verification', async (req, res) => {
+authRoutes.post('/resend-verification', loginRateLimiter, async (req, res) => {
   const { email } = req.body
   if (!email) {
     return res.status(400).json({ message: 'Email required' })
@@ -260,5 +261,209 @@ authRoutes.patch('/user/:customerId', requireAuth, async (req, res) => {
     
     logger.error({ module: 'auth', err }, 'Error updating profile')
     return res.status(500).json({ message: 'Failed to update profile' })
+  }
+})
+
+// ----------------------------- VALIDATE CREDENTIALS (FOR NEXTAUTH) ----------------------------- //
+// Public endpoint - no auth required (this IS the auth)
+authRoutes.post('/validate-credentials', loginRateLimiter, async (req, res) => {
+  console.log('🔐 [Backend] /validate-credentials - Request received')
+
+  try {
+    const { email, password } = req.body
+
+    if (!email || !password) {
+      console.log('❌ [Backend] /validate-credentials - Missing credentials')
+      return res.status(400).json({ message: 'Email and password required' })
+    }
+
+    const normalizedEmail = email.trim().toLowerCase()
+    console.log('🔍 [Backend] /validate-credentials - Looking up user', { email: normalizedEmail })
+
+    const db = await connectDB()
+
+    const user = await db.collection('users').findOne({ 
+      email: normalizedEmail 
+    })
+
+    logger.info({ 
+      module: 'auth',
+      email: normalizedEmail,
+      found: !!user,
+      emailVerified: user?.emailVerified,
+    }, 'Credentials validation attempt')
+
+    if (!user || !user.password) {
+      console.log('❌ [Backend] /validate-credentials - User not found or no password')
+      return res.status(401).json({ message: 'Invalid credentials' })
+    }
+
+    if (!user.emailVerified) {
+      console.log('❌ [Backend] /validate-credentials - Email not verified')
+      return res.status(401).json({ message: 'Email not verified' })
+    }
+
+    console.log('🔑 [Backend] /validate-credentials - Comparing password')
+    const ok = await bcrypt.compare(password, user.password)
+    if (!ok) {
+      console.log('❌ [Backend] /validate-credentials - Invalid password')
+      return res.status(401).json({ message: 'Invalid credentials' })
+    }
+
+    console.log('✅ [Backend] /validate-credentials - Authentication successful', {
+      customerId: user.customerId,
+      firstName: user.firstName,
+      lastName: user.lastName,
+    })
+
+    // Return only fields used in JWT token
+    return res.json({
+      customerId: user.customerId,
+      firstName: user.firstName,
+      lastName: user.lastName,
+    })
+  } catch (err) {
+    console.error('💥 [Backend] /validate-credentials - Error:', err)
+    logger.error({ module: 'auth', err }, 'Credentials validation error')
+    return res.status(500).json({ message: 'Validation failed' })
+  }
+})
+
+// ----------------------------- GET OR CREATE GOOGLE USER (FOR NEXTAUTH) ----------------------------- //
+// Public endpoint - no auth required (this IS the auth)
+authRoutes.post('/oauth/google', oauthRateLimiter, async (req, res) => {
+  console.log('🔵 [Backend] /oauth/google - Request received')
+
+  try {
+    const { email, name } = req.body
+
+    if (!email || !name) {
+      console.log('❌ [Backend] /oauth/google - Missing email or name')
+      return res.status(400).json({ message: 'Email and name required' })
+    }
+
+    const normalizedEmail = email.trim().toLowerCase()
+    console.log('🔍 [Backend] /oauth/google - Looking up user', { email: normalizedEmail, name })
+
+    const db = await connectDB()
+
+    let user = await db.collection('users').findOne({ email: normalizedEmail })
+
+    // Block provider mixing
+    if (user && user.authProvider && user.authProvider !== 'google') {
+      console.log('❌ [Backend] /oauth/google - Provider mixing blocked', {
+        email: normalizedEmail,
+        existingProvider: user.authProvider,
+      })
+      logger.warn({ module: 'auth', email: normalizedEmail }, 'Attempted Google sign-in with non-Google account')
+      return res.status(400).json({ message: 'Email already registered with different provider' })
+    }
+
+    // Create new Google user if doesn't exist
+    if (!user) {
+      console.log('👤 [Backend] /oauth/google - Creating new Google user')
+
+      const customerId = randomUUID()
+      const nameParts = name.split(' ')
+      const firstName = nameParts[0] || ''
+      const lastName = nameParts.slice(1).join(' ') || ''
+
+      console.log('💾 [Backend] /oauth/google - Inserting user', {
+        customerId,
+        email: normalizedEmail,
+        firstName,
+        lastName,
+      })
+
+      await db.collection('users').insertOne({
+        customerId,
+        email: normalizedEmail,
+        firstName,
+        lastName,
+        emailVerified: true,
+        authProvider: 'google',
+        createdAt: new Date(),
+      })
+
+      console.log('⚙️ [Backend] /oauth/google - Creating user settings and categories')
+      await createUserSettings(customerId)
+      await initializeUserCategories(customerId)
+
+      logger.info({ module: 'auth', email: normalizedEmail, customerId }, 'Google user created')
+
+      user = await db.collection('users').findOne({ customerId })
+      console.log('✅ [Backend] /oauth/google - New user created', { customerId })
+    } else {
+      console.log('✅ [Backend] /oauth/google - Existing user found', {
+        customerId: user.customerId,
+      })
+    }
+
+    if (!user) {
+      console.error('💥 [Backend] /oauth/google - Failed to retrieve user after creation')
+      return res.status(500).json({ message: 'Failed to create/retrieve user' })
+    }
+
+    console.log('✅ [Backend] /oauth/google - Returning user data', {
+      customerId: user.customerId,
+      firstName: user.firstName,
+      lastName: user.lastName,
+    })
+
+    return res.json({
+      customerId: user.customerId,
+      firstName: user.firstName,
+      lastName: user.lastName,
+    })
+  } catch (err) {
+    console.error('💥 [Backend] /oauth/google - Error:', err)
+    logger.error({ module: 'auth', err }, 'Google sign-in error')
+    return res.status(500).json({ message: 'Google sign-in failed' })
+  }
+})
+
+// ----------------------------- GET CUSTOMER DETAILS (FOR USER DETAILS API) ----------------------------- //
+// Protected endpoint - requires authentication
+authRoutes.get('/customer-details/:customerId', requireAuth, async (req, res) => {
+  try {
+    const { customerId } = req.params
+
+    // Ensure user can only access their own details
+    if (req.user!.customerId !== customerId) {
+      return res.status(403).json({ error: 'Forbidden' })
+    }
+
+    const db = await connectDB()
+    const user = await db.collection('users').findOne({ customerId })
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' })
+    }
+
+    // Mask BVN if present
+    const maskBVN = (bvn?: string): string => {
+      if (!bvn) return ''
+      return `${bvn.slice(0, 3)}****${bvn.slice(-3)}`
+    }
+
+    const customerDetailsFromMono = user.customerDetailsFromMono
+      ? {
+          ...user.customerDetailsFromMono,
+          bvn: maskBVN(user.customerDetailsFromMono.bvn),
+        }
+      : null
+
+    return res.json({
+      customerId: user.customerId,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      emailVerified: user.emailVerified,
+      customerDetailsFromMono,
+      customerDetailsLastUpdated: user.customerDetailsLastUpdated || null,
+    })
+  } catch (err) {
+    logger.error({ module: 'auth', err }, 'Get customer details error')
+    return res.status(500).json({ error: 'Internal server error' })
   }
 })

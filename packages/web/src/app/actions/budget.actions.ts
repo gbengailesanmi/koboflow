@@ -7,7 +7,7 @@ import {
   patchBudget,
   updateBudgetById,
   setActiveBudget,
-} from '../../lib/server/api-service'
+} from '../../lib/api/api-service'
 import type { CategoryBudget, BudgetPeriod } from '@money-mapper/shared'
 
 export async function budgetCreateAction(

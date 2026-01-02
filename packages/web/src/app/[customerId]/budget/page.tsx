@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
-import { getTransactions, getCustomCategories, getBudgets } from '@/lib/server/api-service'
+import { getTransactions, getCustomCategories, getBudgets } from '@/lib/api/api-service'
 import BudgetClient from './budget-client'
-import { getServerSession } from '@/lib/server/get-server-session'
+import { getServerSession } from '@/lib/api/get-server-session'
 
 type PageProps = {
   params: Promise<{
