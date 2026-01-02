@@ -19,6 +19,7 @@ import { monoRoutes } from './routes/mono'
 
 const app: Express = express()
 const BACKEND_PORT = config.BACKEND_PORT
+app.set('trust proxy', 1) // Trust first proxy
 
 // -----------------------------------------------------------------------------
 // CORS — MUST allow credentials
