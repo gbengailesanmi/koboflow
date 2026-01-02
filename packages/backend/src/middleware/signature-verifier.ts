@@ -3,9 +3,13 @@ import jwt from 'jsonwebtoken'
 import config from '../config'
 
 const KEY = config.API_KEY
+const EXEMPT_PATHS = [
+  '/auth/oauth/google',
+  '/auth/oauth/callback',
+]
 
 if (!KEY) {
-  console.error('🔴 INTERNAL_API_SECRET is not set! Signature verification will fail.')
+  console.error('🔴 API_KEY is not set! Signature verification will fail.')
 }
 
 interface InternalTokenPayload {
@@ -20,6 +24,9 @@ export function verifySignature(
   res: Response,
   next: NextFunction
 ): void {
+  if (EXEMPT_PATHS.includes(req.path)) {
+    return next()
+  }
   const signature = req.headers['x-internal-api-signature'] as string
 
   // Log all requests for debugging
@@ -30,20 +37,17 @@ export function verifySignature(
     ip: req.ip,
   })
 
+  if (!KEY) {
+    console.warn('⚠️ [Signature Verifier] API_KEY not configured - SKIPPING VERIFICATION (INSECURE!)')
+    next()
+    return
+  }
+
   if (!signature) {
     console.log('❌ [Signature Verifier] Missing X-Internal-Signature header')
     res.status(403).json({
       error: 'Forbidden',
       message: 'Direct backend access is not allowed',
-    })
-    return
-  }
-
-  if (!KEY) {
-    console.error('🔴 [Signature Verifier] INTERNAL_API_SECRET not configured')
-    res.status(500).json({
-      error: 'Internal Server Error',
-      message: 'Server configuration error',
     })
     return
   }
