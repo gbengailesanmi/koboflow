@@ -1,24 +1,18 @@
 'use client'
 
-import React from 'react'
 import { ThemeProvider } from 'next-themes'
 import { Theme } from '@radix-ui/themes'
 
-type ThemeProvidersProps = {
-  children: React.ReactNode
-  initialTheme?: string
-}
-
-export default function ThemeProviders({ children, initialTheme = 'system' }: ThemeProvidersProps) {
+export default function ThemeProviders({ children }: { children: React.ReactNode }) {
   return (
-    <ThemeProvider 
+    <ThemeProvider
       attribute="class"
-      defaultTheme={initialTheme}
+      defaultTheme="system"
       enableSystem
       disableTransitionOnChange
       storageKey="money-mapper-theme"
     >
-      <Theme appearance='inherit'>
+      <Theme appearance="inherit">
         {children}
       </Theme>
     </ThemeProvider>

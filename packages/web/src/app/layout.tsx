@@ -16,19 +16,10 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const session = await getServerSession()
-
-  const settings =
-    session?.user?.customerId
-      ? await getSettings()
-      : null
-
-  const userTheme = settings?.appearance?.theme || 'system'
-
   return (
     <html lang="en" className={openSans.variable} suppressHydrationWarning>
       <body>
-        <Providers initialTheme={userTheme}>
+        <Providers>
           {children}
         </Providers>
       </body>

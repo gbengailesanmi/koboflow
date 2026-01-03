@@ -3,15 +3,9 @@
 import ThemeProviders from '@/providers/theme-providers'
 import SessionTimeoutProvider from '@/providers/session-timeout-provider'
 
-export default function Providers({
-  children,
-  initialTheme,
-}: {
-  children: React.ReactNode
-  initialTheme: string
-}) {
+export default function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <ThemeProviders initialTheme={initialTheme}>
+    <ThemeProviders>
       <SessionTimeoutProvider>
         {children}
       </SessionTimeoutProvider>
