@@ -7,8 +7,8 @@ import { connectDB } from '../db/mongo'
 const MAX_TOKEN_LIFETIME = 5 * 60
 const KEY = config.API_KEY
 const EXEMPT_PATHS = [
-  '/auth/oauth/google',
-  '/auth/oauth/callback',
+  '/api/auth/oauth/google',
+  '/api/auth/oauth/callback',
 ]
 const USED_TOKENS_COLLECTION = 'used_jwt_tokens'
 let indexCreated = false
