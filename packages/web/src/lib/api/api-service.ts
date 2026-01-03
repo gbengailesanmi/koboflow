@@ -5,6 +5,7 @@ import { cookies } from 'next/headers'
 import config from '../../config'
 import { logger } from '@money-mapper/shared'
 import { addApiSignature } from '../auth/signature-signer'
+import { createHash } from 'crypto'
 import type {
   Account,
   EnrichedTransaction,
@@ -25,6 +26,9 @@ export interface SessionUser {
 
 export type Settings = UserSettings
 
+// ETag cache (server-side only, resets on deploy)
+const etagCache = new Map<string, string>()
+
 const BACKEND_URL = config.NEXT_PUBLIC_BACKEND_URL
 
 
@@ -42,27 +46,48 @@ export async function serverFetch(
   const urlObj = new URL(url)
   const path = urlObj.pathname
 
+  const headers: Record<string, string> = {
+    ...(options.headers as Record<string, string> || {}),
+    Cookie: cookieHeader,
+  }
+
+  // Send If-None-Match if we have cached ETag
+  const etag = etagCache.get(url)
+  if (etag) {
+    headers['If-None-Match'] = etag
+  }
+
   const signedHeaders = addApiSignature({
-    headers: {
-      ...(options.headers as Record<string, string> || {}),
-      Cookie: cookieHeader,
-    },
+    headers,
     method: options.method || 'GET',
     path: path,
     body: options.body,
   })
 
-  return fetch(url, {
+  const response = await fetch(url, {
     ...options,
     headers: signedHeaders,
     cache: options.cache ?? 'no-store',
   })
+
+  // Store new ETag for next request
+  const newETag = response.headers.get('ETag')
+  if (newETag) {
+    etagCache.set(url, newETag)
+  }
+
+  return response
 }
 
 /**
  * Parse JSON response with error handling
  */
 async function parseResponse<T>(response: Response): Promise<T> {
+  // Handle 304 Not Modified
+  if (response.status === 304) {
+    throw new Error('__NOT_MODIFIED__')
+  }
+
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({
       message: `HTTP ${response.status}: ${response.statusText}`,
@@ -71,6 +96,9 @@ async function parseResponse<T>(response: Response): Promise<T> {
   }
   return response.json()
 }
+
+// Cache for 304 responses
+let lastAccounts: Account[] | null = null
 
 /**
  * Get all accounts for current user
@@ -87,13 +115,23 @@ export async function getAccounts(): Promise<Account[]> {
     const accounts = Array.isArray(data.data)
       ? data.data.map((item: any) => item.account)
       : []
+    
+    lastAccounts = accounts
     return accounts
-  } catch (error) {
+  } catch (error: any) {
+    // If 304 Not Modified, return cached data
+    if (error.message === '__NOT_MODIFIED__' && lastAccounts) {
+      return lastAccounts
+    }
+
     logger.error({ module: 'api-service', error }, 'getAccounts error')
     return []
   }
 }
 
+
+// Cache for 304 responses
+let lastTransactions: EnrichedTransaction[] | null = null
 
 /**
  * Get all transactions for current user
@@ -107,8 +145,16 @@ export async function getTransactions(): Promise<EnrichedTransaction[]> {
     })
 
     const data = await parseResponse<{ status: string; message: string; timestamp: string; data: EnrichedTransaction[] }>(response)
-    return data.data || []
-  } catch (error) {
+    const transactions = data.data || []
+    
+    lastTransactions = transactions
+    return transactions
+  } catch (error: any) {
+    // If 304 Not Modified, return cached data
+    if (error.message === '__NOT_MODIFIED__' && lastTransactions) {
+      return lastTransactions
+    }
+
     logger.error({ module: 'api-service', error }, 'getTransactions error')
     return []
   }

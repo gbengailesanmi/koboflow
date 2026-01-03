@@ -21,10 +21,12 @@ settingsRoutes.get('/', requireAuth, async (req, res) => {
       return res.status(404).json({ error: 'Settings not found' })
     }
 
-    res.json({ 
+    const responseData = { 
       success: true,
       settings
-    })
+    }
+
+    res.json(responseData)
   } catch (error) {
     logger.error({ module: 'settings-routes', error }, 'Error fetching settings')
     res.status(500).json({ error: 'Failed to fetch settings' })

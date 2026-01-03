@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import useSWR from 'swr'
 import Sidebar from '@/app/components/sidebar/sidebar'
 import { UserInfoCard } from '@/app/components/user-info-card'
 import { PageHeader } from '@/app/components/page-header/page-header'
 import Footer from '@/app/components/footer/footer'
+import { staticSWR } from '@/lib/swr'
 import type { CustomerDetailsFromMono } from '@money-mapper/shared'
 import styles from './personal-details.module.css'
 
@@ -15,31 +16,12 @@ type PersonalDetailsClientProps = {
 export default function PersonalDetailsClient({
   customerId,
 }: PersonalDetailsClientProps) {
-  const [customerDetails, setCustomerDetails] = useState<CustomerDetailsFromMono | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const { data, error, isLoading } = useSWR<{ customerDetailsFromMono: CustomerDetailsFromMono }>(
+    '/api/user/details',
+    staticSWR
+  )
 
-  useEffect(() => {
-    async function fetchCustomerDetails() {
-      try {
-        setIsLoading(true)
-        const response = await fetch('/api/user/details')
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch customer details')
-        }
-
-        const data = await response.json()
-        setCustomerDetails(data.customerDetailsFromMono)
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Unknown error')
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchCustomerDetails()
-  }, [])
+  const customerDetails = data?.customerDetailsFromMono
 
   const renderContent = () => {
     if (isLoading) {
@@ -53,7 +35,7 @@ export default function PersonalDetailsClient({
     if (error) {
       return (
         <div className={styles.emptyState}>
-          <p className={styles.emptyText}>Error: {error}</p>
+          <p className={styles.emptyText}>Error: {error.message || 'Failed to load details'}</p>
         </div>
       )
     }

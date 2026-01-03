@@ -35,19 +35,17 @@ budgetRoutes.get('/', requireAuth, async (req, res) => {
     const customerId = req.user!.customerId
     const budget = await getActiveBudget(customerId)
 
-    if (!budget) {
-      return res.json({
-        customerId,
-        name: 'My Budget',
-        isActive: true,
-        totalBudgetLimit: 0,
-        categories: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      })
+    const responseData = budget || {
+      customerId,
+      name: 'My Budget',
+      isActive: true,
+      totalBudgetLimit: 0,
+      categories: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
     }
 
-    res.json(budget)
+    res.json(responseData)
   } catch (error) {
     logger.error({ module: 'budget-routes', error }, 'Failed to fetch active budget')
     res.status(500).json({ error: 'Failed to fetch budget' })

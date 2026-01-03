@@ -8,6 +8,7 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import { logger } from '@money-mapper/shared'
 import { verifySignature } from './middleware/signature-verifier'
+import { etagMiddleware } from './middleware/etag'
 
 // routes
 import { authRoutes } from './routes/auth'
@@ -71,6 +72,11 @@ app.use((req: Request, res: Response, next) => {
   })
   next()
 })
+
+// -----------------------------------------------------------------------------
+// ETag middleware - Apply to all GET requests
+// -----------------------------------------------------------------------------
+app.use(etagMiddleware)
 
 // -----------------------------------------------------------------------------
 // Health
