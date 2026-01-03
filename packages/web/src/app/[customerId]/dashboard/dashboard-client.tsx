@@ -2,11 +2,11 @@
 
 import React, { useMemo, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import Header from '@/app/components/header/header'
+import Header from '@/app/components/dashboard/dashboard-header/dashboard-header'
 import Footer from '@/app/components/footer/footer'
 import { Grid } from '@radix-ui/themes'
 import styles from './dashboard.module.css'
-import AccountsCarousel from './utils/accounts-carousel/accounts-carousel'
+import AccountsCarousel from '../../components/dashboard/utils/accounts-carousel/accounts-carousel'
 import TransactionsColumn from '@/app/components/transactions/transactions-column/transactions-column'
 import { categorizeTransaction } from '@/app/components/analytics/utils/categorize-transaction'
 import { useQueryStateNullable } from '@/hooks/use-query-state'

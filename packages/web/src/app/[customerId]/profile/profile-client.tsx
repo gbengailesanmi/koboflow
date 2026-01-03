@@ -3,8 +3,8 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { userUpdateProfileAction } from '@/app/actions/user.actions'
-import Sidebar from '@/app/components/sidebar/sidebar'
-import { UserInfoCard } from '@/app/components/user-info-card'
+import Sidebar from '@/app/components/page-sidebar/sidebar'
+import { UserInfoCard } from '@/app/components/settings/user-info-card'
 import { 
   Pencil1Icon, 
   CheckIcon, 

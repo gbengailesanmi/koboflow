@@ -1,6 +1,6 @@
 import React from 'react'
 import { Skeleton } from '@radix-ui/themes'
-import PageLayoutWithSidebar from '@/app/components/sidebar/sidebar'
+import PageLayoutWithSidebar from '@/app/components/page-sidebar/sidebar'
 
 interface AnalyticsSkeletonProps {
   customerId: string

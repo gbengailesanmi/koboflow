@@ -7,7 +7,7 @@ import { signOut } from 'next-auth/react'
 import { settingsUpdateAction } from '@/app/actions/settings.actions'
 import { securityChangePINAction, securityChangePasswordAction } from '@/app/actions/security.actions'
 import { deleteUserAction } from '@/app/actions/user.actions'
-import Sidebar from '@/app/components/sidebar/sidebar'
+import Sidebar from '@/app/components/page-sidebar/sidebar'
 import { PageHeader } from '@/app/components/page-header/page-header'
 import Footer from '@/app/components/footer/footer'
 import { 

@@ -1,4 +1,5 @@
 import { DotIcon } from '@radix-ui/react-icons'
+import { memo } from 'react'
 
 function FormatCarouselContent({
   accountType,
@@ -28,4 +29,4 @@ function FormatCarouselContent({
   )
 }
 
-export default FormatCarouselContent
+export default memo(FormatCarouselContent)

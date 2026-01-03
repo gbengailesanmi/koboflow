@@ -1,5 +1,5 @@
 import React from 'react'
-import styles from './Header.module.css'
+import styles from './dashboard-header.module.css'
 import { useParams, useRouter } from 'next/navigation'
 import { GearIcon } from '@radix-ui/react-icons'
 
@@ -13,8 +13,8 @@ export default function Header() {
   }
 
   return (
-    <div className={styles.HeaderWrapper}>
-      <HeaderIconButton className={styles.SettingsButton} onClick={handleSettingsClick}>
+    <div className={styles.dashboardHeaderWrapper}>
+      <HeaderIconButton onClick={handleSettingsClick}>
         <GearIcon width='25' height='25' />
       </HeaderIconButton>
     </div>

@@ -1,6 +1,6 @@
 import React from 'react'
 import { Grid, Skeleton } from '@radix-ui/themes'
-import Header from '@/app/components/header/header'
+import Header from '@/app/components/dashboard/dashboard-header/dashboard-header'
 import Footer from '@/app/components/footer/footer'
 import styles from '../../[customerId]/dashboard/dashboard.module.css'
 

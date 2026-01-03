@@ -20,7 +20,7 @@ export function makeETagFromData(data: any[] | any): string {
     })
     .filter(t => t > 0)
 
-  const maxTimestamp = timestamps.length > 0 ? Math.max(...timestamps) : Date.now()
+  // const maxTimestamp = timestamps.length > 0 ? Math.max(...timestamps) : Date.now()
   const versionSource = JSON.stringify(data)
   
   return makeETag(versionSource)

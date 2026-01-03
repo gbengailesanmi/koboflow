@@ -1,9 +1,5 @@
 @reference "../../globals.css";
 
-.HeaderWrapper {
+.dashboardHeaderWrapper {
   @apply absolute left-0 top-0 w-full h-[3rem] flex lg:gap-70 items-center rounded-bl-2xl p-3 rounded-br-2xl justify-between z-50 bg-white/2 backdrop-blur-2xl;
-}
-
-.SettingsButton {
-  /* @apply pl-5 */
 }

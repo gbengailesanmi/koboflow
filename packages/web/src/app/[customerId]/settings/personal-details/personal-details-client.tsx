@@ -1,8 +1,8 @@
 'use client'
 
 import useSWR from 'swr'
-import Sidebar from '@/app/components/sidebar/sidebar'
-import { UserInfoCard } from '@/app/components/user-info-card'
+import Sidebar from '@/app/components/page-sidebar/sidebar'
+import { UserInfoCard } from '@/app/components/settings/user-info-card'
 import { PageHeader } from '@/app/components/page-header/page-header'
 import Footer from '@/app/components/footer/footer'
 import { staticSWR } from '@/lib/swr'
