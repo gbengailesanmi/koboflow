@@ -8,7 +8,7 @@ import { settingsUpdateAction } from '@/app/actions/settings.actions'
 import { securityChangePINAction, securityChangePasswordAction } from '@/app/actions/security.actions'
 import { deleteUserAction } from '@/app/actions/user.actions'
 import Sidebar from '@/app/components/page-sidebar/sidebar'
-import { PageHeader } from '@/app/components/page-header/page-header'
+import { usePageTitle } from '@/providers/page-title-context'
 import Footer from '@/app/components/footer/footer'
 import { 
   Box,
@@ -71,7 +71,13 @@ export default function SettingsClient({
   initialSettings
 }: SettingsClientProps) {
   const router = useRouter()
+  const { setPageTitle } = usePageTitle()
   const { theme: currentTheme, setTheme: setNextTheme, resolvedTheme } = useTheme()
+
+  // Set page title on mount
+  useEffect(() => {
+    setPageTitle('Settings', 'Manage your account preferences')
+  }, [setPageTitle])
 
   const [isDarkMode, setIsDarkMode] = useState(false)
   const userName = `${firstName} ${lastName}` || ''
@@ -222,12 +228,6 @@ export default function SettingsClient({
       <>
         <div className={styles.container}>
           <main className={styles.main}>
-            <PageHeader 
-              title="Settings" 
-              subtitle="Manage your account preferences"
-              backTo={`/${customerId}/dashboard`}
-            />
-
             {/* User Profile Card */}
             <Box className={styles.profileCard}>
               <div className={styles.avatar}>

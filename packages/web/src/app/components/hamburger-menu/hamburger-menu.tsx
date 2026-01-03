@@ -152,7 +152,7 @@ export default function HamburgerMenu({ customerId }: HamburgerMenuProps) {
           className={styles.hamburgerButton}
           aria-label="Open navigation menu"
         >
-          <HamburgerMenuIcon width="15" height="15" />
+          <HamburgerMenuIcon width="24" height="24" />
         </button>
       </Dialog.Trigger>
 

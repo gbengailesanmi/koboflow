@@ -1,0 +1,18 @@
+@reference "../../globals.css";
+
+.dashboardHeaderWrapper {
+  @apply relative left-0 top-0 w-full h-[3rem] flex lg:gap-70 items-center rounded-bl-2xl p-3 rounded-br-2xl justify-between z-50 bg-white/2 backdrop-blur-2xl;
+}
+
+.headerWrapper {
+  @apply relative left-0 top-0 w-full h-[3rem] flex lg:gap-70 items-center rounded-bl-2xl p-3 rounded-br-2xl justify-between z-50 bg-white/2 backdrop-blur-2xl;
+}
+
+.hamburgerWrapper {
+  @apply flex items-center;
+}
+
+.titleSection {
+  padding: 1rem 1.5rem 2rem 1.5rem;
+  margin: 0;
+}

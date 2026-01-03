@@ -8,7 +8,7 @@ import type { Account, EnrichedTransaction } from '@money-mapper/shared'
 import type {  } from '@money-mapper/shared'
 import type { CustomCategory } from '@/types/custom-category'
 import { categoryCreateAction, categoryDeleteAction, categoryUpdateAction } from '@/app/actions/category.actions'
-import { PageHeader } from '@/app/components/page-header/page-header'
+import { usePageTitle } from '@/providers/page-title-context'
 import { PageLayout } from '@/app/components/page-layout/page-layout'
 import AccountFilterMenu from '@/app/components/account-filter-menu/account-filter-menu'
 import { categorizeTransaction, getCategoryConfig } from '@/app/components/analytics/utils'
@@ -280,15 +280,15 @@ export default function AnalyticsClient({
 
   const handleOptionsClick = useCallback(() => setShowAccountFilter(true), [])
 
+  const { setPageTitle } = usePageTitle()
+
+  // Set page title on mount
+  React.useEffect(() => {
+    setPageTitle('Insights', 'Look into your spending patterns and trends')
+  }, [setPageTitle])
+
   const renderHeader = useCallback(() => (
     <>
-      <PageHeader 
-        title="Insights"
-        subtitle="Look into your spending patterns and trends"
-        showOptionsIcon={true}
-        onOptionsClick={handleOptionsClick}
-      />
-
       {/* Account Filter Dialog */}
       <Dialog.Root open={showAccountFilter} onOpenChange={setShowAccountFilter}>
         <AccountFilterMenu 

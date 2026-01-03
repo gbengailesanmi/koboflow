@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import type { EnrichedTransaction, Account } from '@money-mapper/shared'
 import PageLayoutWithSidebar from '@/app/components/page-sidebar/sidebar'
 import { Dialog } from '@radix-ui/themes'
-import { DownloadIcon, UploadIcon, ArrowLeftIcon } from '@radix-ui/react-icons'
+import { DownloadIcon, UploadIcon } from '@radix-ui/react-icons'
 import styles from './transactions.module.css'
 import Footer from '@/app/components/footer/footer'
 import TransactionMonthPills from '@/app/components/transactions/transaction-month-pills/transaction-month-pills'
@@ -99,22 +99,14 @@ export default function TransactionsClient({
         }}
       >
         <div className={`${styles.PageGrid}`}>
-          <div id="filters" className={styles.Header}>
-            <ArrowLeftIcon 
-              className="w-6 h-6 cursor-pointer" 
-              onClick={() => router.back()}
-              aria-label="Go back"
+          <div id="filters" className={styles.Filters}>
+            <TransactionsFilters
+              accounts={accounts}
+              filterAccountId={filterAccountId}
+              setFilterAccountId={setFilterAccountId}
+              searchTerm={searchQuery}
+              setSearchTerm={setSearchQuery}
             />
-            <h1 className="text-xl font-semibold mb-2">Transactions</h1>
-            <div className={styles.Filters}>
-              <TransactionsFilters
-                accounts={accounts}
-                filterAccountId={filterAccountId}
-                setFilterAccountId={setFilterAccountId}
-                searchTerm={searchQuery}
-                setSearchTerm={setSearchQuery}
-              />
-            </div>
           </div>
 
           <TransactionMonthPills

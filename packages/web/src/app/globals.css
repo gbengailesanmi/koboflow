@@ -141,16 +141,9 @@ html, body {
   flex: 1;
 }
 
-@media (min-width: 768px) {
-  .page-main {
-    padding: 2rem 1.5rem;
-    gap: 2rem;
-  }
-}
-
 @media (min-width: 1024px) {
   .page-main {
-    padding: 3rem 2rem;
+    padding: 3rem 14rem;
     gap: 2.5rem;
   }
 }

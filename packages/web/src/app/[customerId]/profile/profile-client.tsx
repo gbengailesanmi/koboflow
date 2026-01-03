@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { userUpdateProfileAction } from '@/app/actions/user.actions'
 import Sidebar from '@/app/components/page-sidebar/sidebar'
+import { usePageTitle } from '@/providers/page-title-context'
 import { UserInfoCard } from '@/app/components/settings/user-info-card'
 import { 
   Pencil1Icon, 
@@ -13,7 +14,6 @@ import {
   EnvelopeClosedIcon,
 } from '@radix-ui/react-icons'
 import Footer from '@/app/components/footer/footer'
-import { PageHeader } from '@/app/components/page-header/page-header'
 import { 
   Button, 
   TextField, 
@@ -40,6 +40,12 @@ export default function ProfileClient({
   customerDetailsFromMono,
 }: ProfileClientProps) {
   const router = useRouter()
+  const { setPageTitle } = usePageTitle()
+
+  // Set page title on mount
+  useEffect(() => {
+    setPageTitle('Profile', 'Manage your account settings and personal information')
+  }, [setPageTitle])
 
   const [isEditing, setIsEditing] = useState(false)
   const [formData, setFormData] = useState({
@@ -95,14 +101,8 @@ export default function ProfileClient({
     <Sidebar customerId={customerId}>
       <div className={`${styles.container}`}>
         <div className={styles.wrapper}>
-          <div>
-            <PageHeader 
-              title="Profile" 
-              subtitle="Manage your account settings and personal information"
-            />
-
-            {/* Editable User Info Card */}
-            <div id="user-info" className={styles.profileCard}>
+          {/* Editable User Info Card */}
+          <div id="user-info" className={styles.profileCard}>
               {/* Customer ID Section */}
               <div className={styles.customerIdSection}>
                 <label className={styles.label}>
@@ -211,9 +211,7 @@ export default function ProfileClient({
                 className={styles.kycSection}
               />
             )}
-          </div>
         </div>
-        
         <Footer buttonColor='#222222' opacity={50} />
       </div>
     </Sidebar>

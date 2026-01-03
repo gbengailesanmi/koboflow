@@ -2,7 +2,6 @@
 
 import React, { useMemo, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import Header from '@/app/components/dashboard/dashboard-header'
 import Footer from '@/app/components/footer/footer'
 import { Grid } from '@radix-ui/themes'
 import styles from './dashboard.module.css'
@@ -110,46 +109,45 @@ export default function DashboardClient({
 
   return (
     <>
-      <Header />
-      <main className={`${styles.main} page-main`}>
-        <Grid className={styles.AccountsGrid}>
-          <AccountsCarousel
-            accounts={accounts}
-            selectedAccount={selectedAccountId}
-            setSelectedAccount={setSelectedAccountId}
-            onNavigate={handleNavigate}
-          />
-        </Grid>
+    <main className={`${styles.main} page-main`}>
+      <Grid className={styles.AccountsGrid}>
+        <AccountsCarousel
+          accounts={accounts}
+          selectedAccount={selectedAccountId}
+          setSelectedAccount={setSelectedAccountId}
+          onNavigate={handleNavigate}
+        />
+      </Grid>
 
 
-        <Grid
-          rows="3"
-          className={styles.TransactionsGrid}
-          style={{ gridTemplateRows: '2.5rem 1fr 2.5rem' }}
+      <Grid
+        rows="3"
+        className={styles.TransactionsGrid}
+        style={{ gridTemplateRows: '2.5rem 1fr 2.5rem' }}
+      >
+        <div style={{ display: 'flex', height: '100%', padding: '.3rem' }}>
+          <h2 className="text-sm font-semibold mb-2">All Transactions</h2>
+        </div>
+
+        <div className={styles.TransactionsListWrapper}>
+          <TransactionsColumn transactions={limitedTransactions} />
+        </div>
+
+        <div
+          className="justify-center items-center flex cursor-pointer"
+          role="button"
+          onClick={handleSeeAllClick}
         >
-          <div style={{ display: 'flex', height: '100%', padding: '.3rem' }}>
-            <h2 className="text-sm font-semibold mb-2">All Transactions</h2>
-          </div>
-
-          <div className={styles.TransactionsListWrapper}>
-            <TransactionsColumn transactions={limitedTransactions} />
-          </div>
-
-          <div
-            className="justify-center items-center flex cursor-pointer"
-            role="button"
-            onClick={handleSeeAllClick}
-          >
-            See all
-          </div>
-        </Grid>
+          See all
+        </div>
+      </Grid>
 
 
-        <Grid className={styles.Grid6}>
-          <h2 className="text-sm font-semibold mb-2">Current month summary</h2>
-        </Grid>
-      </main>
-      <Footer opacity={2} />
+      <Grid className={styles.Grid6}>
+        <h2 className="text-sm font-semibold mb-2">Current month summary</h2>
+      </Grid>
+    </main>
+    <Footer opacity={2} />
     </>
   )
 }

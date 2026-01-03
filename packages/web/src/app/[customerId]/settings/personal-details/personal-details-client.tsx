@@ -1,9 +1,10 @@
 'use client'
 
 import useSWR from 'swr'
+import { useEffect } from 'react'
 import Sidebar from '@/app/components/page-sidebar/sidebar'
 import { UserInfoCard } from '@/app/components/settings/user-info-card'
-import { PageHeader } from '@/app/components/page-header/page-header'
+import { usePageTitle } from '@/providers/page-title-context'
 import Footer from '@/app/components/footer/footer'
 import { staticSWR } from '@/lib/swr'
 import type { CustomerDetailsFromMono } from '@money-mapper/shared'
@@ -16,6 +17,13 @@ type PersonalDetailsClientProps = {
 export default function PersonalDetailsClient({
   customerId,
 }: PersonalDetailsClientProps) {
+  const { setPageTitle } = usePageTitle()
+
+  // Set page title on mount
+  useEffect(() => {
+    setPageTitle('Personal Details', 'Your personal information from bank verification')
+  }, [setPageTitle])
+
   const { data, error, isLoading } = useSWR<{ customerDetailsFromMono: CustomerDetailsFromMono }>(
     '/api/user/details',
     staticSWR
@@ -63,11 +71,6 @@ export default function PersonalDetailsClient({
     <Sidebar customerId={customerId}>
       <div className={styles.container}>
         <div className={styles.wrapper}>
-          <PageHeader 
-            title="Personal Details"
-            subtitle="Your personal information from bank verification"
-          />
-          
           {renderContent()}
         </div>
         <Footer buttonColor='#222222' opacity={50} />
