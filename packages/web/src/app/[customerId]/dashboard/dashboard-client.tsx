@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Header from '@/app/components/header/header'
 import Footer from '@/app/components/footer/footer'
@@ -41,10 +41,12 @@ export default function DashboardClient({
 
   const effectiveAccountId = selectedAccountId ?? accounts[0]?.id ?? null
 
-
-  const filteredTransactions = selectedAccountId
-    ? transactions.filter(txn => txn.accountId === selectedAccountId)
-    : transactions
+  const filteredTransactions = useMemo(() => 
+    selectedAccountId
+      ? transactions.filter(txn => txn.accountId === selectedAccountId)
+      : transactions,
+    [selectedAccountId, transactions]
+  )
 
   const processedTransactions = useMemo(() => {
     return filteredTransactions.map(transaction => {
@@ -95,6 +97,17 @@ export default function DashboardClient({
     }
   }, [processedTransactions])
 
+  const handleNavigate = useCallback(() => setHasNavigated(true), [])
+  
+  const handleSeeAllClick = useCallback(() => {
+    router.push(`/${customerId}/transactions`)
+  }, [router, customerId])
+
+  const limitedTransactions = useMemo(() => 
+    filteredTransactions.slice(0, 5),
+    [filteredTransactions]
+  )
+
   return (
     <>
       <Header />
@@ -104,7 +117,7 @@ export default function DashboardClient({
             accounts={accounts}
             selectedAccount={selectedAccountId}
             setSelectedAccount={setSelectedAccountId}
-            onNavigate={() => setHasNavigated(true)}
+            onNavigate={handleNavigate}
           />
         </Grid>
 
@@ -119,13 +132,13 @@ export default function DashboardClient({
           </div>
 
           <div className={styles.TransactionsListWrapper}>
-            <TransactionsColumn transactions={filteredTransactions.slice(0, 5)} />
+            <TransactionsColumn transactions={limitedTransactions} />
           </div>
 
           <div
             className="justify-center items-center flex cursor-pointer"
             role="button"
-            onClick={() => router.push(`/${customerId}/transactions`)}
+            onClick={handleSeeAllClick}
           >
             See all
           </div>

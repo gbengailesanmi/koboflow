@@ -37,7 +37,7 @@ export const authOptions: AuthOptions = {
       authorization: {
         params: {
           scope: 'openid email profile',
-          prompt: 'consent',
+          // prompt: 'consent',
         },
       },
     }),

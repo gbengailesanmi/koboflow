@@ -1,7 +1,7 @@
 ///Users/gbenga.ilesanmi/Github/PD/money-mapper/packages/web/src/app/[customerId]/analytics/analytics-client.tsx
 'use client'
 
-import React, { useState, useMemo, useEffect } from 'react'
+import React, { useState, useMemo, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Dialog } from '@radix-ui/themes'
 import type { Account, EnrichedTransaction } from '@money-mapper/shared'
@@ -74,7 +74,7 @@ export default function AnalyticsClient({
 
   const categoryConfig = useMemo(() => getCategoryConfig(customCategories), [customCategories])
 
-  const handleAddCategory = async (name: string, keywords: string[]) => {
+  const handleAddCategory = useCallback(async (name: string, keywords: string[]) => {
     try {
       const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316']
       const randomColor = colors[Math.floor(Math.random() * colors.length)]
@@ -89,18 +89,18 @@ export default function AnalyticsClient({
     } catch (error) {
       // Error handled
     }
-  }
+  }, [router])
 
-  const handleDeleteCategory = async (id: string) => {
+  const handleDeleteCategory = useCallback(async (id: string) => {
     try {
       await categoryDeleteAction(id)
       router.refresh()
     } catch (error) {
       // Error handled
     }
-  }
+  }, [router])
 
-  const handleUpdateCategory = async (id: string, updates: { name?: string; keywords?: string[]; color?: string }) => {
+  const handleUpdateCategory = useCallback(async (id: string, updates: { name?: string; keywords?: string[]; color?: string }) => {
     try {
       const result = await categoryUpdateAction(id, updates)
       
@@ -110,15 +110,15 @@ export default function AnalyticsClient({
     } catch (error) {
       // Error handled
     }
-  }
+  }, [router])
 
-  const handleNextChart = () => {
+  const handleNextChart = useCallback(() => {
     setCurrentChartIndex((prev) => (prev + 1) % 4) // Cycle through 0, 1, 2, 3
-  }
+  }, [])
 
-  const handlePrevChart = () => {
+  const handlePrevChart = useCallback(() => {
     setCurrentChartIndex((prev) => (prev - 1 + 4) % 4) // Cycle through 0, 1, 2, 3
-  }
+  }, [])
 
   const processedTransactions = useMemo(() => {
     let filteredByAccount = transactions
@@ -194,9 +194,27 @@ export default function AnalyticsClient({
       .sort((a, b) => b.amount - a.amount)
   }, [filteredTransactions])
 
-  const totalIncome = filteredTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.numericAmount, 0)
-  const totalExpense = filteredTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.numericAmount, 0)
-  const netBalance = totalIncome - totalExpense
+  const totalIncome = useMemo(() => 
+    filteredTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.numericAmount, 0),
+    [filteredTransactions]
+  )
+  
+  const totalExpense = useMemo(() => 
+    filteredTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.numericAmount, 0),
+    [filteredTransactions]
+  )
+  
+  const netBalance = useMemo(() => totalIncome - totalExpense, [totalIncome, totalExpense])
+
+  const incomeTransactionCount = useMemo(() => 
+    filteredTransactions.filter(t => t.type === 'income').length,
+    [filteredTransactions]
+  )
+  
+  const expenseTransactionCount = useMemo(() => 
+    filteredTransactions.filter(t => t.type === 'expense').length,
+    [filteredTransactions]
+  )
 
   const monthlyExpense = useMemo(() => {
     const now = new Date()
@@ -260,13 +278,15 @@ export default function AnalyticsClient({
     }
   }, [processedTransactions])
 
-  const renderHeader = () => (
+  const handleOptionsClick = useCallback(() => setShowAccountFilter(true), [])
+
+  const renderHeader = useCallback(() => (
     <>
       <PageHeader 
         title="Insights"
         subtitle="Look into your spending patterns and trends"
         showOptionsIcon={true}
-        onOptionsClick={() => setShowAccountFilter(true)}
+        onOptionsClick={handleOptionsClick}
       />
 
       {/* Account Filter Dialog */}
@@ -280,9 +300,9 @@ export default function AnalyticsClient({
         />
       </Dialog.Root>
     </>
-  )
+  ), [showAccountFilter, accounts, currency, handleOptionsClick])
 
-  const renderStickyContent = () => (
+  const renderStickyContent = useCallback(() => (
     <>
       <Box className={styles.timeRangeContainer}>
         <Tabs.Root value={timePeriod} onValueChange={(value) => setTimePeriod(value as 'day' | 'month' | 'year')}>
@@ -301,16 +321,16 @@ export default function AnalyticsClient({
             totalIncome={totalIncome}
             totalExpense={totalExpense}
             netBalance={netBalance}
-            incomeTransactionCount={filteredTransactions.filter(t => t.type === 'income').length}
-            expenseTransactionCount={filteredTransactions.filter(t => t.type === 'expense').length}
+            incomeTransactionCount={incomeTransactionCount}
+            expenseTransactionCount={expenseTransactionCount}
             currency={currency}
           />
         </Grid>
       )}
     </>
-  )
+  ), [timePeriod, setTimePeriod, processedTransactions.length, totalIncome, totalExpense, netBalance, incomeTransactionCount, expenseTransactionCount, currency])
 
-  const renderBodyContent = () => (
+  const renderBodyContent = useCallback(() => (
     <>
       {processedTransactions.length === 0 ? (
         <EmptyState
@@ -458,7 +478,20 @@ export default function AnalyticsClient({
         </>
       )}
     </>
-  )
+  ), [
+    processedTransactions, 
+    categoryData, 
+    currentChartIndex, 
+    categoryConfig, 
+    currency, 
+    monthOnMonthData, 
+    customCategories,
+    handleNextChart,
+    handlePrevChart,
+    handleAddCategory,
+    handleUpdateCategory,
+    handleDeleteCategory
+  ])
 
   return (
     <PageLayout

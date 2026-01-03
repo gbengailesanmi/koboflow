@@ -52,9 +52,6 @@ interface InternalTokenPayload {
   bodyHash?: string
 }
 
-/**
- * Constant-time string comparison to prevent timing attacks
- */
 function secureCompare(a: string, b: string): boolean {
   if (a.length !== b.length) {
     return false
