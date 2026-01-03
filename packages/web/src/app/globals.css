@@ -132,7 +132,7 @@ html, body {
 .page-main {
   display: flex;
   flex-direction: column;
-  padding: 1rem 0.6rem 1rem 0.8rem;
+  padding: 1rem 0.6rem 5rem 0.8rem;
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;

@@ -1,24 +1,15 @@
 .container {
-  min-height: 100vh;
+  @apply min-h-screen;
 }
 
 .wrapper {
-  padding: 24px;
+  @apply p-6;
 }
 
 .emptyState {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 20px;
-  padding: 48px 24px;
-  margin: 24px 16px;
-  text-align: center;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  @apply bg-white/95 rounded-3xl p-12 my-6 mx-4 text-center shadow-lg backdrop-blur-xl border border-white/30;
 }
 
 .emptyText {
-  color: #6b7280;
-  font-size: 16px;
-  line-height: 1.6;
+  @apply text-gray-500 text-base leading-relaxed;
 }

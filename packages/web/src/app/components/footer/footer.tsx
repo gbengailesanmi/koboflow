@@ -62,56 +62,48 @@ export default function Footer({ buttonColor, opacity = 75, scrollContainerRef }
       className={`${styles.Footer} ${isVisible ? styles.FooterVisible : styles.FooterHidden}`}
       style={footerStyle}
     >
-      <Link href={`/${customerId}/dashboard`} passHref legacyBehavior>
-        <a style={{ textDecoration: 'none' }}>
-          <FooterIconButton 
-            text='Home' 
-            style={buttonStyle}
-            textColor={buttonColor}
-            isActive={pathname?.includes('/dashboard')}
-          >
-            <HomeIcon width='25' height='25' />
-          </FooterIconButton>
-        </a>
+      <Link href={`/${customerId}/dashboard`}>
+        <FooterIconButton 
+          text='Home' 
+          style={buttonStyle}
+          textColor={buttonColor}
+          isActive={pathname?.includes('/dashboard')}
+        >
+          <HomeIcon width='25' height='25' />
+        </FooterIconButton>
       </Link>
       
-      <Link href={`/${customerId}/analytics`} passHref legacyBehavior>
-        <a style={{ textDecoration: 'none' }}>
-          <FooterIconButton 
-            text='Insights' 
-            style={buttonStyle} 
-            textColor={buttonColor}
-            isActive={pathname?.includes('/analytics')}
-          >
-            <Pencil2Icon width='25' height='25' />
-          </FooterIconButton>
-        </a>
+      <Link href={`/${customerId}/analytics`}>
+        <FooterIconButton 
+          text='Insights' 
+          style={buttonStyle} 
+          textColor={buttonColor}
+          isActive={pathname?.includes('/analytics')}
+        >
+          <Pencil2Icon width='25' height='25' />
+        </FooterIconButton>
       </Link>
       
-      <Link href={`/${customerId}/budget`} passHref legacyBehavior>
-        <a style={{ textDecoration: 'none' }}>
-          <FooterIconButton 
-            text='Budget' 
-            style={buttonStyle} 
-            textColor={buttonColor}
-            isActive={pathname?.includes('/budget')}
-          >
-            <MixerHorizontalIcon width='25' height='25' />
-          </FooterIconButton>
-        </a>
+      <Link href={`/${customerId}/budget`}>
+        <FooterIconButton 
+          text='Budget' 
+          style={buttonStyle} 
+          textColor={buttonColor}
+          isActive={pathname?.includes('/budget')}
+        >
+          <MixerHorizontalIcon width='25' height='25' />
+        </FooterIconButton>
       </Link>
       
-      <Link href={`/${customerId}/dashboard`} passHref legacyBehavior>
-        <a style={{ textDecoration: 'none' }}>
-          <FooterIconButton 
-            text='Deals' 
-            style={buttonStyle} 
-            textColor={buttonColor}
-            isActive={pathname?.includes('/deals')}
-          >
-            <BackpackIcon width='25' height='25' />
-          </FooterIconButton>
-        </a>
+      <Link href={`/${customerId}/dashboard`}>
+        <FooterIconButton 
+          text='Deals' 
+          style={buttonStyle} 
+          textColor={buttonColor}
+          isActive={pathname?.includes('/deals')}
+        >
+          <BackpackIcon width='25' height='25' />
+        </FooterIconButton>
       </Link>
     </div>
   )

@@ -315,7 +315,7 @@ export default function SettingsClient({
             </div>
           </main>
         </div>
-        <Footer buttonColor="#222222" opacity={50} />
+      <Footer opacity={2} />
       </>
     </Sidebar>
   )

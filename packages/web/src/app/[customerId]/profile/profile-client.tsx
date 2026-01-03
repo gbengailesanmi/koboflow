@@ -212,7 +212,7 @@ export default function ProfileClient({
               />
             )}
         </div>
-        <Footer buttonColor='#222222' opacity={50} />
+        <Footer opacity={2} />
       </div>
     </Sidebar>
   )
