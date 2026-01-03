@@ -39,9 +39,17 @@ export async function serverFetch(
     .map(c => `${c.name}=${c.value}`)
     .join('; ')
 
+  const urlObj = new URL(url)
+  const path = urlObj.pathname
+
   const signedHeaders = addApiSignature({
-    ...(options.headers as Record<string, string> || {}),
-    Cookie: cookieHeader,
+    headers: {
+      ...(options.headers as Record<string, string> || {}),
+      Cookie: cookieHeader,
+    },
+    method: options.method || 'GET',
+    path: path,
+    body: options.body,
   })
 
   return fetch(url, {
