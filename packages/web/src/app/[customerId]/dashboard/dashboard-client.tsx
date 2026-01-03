@@ -2,7 +2,6 @@
 
 import React, { useMemo, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import Footer from '@/app/components/footer/footer'
 import { Grid } from '@radix-ui/themes'
 import styles from './dashboard.module.css'
 import AccountsCarousel from '../../components/dashboard/accounts-carousel'
@@ -16,20 +15,12 @@ interface DashboardClientProps {
   customerId: string
   accounts: Account[]
   transactions: EnrichedTransaction[]
-  profile: {
-    firstName: string
-    lastName: string
-    email: string
-    currency: string
-    totalBudgetLimit: number
-  }
 }
 
 export default function DashboardClient({
   customerId,
   accounts,
-  transactions,
-  profile,
+  transactions
 }: DashboardClientProps) {
   const router = useRouter()
   const [hasNavigated, setHasNavigated] = useState(false)
@@ -108,7 +99,6 @@ export default function DashboardClient({
   )
 
   return (
-    <>
     <main className={`${styles.main} page-main`}>
       <Grid className={styles.AccountsGrid}>
         <AccountsCarousel
@@ -147,7 +137,5 @@ export default function DashboardClient({
         <h2 className="text-sm font-semibold mb-2">Current month summary</h2>
       </Grid>
     </main>
-    <Footer opacity={2} />
-    </>
   )
 }

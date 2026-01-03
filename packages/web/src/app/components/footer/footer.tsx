@@ -2,17 +2,15 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
-import styles from './Footer.module.css'
+import styles from './footer.module.css'
 import { useParams, usePathname } from 'next/navigation'
 import { HomeIcon, Pencil2Icon, MixerHorizontalIcon, BackpackIcon } from '@radix-ui/react-icons'
 
 interface FooterProps {
-  buttonColor?: string
-  opacity?: number // Opacity value from 0-100 (e.g., 2, 75, 100)
-  scrollContainerRef?: React.RefObject<HTMLElement | null> // Optional custom scroll container
+  scrollContainerRef?: React.RefObject<HTMLElement | null>
 }
 
-export default function Footer({ buttonColor, opacity = 75, scrollContainerRef }: FooterProps) {
+export default function Footer({ scrollContainerRef }: FooterProps) {
   const params = useParams()
   const pathname = usePathname()
   const customerId = params.customerId as string
@@ -49,24 +47,13 @@ export default function Footer({ buttonColor, opacity = 75, scrollContainerRef }
     }
   }, [lastScrollY, scrollContainerRef])
 
-  const buttonStyle = buttonColor 
-    ? { color: buttonColor }
-    : {}
-
-  const footerStyle = {
-    backgroundColor: `rgba(255, 255, 255, ${opacity / 100})`
-  }
-
   return (
     <div 
       className={`${styles.Footer} ${isVisible ? styles.FooterVisible : styles.FooterHidden}`}
-      style={footerStyle}
     >
       <Link href={`/${customerId}/dashboard`}>
         <FooterIconButton 
           text='Home' 
-          style={buttonStyle}
-          textColor={buttonColor}
           isActive={pathname?.includes('/dashboard')}
         >
           <HomeIcon width='25' height='25' />
@@ -76,8 +63,6 @@ export default function Footer({ buttonColor, opacity = 75, scrollContainerRef }
       <Link href={`/${customerId}/analytics`}>
         <FooterIconButton 
           text='Insights' 
-          style={buttonStyle} 
-          textColor={buttonColor}
           isActive={pathname?.includes('/analytics')}
         >
           <Pencil2Icon width='25' height='25' />
@@ -87,8 +72,6 @@ export default function Footer({ buttonColor, opacity = 75, scrollContainerRef }
       <Link href={`/${customerId}/budget`}>
         <FooterIconButton 
           text='Budget' 
-          style={buttonStyle} 
-          textColor={buttonColor}
           isActive={pathname?.includes('/budget')}
         >
           <MixerHorizontalIcon width='25' height='25' />
@@ -98,8 +81,6 @@ export default function Footer({ buttonColor, opacity = 75, scrollContainerRef }
       <Link href={`/${customerId}/dashboard`}>
         <FooterIconButton 
           text='Deals' 
-          style={buttonStyle} 
-          textColor={buttonColor}
           isActive={pathname?.includes('/deals')}
         >
           <BackpackIcon width='25' height='25' />
@@ -112,26 +93,20 @@ export default function Footer({ buttonColor, opacity = 75, scrollContainerRef }
 type FooterIconButtonProps = {
   text?: string
   children: React.ReactNode
-  textColor?: string
-  onClick?: () => void
-  style?: React.CSSProperties
   isActive?: boolean
 }
 
-export function FooterIconButton({ text = '', children, textColor, onClick, style, isActive }: FooterIconButtonProps) {
+export function FooterIconButton({ text = '', children, isActive }: FooterIconButtonProps) {
   return (
     <div className="flex flex-col items-center">
       <button
-        onClick={onClick}
-        style={style}
-        className={`p-3 rounded-full bg-transparent hover:bg-gray-100/10 transition-colors cursor-pointer border-none ${isActive ? 'opacity-100' : 'opacity-60'}`}
+        className={`p-3 rounded-full bg-transparent cursor-pointer border-none text-white ${isActive ? 'opacity-100' : 'opacity-40'}`}
       >
         {children}
       </button>
       {text && (
         <div 
-          className="text-xs text-center" 
-          style={textColor ? { color: textColor, opacity: isActive ? 1 : 0.6 } : { opacity: isActive ? 1 : 0.6 }}
+          className={`text-xs text-center text-white ${isActive ? 'opacity-100' : 'opacity-40'}`}
         >
           {text}
         </div>

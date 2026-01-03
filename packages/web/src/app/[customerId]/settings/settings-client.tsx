@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import { signOut } from 'next-auth/react'
@@ -8,8 +8,7 @@ import { settingsUpdateAction } from '@/app/actions/settings.actions'
 import { securityChangePINAction, securityChangePasswordAction } from '@/app/actions/security.actions'
 import { deleteUserAction } from '@/app/actions/user.actions'
 import Sidebar from '@/app/components/page-sidebar/sidebar'
-import { usePageTitle } from '@/providers/page-title-context'
-import Footer from '@/app/components/footer/footer'
+import { usePageTitle } from '@/providers/header-footer-provider'
 import { 
   Box,
   Button, 
@@ -74,10 +73,9 @@ export default function SettingsClient({
   const { setPageTitle } = usePageTitle()
   const { theme: currentTheme, setTheme: setNextTheme, resolvedTheme } = useTheme()
 
-  // Set page title on mount
   useEffect(() => {
     setPageTitle('Settings', 'Manage your account preferences')
-  }, [setPageTitle])
+  }, [])
 
   const [isDarkMode, setIsDarkMode] = useState(false)
   const userName = `${firstName} ${lastName}` || ''
@@ -225,98 +223,95 @@ export default function SettingsClient({
 
   return (
     <Sidebar customerId={customerId}>
-      <>
-        <div className={styles.container}>
-          <main className={styles.main}>
-            {/* User Profile Card */}
-            <Box className={styles.profileCard}>
-              <div className={styles.avatar}>
-                {userName.charAt(0).toUpperCase()}
-              </div>
-              <div className={styles.userDetails}>
-                <Text size="4" weight="bold">{userName}</Text>
-                <Text size="2" color="gray">{email}</Text>
-              </div>
-            </Box>
-
-            {/* Settings Sections */}
-            {settingsSections.map((section, sectionIndex) => (
-              <div key={sectionIndex} className={styles.section}>
-                <Text size="2" weight="medium" color="gray" mb="2" className={styles.sectionTitle}>
-                  {section.title}
-                </Text>
-                <Box className={styles.settingsCard}>
-                  {section.items.map((item, itemIndex) => {
-                    const isToggleItem = 'toggle' in item && item.toggle === true
-                    
-                    return (
-                      <div key={itemIndex}>
-                        {isToggleItem ? (
-                          <Flex
-                            justify="between"
-                            align="center"
-                            className={styles.settingItem}
-                          >
-                            <Flex align="center" gap="3">
-                              <div className={styles.settingIcon}>{item.icon}</div>
-                              <Flex direction="column" gap="1">
-                                <Text size="3" weight="medium">{item.label}</Text>
-                                <Text size="2" color="gray">{item.description}</Text>
-                              </Flex>
-                            </Flex>
-                            <Switch
-                              checked={'checked' in item ? item.checked : false}
-                              onCheckedChange={'onChange' in item ? item.onChange : undefined}
-                              size="2"
-                            />
-                          </Flex>
-                        ) : (
-                          <button
-                            onClick={'onClick' in item ? item.onClick : undefined}
-                            className={styles.settingButton}
-                          >
-                            <Flex align="center" gap="3" style={{ flex: 1 }}>
-                              <div className={styles.settingIcon}>{item.icon}</div>
-                              <Flex direction="column" gap="1" style={{ flex: 1, textAlign: 'left' }}>
-                                <Text size="3" weight="medium">{item.label}</Text>
-                                <Text size="2" color="gray">{item.description}</Text>
-                              </Flex>
-                            </Flex>
-                            <ChevronRightIcon width="18" height="18" />
-                          </button>
-                        )}
-                        {itemIndex < section.items.length - 1 && (
-                          <div className={styles.divider} />
-                        )}
-                      </div>
-                    )
-                  })}
-                </Box>
-              </div>
-            ))}
-
-            {/* Account Actions */}
-            <div className={styles.section}>
-              <div className={styles.dangerZone}>
-                <button
-                  className={styles.deleteButton}
-                  onClick={handleDeleteAccount}
-                >
-                  🗑️ Delete account
-                </button>
-
-                <button
-                  className={styles.logoutButton}
-                  onClick={handleLogout}
-                >
-                  🚪 Log Out
-                </button>
-              </div>
+      <div className={styles.container}>
+        <main className={styles.main}>
+          {/* User Profile Card */}
+          <Box className={styles.profileCard}>
+            <div className={styles.avatar}>
+              {userName.charAt(0).toUpperCase()}
             </div>
-          </main>
-        </div>
-      <Footer opacity={2} />
-      </>
+            <div className={styles.userDetails}>
+              <Text size="4" weight="bold">{userName}</Text>
+              <Text size="2" color="gray">{email}</Text>
+            </div>
+          </Box>
+
+          {/* Settings Sections */}
+          {settingsSections.map((section, sectionIndex) => (
+            <div key={sectionIndex} className={styles.section}>
+              <Text size="2" weight="medium" color="gray" mb="2" className={styles.sectionTitle}>
+                {section.title}
+              </Text>
+              <Box className={styles.settingsCard}>
+                {section.items.map((item, itemIndex) => {
+                  const isToggleItem = 'toggle' in item && item.toggle === true
+                  
+                  return (
+                    <div key={itemIndex}>
+                      {isToggleItem ? (
+                        <Flex
+                          justify="between"
+                          align="center"
+                          className={styles.settingItem}
+                        >
+                          <Flex align="center" gap="3">
+                            <div className={styles.settingIcon}>{item.icon}</div>
+                            <Flex direction="column" gap="1">
+                              <Text size="3" weight="medium">{item.label}</Text>
+                              <Text size="2" color="gray">{item.description}</Text>
+                            </Flex>
+                          </Flex>
+                          <Switch
+                            checked={'checked' in item ? item.checked : false}
+                            onCheckedChange={'onChange' in item ? item.onChange : undefined}
+                            size="2"
+                          />
+                        </Flex>
+                      ) : (
+                        <button
+                          onClick={'onClick' in item ? item.onClick : undefined}
+                          className={styles.settingButton}
+                        >
+                          <Flex align="center" gap="3" style={{ flex: 1 }}>
+                            <div className={styles.settingIcon}>{item.icon}</div>
+                            <Flex direction="column" gap="1" style={{ flex: 1, textAlign: 'left' }}>
+                              <Text size="3" weight="medium">{item.label}</Text>
+                              <Text size="2" color="gray">{item.description}</Text>
+                            </Flex>
+                          </Flex>
+                          <ChevronRightIcon width="18" height="18" />
+                        </button>
+                      )}
+                      {itemIndex < section.items.length - 1 && (
+                        <div className={styles.divider} />
+                      )}
+                    </div>
+                  )
+                })}
+              </Box>
+            </div>
+          ))}
+
+          {/* Account Actions */}
+          <div className={styles.section}>
+            <div className={styles.dangerZone}>
+              <button
+                className={styles.deleteButton}
+                onClick={handleDeleteAccount}
+              >
+                🗑️ Delete account
+              </button>
+
+              <button
+                className={styles.logoutButton}
+                onClick={handleLogout}
+              >
+                🚪 Log Out
+              </button>
+            </div>
+          </div>
+        </main>
+      </div>
     </Sidebar>
   )
 }

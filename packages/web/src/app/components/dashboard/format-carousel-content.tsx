@@ -10,7 +10,9 @@ function FormatCarouselContent({
   accountName: string
   balance: number
 }) {
-  const [whole, fraction] = balance
+  const isNegative = balance < 0
+  const absBalance = Math.abs(balance)
+  const [whole, fraction] = absBalance
     .toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
     .split('.')
 
@@ -21,9 +23,9 @@ function FormatCarouselContent({
           {accountType} <DotIcon /> {accountName}
         </span>
       </h3>
-      <span className="text-6xl font-bold mt-2">
-        £{whole}
-        <span className="text-4xl font-bold align-bottom ml-1">.{fraction}</span>
+      <span className="text-4xl md:text-5xl lg:text-6xl font-bold mt-2">
+        {isNegative && '-'}£{whole}
+        <span className="text-base md:text-2xl align-bottom ml-1">.{fraction}</span>
       </span>
     </>
   )

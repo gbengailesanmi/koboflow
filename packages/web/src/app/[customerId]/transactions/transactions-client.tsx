@@ -7,7 +7,6 @@ import PageLayoutWithSidebar from '@/app/components/page-sidebar/sidebar'
 import { Dialog } from '@radix-ui/themes'
 import { DownloadIcon, UploadIcon } from '@radix-ui/react-icons'
 import styles from './transactions.module.css'
-import Footer from '@/app/components/footer/footer'
 import TransactionMonthPills from '@/app/components/transactions/transaction-month-pills/transaction-month-pills'
 import TransactionDetailsDialog from '@/app/components/transactions/transaction-details-dialog/transaction-details-dialog'
 import TransactionCard from '@/app/components/transactions/transaction-card/transaction-card'
@@ -134,7 +133,6 @@ export default function TransactionsClient({
               )
             })}
           </div>
-          <Footer opacity={2} />
         </div>
 
         {selectedTransaction && (

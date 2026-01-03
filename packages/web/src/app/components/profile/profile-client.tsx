@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { userUpdateProfileAction } from '@/app/actions/user.actions'
 import Sidebar from '@/app/components/page-sidebar/sidebar'
-import { usePageTitle } from '@/providers/page-title-context'
+import { usePageTitle } from '@/providers/header-footer-provider'
 import { UserInfoCard } from '@/app/components/settings/user-info-card'
 import { 
   Pencil1Icon, 
@@ -13,7 +13,6 @@ import {
   PersonIcon, 
   EnvelopeClosedIcon,
 } from '@radix-ui/react-icons'
-import Footer from '@/app/components/footer/footer'
 import { 
   Button, 
   TextField, 
@@ -42,10 +41,9 @@ export default function ProfileClient({
   const router = useRouter()
   const { setPageTitle } = usePageTitle()
 
-  // Set page title on mount
   useEffect(() => {
     setPageTitle('Profile', 'Manage your account settings and personal information')
-  }, [setPageTitle])
+  }, [])
 
   const [isEditing, setIsEditing] = useState(false)
   const [formData, setFormData] = useState({
@@ -212,7 +210,6 @@ export default function ProfileClient({
               />
             )}
         </div>
-        <Footer opacity={2} />
       </div>
     </Sidebar>
   )

@@ -24,7 +24,6 @@ export function PageLayout({
   header,
   stickySection,
   children,
-  footer = { buttonColor: '#222222', opacity: 50 },
   className = ''
 }: PageLayoutProps) {
   const mainRef = React.useRef<HTMLElement>(null)
@@ -54,11 +53,7 @@ export function PageLayout({
       </div>
 
       {/* Footer */}
-      <Footer 
-        buttonColor={footer.buttonColor}
-        opacity={footer.opacity}
-        scrollContainerRef={mainRef}
-      />
+      <Footer scrollContainerRef={mainRef} />
     </div>
   )
 }

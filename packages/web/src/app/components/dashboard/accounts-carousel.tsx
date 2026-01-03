@@ -145,7 +145,7 @@ export default function AccountsCarousel({
             {}
             <div className={styles.embla__slide}>
               <FormatCarouselContent
-                accountType="Total Balance"
+                accountType="Total Net Worth"
                 accountName="All Accounts"
                 balance={totalBalance}
               />

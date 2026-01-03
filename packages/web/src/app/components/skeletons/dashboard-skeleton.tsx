@@ -39,7 +39,7 @@ export function DashboardSkeleton() {
           <Skeleton height="150px" />
         </Grid>
       </main>
-      <Footer opacity={2} />
+      <Footer />
     </>
   )
 }

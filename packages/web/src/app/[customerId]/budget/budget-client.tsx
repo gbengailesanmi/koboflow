@@ -4,7 +4,7 @@ import React, { useState, useMemo, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { budgetUpdateAction, budgetCreateAction, budgetSetActiveAction, budgetDeleteAction } from '@/app/actions/budget.actions'
 import Sidebar from '@/app/components/page-sidebar/sidebar'
-import { usePageTitle } from '@/providers/page-title-context'
+import { usePageTitle } from '@/providers/header-footer-provider'
 import { PageLayout } from '@/app/components/page-layout/page-layout'
 import { BudgetSwitcher } from '@/app/components/budget/budget-switcher'
 import { useScrollRestoration } from '@/hooks/use-scroll-restoration'
@@ -54,10 +54,9 @@ export default function BudgetClient({
   const router = useRouter()
   const { setPageTitle } = usePageTitle()
 
-  // Set page title on mount
   useEffect(() => {
     setPageTitle('Budget', 'Set spending limits and track your progress')
-  }, [setPageTitle])
+  }, [])
 
   // Restore scroll position when navigating back
   useScrollRestoration()
