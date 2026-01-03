@@ -8,7 +8,11 @@ const MAX_TOKEN_LIFETIME = 5 * 60
 const KEY = config.API_KEY
 const EXEMPT_PATHS = [
   '/api/auth/oauth/google',
+  '/api/auth/verify-email',
+  '/api/auth/resend-verification',
+  '/api/auth/signup',
   '/api/auth/oauth/callback',
+  '/api/auth/validate-credentials'
 ]
 const USED_TOKENS_COLLECTION = 'used_jwt_tokens'
 let indexCreated = false
