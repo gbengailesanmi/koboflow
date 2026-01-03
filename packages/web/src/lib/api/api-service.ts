@@ -719,7 +719,7 @@ export async function validateCredentials(
   })
 
   try {
-    const response = await fetch(
+    const response = await serverFetch(
       `${BACKEND_URL}/api/auth/validate-credentials`,
       {
         method: 'POST',
@@ -774,7 +774,7 @@ export async function googleSignIn(
   })
 
   try {
-    const response = await fetch(
+    const response = await serverFetch(
       `${BACKEND_URL}/api/auth/oauth/google`,
       {
         method: 'POST',
