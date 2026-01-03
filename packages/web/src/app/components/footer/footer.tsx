@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import styles from './Footer.module.css'
 import Link from 'next/link'
-import styles from './footer.module.css'
 import { useParams, usePathname } from 'next/navigation'
 import { HomeIcon, Pencil2Icon, MixerHorizontalIcon, BackpackIcon } from '@radix-ui/react-icons'
 
