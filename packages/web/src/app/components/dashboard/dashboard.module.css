@@ -1,0 +1,56 @@
+@reference "../../globals.css";
+
+/* ============================================
+   Dashboard Header Styles
+   ============================================ */
+.dashboardHeaderWrapper {
+  @apply absolute left-0 top-0 w-full h-[3rem] flex lg:gap-70 items-center rounded-bl-2xl p-3 rounded-br-2xl justify-between z-50 bg-white/2 backdrop-blur-2xl;
+}
+
+/* ============================================
+   Account Pills Styles
+   ============================================ */
+.PillsWrapper {
+  @apply h-auto w-full mt-2 flex flex-row;
+}
+
+.ButtonWrapper {
+  @apply flex flex-col justify-between w-full items-center;
+}
+
+.LabelSpan {
+  @apply text-[10px] font-medium cursor-pointer;
+}
+
+/* ============================================
+   Accounts Carousel Styles
+   ============================================ */
+.embla__viewport {
+  overflow: hidden;
+}
+
+.embla__container {
+  display: flex;
+  max-width: 100vw;
+}
+
+.embla__slide {
+  flex: 0 0 100%;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem;
+}
+
+.embla {
+  padding-top: 5rem;
+  height: auto;
+  width: full;
+}
+
+/* ============================================
+   Accounts Row Styles
+   ============================================ */
+/* Placeholder for accounts-row styles if any */

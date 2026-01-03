@@ -1,5 +1,5 @@
 import React from 'react'
-import styles from './dashboard-header.module.css'
+import styles from './dashboard.module.css'
 import { useParams, useRouter } from 'next/navigation'
 import { GearIcon } from '@radix-ui/react-icons'
 

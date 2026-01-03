@@ -2,7 +2,7 @@
 
 import { IconButton } from '@radix-ui/themes'
 import React from 'react'
-import styles from './account-pills.module.css'
+import styles from './dashboard.module.css'
 
 type ActionButton = {
   key: string
