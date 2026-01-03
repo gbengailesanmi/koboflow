@@ -1,12 +1,11 @@
 'use client'
 
-import React, { useMemo, useState, useCallback } from 'react'
+import React, { useMemo, useState, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Grid } from '@radix-ui/themes'
 import styles from './dashboard.module.css'
 import AccountsCarousel from '../../components/dashboard/accounts-carousel'
-import TransactionsColumn from '@/app/components/transactions/transactions-column/transactions-column'
-import { categorizeTransaction } from '@/app/components/analytics/utils/categorize-transaction'
+import TransactionsColumn from '@/app/components/dashboard/transactions-column/transactions-column'
 import { useQueryStateNullable } from '@/hooks/use-query-state'
 import { useScrollRestoration } from '@/hooks/use-scroll-restoration'
 import type { Account, EnrichedTransaction } from '@money-mapper/shared'
@@ -24,12 +23,10 @@ export default function DashboardClient({
 }: DashboardClientProps) {
   const router = useRouter()
   const [hasNavigated, setHasNavigated] = useState(false)
-
+  const [currentMonth, setCurrentMonth] = useState('')
   const [selectedAccountId, setSelectedAccountId] = useQueryStateNullable('accountId')
   
   useScrollRestoration()
-
-  const effectiveAccountId = selectedAccountId ?? accounts[0]?.id ?? null
 
   const filteredTransactions = useMemo(() => 
     selectedAccountId
@@ -38,57 +35,16 @@ export default function DashboardClient({
     [selectedAccountId, transactions]
   )
 
-  const processedTransactions = useMemo(() => {
-    return filteredTransactions.map(transaction => {
-      const amount = transaction.amount
-      return {
-        ...transaction,
-        numericAmount: Math.abs(amount),
-        type: amount < 0 ? 'expense' : 'income',
-        category: amount < 0 ? categorizeTransaction(transaction.narration) : 'income',
-        date: new Date(transaction.date),
-      }
-    })
-  }, [filteredTransactions])
-
-  const monthOnMonthData = useMemo(() => {
-    const now = new Date()
-    const currentMonth = now.getMonth()
-    const currentYear = now.getFullYear()
-
-    const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1
-    const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear
-
-    const filterByMonth = (month: number, year: number) =>
-      processedTransactions.filter(t => {
-        const d = t.date
-        return d.getMonth() === month && d.getFullYear() === year
-      })
-
-    const currentMonthTxns = filterByMonth(currentMonth, currentYear)
-    const prevMonthTxns = filterByMonth(prevMonth, prevYear)
-
-    const sum = (txns: typeof processedTransactions, type: 'income' | 'expense') =>
-      txns.filter(t => t.type === type).reduce((acc, t) => acc + t.numericAmount, 0)
-
-    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-
-    return {
-      currentMonth: {
-        name: monthNames[currentMonth],
-        income: sum(currentMonthTxns, 'income'),
-        expense: sum(currentMonthTxns, 'expense'),
-      },
-      prevMonth: {
-        name: monthNames[prevMonth],
-        income: sum(prevMonthTxns, 'income'),
-        expense: sum(prevMonthTxns, 'expense'),
-      },
-    }
-  }, [processedTransactions])
-
   const handleNavigate = useCallback(() => setHasNavigated(true), [])
   
+  const initialiseCurrentMonth = useCallback(() => {
+    setCurrentMonth(new Date().toLocaleString('default', { month: 'long' }))
+  }, [])
+
+  useEffect(() => {
+    initialiseCurrentMonth()
+  }, [initialiseCurrentMonth])
+
   const handleSeeAllClick = useCallback(() => {
     router.push(`/${customerId}/transactions`)
   }, [router, customerId])
@@ -100,7 +56,7 @@ export default function DashboardClient({
 
   return (
     <main className={`${styles.main} page-main`}>
-      <Grid className={styles.AccountsGrid}>
+      <Grid className={styles.accountsGrid}>
         <AccountsCarousel
           accounts={accounts}
           selectedAccount={selectedAccountId}
@@ -109,17 +65,16 @@ export default function DashboardClient({
         />
       </Grid>
 
-
       <Grid
         rows="3"
-        className={styles.TransactionsGrid}
+        className={styles.transactionsGrid}
         style={{ gridTemplateRows: '2.5rem 1fr 2.5rem' }}
       >
         <div style={{ display: 'flex', height: '100%', padding: '.3rem' }}>
-          <h2 className="text-sm font-semibold mb-2">All Transactions</h2>
+          <h2 className="text-sm font-semibold mb-2">Transactions</h2>
         </div>
 
-        <div className={styles.TransactionsListWrapper}>
+        <div className={styles.transactionsListWrapper}>
           <TransactionsColumn transactions={limitedTransactions} />
         </div>
 
@@ -128,13 +83,13 @@ export default function DashboardClient({
           role="button"
           onClick={handleSeeAllClick}
         >
-          See all
+          See all transactions
         </div>
       </Grid>
 
 
-      <Grid className={styles.Grid6}>
-        <h2 className="text-sm font-semibold mb-2">Current month summary</h2>
+      <Grid className={styles.grid6}>
+        <h2 className="text-sm font-semibold">{currentMonth} summary</h2>
       </Grid>
     </main>
   )

@@ -17,7 +17,11 @@
 }
 
 .TextWrapper {
-  @apply flex flex-col;
+  @apply flex flex-col truncate;
+}
+
+.TransactionNarration {
+  @apply truncate;
 }
 
 .AmountWrapper {
@@ -25,9 +29,9 @@
 }
 
 .DebitText {
-  @apply text-red-300 font-bold text-lg;
+  @apply text-red-300 font-semibold text-lg;
 }
 
 .CreditText {
-  @apply text-green-600 font-bold text-lg;
+  @apply text-green-600 font-semibold text-sm;
 }

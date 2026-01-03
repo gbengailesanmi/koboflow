@@ -37,7 +37,6 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
         customerId={customerId}
         accounts={accounts}
         transactions={transactions}
-        profile={profile}
       />
     </DashboardThemeWrapper>
   )
