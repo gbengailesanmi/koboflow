@@ -16,7 +16,6 @@ export function signApiRequest(options: SignRequestOptions = {}): string {
   }
 
   const { method, path, body } = options
-
   const jti = crypto.randomBytes(16).toString('hex')
 
   const tokenPayload: Record<string, any> = {
