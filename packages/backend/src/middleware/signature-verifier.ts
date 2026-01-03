@@ -63,16 +63,32 @@ export async function verifySignature(
   res: Response,
   next: NextFunction
 ): Promise<void> {
-  if (EXEMPT_PATHS.includes(req.path)) {
+  // Use originalUrl to get the full path including mount points
+  // Parse to remove query string if present
+  const fullPath = req.originalUrl.split('?')[0]
+  
+  console.log('🔍 [Signature Verifier] Request received', {
+    path: req.path,
+    originalUrl: req.originalUrl,
+    fullPath,
+    method: req.method,
+    ip: req.ip,
+    headers: Object.keys(req.headers),
+  })
+
+  if (EXEMPT_PATHS.includes(fullPath)) {
+    console.log('⏭️ [Signature Verifier] Path is exempt from verification', { path: fullPath })
     return next()
   }
 
   const signature = req.headers['x-internal-api-signature'] as string
 
-  console.log('🔒 [Signature Verifier]', {
+  console.log('🔒 [Signature Verifier] Checking signature', {
     path: req.path,
+    fullPath,
     method: req.method,
     hasSignature: !!signature,
+    signatureLength: signature?.length,
     ip: req.ip,
   })
 
@@ -95,16 +111,35 @@ export async function verifySignature(
   }
 
   try {
+    console.log('🔓 [Signature Verifier] Attempting to decode token')
+
     const decoded = jwt.verify(signature, KEY, {
       algorithms: ['HS256'],
       audience: 'money-mapper-backend',
       issuer: 'money-mapper-web',
     }) as InternalTokenPayload
 
+    console.log('✅ [Signature Verifier] Token decoded successfully', {
+      jti: decoded.jti,
+      iat: decoded.iat,
+      exp: decoded.exp,
+      issuedAt: new Date(decoded.iat * 1000).toISOString(),
+      expiresAt: new Date(decoded.exp * 1000).toISOString(),
+      hasMethod: !!decoded.method,
+      hasPath: !!decoded.path,
+      hasBodyHash: !!decoded.bodyHash,
+    })
+
     const tokenLifetime = decoded.exp - decoded.iat
+    console.log('⏱️ [Signature Verifier] Checking token lifetime', {
+      lifetime: tokenLifetime,
+      maxAllowed: MAX_TOKEN_LIFETIME,
+      isValid: tokenLifetime <= MAX_TOKEN_LIFETIME,
+    })
+
     if (tokenLifetime > MAX_TOKEN_LIFETIME) {
       console.log('⏱️ [Signature Verifier] Token lifetime too long', {
-        path: req.path,
+        path: fullPath,
         lifetime: tokenLifetime,
         maxAllowed: MAX_TOKEN_LIFETIME,
       })
@@ -116,6 +151,8 @@ export async function verifySignature(
     }
 
     if (decoded.jti) {
+      console.log('🔍 [Signature Verifier] Checking for token replay', { jti: decoded.jti })
+
       const db = await connectDB()
       const existingToken = await db.collection(USED_TOKENS_COLLECTION).findOne({
         jti: decoded.jti
@@ -123,8 +160,9 @@ export async function verifySignature(
 
       if (existingToken) {
         console.log('🔁 [Signature Verifier] Token replay detected', {
-          path: req.path,
+          path: fullPath,
           jti: decoded.jti,
+          previouslyUsedAt: existingToken.usedAt,
         })
         res.status(403).json({
           error: 'Forbidden',
@@ -134,17 +172,21 @@ export async function verifySignature(
       }
 
       try {
+        console.log('💾 [Signature Verifier] Storing token as used', { jti: decoded.jti })
+
         await db.collection(USED_TOKENS_COLLECTION).insertOne({
           jti: decoded.jti,
           usedAt: new Date(),
           expiresAt: new Date(decoded.exp * 1000),
-          path: req.path,
+          path: fullPath,
           method: req.method,
         })
+
+        console.log('✅ [Signature Verifier] Token stored successfully', { jti: decoded.jti })
       } catch (err: any) {
         if (err.code === 11000) {
           console.log('🔁 [Signature Verifier] Token replay detected (race condition)', {
-            path: req.path,
+            path: fullPath,
             jti: decoded.jti,
           })
           res.status(403).json({
@@ -161,33 +203,55 @@ export async function verifySignature(
       console.log('🚫 [Signature Verifier] Method mismatch', {
         expected: decoded.method,
         actual: req.method,
+        path: fullPath,
       })
       res.status(403).json({
         error: 'Forbidden',
         message: 'Invalid request signature',
       })
       return
+    } else if (decoded.method) {
+      console.log('✅ [Signature Verifier] Method matches', {
+        method: decoded.method,
+      })
     }
 
-    if (decoded.path && decoded.path !== req.path) {
+    if (decoded.path && decoded.path !== fullPath) {
       console.log('🚫 [Signature Verifier] Path mismatch', {
         expected: decoded.path,
-        actual: req.path,
+        actual: fullPath,
+        reqPath: req.path,
+        originalUrl: req.originalUrl,
       })
       res.status(403).json({
         error: 'Forbidden',
         message: 'Invalid request signature',
       })
       return
+    } else if (decoded.path) {
+      console.log('✅ [Signature Verifier] Path matches', {
+        path: decoded.path,
+      })
     }
 
     if (decoded.bodyHash && req.body) {
+      console.log('🔐 [Signature Verifier] Verifying body hash', {
+        expectedHash: decoded.bodyHash,
+      })
+
       const bodyStr = JSON.stringify(req.body)
       const actualHash = crypto.createHash('sha256').update(bodyStr).digest('hex')
       
+      console.log('🔐 [Signature Verifier] Body hash computed', {
+        actualHash,
+        bodyLength: bodyStr.length,
+      })
+
       if (!secureCompare(actualHash, decoded.bodyHash)) {
         console.log('🚫 [Signature Verifier] Body hash mismatch', {
-          path: req.path,
+          path: fullPath,
+          expected: decoded.bodyHash,
+          actual: actualHash,
         })
         res.status(403).json({
           error: 'Forbidden',
@@ -195,20 +259,24 @@ export async function verifySignature(
         })
         return
       }
+
+      console.log('✅ [Signature Verifier] Body hash matches')
     }
 
-    console.log('✅ [Signature Verifier] Valid signature', {
-      path: req.path,
+    console.log('✅ [Signature Verifier] All checks passed - Valid signature', {
+      path: fullPath,
+      method: req.method,
       jti: decoded.jti,
       issuedAt: new Date(decoded.iat * 1000).toISOString(),
       expiresAt: new Date(decoded.exp * 1000).toISOString(),
     })
 
+    console.log('➡️ [Signature Verifier] Proceeding to next middleware')
     next()
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
       console.log('⏰ [Signature Verifier] Expired token', {
-        path: req.path,
+        path: fullPath,
         expiredAt: error.expiredAt,
       })
       res.status(403).json({
@@ -220,7 +288,7 @@ export async function verifySignature(
 
     if (error instanceof jwt.JsonWebTokenError) {
       console.log('🚫 [Signature Verifier] Invalid token', {
-        path: req.path,
+        path: fullPath,
         error: error.message,
       })
       res.status(403).json({
