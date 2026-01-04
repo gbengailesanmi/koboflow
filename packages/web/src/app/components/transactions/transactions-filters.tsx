@@ -1,6 +1,6 @@
 import type { Account } from '@money-mapper/shared'
 import React from 'react'
-import styles from '@/app/components/transactions/transactions-filters/transactions-filters.module.css'
+import styles from '@/app/components/transactions/transactions.module.css'
 import { DropdownMenu, Button, Grid } from '@radix-ui/themes'
 import { MagnifyingGlassIcon, ChevronDownIcon } from '@radix-ui/react-icons'
 

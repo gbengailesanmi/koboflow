@@ -1,6 +1,5 @@
 import { ScrollArea } from '@radix-ui/themes'
-import { RefObject } from 'react'
-import styles from './transaction-month-pills.module.css'
+import styles from '@/app/components/transactions/transactions.module.css'
 
 type TransactionMonthPillsProps = {
   months: string[]

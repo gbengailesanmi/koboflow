@@ -3,7 +3,7 @@
 import type { EnrichedTransaction } from '@money-mapper/shared'
 import { Box, Card, Flex, Text, Dialog } from '@radix-ui/themes'
 import { Cross1Icon, DownloadIcon, UploadIcon } from '@radix-ui/react-icons'
-import styles from './transactions-display.module.css'
+import styles from '@/app/components/transactions/transactions.module.css'
 import { useState } from 'react'
 
 type TransactionColumnProps = {

@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation'
 import { Grid } from '@radix-ui/themes'
 import styles from './dashboard.module.css'
 import AccountsCarousel from '../../components/dashboard/accounts-carousel'
-import TransactionsDisplay from '@/app/components/dashboard/transactions-display/transactions-display'
+import CollapsibleCard from '../../components/dashboard/collapsible-card/collapsible-card'
+import TransactionsDisplay from '@/app/components/transactions/transactions-display'
 import { useQueryStateNullable } from '@/hooks/use-query-state'
 import { useScrollRestoration } from '@/hooks/use-scroll-restoration'
 import type { Account, EnrichedTransaction } from '@money-mapper/shared'
@@ -25,6 +26,9 @@ export default function DashboardClient({
   const [hasNavigated, setHasNavigated] = useState(false)
   const [currentMonth, setCurrentMonth] = useState('')
   const [selectedAccountId, setSelectedAccountId] = useQueryStateNullable('accountId')
+  const [isTransactionsExpanded, setIsTransactionsExpanded] = useState(true)
+  const [isSummaryExpanded, setIsSummaryExpanded] = useState(true)
+  const [isEmergencyFundExpanded, setIsEmergencyFundExpanded] = useState(false)
   
   useScrollRestoration()
 
@@ -65,26 +69,47 @@ export default function DashboardClient({
         />
       </Grid>
 
-      <Grid className={`${styles.card} max-h-[40dvh]`}>
-        <h2>Transactions</h2>
+      <CollapsibleCard
+        title="Transactions"
+        isExpanded={isTransactionsExpanded}
+        onToggle={() => setIsTransactionsExpanded(!isTransactionsExpanded)}
+        className={isTransactionsExpanded ? 'max-h-[40dvh]' : 'max-h-auto'}
+      >
+        <>
+          <div className={styles.transactionsListWrapper}>
+            <TransactionsDisplay transactions={limitedTransactions} />
+          </div>
 
-        <div className={styles.transactionsListWrapper}>
-          <TransactionsDisplay transactions={limitedTransactions} />
+          <div
+            className={`${styles.seeAll} cursor-pointer`}
+            role="button"
+            onClick={handleSeeAllClick}
+          >
+            See all transactions
+          </div>
+        </>
+      </CollapsibleCard>
+
+
+      <CollapsibleCard
+        title={`${currentMonth} summary`}
+        isExpanded={isSummaryExpanded}
+        onToggle={() => setIsSummaryExpanded(!isSummaryExpanded)}
+      >
+        <div className={styles.summaryContent}>
+          {/* Summary content will go here */}
         </div>
+      </CollapsibleCard>
 
-        <div
-          className={`${styles.seeAll} cursor-pointer`}
-          role="button"
-          onClick={handleSeeAllClick}
-        >
-          See all transactions
+      <CollapsibleCard
+        title='Emergency fund calculator'
+        isExpanded={isEmergencyFundExpanded}
+        onToggle={() => setIsEmergencyFundExpanded(!isEmergencyFundExpanded)}
+      >
+        <div className={styles.summaryContent}>
+          {/* Summary content will go here */}
         </div>
-      </Grid>
-
-
-      <Grid className={`${styles.card}`}>
-        <h2 className={styles.grid6Title}>{currentMonth} summary</h2>
-      </Grid>
+      </CollapsibleCard>
     </main>
   )
 }
