@@ -286,21 +286,6 @@ export default function AnalyticsClient({
     setPageTitle('Insights', 'Look into your spending patterns and trends')
   }, [])
 
-  const renderHeader = useCallback(() => (
-    <>
-      {/* Account Filter Dialog */}
-      <Dialog.Root open={showAccountFilter} onOpenChange={setShowAccountFilter}>
-        <AccountFilterMenu 
-          accounts={accounts} 
-          currency={currency} 
-          asDialogContent={true}
-          open={showAccountFilter}
-          onOpenChange={setShowAccountFilter}
-        />
-      </Dialog.Root>
-    </>
-  ), [showAccountFilter, accounts, currency, handleOptionsClick])
-
   const renderStickyContent = useCallback(() => (
     <>
       <Box className={styles.timeRangeContainer}>
@@ -494,9 +479,7 @@ export default function AnalyticsClient({
 
   return (
     <PageLayout
-      header={renderHeader()}
       stickySection={renderStickyContent()}
-      footer={{ buttonColor: '#222222', opacity: 50 }}
     >
       {renderBodyContent()}
     </PageLayout>

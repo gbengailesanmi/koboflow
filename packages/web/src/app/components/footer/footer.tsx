@@ -98,15 +98,15 @@ type FooterIconButtonProps = {
 
 export function FooterIconButton({ text = '', children, isActive }: FooterIconButtonProps) {
   return (
-    <div className="flex flex-col items-center">
+    <div className={styles.FooterIconButtonContainer}>
       <button
-        className={`p-3 rounded-full bg-transparent cursor-pointer border-none text-white ${isActive ? 'opacity-100' : 'opacity-40'}`}
+        className={`${styles.FooterIconButton} ${isActive ? styles.FooterIconButtonActive : styles.FooterIconButtonInactive}`}
       >
         {children}
       </button>
       {text && (
         <div 
-          className={`text-xs text-center text-white ${isActive ? 'opacity-100' : 'opacity-40'}`}
+          className={`${styles.FooterIconText} ${isActive ? styles.FooterIconButtonActive : styles.FooterIconButtonInactive}`}
         >
           {text}
         </div>

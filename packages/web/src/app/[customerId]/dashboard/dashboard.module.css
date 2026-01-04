@@ -5,11 +5,9 @@
 }
 
 .accountsGrid {
-  @apply h-[45dvh] grid items-center justify-items-center;
+  @apply h-[45dvh] grid items-center justify-items-center rounded-[20px] transition-all duration-300 ease-out;
   background: var(--card-bg);
   box-shadow: var(--card-shadow);
-  transition: all 0.3s ease;
-  border-radius: 20px;
   backdrop-filter: blur(10px);
 }
 
@@ -17,30 +15,27 @@
   box-shadow: var(--card-shadow-hover);
 }
 
-.transactionsGrid {
-  @apply h-[40dvh] rounded-2xl grid;
+.card {
+  @apply rounded-2xl flex flex-col transition-all duration-300 ease-out;
   background: var(--card-bg);
   box-shadow: var(--card-shadow);
-  transition: all 0.3s ease;
   backdrop-filter: blur(10px);
+
+  h2 {
+    @apply h-8 p-2 mb-1 text-sm font-semibold flex-shrink-0;
+  }
 }
 
-.transactionsGrid:hover {
+.card:hover {
   box-shadow: var(--card-shadow-hover);
 }
 
 .transactionsListWrapper {
-  @apply overflow-auto max-h-[100%]
+  @apply overflow-auto flex-1 relative;
+  mask-image: linear-gradient(to bottom, transparent 0%, black 40%, black 90%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 40%, black 90%, transparent 100%);
 }
 
-.grid6 {
-  @apply h-[50dvh] rounded-lg grid;
-  background: var(--card-bg);
-  box-shadow: var(--card-shadow);
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-}
-
-.grid6:hover {
-  box-shadow: var(--card-shadow-hover);
+.seeAll {
+  @apply text-sm font-thin justify-center items-center flex p-2 cursor-pointer flex-shrink-0;
 }

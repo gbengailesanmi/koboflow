@@ -5,11 +5,10 @@ import { useRouter } from 'next/navigation'
 import type { EnrichedTransaction, Account } from '@money-mapper/shared'
 import PageLayoutWithSidebar from '@/app/components/page-sidebar/sidebar'
 import { Dialog } from '@radix-ui/themes'
-import { DownloadIcon, UploadIcon } from '@radix-ui/react-icons'
 import styles from './transactions.module.css'
 import TransactionMonthPills from '@/app/components/transactions/transaction-month-pills/transaction-month-pills'
 import TransactionDetailsDialog from '@/app/components/transactions/transaction-details-dialog/transaction-details-dialog'
-import TransactionCard from '@/app/components/transactions/transaction-card/transaction-card'
+import TransactionsDisplay from '@/app/components/dashboard/transactions-display/transactions-display'
 import TransactionsFilters from '@/app/components/transactions/transactions-filters/transactions-filters'
 import { useQueryState, useQueryStateNullable } from '@/hooks/use-query-state'
 import { useScrollRestoration } from '@/hooks/use-scroll-restoration'
@@ -114,22 +113,15 @@ export default function TransactionsClient({
             setSelectedMonth={setSelectedMonth}
           />
 
-          <div id="transaction-list" ref={transactionsWrapperRef} className={styles.TransactionsWrapper}>
+          <div id="transaction-body" ref={transactionsWrapperRef} className={styles.TransactionsWrapper}>
             {filteredTransactions.map(transaction => {
-              const isDebit = Number(transaction.amount) < 0
-              const amountClass = isDebit ? styles.DebitText : styles.CreditText
-              const Icon = isDebit ? UploadIcon : DownloadIcon
-
               return (
-                <TransactionCard
-                  key={transaction.id}
-                  transaction={transaction}
-                  isDebit={isDebit}
-                  amountClass={amountClass}
-                  Icon={Icon}
-                  onClick={() => setSelectedTransactionId(transaction.id)}
-                  cardRef={el => { transactionRefs.current[transaction.id] = el }}
-                />
+                <div key={transaction.id} ref={(el) => { transactionRefs.current[transaction.id] = el }}>
+                  <TransactionsDisplay
+                    transactions={[transaction]}
+                    narrationPopup
+                  />
+                </div>
               )
             })}
           </div>

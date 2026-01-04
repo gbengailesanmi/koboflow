@@ -14,3 +14,25 @@
 .FooterHidden {
   transform: translateY(100%);
 }
+
+.FooterIconButtonContainer {
+  @apply flex flex-col items-center;
+}
+
+.FooterIconButton {
+  @apply p-3 rounded-full bg-transparent cursor-pointer border-none;
+  color: var(--gray-12);
+}
+
+.FooterIconButtonActive {
+  @apply opacity-100;
+}
+
+.FooterIconButtonInactive {
+  @apply opacity-60;
+}
+
+.FooterIconText {
+  @apply text-xs text-center;
+  color: var(--gray-12);
+}

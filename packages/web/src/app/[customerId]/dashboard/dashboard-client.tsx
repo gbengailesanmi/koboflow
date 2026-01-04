@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Grid } from '@radix-ui/themes'
 import styles from './dashboard.module.css'
 import AccountsCarousel from '../../components/dashboard/accounts-carousel'
-import TransactionsColumn from '@/app/components/dashboard/transactions-column/transactions-column'
+import TransactionsDisplay from '@/app/components/dashboard/transactions-display/transactions-display'
 import { useQueryStateNullable } from '@/hooks/use-query-state'
 import { useScrollRestoration } from '@/hooks/use-scroll-restoration'
 import type { Account, EnrichedTransaction } from '@money-mapper/shared'
@@ -65,21 +65,15 @@ export default function DashboardClient({
         />
       </Grid>
 
-      <Grid
-        rows="3"
-        className={styles.transactionsGrid}
-        style={{ gridTemplateRows: '2.5rem 1fr 2.5rem' }}
-      >
-        <div style={{ display: 'flex', height: '100%', padding: '.3rem' }}>
-          <h2 className="text-sm font-semibold mb-2">Transactions</h2>
-        </div>
+      <Grid className={`${styles.card} max-h-[40dvh]`}>
+        <h2>Transactions</h2>
 
         <div className={styles.transactionsListWrapper}>
-          <TransactionsColumn transactions={limitedTransactions} />
+          <TransactionsDisplay transactions={limitedTransactions} />
         </div>
 
         <div
-          className="justify-center items-center flex cursor-pointer"
+          className={`${styles.seeAll} cursor-pointer`}
           role="button"
           onClick={handleSeeAllClick}
         >
@@ -88,8 +82,8 @@ export default function DashboardClient({
       </Grid>
 
 
-      <Grid className={styles.grid6}>
-        <h2 className="text-sm font-semibold">{currentMonth} summary</h2>
+      <Grid className={`${styles.card}`}>
+        <h2 className={styles.grid6Title}>{currentMonth} summary</h2>
       </Grid>
     </main>
   )

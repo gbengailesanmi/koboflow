@@ -889,9 +889,7 @@ export default function BudgetClient({
     <Sidebar customerId={customerId}>
       <Dialog.Root open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
         <PageLayout
-          header={renderHeader()}
           stickySection={renderStickyContent()}
-          footer={{ buttonColor: '#222222', opacity: 50 }}
         >
           {renderBodyContent()}
         </PageLayout>

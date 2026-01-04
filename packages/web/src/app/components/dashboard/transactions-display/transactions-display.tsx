@@ -3,14 +3,15 @@
 import type { EnrichedTransaction } from '@money-mapper/shared'
 import { Box, Card, Flex, Text, Dialog } from '@radix-ui/themes'
 import { Cross1Icon, DownloadIcon, UploadIcon } from '@radix-ui/react-icons'
-import styles from './transactions-column.module.css'
+import styles from './transactions-display.module.css'
 import { useState } from 'react'
 
 type TransactionColumnProps = {
   transactions: EnrichedTransaction[]
+  narrationPopup?: boolean
 }
 
-export default function TransactionsColumn({ transactions }: TransactionColumnProps) {
+export default function TransactionsDisplay({ transactions, narrationPopup = false }: TransactionColumnProps) {
   const [selectedTransaction, setSelectedTransaction] = useState<EnrichedTransaction | null>(null)
 
   return (
@@ -19,34 +20,31 @@ export default function TransactionsColumn({ transactions }: TransactionColumnPr
         if (!open) setSelectedTransaction(null)
       }}
     >
-      <div className={styles.TransactionsWrapper}>
+      <div className={styles.transactionsWrapper}>
         {transactions.map(transaction => {
           const isDebit = Number(transaction.amount) < 0
-          const amountClass = isDebit ? styles.DebitText : styles.CreditText
+          const transactionType = isDebit ? styles.debit : styles.credit
           const Icon = isDebit ? UploadIcon : DownloadIcon
 
           return (
-            <div key={transaction.id} className={styles.BoxWrapper}>
-              <Dialog.Trigger onClick={() => setSelectedTransaction(transaction)}>
-                <Box className={styles.CardWrapper} style={{ cursor: 'pointer' }}>
+            <div>
+              <Dialog.Trigger onClick={() => narrationPopup && setSelectedTransaction(transaction)}>
+                <Box className={styles.item}>
                   <Card>
                     <Flex gap='3' align='center'>
-                      <div className={styles.IconWrapper}>
-                        <Icon />
-                      </div>
-                      <div className={styles.TextWrapper}>
+                      <Icon />
+                      <div className={styles.text}>
                         <Text as='div' size='1'>
-                          {isDebit ? 'Debit' : 'Credit'}
-                        </Text>
-                        <Text as='div' size='1' weight='medium' className={styles.TransactionNarration}>
-                          {transaction.narration}
-                        </Text>
-                        <Text as='div' size='1'>
-                          {new Date(transaction.date).toISOString().slice(0, 10)}
+                          <span>
+                            {isDebit ? 'Debit' : 'Credit'}<br />
+                            <p className={styles.narration}>{transaction.narration}</p>
+                            {new Date(transaction.date).toISOString().slice(0, 10)}
+                          </span>
                         </Text>
                       </div>
-                      <div className={styles.AmountWrapper}>
-                        <Text as='div' className={amountClass}>
+
+                      <div className={styles.amount}>
+                        <Text as='div' className={transactionType}>
                           {Number(transaction.amount).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </Text>
                       </div>
@@ -59,7 +57,7 @@ export default function TransactionsColumn({ transactions }: TransactionColumnPr
         })}
       </div>
 
-      {selectedTransaction && (
+      {narrationPopup && selectedTransaction && (
         <Dialog.Content>
           <Flex gap='3' justify='between' style={{ marginBottom: '0.5rem' }}>
             <Dialog.Title>Transaction Details</Dialog.Title>
@@ -68,8 +66,8 @@ export default function TransactionsColumn({ transactions }: TransactionColumnPr
             </Dialog.Close>
           </Flex>
           <Box>
-            <Text><strong>Amount:</strong> {selectedTransaction.amount}<br /></Text>
-            <Text><strong>Narration:</strong> {selectedTransaction.narration}<br /></Text>
+            <Text><strong>Amount:</strong> {selectedTransaction.amount}</Text><br />
+            <Text><strong>Narration:</strong> {selectedTransaction.narration}</Text><br />
             <Text><strong>Date:</strong> {new Date(selectedTransaction.date).toLocaleString()}</Text>
           </Box>
         </Dialog.Content>

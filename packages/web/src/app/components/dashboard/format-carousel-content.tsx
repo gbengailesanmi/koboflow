@@ -23,7 +23,7 @@ function FormatCarouselContent({
           {accountType} <DotIcon /> {accountName}
         </span>
       </h3>
-      <span className="text-4xl md:text-5xl lg:text-6xl font-bold mt-2">
+      <span className="text-5xl md:text-5xl lg:text-6xl font-bold mt-2">
         {isNegative && '-'}£{whole}
         <span className="text-base md:text-2xl align-bottom ml-1">.{fraction}</span>
       </span>
