@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Grid } from '@radix-ui/themes'
 import styles from './dashboard.module.css'
 import AccountsCarousel from '../../components/dashboard/accounts-carousel'
-import CollapsibleCard from '../../components/dashboard/collapsible-card/collapsible-card'
+import Card from '../../components/dashboard/card/card'
 import TransactionsDisplay from '@/app/components/transactions/transactions-display'
 import { useQueryStateNullable } from '@/hooks/use-query-state'
 import { useScrollRestoration } from '@/hooks/use-scroll-restoration'
@@ -26,9 +26,6 @@ export default function DashboardClient({
   const [hasNavigated, setHasNavigated] = useState(false)
   const [currentMonth, setCurrentMonth] = useState('')
   const [selectedAccountId, setSelectedAccountId] = useQueryStateNullable('accountId')
-  const [isTransactionsExpanded, setIsTransactionsExpanded] = useState(true)
-  const [isSummaryExpanded, setIsSummaryExpanded] = useState(true)
-  const [isEmergencyFundExpanded, setIsEmergencyFundExpanded] = useState(false)
   
   useScrollRestoration()
 
@@ -69,16 +66,16 @@ export default function DashboardClient({
         />
       </Grid>
 
-      <CollapsibleCard
+      <Card
         title="Transactions"
-        isExpanded={isTransactionsExpanded}
-        onToggle={() => setIsTransactionsExpanded(!isTransactionsExpanded)}
-        className={isTransactionsExpanded ? 'max-h-[40dvh]' : 'max-h-auto'}
+        className='max-h-[38dvh]'
       >
         <>
+          {limitedTransactions.length < 1 ?
+          <p>No transactions yet</p> :
           <div className={styles.transactionsListWrapper}>
             <TransactionsDisplay transactions={limitedTransactions} />
-          </div>
+          </div>}
 
           <div
             className={`${styles.seeAll} cursor-pointer`}
@@ -88,28 +85,32 @@ export default function DashboardClient({
             See all transactions
           </div>
         </>
-      </CollapsibleCard>
+      </Card>
 
 
-      <CollapsibleCard
+      <Card
         title={`${currentMonth} summary`}
-        isExpanded={isSummaryExpanded}
-        onToggle={() => setIsSummaryExpanded(!isSummaryExpanded)}
       >
         <div className={styles.summaryContent}>
           {/* Summary content will go here */}
         </div>
-      </CollapsibleCard>
+      </Card>
 
-      <CollapsibleCard
+      <Card
         title='Emergency fund calculator'
-        isExpanded={isEmergencyFundExpanded}
-        onToggle={() => setIsEmergencyFundExpanded(!isEmergencyFundExpanded)}
       >
         <div className={styles.summaryContent}>
           {/* Summary content will go here */}
         </div>
-      </CollapsibleCard>
+      </Card>
+
+      <Card
+        title='Exchange rates'
+      >
+        <div className={styles.summaryContent}>
+          {/* Summary content will go here */}
+        </div>
+      </Card>
     </main>
   )
 }
