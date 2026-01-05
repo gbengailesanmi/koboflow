@@ -6,6 +6,7 @@ import { Grid } from '@radix-ui/themes'
 import styles from './dashboard.module.css'
 import AccountsCarousel from '../../components/dashboard/accounts-carousel'
 import Card from '../../components/dashboard/card/card'
+import { MonthlySummary } from '../../components/dashboard/monthly-summary'
 import TransactionsDisplay from '@/app/components/transactions/transactions-display'
 import { useQueryStateNullable } from '@/hooks/use-query-state'
 import { useScrollRestoration } from '@/hooks/use-scroll-restoration'
@@ -68,7 +69,7 @@ export default function DashboardClient({
 
       <Card
         title="Transactions"
-        className='max-h-[38dvh]'
+        className='max-h-[45dvh]'
       >
         <>
           {limitedTransactions.length < 1 ?
@@ -91,9 +92,12 @@ export default function DashboardClient({
       <Card
         title={`${currentMonth} summary`}
       >
-        <div className={styles.summaryContent}>
-          {/* Summary content will go here */}
-        </div>
+        <MonthlySummary
+          totalSpend={0}
+          upcomingBills={[]}
+          totalReceived={0}
+          creditScore={0}
+        />
       </Card>
 
       <Card

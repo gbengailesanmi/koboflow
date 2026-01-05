@@ -1,0 +1,21 @@
+@reference "../../../globals.css";
+
+.summaryContainer {
+  @apply flex flex-col gap-4;
+}
+
+.cardsGrid {
+  @apply grid grid-cols-2 gap-4 lg:grid-cols-4;
+}
+
+.bottomSection {
+  @apply w-full rounded-2xl transition-all duration-300 ease-out flex-shrink-0;
+  background: var(--card-bg);
+  box-shadow: var(--card-shadow);
+  backdrop-filter: blur(10px);
+  min-height: 200px;
+}
+
+.bottomSection:hover {
+  box-shadow: var(--card-shadow-hover);
+}

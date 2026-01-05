@@ -17,12 +17,12 @@
 
 .transactionsListWrapper {
   @apply overflow-auto flex-1 relative;
-  mask-image: linear-gradient(to bottom, transparent 0%, black 40%, black 90%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 40%, black 90%, transparent 100%);
+  /* mask-image: linear-gradient(to bottom, transparent 0%, black 20%, black 90%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 20%, black 90%, transparent 100%); */
 }
 
 .seeAll {
-  @apply text-sm font-thin justify-center items-center flex p-2 cursor-pointer flex-shrink-0;
+  @apply text-sm font-thin justify-center items-center flex p-1 cursor-pointer flex-shrink-0;
 }
 
 .summaryContent {
