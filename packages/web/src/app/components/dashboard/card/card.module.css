@@ -1,13 +1,10 @@
 @reference "../../../globals.css";
 
 .card {
-  @apply rounded-2xl flex flex-col pb-4 transition-all duration-300 ease-out;
-  background: var(--card-bg);
-  box-shadow: var(--card-shadow);
-  backdrop-filter: blur(10px);
+  @apply flex flex-col pb-4 transition-all duration-300 ease-out;
 
   h2 {
-    @apply mb-1 py-5 text-sm font-semibold px-4 flex-shrink-0;
+    @apply mt-5 text-sm font-semibold px-4 shrink-0;
   }
 }
 
@@ -16,5 +13,5 @@
 }
 
 .default {
-  @apply max-h-[45dvh] flex flex-col md:px-2;
+  @apply max-h-[35dvh] flex flex-col md:px-2;
 }

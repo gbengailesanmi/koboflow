@@ -1,7 +1,7 @@
 @reference "../../../globals.css";
 
 .summaryContainer {
-  @apply flex flex-col gap-4;
+  @apply flex flex-col gap-4 mx-3;
 }
 
 .cardsGrid {

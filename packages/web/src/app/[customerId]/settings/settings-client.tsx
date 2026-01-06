@@ -7,7 +7,6 @@ import { signOut } from 'next-auth/react'
 import { settingsUpdateAction } from '@/app/actions/settings.actions'
 import { securityChangePINAction, securityChangePasswordAction } from '@/app/actions/security.actions'
 import { deleteUserAction } from '@/app/actions/user.actions'
-import Sidebar from '@/app/components/page-sidebar/sidebar'
 import { usePageTitle } from '@/providers/header-footer-provider'
 import { 
   Box,
@@ -222,11 +221,10 @@ export default function SettingsClient({
   ]
 
   return (
-    <Sidebar customerId={customerId}>
-      <div className={styles.container}>
-        <main className={styles.main}>
-          {/* User Profile Card */}
-          <Box className={styles.profileCard}>
+    <div className={styles.container}>
+      <main className={styles.main}>
+        {/* User Profile Card */}
+        <Box className={styles.profileCard}>
             <div className={styles.avatar}>
               {userName.charAt(0).toUpperCase()}
             </div>
@@ -312,6 +310,5 @@ export default function SettingsClient({
           </div>
         </main>
       </div>
-    </Sidebar>
   )
 }

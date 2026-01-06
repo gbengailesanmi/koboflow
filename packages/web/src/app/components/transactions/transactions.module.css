@@ -53,6 +53,19 @@
   color: var(--green-11);
 }
 
+.transactionIcon {
+  width: 22px;
+  height: 22px;
+}
+
+.debitIcon {
+  color: var(--red-11);
+}
+
+.creditIcon {
+  color: var(--green-11);
+}
+
 .MonthsScrollArea {
   @apply mt-2 sticky overflow-x-auto whitespace-nowrap mb-4;
 }

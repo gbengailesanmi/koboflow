@@ -1,0 +1,42 @@
+.dark {
+  --dashboard-bg-color: hsl(0, 30%, 40%);
+  --via-color: color-mix(
+    in srgb,
+    var(--dashboard-bg-color) 10%,
+    #040914 90%
+  );
+  --via-stop: 40%;
+  --dashboard-bottom-bg-color: #000;
+  --bottom-via-stop: 90%;
+
+
+
+
+
+
+
+
+
+  --color-background: #111;
+  --header-bg: #131414;
+
+  --card-bg: rgba(26, 30, 34, 0.26);
+  --card-shadow: 0 4px 16px rgba(0,0,0,0.4),
+                 0 0 32px rgba(0,0,0,0.3);
+  --card-shadow-hover: 0 8px 24px rgba(0,0,0,0.5),
+                       0 0 48px rgba(0,0,0,0.35);
+
+  --green-10: #53b365;
+  --green-11: #71d083;
+
+  --red-10: #f2555a;
+  --red-11: #ff6369;
+}
+
+[data-dashboard] {
+  --dashboard-bottom-blend: color-mix(
+    in srgb,
+    var(--dashboard-bottom-bg-color) 90%,
+    var(--dashboard-bg-color) 10%
+  );
+}

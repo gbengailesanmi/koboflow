@@ -3,7 +3,7 @@ import styles from './header.module.css'
 import { useParams, useRouter } from 'next/navigation'
 import { GearIcon, ArrowLeftIcon, BellIcon } from '@radix-ui/react-icons'
 import { Heading, Text } from '@radix-ui/themes'
-import HamburgerMenu from '@/app/components/hamburger-menu/hamburger-menu'
+import SidebarNav from '@/app/components/nav/nav-directory/sidebar-nav'
 
 type HeaderIconButtonProps = {
   children: React.ReactNode
@@ -68,9 +68,9 @@ export default function Header({ variant = 'default', title, subtitle }: Dashboa
           <ArrowLeftIcon width="24" height="24" />
         </HeaderIconButton>
 
-        {/* Right: Hamburger Menu */}
+        {/* Right: Navigation Menu */}
         <div className={styles.hamburgerWrapper}>
-          <HamburgerMenu customerId={customerId} />
+          <SidebarNav customerId={customerId} />
         </div>
       </div>
 

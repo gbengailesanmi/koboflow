@@ -1,6 +1,5 @@
 import React from 'react'
 import { Skeleton } from '@radix-ui/themes'
-import PageLayoutWithSidebar from '@/app/components/page-sidebar/sidebar'
 
 interface AnalyticsSkeletonProps {
   customerId: string
@@ -8,8 +7,7 @@ interface AnalyticsSkeletonProps {
 
 export function AnalyticsSkeleton({ customerId }: AnalyticsSkeletonProps) {
   return (
-    <PageLayoutWithSidebar customerId={customerId}>
-      <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
         {/* Header */}
         <Skeleton height="60px" />
         
@@ -30,6 +28,5 @@ export function AnalyticsSkeleton({ customerId }: AnalyticsSkeletonProps) {
         {/* Additional Charts */}
         <Skeleton height="300px" />
       </div>
-    </PageLayoutWithSidebar>
   )
 }

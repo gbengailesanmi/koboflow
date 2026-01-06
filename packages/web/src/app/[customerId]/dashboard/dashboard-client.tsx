@@ -11,6 +11,7 @@ import TransactionsDisplay from '@/app/components/transactions/transactions-disp
 import { useQueryStateNullable } from '@/hooks/use-query-state'
 import { useScrollRestoration } from '@/hooks/use-scroll-restoration'
 import type { Account, EnrichedTransaction } from '@money-mapper/shared'
+import { useDashboardBackground } from '@/hooks/use-dashboard-background'
 
 interface DashboardClientProps {
   customerId: string
@@ -28,6 +29,7 @@ export default function DashboardClient({
   const [currentMonth, setCurrentMonth] = useState('')
   const [selectedAccountId, setSelectedAccountId] = useQueryStateNullable('accountId')
   
+  useDashboardBackground(selectedAccountId)
   useScrollRestoration()
 
   const filteredTransactions = useMemo(() => 
@@ -57,7 +59,7 @@ export default function DashboardClient({
   )
 
   return (
-    <main className={`${styles.main} page-main`}>
+    <main className={`${styles.main} page-main`} data-dashboard>
       <Grid className={styles.accountsGrid}>
         <AccountsCarousel
           accounts={accounts}

@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { userUpdateProfileAction } from '@/app/actions/user.actions'
-import Sidebar from '@/app/components/page-sidebar/sidebar'
 import { usePageTitle } from '@/providers/header-footer-provider'
 import { UserInfoCard } from '@/app/components/settings/user-info-card'
 import { 
@@ -96,9 +95,8 @@ export default function ProfileClient({
   }
 
   return (
-    <Sidebar customerId={customerId}>
-      <div className={`${styles.container}`}>
-        <div className={styles.wrapper}>
+    <div className={`${styles.container}`}>
+      <div className={styles.wrapper}>
           {/* Editable User Info Card */}
           <div id="user-info" className={styles.profileCard}>
               {/* Customer ID Section */}
@@ -211,6 +209,5 @@ export default function ProfileClient({
             )}
         </div>
       </div>
-    </Sidebar>
   )
 }

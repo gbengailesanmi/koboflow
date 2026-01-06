@@ -1,0 +1,33 @@
+html,
+body {
+  overflow-x: hidden;
+}
+
+/* Hide scrollbars globally */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+*::-webkit-scrollbar {
+  display: none;
+}
+
+.radix-themes {
+  --default-font-family: var(--font-open-sans);
+}
+
+/* Reusable layout */
+.page-main {
+  /* display: flex; */
+  /* flex-direction: column; */
+  width: 100%;
+  overflow-y: auto;
+  /* flex: 1; */
+}
+
+@media (min-width: 1024px) {
+  .page-main {
+    gap: 2.5rem;
+    padding: 0 260px;
+  }
+}

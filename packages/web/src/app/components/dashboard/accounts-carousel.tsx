@@ -4,14 +4,19 @@ import React, { useCallback, useEffect, useState, useRef } from 'react'
 import type { Account } from '@money-mapper/shared'
 import useEmblaCarousel from 'embla-carousel-react'
 import { Box } from '@radix-ui/themes'
-import { PlusIcon, ListBulletIcon, BarChartIcon } from '@radix-ui/react-icons'
-import { DoubleArrowLeftIcon, DoubleArrowRightIcon, ZoomInIcon } from '@radix-ui/react-icons'
+import {
+  PlusIcon,
+  ListBulletIcon,
+  BarChartIcon,
+  DoubleArrowLeftIcon,
+  DoubleArrowRightIcon,
+  ZoomInIcon,
+} from '@radix-ui/react-icons'
 import FormatCarouselContent from './format-carousel-content'
 import AccountsPills from './accounts-pills'
 import { useParams, useRouter } from 'next/navigation'
 import { useMonoConnect } from '@/hooks/use-mono-connect'
 import { useHorizontalScrollRestoration } from '@/hooks/use-scroll-restoration'
-import { useDashboardBackground } from '@/providers/dashboard-background-provider'
 import styles from './dashboard.module.css'
 
 type AccountsCarouselProps = {
@@ -28,38 +33,38 @@ export default function AccountsCarousel({
   onNavigate,
 }: AccountsCarouselProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false })
-  const [selectedIndex, setSelectedIndex] = useState(0)
   const [hasInitialized, setHasInitialized] = useState(false)
   const carouselContainerRef = useRef<HTMLDivElement>(null)
-  
+
   const params = useParams()
   const router = useRouter()
   const customerId = params.customerId as string
 
-  // Use the dashboard background context
-  const { setActiveIndex } = useDashboardBackground()
+  useHorizontalScrollRestoration(
+    carouselContainerRef,
+    'accounts-carousel'
+  )
 
-  useHorizontalScrollRestoration(carouselContainerRef, 'accounts-carousel')
+  const { openMonoWidget, isLoading: isConnecting } =
+    useMonoConnect({
+      onError: (error) => {
+        alert(`Failed to link account: ${error}`)
+      },
+    })
 
-  const { openMonoWidget, isLoading: isConnecting } = useMonoConnect({
-    onSuccess: () => {
-      // Success handled
-    },
-    onError: (error) => {
-      alert(`Failed to link account: ${error}`)
-    },
-  })
-
+  // 🔹 Sync initial scroll position from selectedAccount
   useEffect(() => {
     if (!emblaApi || !accounts.length || hasInitialized) return
 
     if (selectedAccount) {
-      const accountIndex = accounts.findIndex(acc => acc.id === selectedAccount)
+      const accountIndex = accounts.findIndex(
+        acc => acc.id === selectedAccount
+      )
       if (accountIndex !== -1) {
         emblaApi.scrollTo(accountIndex + 1, true)
       }
     }
-    
+
     setHasInitialized(true)
   }, [emblaApi, accounts, selectedAccount, hasInitialized])
 
@@ -73,23 +78,15 @@ export default function AccountsCarousel({
     onNavigate?.()
   }, [emblaApi, onNavigate])
 
+  // 🔹 Single responsibility: emit selectedAccountId
   useEffect(() => {
     if (!emblaApi) return
 
     const onSelect = () => {
       const index = emblaApi.selectedScrollSnap()
-      console.log('🎠 [CAROUSEL] Slide changed to index:', index)
-      
-      setSelectedIndex(index)
-      
-      // Update the dashboard background context with the new index
-      console.log('🎠 [CAROUSEL] Calling setActiveIndex with:', index)
-      setActiveIndex(index)
 
       const nextAccountId =
         index === 0 ? null : accounts[index - 1]?.id ?? null
-
-      console.log('🎠 [CAROUSEL] Selected account ID:', nextAccountId)
 
       if (nextAccountId !== selectedAccount) {
         setSelectedAccount(nextAccountId)
@@ -97,11 +94,10 @@ export default function AccountsCarousel({
     }
 
     emblaApi.on('select', onSelect)
-
     return () => {
       emblaApi.off('select', onSelect)
     }
-  }, [emblaApi, accounts, selectedAccount, setSelectedAccount, setActiveIndex])
+  }, [emblaApi, accounts, selectedAccount, setSelectedAccount])
 
   const totalBalance = accounts.reduce(
     (sum, acc) => sum + Number(acc.balance ?? 0),
@@ -111,18 +107,15 @@ export default function AccountsCarousel({
   return (
     <>
       <Box className={styles.embla}>
-        <div 
-          className={styles.embla__viewport} 
+        <div
+          className={styles.embla__viewport}
           ref={(node) => {
             emblaRef(node)
-            if (carouselContainerRef) {
-              (carouselContainerRef as any).current = node
-            }
+            carouselContainerRef.current = node
           }}
         >
           <div className={styles.embla__container}>
-
-            {}
+            {/* Total */}
             <div className={styles.embla__slide}>
               <FormatCarouselContent
                 accountType="Total Net Worth"
@@ -131,9 +124,12 @@ export default function AccountsCarousel({
               />
             </div>
 
-            {}
-            {accounts.map((account) => (
-              <div key={account.id} className={styles.embla__slide}>
+            {/* Accounts */}
+            {accounts.map(account => (
+              <div
+                key={account.id}
+                className={styles.embla__slide}
+              >
                 <FormatCarouselContent
                   accountType={account.type}
                   accountName={account.name}
@@ -141,13 +137,9 @@ export default function AccountsCarousel({
                 />
               </div>
             ))}
-
           </div>
         </div>
       </Box>
-
-      {}
-      {}
 
       <div className="flex w-20 justify-between">
         <button onClick={scrollPrev} aria-label="Previous account">
@@ -163,7 +155,7 @@ export default function AccountsCarousel({
           {
             key: 'add',
             icon: <PlusIcon width="35" height="35" />,
-            label: isConnecting ? 'Connecting...' : 'Add Account',
+            label: isConnecting ? 'Connecting…' : 'Add Account',
             onClick: openMonoWidget,
           },
           {
@@ -176,7 +168,8 @@ export default function AccountsCarousel({
             key: 'analytics',
             icon: <BarChartIcon width="35" height="35" />,
             label: 'Analytics',
-            onClick: () => router.push(`/${customerId}/analytics`),
+            onClick: () =>
+              router.push(`/${customerId}/analytics`),
           },
           {
             key: 'more',
