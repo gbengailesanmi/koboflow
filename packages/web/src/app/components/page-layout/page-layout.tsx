@@ -1,7 +1,6 @@
 'use client'
 
 import React, { ReactNode } from 'react'
-import Footer from '@/app/components/footer/footer'
 import styles from './page-layout.module.css'
 
 type PageLayoutProps = {

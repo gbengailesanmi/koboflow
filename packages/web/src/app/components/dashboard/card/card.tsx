@@ -2,6 +2,7 @@
 
 import React, { ReactNode } from 'react'
 import { Grid } from '@radix-ui/themes'
+import { Separator } from '@radix-ui/themes'
 import styles from './card.module.css'
 
 interface CardProps {
@@ -19,6 +20,7 @@ export default function Card({
   return (
     <Grid className={`${styles.card}`}>
       <h2>{title}</h2>
+      <Separator mb='5' size='4' />
       <div className={`${styles[variant]}`}>{children}</div>
     </Grid>
   )

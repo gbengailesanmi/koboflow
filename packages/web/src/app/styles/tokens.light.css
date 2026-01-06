@@ -1,5 +1,5 @@
 :root {
-  --dashboard-bg-color: hsl(210, 30%, 90%);
+  --dashboard-bg-color: hsl(0, 0%, 99%);
   --via-color: color-mix(
     in srgb,
     var(--dashboard-bg-color) 15%,

@@ -8,7 +8,6 @@ body {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
-
 *::-webkit-scrollbar {
   display: none;
 }
@@ -19,17 +18,16 @@ body {
 
 /* Reusable layout */
 .page-main {
-  display: flex;
-  flex-direction: column;
+  /* display: flex; */
+  /* flex-direction: column; */
   width: 100%;
-  max-width: 1400px;
   overflow-y: auto;
-  overflow-x: hidden;
-  flex: 1;
+  /* flex: 1; */
 }
 
 @media (min-width: 1024px) {
   .page-main {
     gap: 2.5rem;
+    padding: 0 260px;
   }
 }
