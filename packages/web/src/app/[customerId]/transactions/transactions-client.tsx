@@ -3,7 +3,6 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import type { EnrichedTransaction, Account } from '@money-mapper/shared'
-import PageLayoutWithSidebar from '@/app/components/page-sidebar/sidebar'
 import { Dialog } from '@radix-ui/themes'
 import styles from './transactions.module.css'
 import TransactionMonthPills from '@/app/components/transactions/transaction-month-pills'
@@ -89,14 +88,13 @@ export default function TransactionsClient({
   }, [selectedMonth, transactionsByMonth])
 
   return (
-    <PageLayoutWithSidebar customerId={customerId}>
-      <Dialog.Root 
-        open={!!selectedTransactionId} 
-        onOpenChange={(open) => { 
-          if (!open) setSelectedTransactionId(null) 
-        }}
-      >
-        <div className={`${styles.PageGrid}`}>
+    <Dialog.Root 
+      open={!!selectedTransactionId} 
+      onOpenChange={(open) => { 
+        if (!open) setSelectedTransactionId(null) 
+      }}
+    >
+      <div className={`${styles.PageGrid}`}>
           <div id="filters" className={styles.Filters}>
             <TransactionsFilters
               accounts={accounts}
@@ -134,6 +132,5 @@ export default function TransactionsClient({
           />
         )}
       </Dialog.Root>
-    </PageLayoutWithSidebar>
   )
 }

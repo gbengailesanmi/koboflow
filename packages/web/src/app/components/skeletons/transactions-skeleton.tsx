@@ -1,6 +1,5 @@
 import React from 'react'
 import { Skeleton } from '@radix-ui/themes'
-import PageLayoutWithSidebar from '@/app/components/page-sidebar/sidebar'
 
 interface TransactionsSkeletonProps {
   customerId: string
@@ -8,8 +7,7 @@ interface TransactionsSkeletonProps {
 
 export function TransactionsSkeleton({ customerId }: TransactionsSkeletonProps) {
   return (
-    <PageLayoutWithSidebar customerId={customerId}>
-      <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
         {/* Header with filters */}
         <Skeleton height="60px" />
         
@@ -19,6 +17,5 @@ export function TransactionsSkeleton({ customerId }: TransactionsSkeletonProps) 
         {/* Transactions table/list */}
         <Skeleton height="600px" />
       </div>
-    </PageLayoutWithSidebar>
   )
 }

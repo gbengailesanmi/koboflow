@@ -1,0 +1,159 @@
+@reference "../../../globals.css";
+
+/* Toggle Button */
+.hamburgerButton {
+  @apply p-2 bg-transparent border-none cursor-pointer;
+  
+  color: var(--gray-12);
+}
+
+/* Overlay (only shown on smaller screens when menu is open) */
+.mobileOverlay {
+  @apply fixed inset-0 bg-black/50 z-999;
+}
+
+/* Main Navigation Panel */
+.navDirectory {
+  @apply fixed left-0 top-0 w-[280px] h-screen overflow-y-auto overflow-x-hidden z-50 pt-6 pb-6;
+  
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  transition: transform 0.3s ease;
+  transform: translateX(-100%);
+}
+
+.navDirectory.mobileOpen {
+  transform: translateX(0);
+}
+
+/* Panel Header */
+.mobileHeader {
+  @apply flex items-center justify-between px-4 pb-4 mb-2 border-b;
+  
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.mobileTitle {
+  @apply text-lg font-bold m-0;
+  
+  color: var(--gray-12);
+}
+
+.mobileHeaderActions {
+  @apply flex items-center gap-3;
+}
+
+.closeButton {
+  @apply p-1 bg-transparent border-none cursor-pointer;
+  
+  color: var(--gray-12);
+}
+
+.directoryContent {
+  @apply px-3;
+}
+
+.nav {
+  @apply flex flex-col gap-2;
+}
+
+/* Section Styles */
+.section {
+  @apply mb-1;
+}
+
+.sectionHeader {
+  @apply w-full flex items-center justify-between p-3 bg-transparent border-none rounded-lg cursor-pointer text-left;
+  
+  transition: all 0.2s ease;
+}
+
+.sectionHeader:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.sectionHeaderActive {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.sectionLabel {
+  @apply text-xs font-bold;
+  
+  letter-spacing: 0.5px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.expandButton {
+  @apply bg-transparent border-none p-1 cursor-pointer flex items-center justify-center;
+  
+  color: rgba(255, 255, 255, 0.6);
+  transition: color 0.2s ease;
+}
+
+.expandButton:hover {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.chevron {
+  @apply w-4 h-4;
+  
+  transition: transform 0.2s ease;
+}
+
+.chevronExpanded {
+  transform: rotate(90deg);
+}
+
+/* Items Styles */
+.items {
+  @apply flex flex-col gap-0.5 pl-2 mt-1;
+  
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.item {
+  @apply w-full px-4 py-2.5 bg-transparent border-none rounded-md text-sm text-left cursor-pointer;
+  
+  color: rgba(255, 255, 255, 0.75);
+  transition: all 0.2s ease;
+  border-left: 2px solid transparent;
+}
+
+.item:hover {
+  @apply pl-5;
+  
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.95);
+  border-left-color: rgba(255, 255, 255, 0.4);
+}
+
+/* Custom Scrollbar */
+.navDirectory::-webkit-scrollbar {
+  @apply w-1.5;
+}
+
+.navDirectory::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.navDirectory::-webkit-scrollbar-thumb {
+  @apply rounded;
+  
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.navDirectory::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}

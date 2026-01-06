@@ -27,7 +27,7 @@ export default function TransactionsDisplay({ transactions, narrationPopup = fal
           const iconClass = `${styles.transactionIcon} ${isDebit ? styles.debitIcon : styles.creditIcon}`
 
           return (
-            <div>
+            <div key={transaction.id}>
               <Dialog.Trigger onClick={() => narrationPopup && setSelectedTransaction(transaction)}>
                 <Box className={styles.item}>
                   <Card>

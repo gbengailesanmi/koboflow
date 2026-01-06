@@ -2,7 +2,6 @@
 
 import useSWR from 'swr'
 import { useCallback, useEffect } from 'react'
-import Sidebar from '@/app/components/page-sidebar/sidebar'
 import { UserInfoCard } from '@/app/components/settings/user-info-card'
 import { usePageTitle } from '@/providers/header-footer-provider'
 import { staticSWR } from '@/lib/swr'
@@ -66,12 +65,10 @@ export default function PersonalDetailsClient({
   }
 
   return (
-    <Sidebar customerId={customerId}>
-      <div className={styles.container}>
-        <div className={styles.wrapper}>
-          {renderContent()}
-        </div>
+    <div className={styles.container}>
+      <div className={styles.wrapper}>
+        {renderContent()}
       </div>
-    </Sidebar>
+    </div>
   )
 }

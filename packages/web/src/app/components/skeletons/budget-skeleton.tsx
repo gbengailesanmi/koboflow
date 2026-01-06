@@ -1,6 +1,5 @@
 import React from 'react'
 import { Skeleton } from '@radix-ui/themes'
-import PageLayoutWithSidebar from '@/app/components/page-sidebar/sidebar'
 
 interface BudgetSkeletonProps {
   customerId: string
@@ -8,8 +7,7 @@ interface BudgetSkeletonProps {
 
 export function BudgetSkeleton({ customerId }: BudgetSkeletonProps) {
   return (
-    <PageLayoutWithSidebar customerId={customerId}>
-      <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
         <Skeleton height="60px" />
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
           <Skeleton height="120px" />
@@ -19,6 +17,5 @@ export function BudgetSkeleton({ customerId }: BudgetSkeletonProps) {
         <Skeleton height="400px" />
         <Skeleton height="300px" />
       </div>
-    </PageLayoutWithSidebar>
   )
 }

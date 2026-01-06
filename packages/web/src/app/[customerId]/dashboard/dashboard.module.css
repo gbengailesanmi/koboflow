@@ -27,7 +27,7 @@
 }
 
 .seeAll {
-  @apply text-sm font-thin justify-center items-center flex p-1 cursor-pointer flex-shrink-0;
+  @apply text-sm font-thin justify-center items-center flex p-1 cursor-pointer shrink-0;
 }
 
 .summaryContent {
