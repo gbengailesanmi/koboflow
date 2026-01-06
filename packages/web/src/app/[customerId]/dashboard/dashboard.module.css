@@ -5,14 +5,7 @@
 }
 
 .accountsGrid {
-  @apply h-[45dvh] grid items-center justify-items-center rounded-[20px] transition-all duration-300 ease-out;
-  background: var(--card-bg);
-  box-shadow: var(--card-shadow);
-  backdrop-filter: blur(10px);
-}
-
-.accountsGrid:hover {
-  box-shadow: var(--card-shadow-hover);
+  @apply h-[45dvh] grid items-center justify-items-center;
 }
 
 .transactionsListWrapper {

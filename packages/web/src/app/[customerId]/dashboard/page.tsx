@@ -11,25 +11,10 @@ interface DashboardPageProps {
 export default async function DashboardPage({ params }: DashboardPageProps) {
   const { customerId } = await params
 
-  const [session, accounts, transactions, budgetRes] = await Promise.all([
-    getServerSession(),
+  const [accounts, transactions] = await Promise.all([
     getAccounts(),
-    getTransactions(),
-    getBudget()
+    getTransactions()
   ])
-
-  if (!session || session.user.customerId !== customerId) {
-    redirect('/login')
-  }
-
-  const profile = {
-    firstName: session.user.firstName ?? '',
-    lastName: session.user.lastName ?? '',
-    email: session.user.email ?? '',
-    currency: 'NGN',
-    totalBudgetLimit: budgetRes?.totalBudgetLimit ?? 0,
-  }
-
 
   return (
     <DashboardThemeWrapper>

@@ -31,7 +31,7 @@
 }
 
 .bottomSection {
-  @apply flex items-center justify-center;
+  @apply flex flex-col items-stretch justify-center;
 }
 
 .title {
@@ -51,4 +51,27 @@
 
 .subtitle {
   @apply text-xs opacity-60 mt-1;
+}
+
+.vsAmount {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.vsLastMonth {
+  width: 100%;
+  text-align: right;
+  font-size: 0.75rem;
+}
+
+.iconGreen {
+  color: #22c55e;
+}
+
+.iconRed {
+  color: #ef4444;
 }

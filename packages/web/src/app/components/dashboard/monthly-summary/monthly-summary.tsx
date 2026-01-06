@@ -25,7 +25,10 @@ export default function MonthlySummary({
   const [lastMonth, setLastMonth] = useState('')
 
   const initialiseLastMonth = React.useCallback(() => {
-    setLastMonth(new Date(new Date().setMonth(new Date().getMonth() - 1)).toLocaleString('default', { month: 'short' }))
+    const lastMonthDate = new Date(new Date().setMonth(new Date().getMonth() - 1))
+    const day = lastMonthDate.getDate()
+    const month = lastMonthDate.toLocaleString('default', { month: 'short' })
+    setLastMonth(`${day} ${month}`)
   }, [])
 
   React.useEffect(() => {
@@ -35,15 +38,12 @@ export default function MonthlySummary({
   const isLowerThanLastMonth = totalSpend < lastMonthSpend
   const isSameAsLastMonth = totalSpend === lastMonthSpend
   const difference = Math.abs(totalSpend - lastMonthSpend)
-  const iconColor = (isLowerThanLastMonth || isSameAsLastMonth) ? '#22c55e' : '#ef4444'
 
-  const vsContent = (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', justifyContent: 'center', fontSize: '12px' }}>
-      <TriangleDownIcon width={15} height={15} style={{ color: iconColor }} />
-      <span>£{difference.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}<br />
-      vs {lastMonth}</span>
-    </div>
-  )
+  const vsContent = {
+    amount: `£${difference.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+    lastMonth,
+    isLower: isLowerThanLastMonth || isSameAsLastMonth
+  }
 
   return (
     <div className={styles.summaryContainer}>

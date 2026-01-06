@@ -1,11 +1,28 @@
 @reference "../../globals.css";
 
 .dashboardHeaderWrapper {
-  @apply relative left-0 top-0 w-full h-[3rem] flex lg:gap-70 items-center rounded-bl-2xl p-3 rounded-br-2xl justify-between z-50 bg-white/2 backdrop-blur-2xl;
+  @apply fixed left-0 top-0 w-full h-[3rem] flex lg:gap-70 items-center p-3 justify-between z-50 backdrop-blur-xs transition-transform duration-300 ease-in-out;
+
+  background: transparent;
+
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 1) 35%,
+    rgba(0, 0, 0, 1) 60%,
+    rgba(0, 0, 0, 0.3) 80%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 1) 10%,
+    rgba(0, 0, 0, 1) 40%,
+    rgba(0, 0, 0, 0.2) 80%,
+    rgba(0, 0, 0, 0) 100%
+  );
 }
 
 .headerWrapper {
-  @apply relative left-0 top-0 w-full h-[3rem] flex lg:gap-70 items-center rounded-bl-2xl p-3 rounded-br-2xl justify-between z-50 bg-white/2 backdrop-blur-2xl;
+  @apply relative left-0 top-0 w-full h-[3rem] flex lg:gap-70 items-center p-3 justify-between z-50;
 }
 
 .hamburgerWrapper {

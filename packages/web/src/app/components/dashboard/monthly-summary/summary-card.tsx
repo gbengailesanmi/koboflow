@@ -1,7 +1,14 @@
 'use client'
 
 import React from 'react'
+import { TriangleDownIcon } from '@radix-ui/react-icons'
 import styles from './summary-card.module.css'
+
+interface VsContentObject {
+  amount: string
+  lastMonth: string
+  isLower: boolean
+}
 
 interface SummaryCardProps {
   title: string
@@ -9,7 +16,7 @@ interface SummaryCardProps {
   subtitle?: React.ReactNode
   onClick?: () => void
   clickable?: boolean
-  vsContent?: React.ReactNode
+  vsContent?: VsContentObject
 }
 
 export default function SummaryCard({
@@ -20,6 +27,8 @@ export default function SummaryCard({
   clickable = false,
   vsContent
 }: SummaryCardProps) {
+  const iconColor = vsContent?.isLower ? styles.iconGreen : styles.iconRed
+
   return (
     <div
       className={`${styles.card} ${clickable ? styles.clickable : ''}`}
@@ -33,7 +42,15 @@ export default function SummaryCard({
           <p className={styles.value}>{value}</p>
           {subtitle && <div className={styles.subtitle}>{subtitle}</div>}
         </div>
-        {vsContent && <div className={styles.bottomSection}>{vsContent}</div>}
+        {vsContent && (
+          <div className={styles.bottomSection}>
+            <div className={styles.vsAmount}>
+              <TriangleDownIcon width={15} height={15} className={iconColor} />
+              {vsContent.amount}
+            </div>
+            <div className={styles.vsLastMonth}>vs {vsContent.lastMonth}</div>
+          </div>
+        )}
       </div>
       {clickable && <p className={styles.clickText}>Click to see details</p>}
     </div>

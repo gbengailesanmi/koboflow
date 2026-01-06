@@ -69,7 +69,7 @@ export default function DashboardClient({
 
       <Card
         title="Transactions"
-        className='max-h-[45dvh]'
+        variant='default'
       >
         <>
           {limitedTransactions.length < 1 ?
@@ -91,6 +91,7 @@ export default function DashboardClient({
 
       <Card
         title={`${currentMonth} summary`}
+        variant='summary'
       >
         <MonthlySummary
           totalSpend={0}
