@@ -1,0 +1,61 @@
+:root {
+  /* Dashboard */
+  --dashboard-bg-color: hsl(210, 30%, 96%);
+  --via-color: color-mix(
+    in srgb,
+    var(--dashboard-bg-color) 15%,
+    #ffffff 85%
+  );
+  --via-stop: 40%;
+  --dashboard-bottom-bg-color: #ffffff;
+  --dashboard-bottom-blend: color-mix(
+    in srgb,
+    #ffffff 90%,
+    var(--dashboard-bg-color) 10%
+  );
+  --bottom-via-stop: 90%;
+
+
+
+
+
+
+
+  
+  /* App */
+  --color-background: #f7f7f7;
+  --header-bg: #ffffff;
+
+  /* Cards */
+  --card-bg: rgba(255, 255, 255, 0.7);
+  --card-shadow: 0 4px 16px rgba(0,0,0,0.08),
+                 0 0 32px rgba(0,0,0,0.04);
+  --card-shadow-hover: 0 8px 24px rgba(0,0,0,0.12),
+                       0 0 48px rgba(0,0,0,0.06);
+
+  /* Tokens */
+  --blue-9: #4e609e;
+  --blue-10: #41528f;
+  --blue-a3: #062e8c13;
+  --blue-contrast: #fff;
+
+  --gray-1: #f3f3f4;
+  --gray-2: #eff0f2;
+  --gray-3: #e6e6ea;
+  --gray-4: #dddee2;
+  --gray-6: #cdced5;
+  --gray-7: #c1c2cb;
+  --gray-8: #adafba;
+  --gray-10: #757781;
+  --gray-11: #575962;
+  --gray-12: #1e1f24;
+  --gray-contrast: #fff;
+
+  --green-9: #46a758;
+  --green-10: #3d9a50;
+  --green-11: #297c3b;
+
+  --red-9: #e5484d;
+  --red-10: #dc3e42;
+  --red-11: #ce2c31;
+}
