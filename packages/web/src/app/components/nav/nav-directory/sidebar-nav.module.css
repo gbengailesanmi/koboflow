@@ -7,14 +7,16 @@
   color: var(--gray-12);
 }
 
-/* Overlay (only shown on smaller screens when menu is open) */
+/* Overlay (only shown when menu is open) */
 .mobileOverlay {
-  @apply fixed inset-0 bg-black/50 z-999;
+  @apply fixed inset-0 bg-black/50;
+  z-index: 40;
 }
 
 /* Main Navigation Panel */
 .navDirectory {
-  @apply fixed left-0 top-0 w-[280px] h-screen overflow-y-auto overflow-x-hidden z-50 pt-6 pb-6;
+  @apply fixed left-0 top-0 w-[280px] h-screen overflow-y-auto overflow-x-hidden pt-6 pb-6;
+  z-index: 50;
   
   background: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(10px);

@@ -28,6 +28,6 @@ body {
 @media (min-width: 1024px) {
   .page-main {
     gap: 2.5rem;
-    padding: 0 260px;
+    padding: 0 300px;
   }
 }

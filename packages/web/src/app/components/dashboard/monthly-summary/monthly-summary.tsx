@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState } from 'react'
-import { TriangleDownIcon } from '@radix-ui/react-icons'
 import styles from './monthly-summary.module.css'
 import SummaryCard from './summary-card'
 import UpcomingBillsPopup from './upcoming-bills-popup'
