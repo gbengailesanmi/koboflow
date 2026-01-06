@@ -7,14 +7,12 @@ import { Box } from '@radix-ui/themes'
 import { PlusIcon, ListBulletIcon, BarChartIcon } from '@radix-ui/react-icons'
 import { DoubleArrowLeftIcon, DoubleArrowRightIcon, ZoomInIcon } from '@radix-ui/react-icons'
 import FormatCarouselContent from './format-carousel-content'
-import generateHues from '@/helpers/generate-hues'
 import AccountsPills from './accounts-pills'
 import { useParams, useRouter } from 'next/navigation'
 import { useMonoConnect } from '@/hooks/use-mono-connect'
 import { useHorizontalScrollRestoration } from '@/hooks/use-scroll-restoration'
+import { useDashboardBackground } from '@/providers/dashboard-background-provider'
 import styles from './dashboard.module.css'
-
-const HUE_LOCAL_STORAGE_KEY = 'accounts-carousel-slide-hue'
 
 type AccountsCarouselProps = {
   accounts: Account[]
@@ -30,9 +28,7 @@ export default function AccountsCarousel({
   onNavigate,
 }: AccountsCarouselProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false })
-  const hues = generateHues(10)
   const [selectedIndex, setSelectedIndex] = useState(0)
-  const [slideHue, setSlideHue] = useState<Record<number, string>>({ 0: hues[0] })
   const [hasInitialized, setHasInitialized] = useState(false)
   const carouselContainerRef = useRef<HTMLDivElement>(null)
   
@@ -40,7 +36,9 @@ export default function AccountsCarousel({
   const router = useRouter()
   const customerId = params.customerId as string
 
-  // Restore carousel scroll position when returning to this page
+  // Use the dashboard background context
+  const { setActiveIndex } = useDashboardBackground()
+
   useHorizontalScrollRestoration(carouselContainerRef, 'accounts-carousel')
 
   const { openMonoWidget, isLoading: isConnecting } = useMonoConnect({
@@ -51,25 +49,6 @@ export default function AccountsCarousel({
       alert(`Failed to link account: ${error}`)
     },
   })
-
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(HUE_LOCAL_STORAGE_KEY)
-      if (saved) {
-        setSlideHue(JSON.parse(saved))
-      }
-    } catch (e) {
-      // Error handled
-    }
-  }, [])
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(HUE_LOCAL_STORAGE_KEY, JSON.stringify(slideHue))
-    } catch (e) {
-      // Error handled
-    }
-  }, [slideHue])
 
   useEffect(() => {
     if (!emblaApi || !accounts.length || hasInitialized) return
@@ -99,10 +78,18 @@ export default function AccountsCarousel({
 
     const onSelect = () => {
       const index = emblaApi.selectedScrollSnap()
+      console.log('🎠 [CAROUSEL] Slide changed to index:', index)
+      
       setSelectedIndex(index)
+      
+      // Update the dashboard background context with the new index
+      console.log('🎠 [CAROUSEL] Calling setActiveIndex with:', index)
+      setActiveIndex(index)
 
       const nextAccountId =
         index === 0 ? null : accounts[index - 1]?.id ?? null
+
+      console.log('🎠 [CAROUSEL] Selected account ID:', nextAccountId)
 
       if (nextAccountId !== selectedAccount) {
         setSelectedAccount(nextAccountId)
@@ -114,14 +101,7 @@ export default function AccountsCarousel({
     return () => {
       emblaApi.off('select', onSelect)
     }
-  }, [emblaApi, accounts, selectedAccount, setSelectedAccount])
-
-  const handleSetHue = (hue: string) => {
-    setSlideHue((prev) => ({
-      ...prev,
-      [selectedIndex]: hue,
-    }))
-  }
+  }, [emblaApi, accounts, selectedAccount, setSelectedAccount, setActiveIndex])
 
   const totalBalance = accounts.reduce(
     (sum, acc) => sum + Number(acc.balance ?? 0),

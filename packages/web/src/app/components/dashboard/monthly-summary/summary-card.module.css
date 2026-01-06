@@ -1,0 +1,77 @@
+@reference "../../../globals.css";
+
+.card {
+  @apply rounded-2xl p-5 flex flex-col justify-between p-3 transition-all duration-300 ease-out;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  aspect-ratio: 1;
+  min-height: 120px;
+}
+
+.card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.card.clickable {
+  @apply cursor-pointer;
+}
+
+.card.clickable:hover {
+  @apply shadow-lg;
+}
+
+.content {
+  @apply flex flex-col items-center justify-between h-full gap-1;
+}
+
+.topSection {
+  @apply flex flex-col items-center gap-1;
+}
+
+.bottomSection {
+  @apply flex flex-col items-stretch justify-center;
+}
+
+.title {
+  @apply text-xs font-medium opacity-70 text-center;
+  margin: 0;
+}
+
+.value {
+  @apply text-lg font-bold lg:text-2xl text-center;
+  margin: 0;
+}
+
+.clickText {
+  @apply text-xs opacity-50 mt-2 lg:mt-3 text-center;
+  margin: 0;
+}
+
+.subtitle {
+  @apply text-xs opacity-60 mt-1;
+}
+
+.vsAmount {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.vsLastMonth {
+  width: 100%;
+  text-align: right;
+  font-size: 0.75rem;
+}
+
+.iconGreen {
+  color: #22c55e;
+}
+
+.iconRed {
+  color: #ef4444;
+}

@@ -1,0 +1,54 @@
+@reference "../../../globals.css";
+
+.dialogContent {
+  @apply max-w-sm lg:max-w-2xl;
+}
+
+.closeButton {
+  @apply p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.closeButton:hover {
+  @apply opacity-80;
+}
+
+.billsList {
+  @apply flex flex-col gap-2;
+}
+
+.billItem {
+  @apply flex justify-between items-center p-2 lg:p-3 rounded-lg gap-2;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.billItem:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.billDetails {
+  @apply flex flex-col gap-1 flex-1 min-w-0;
+}
+
+.billName {
+  @apply font-medium text-xs lg:text-sm truncate;
+  margin: 0;
+}
+
+.billDueDate {
+  @apply text-xs opacity-60;
+  margin: 0;
+}
+
+.billAmount {
+  @apply font-bold text-xs lg:text-sm flex-shrink-0;
+  margin: 0;
+}
+
+.emptyState {
+  @apply text-center opacity-60 py-6 lg:py-8 text-sm;
+  margin: 0;
+}

@@ -28,7 +28,7 @@
 }
 
 .item {
-  @apply p-2 cursor-pointer;
+  @apply mb-2 cursor-pointer;
 }
 
 .text {

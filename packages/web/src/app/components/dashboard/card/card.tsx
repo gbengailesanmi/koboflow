@@ -8,17 +8,18 @@ interface CardProps {
   title: string
   children: ReactNode
   className?: string
+  variant?: 'default' | 'summary'
 }
 
 export default function Card({
   title,
   children,
-  className = ''
+  variant = 'default',
 }: CardProps) {
   return (
-    <Grid className={`${styles.card} ${className}`}>
+    <Grid className={`${styles.card}`}>
       <h2>{title}</h2>
-      {children}
+      <div className={`${styles[variant]}`}>{children}</div>
     </Grid>
   )
 }
