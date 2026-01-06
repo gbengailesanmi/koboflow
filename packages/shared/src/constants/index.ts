@@ -1,4 +1,5 @@
 export * from './default-categories'
+export * from './dashboard-colors'
 
 export const TRANSACTION_CATEGORIES = [
   'Food & Dining',

@@ -19,29 +19,33 @@ html, body {
 	--default-font-family: var(--font-open-sans);
 }
 
-/* Page gradient background utility class */
-.page-gradient-background {
+.dashboard-gradient-background {
   background:
     linear-gradient(
       to bottom,
-      var(--bg-colour) 0%,
-      var(--page-bg-via-color) var(--page-bg-via-stop),
-      var(--page-bg-bottom-color) var(--page-bg-bottom-stop)
-    ) no-repeat,
-    var(--page-bg-bottom-color);
+      color-mix(in srgb, var(--dashboard-bg-color) 85%, rgb(78, 77, 77)) 0%,
+      
+      var(--dashboard-bg-color) 12%,
+      var(--via-color) var(--via-stop),
+      var(--dashboard-bottom-blend) var(--bottom-via-stop)
+    ),
+    var(--dashboard-bottom-blend);
+
   background-size: 100% 100vh;
   background-repeat: no-repeat;
+  transition: background 0.5s ease-in-out;
 }
 
 /* ============================================
    LIGHT MODE (DEFAULT)
    ============================================ */
 :root {
-  --bg-colour: #4e609e;
-  --page-bg-via-color: color-mix(in srgb, var(--bg-colour) 15%, #f8f9fa 85%);
-  --page-bg-via-stop: 30%;
-  --page-bg-bottom-color: #ffffff;
-  --page-bg-bottom-stop: 80%;
+  --dashboard-bg-color: #4e609e;
+  --via-color: color-mix(in srgb, var(--dashboard-bg-color) 15%, #f8f9fa 85%);
+  --via-stop: 30%;
+  --dashboard-bottom-bg-color: #ffffff;
+  --dashboard-bottom-blend: var(--dashboard-bottom-bg-color); /* Will be overridden by JS */
+  --bottom-via-stop: 80%;
   --color-background: #f7f7f7;
 
   --header-bg: #fff;
@@ -92,11 +96,12 @@ html, body {
    DARK MODE
    ============================================ */
 .dark {
-  --bg-colour: #4e609e;
-  --page-bg-via-color: color-mix(in srgb, var(--bg-colour) 10%, #040914 90%);
-  --page-bg-via-stop: 40%;
-  --page-bg-bottom-color: #040914;
-  --page-bg-bottom-stop: 90%;
+  --dashboard-bg-color: #4e609e;
+  --via-color: color-mix(in srgb, var(--dashboard-bg-color) 10%, #040914 90%);
+  --via-stop: 40%;
+  --dashboard-bottom-bg-color: #000;
+  --dashboard-bottom-blend: var(--dashboard-bottom-bg-color); /* Will be overridden by JS */
+  --bottom-via-stop: 90%;
   --color-background: #111;
 
   --header-bg: #131414;

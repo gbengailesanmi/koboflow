@@ -1,8 +1,8 @@
-import { redirect } from 'next/navigation'
 import { getAccounts, getTransactions, getBudget } from '@/lib/api/api-service'
 import DashboardClient from './dashboard-client'
 import DashboardThemeWrapper from '../../components/dashboard/dashboard-theme'
-import { getServerSession } from '@/lib/api/get-server-session'
+import { DashboardBackgroundProvider } from '@/providers/dashboard-background-provider'
+import { DASHBOARD_SLIDE_COLORS } from '@money-mapper/shared'
 
 interface DashboardPageProps {
   params: Promise<{ customerId: string }>
@@ -18,11 +18,13 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
 
   return (
     <DashboardThemeWrapper>
-      <DashboardClient
-        customerId={customerId}
-        accounts={accounts}
-        transactions={transactions}
-      />
+      <DashboardBackgroundProvider colors={DASHBOARD_SLIDE_COLORS}>
+        <DashboardClient
+          customerId={customerId}
+          accounts={accounts}
+          transactions={transactions}
+        />
+      </DashboardBackgroundProvider>
     </DashboardThemeWrapper>
   )
 }

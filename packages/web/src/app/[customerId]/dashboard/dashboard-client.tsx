@@ -21,7 +21,7 @@ interface DashboardClientProps {
 export default function DashboardClient({
   customerId,
   accounts,
-  transactions
+  transactions,
 }: DashboardClientProps) {
   const router = useRouter()
   const [hasNavigated, setHasNavigated] = useState(false)
