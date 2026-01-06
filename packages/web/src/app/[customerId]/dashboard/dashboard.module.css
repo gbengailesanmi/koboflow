@@ -2,7 +2,22 @@
 
 .main {
   @apply flex flex-col gap-4 min-h-screen overflow-y-visible;
+
+  background:
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--dashboard-bg-color) 85%, rgb(78, 77, 77)) 0%,
+      
+      var(--dashboard-bg-color) 12%,
+      var(--via-color) var(--via-stop),
+      var(--dashboard-bottom-blend) var(--bottom-via-stop)
+    ),
+    var(--dashboard-bottom-blend);
+    background-size: 100% 100vh;
+    background-repeat: no-repeat;
+    transition: background 0.5s ease-in-out;
 }
+
 
 .accountsGrid {
   @apply h-[45dvh] grid items-center justify-items-center;

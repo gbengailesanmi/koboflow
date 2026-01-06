@@ -19,33 +19,28 @@ html, body {
 	--default-font-family: var(--font-open-sans);
 }
 
-.dashboard-gradient-background {
-  background:
-    linear-gradient(
-      to bottom,
-      color-mix(in srgb, var(--dashboard-bg-color) 85%, rgb(78, 77, 77)) 0%,
-      
-      var(--dashboard-bg-color) 12%,
-      var(--via-color) var(--via-stop),
-      var(--dashboard-bottom-blend) var(--bottom-via-stop)
-    ),
-    var(--dashboard-bottom-blend);
-
-  background-size: 100% 100vh;
-  background-repeat: no-repeat;
-  transition: background 0.5s ease-in-out;
-}
-
 /* ============================================
    LIGHT MODE (DEFAULT)
    ============================================ */
 :root {
-  --dashboard-bg-color: #4e609e;
-  --via-color: color-mix(in srgb, var(--dashboard-bg-color) 15%, #f8f9fa 85%);
-  --via-stop: 30%;
+  /* For dashboard use */
+  --dashboard-bg-color: hsl(210, 30%, 96%);
+  --via-color: color-mix(
+    in srgb,
+    var(--dashboard-bg-color) 15%,
+    #ffffff 85%
+  );
+  --via-stop: 40%;
+
   --dashboard-bottom-bg-color: #ffffff;
-  --dashboard-bottom-blend: var(--dashboard-bottom-bg-color); /* Will be overridden by JS */
-  --bottom-via-stop: 80%;
+  --dashboard-bottom-blend: color-mix(
+    in srgb,
+    #ffffff 90%,
+    var(--dashboard-bg-color) 10%
+  );
+
+  --bottom-via-stop: 90%;
+
   --color-background: #f7f7f7;
 
   --header-bg: #fff;
@@ -96,12 +91,19 @@ html, body {
    DARK MODE
    ============================================ */
 .dark {
-  --dashboard-bg-color: #4e609e;
+  /* For dashboard use */
+  --dashboard-bg-color: hsl(0, 30%, 40%);
+
   --via-color: color-mix(in srgb, var(--dashboard-bg-color) 10%, #040914 90%);
   --via-stop: 40%;
+
   --dashboard-bottom-bg-color: #000;
-  --dashboard-bottom-blend: var(--dashboard-bottom-bg-color); /* Will be overridden by JS */
   --bottom-via-stop: 90%;
+  --dashboard-bottom-blend: color-mix(
+    in srgb,
+    var(--dashboard-bottom-bg-color) 90%,
+    var(--dashboard-bg-color) 10%
+  );
   --color-background: #111;
 
   --header-bg: #131414;
