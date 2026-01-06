@@ -7,11 +7,6 @@
   );
   --via-stop: 40%;
   --dashboard-bottom-bg-color: #000;
-  --dashboard-bottom-blend: color-mix(
-    in srgb,
-    #000 90%,
-    var(--dashboard-bg-color) 10%
-  );
   --bottom-via-stop: 90%;
 
 
@@ -21,7 +16,7 @@
 
 
 
-  
+
   --color-background: #111;
   --header-bg: #131414;
 
@@ -36,4 +31,12 @@
 
   --red-10: #f2555a;
   --red-11: #ff6369;
+}
+
+[data-dashboard] {
+  --dashboard-bottom-blend: color-mix(
+    in srgb,
+    var(--dashboard-bottom-bg-color) 90%,
+    var(--dashboard-bg-color) 10%
+  );
 }

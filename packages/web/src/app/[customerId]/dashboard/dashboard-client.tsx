@@ -59,7 +59,7 @@ export default function DashboardClient({
   )
 
   return (
-    <main className={`${styles.main} page-main`}>
+    <main className={`${styles.main} page-main`} data-dashboard>
       <Grid className={styles.accountsGrid}>
         <AccountsCarousel
           accounts={accounts}
