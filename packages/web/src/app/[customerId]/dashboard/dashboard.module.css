@@ -23,9 +23,7 @@
 }
 
 .transactionsListWrapper {
-  @apply overflow-auto flex-1 relative;
-  /* mask-image: linear-gradient(to bottom, transparent 0%, black 20%, black 90%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 20%, black 90%, transparent 100%); */
+  @apply overflow-auto flex-1 mx-2;
 }
 
 .seeAll {

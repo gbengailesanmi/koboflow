@@ -23,8 +23,8 @@ export default function TransactionsDisplay({ transactions, narrationPopup = fal
       <div className={styles.transactionsWrapper}>
         {transactions.map(transaction => {
           const isDebit = Number(transaction.amount) < 0
-          const transactionType = isDebit ? styles.debit : styles.credit
           const Icon = isDebit ? UploadIcon : DownloadIcon
+          const iconClass = `${styles.transactionIcon} ${isDebit ? styles.debitIcon : styles.creditIcon}`
 
           return (
             <div>
@@ -32,7 +32,7 @@ export default function TransactionsDisplay({ transactions, narrationPopup = fal
                 <Box className={styles.item}>
                   <Card>
                     <Flex gap='3' align='center'>
-                      <Icon />
+                      <Icon className={iconClass} />
                       <div className={styles.text}>
                         <Text as='div' size='1'>
                           <span>
@@ -44,7 +44,7 @@ export default function TransactionsDisplay({ transactions, narrationPopup = fal
                       </div>
 
                       <div className={styles.amount}>
-                        <Text as='div' className={transactionType}>
+                        <Text as='div' className='text-sm'>
                           {Number(transaction.amount).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </Text>
                       </div>
