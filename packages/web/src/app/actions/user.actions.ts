@@ -1,8 +1,8 @@
 'use server'
 
 import { actionFactory } from './factory.action'
-import { updateUserProfile } from '../../lib/api/api-service'
-import { deleteAccount } from '../../lib/api/api-service'
+import { updateUserProfile, deleteAccount } from '../../lib/api/api-service'
+import { logoutAllDevicesAction } from './session.actions'
 
 export async function userUpdateProfileAction(
   customerId: string,
@@ -25,6 +25,9 @@ export async function userUpdateProfileAction(
 
 
 export async function deleteUserAction() {
+  // ✅ Revoke all sessions before account deletion
+  await logoutAllDevicesAction()
+  
   return actionFactory({
     actionName: 'delete.user',
     handler: () => deleteAccount(),

@@ -6,6 +6,7 @@ import { useTheme } from 'next-themes'
 import { signOut } from 'next-auth/react'
 import { settingsUpdateAction } from '@/app/actions/settings.actions'
 import { securityChangePINAction, securityChangePasswordAction } from '@/app/actions/security.actions'
+import { logoutAction } from '@/app/actions/session.actions'
 import { deleteUserAction } from '@/app/actions/user.actions'
 import { usePageTitle } from '@/providers/header-footer-provider'
 import { 
@@ -98,6 +99,7 @@ export default function SettingsClient({
   }
 
   const handleLogout = async () => {
+    logoutAction()
     await signOut({
       callbackUrl: '/login',
     })

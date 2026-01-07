@@ -4,6 +4,7 @@ import { useEffect, useRef, useCallback, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { signOut } from 'next-auth/react'
 import { clearAllAppSessionStorage } from '@/hooks/use-session-storage'
+import { logoutAction } from '@/app/actions/session.actions'
 
 const TIMEOUT_DURATION = 15 * 60 * 1000
 const WARNING_DURATION = 2 * 60 * 1000
@@ -36,6 +37,8 @@ export default function SessionTimeoutProvider({
     clearTimeout(timeoutRef.current!)
     clearTimeout(warningRef.current!)
 
+    // ✅ Revoke session in backend before client-side logout
+    await logoutAction()
     await signOut({ redirect: false })
     clearAllAppSessionStorage()
 
