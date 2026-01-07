@@ -1,14 +1,14 @@
 export const DASHBOARD_SLIDE_COLORS = [
-  'hsl(0, 30%, 40%)',    // Red-ish
-  'hsl(36, 30%, 40%)',   // Orange
-  'hsl(72, 30%, 40%)',   // Yellow-Green
-  'hsl(108, 30%, 40%)',  // Green
-  'hsl(144, 30%, 40%)',  // Teal-Green
-  'hsl(180, 30%, 40%)',  // Cyan
-  'hsl(216, 30%, 40%)',  // Blue
-  'hsl(252, 30%, 40%)',  // Purple
-  'hsl(288, 30%, 40%)',  // Magenta
-  'hsl(324, 30%, 40%)',  // Pink
+  'hsl(0, 10%, 35%)',    // Red-ish
+  'hsl(36, 10%, 35%)',   // Orange
+  'hsl(72, 10%, 35%)',   // Yellow-Green
+  'hsl(108, 10%, 35%)',  // Green
+  'hsl(144, 10%, 35%)',  // Teal-Green
+  'hsl(180, 10%, 35%)',  // Cyan
+  'hsl(216, 10%, 35%)',  // Blue
+  'hsl(252, 10%, 35%)',  // Purple
+  'hsl(288, 10%, 35%)',  // Magenta
+  'hsl(324, 10%, 35%)',  // Pink
 ] as const
 
 export const DEFAULT_SLIDE_COLOR = DASHBOARD_SLIDE_COLORS[0]
