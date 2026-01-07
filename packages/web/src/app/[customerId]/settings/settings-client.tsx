@@ -99,7 +99,7 @@ export default function SettingsClient({
   }
 
   const handleLogout = async () => {
-    logoutAction()
+    await logoutAction()
     await signOut({
       callbackUrl: '/login',
     })
