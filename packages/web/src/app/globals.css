@@ -6,3 +6,5 @@
 /* Design tokens */
 @import "./styles/tokens.light.css";
 @import "./styles/tokens.dark.css";
+
+@import "./styles/dashboard-transition.css";

@@ -1,0 +1,11 @@
+@property --dashboard-bg-color {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: hsl(0, 30%, 40%);
+}
+
+@property --dashboard-bg-color-prev {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: hsl(0, 30%, 40%);
+}
