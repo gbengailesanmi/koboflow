@@ -7,6 +7,7 @@ declare module 'next-auth' {
       customerId: string
       firstName?: string
       lastName?: string
+      sessionId?: string  // ✅ Add sessionId to session
     } & DefaultSession['user']
   }
 
@@ -15,5 +16,15 @@ declare module 'next-auth' {
     customerId: string
     firstName?: string
     lastName?: string
+  }
+}
+
+// ✅ Add sessionId to JWT token type
+declare module 'next-auth/jwt' {
+  interface JWT {
+    customerId?: string
+    firstName?: string
+    lastName?: string
+    sessionId?: string
   }
 }

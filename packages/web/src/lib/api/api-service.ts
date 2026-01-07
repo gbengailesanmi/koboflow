@@ -877,3 +877,118 @@ export async function getCustomerDetails(customerId: string): Promise<any> {
     throw error
   }
 }
+
+/**
+ * Session Management API calls
+ * Used by NextAuth callbacks and logout flows
+ */
+
+/**
+ * Create a new session
+ * Called from NextAuth jwt callback on initial sign-in
+ */
+export async function createSession(
+  sessionId: string,
+  customerId: string,
+  expiresAt?: Date
+): Promise<{ success: boolean; message?: string }> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/auth/session/create`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId, customerId, expiresAt }),
+      cache: 'no-store',
+    })
+
+    return await response.json()
+  } catch (error: any) {
+    logger.error({ module: 'api-service', error }, 'createSession error')
+    return { success: false, message: error.message }
+  }
+}
+
+/**
+ * Validate a session
+ * Called from backend middleware before processing authenticated requests
+ */
+export async function validateSession(
+  sessionId: string,
+  customerId: string
+): Promise<{ valid: boolean; message?: string }> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/auth/session/validate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId, customerId }),
+      cache: 'no-store',
+    })
+
+    return await response.json()
+  } catch (error: any) {
+    logger.error({ module: 'api-service', error }, 'validateSession error')
+    return { valid: false, message: error.message }
+  }
+}
+
+/**
+ * Revoke a specific session (logout)
+ * Called from logout action
+ */
+export async function revokeSession(sessionId: string): Promise<{ success: boolean; message?: string }> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/auth/session/revoke`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId }),
+      cache: 'no-store',
+    })
+
+    return await response.json()
+  } catch (error: any) {
+    logger.error({ module: 'api-service', error }, 'revokeSession error')
+    return { success: false, message: error.message }
+  }
+}
+
+/**
+ * Revoke all sessions for current user (logout all devices)
+ */
+export async function revokeAllSessions(): Promise<{ success: boolean; count?: number; message?: string }> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/auth/session/revoke-all`, {
+      method: 'POST',
+      cache: 'no-store',
+    })
+
+    return await response.json()
+  } catch (error: any) {
+    logger.error({ module: 'api-service', error }, 'revokeAllSessions error')
+    return { success: false, message: error.message }
+  }
+}
+
+/**
+ * Get all active sessions for current user
+ */
+export async function getActiveSessions(): Promise<{
+  success: boolean
+  sessions?: Array<{
+    sessionId: string
+    createdAt: Date
+    expiresAt: Date
+    lastActivity?: Date
+    userAgent?: string
+  }>
+  message?: string
+}> {
+  try {
+    const response = await serverFetch(`${BACKEND_URL}/api/auth/sessions`, {
+      next: { tags: ['sessions'] },
+    })
+
+    return await response.json()
+  } catch (error: any) {
+    logger.error({ module: 'api-service', error }, 'getActiveSessions error')
+    return { success: false, message: error.message }
+  }
+}

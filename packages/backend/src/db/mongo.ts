@@ -22,6 +22,9 @@ async function ensureIndexes(db: Db) {
 
   await db.collection('settings').createIndex({ customerId: 1 }, { unique: true })
   await db.collection('settings').createIndex({ updatedAt: -1 })
+  await db.collection('sessions').createIndex({ sessionId: 1 }, { unique: true })
+  await db.collection('sessions').createIndex({ customerId: 1, status: 1 })
+  await db.collection('sessions').createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 })
 
   indexesCreated = true
 }

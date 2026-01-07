@@ -467,3 +467,178 @@ authRoutes.get('/customer-details/:customerId', requireAuth, async (req, res) =>
     return res.status(500).json({ error: 'Internal server error' })
   }
 })
+
+// ----------------------------------- SESSION MANAGEMENT ----------------------------------- //
+authRoutes.post('/session/create', apiRateLimiter, async (req, res) => {
+  try {
+    const { sessionId, customerId, expiresAt } = req.body
+
+    if (!sessionId || !customerId) {
+      return res.status(400).json({ message: 'SessionId and customerId required' })
+    }
+
+    const db = await connectDB()
+
+    // Check if user exists
+    const user = await db.collection('users').findOne({ customerId })
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' })
+    }
+
+    // Create session
+    await db.collection('sessions').insertOne({
+      sessionId,
+      customerId,
+      createdAt: new Date(),
+      expiresAt: expiresAt ? new Date(expiresAt) : new Date(Date.now() + 60 * 60 * 1000),
+      status: 'active',
+      metadata: {
+        ip: req.ip,
+        userAgent: req.get('user-agent'),
+        lastActivity: new Date(),
+      },
+    })
+
+    logger.info({ module: 'auth', customerId, sessionId }, 'Session created')
+
+    return res.json({ success: true })
+  } catch (err) {
+    logger.error({ module: 'auth', err }, 'Session creation error')
+    return res.status(500).json({ message: 'Failed to create session' })
+  }
+})
+
+/**
+ * Validate a session (called from backend middleware)
+ * Public endpoint - used by middleware before setting requireAuth
+ */
+authRoutes.post('/session/validate', apiRateLimiter, async (req, res) => {
+  try {
+    const { sessionId, customerId } = req.body
+
+    if (!sessionId || !customerId) {
+      return res.status(400).json({ valid: false, message: 'SessionId and customerId required' })
+    }
+
+    const db = await connectDB()
+
+    const session = await db.collection('sessions').findOne({
+      sessionId,
+      customerId,
+    })
+
+    if (!session) {
+      return res.json({ valid: false, message: 'Session not found' })
+    }
+
+    if (session.status !== 'active') {
+      return res.json({ valid: false, message: 'Session revoked' })
+    }
+
+    if (session.expiresAt && new Date(session.expiresAt) < new Date()) {
+      return res.json({ valid: false, message: 'Session expired' })
+    }
+
+    // Update last activity
+    await db.collection('sessions').updateOne(
+      { sessionId },
+      { $set: { 'metadata.lastActivity': new Date() } }
+    )
+
+    return res.json({ valid: true })
+  } catch (err) {
+    logger.error({ module: 'auth', err }, 'Session validation error')
+    return res.status(500).json({ valid: false, message: 'Validation failed' })
+  }
+})
+
+authRoutes.post('/session/revoke', requireAuth, async (req, res) => {
+  try {
+    const { sessionId } = req.body
+    const customerId = req.user!.customerId
+
+    if (!sessionId) {
+      return res.status(400).json({ message: 'SessionId required' })
+    }
+
+    const db = await connectDB()
+
+    // Ensure session belongs to the authenticated user
+    const result = await db.collection('sessions').updateOne(
+      { sessionId, customerId },
+      { 
+        $set: { 
+          status: 'revoked',
+          revokedAt: new Date(),
+        } 
+      }
+    )
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ message: 'Session not found' })
+    }
+
+    logger.info({ module: 'auth', customerId, sessionId }, 'Session revoked')
+
+    return res.json({ success: true })
+  } catch (err) {
+    logger.error({ module: 'auth', err }, 'Session revocation error')
+    return res.status(500).json({ message: 'Failed to revoke session' })
+  }
+})
+
+/**
+ * Revoke all sessions for a user (logout all devices)
+ */
+authRoutes.post('/session/revoke-all', requireAuth, async (req, res) => {
+  try {
+    const customerId = req.user!.customerId
+    const db = await connectDB()
+
+    const result = await db.collection('sessions').updateMany(
+      { customerId, status: 'active' },
+      { 
+        $set: { 
+          status: 'revoked',
+          revokedAt: new Date(),
+        } 
+      }
+    )
+
+    logger.info({ module: 'auth', customerId, count: result.modifiedCount }, 'All sessions revoked')
+
+    return res.json({ success: true, count: result.modifiedCount })
+  } catch (err) {
+    logger.error({ module: 'auth', err }, 'Session revocation error')
+    return res.status(500).json({ message: 'Failed to revoke sessions' })
+  }
+})
+
+/**
+ * Get all active sessions for current user
+ */
+authRoutes.get('/sessions', requireAuth, async (req, res) => {
+  try {
+    const customerId = req.user!.customerId
+    const db = await connectDB()
+
+    const sessions = await db.collection('sessions')
+      .find({ customerId, status: 'active' })
+      .sort({ createdAt: -1 })
+      .toArray()
+
+    return res.json({ 
+      success: true, 
+      sessions: sessions.map(s => ({
+        sessionId: s.sessionId,
+        createdAt: s.createdAt,
+        expiresAt: s.expiresAt,
+        lastActivity: s.metadata?.lastActivity,
+        userAgent: s.metadata?.userAgent,
+      }))
+    })
+  } catch (err) {
+    logger.error({ module: 'auth', err }, 'Error fetching sessions')
+    return res.status(500).json({ message: 'Failed to fetch sessions' })
+  }
+})

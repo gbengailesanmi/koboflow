@@ -2,6 +2,7 @@
 import type { Request, Response, NextFunction } from 'express'
 import { getToken } from 'next-auth/jwt'
 import { logger } from '@money-mapper/shared'
+import { connectDB } from '../db/mongo'
 
 export async function requireAuth(
   req: Request,
@@ -38,6 +39,42 @@ export async function requireAuth(
     if (!token) {
       console.log('❌ [Auth Middleware] No token found - returning 401')
       return res.status(401).json({ error: 'Unauthenticated' })
+    }
+
+    const sessionId = token.sessionId as string | undefined
+    
+    if (sessionId) {
+      console.log('🔍 [Auth Middleware] Validating session in database', { sessionId })
+      
+      const db = await connectDB()
+      const session = await db.collection('sessions').findOne({
+        sessionId,
+        customerId: token.customerId as string,
+      })
+
+      if (!session) {
+        console.log('❌ [Auth Middleware] Session not found in database')
+        return res.status(401).json({ error: 'Session not found' })
+      }
+
+      if (session.status !== 'active') {
+        console.log('❌ [Auth Middleware] Session revoked', { status: session.status })
+        return res.status(401).json({ error: 'Session revoked' })
+      }
+
+      if (session.expiresAt && new Date(session.expiresAt) < new Date()) {
+        console.log('❌ [Auth Middleware] Session expired')
+        return res.status(401).json({ error: 'Session expired' })
+      }
+
+      await db.collection('sessions').updateOne(
+        { sessionId },
+        { $set: { 'metadata.lastActivity': new Date() } }
+      )
+
+      console.log('✅ [Auth Middleware] Session validated successfully')
+    } else {
+      console.log('⚠️ [Auth Middleware] No sessionId in token (legacy session)')
     }
 
     req.user = {

@@ -4,7 +4,7 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import { randomUUID } from 'crypto'
 import config from '@/config'
 import { logger } from '@money-mapper/shared'
-import { validateCredentials, googleSignIn } from '@/lib/api/api-service'
+import { validateCredentials, googleSignIn, createSession } from '@/lib/api/api-service'
 
 
 export const authOptions: AuthOptions = {
@@ -149,6 +149,34 @@ export const authOptions: AuthOptions = {
           console.log('🆔 [NextAuth] jwt - Generated new sessionId', {
             sessionId: token.sessionId,
           })
+
+          // ✅ CREATE SESSION IN BACKEND (via API call)
+          const expiresAt = new Date(Date.now() + 60 * 60 * 1000) // 1 hour
+          
+          try {
+            const result = await createSession(
+              token.sessionId as string,
+              user.customerId as string,
+              expiresAt
+            )
+
+            if (result.success) {
+              console.log('✅ [NextAuth] jwt - Session created in backend', {
+                sessionId: token.sessionId,
+              })
+            } else {
+              console.error('❌ [NextAuth] jwt - Failed to create session in backend', {
+                message: result.message,
+              })
+              logger.error(
+                { module: 'auth-nextauth', error: result.message },
+                'Failed to create session'
+              )
+            }
+          } catch (error) {
+            console.error('💥 [NextAuth] jwt - Error creating session', error)
+            logger.error({ module: 'auth-nextauth', error }, 'Error creating session')
+          }
         }
       } else {
         console.log('🔄 [NextAuth] jwt - Subsequent request, using existing token')
@@ -178,11 +206,13 @@ export const authOptions: AuthOptions = {
         session.user.customerId = token.customerId as string
         session.user.firstName = token.firstName as string
         session.user.lastName = token.lastName as string
+        session.user.sessionId = token.sessionId as string  // ✅ Add sessionId to session
 
         console.log('✅ [NextAuth] session callback - Session created', {
           customerId: session.user.customerId,
           firstName: session.user.firstName,
           lastName: session.user.lastName,
+          sessionId: session.user.sessionId,
           email: session.user.email,
         })
       } else {

@@ -85,6 +85,7 @@ settingsRoutes.delete('/account', requireAuth, async (req, res) => {
       db.collection('budgets').deleteMany({ customerId }),
       db.collection('spending_categories').deleteMany({ customerId }),
       db.collection('settings').deleteOne({ customerId }),
+      db.collection('sessions').deleteMany({ customerId }), // ✅ DELETE ALL SESSIONS
     ])
 
 
@@ -97,7 +98,8 @@ settingsRoutes.delete('/account', requireAuth, async (req, res) => {
       transactions: results[2].deletedCount,
       budgets: results[3].deletedCount,
       spending_categories: results[4].deletedCount,
-      settings: results[5].deletedCount
+      settings: results[5].deletedCount,
+      sessions: results[6].deletedCount
     }, 'Account deletion results')
 
     res.json({ 
@@ -332,6 +334,22 @@ settingsRoutes.post('/password/change', requireAuth, async (req, res) => {
     await db.collection('users').updateOne(
       { customerId },
       { $set: { password: hashedNewPassword, updatedAt: new Date() } }
+    )
+
+    // ✅ REVOKE ALL SESSIONS (force re-login after password change)
+    const sessionResult = await db.collection('sessions').updateMany(
+      { customerId, status: 'active' },
+      { 
+        $set: { 
+          status: 'revoked',
+          revokedAt: new Date(),
+        } 
+      }
+    )
+
+    logger.info(
+      { module: 'settings-routes', customerId, sessionsRevoked: sessionResult.modifiedCount },
+      'Password changed - all sessions revoked'
     )
 
     const settings = await getUserSettings(customerId)
