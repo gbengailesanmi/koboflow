@@ -125,7 +125,6 @@ export default function Nav({ customerId }: NavProps) {
   }
 
   const handleSectionClick = (sectionId: string) => {
-    console.log('Section clicked:', sectionId)
     const section = navSections.find(s => s.id === sectionId)
     if (section?.route) {
       router.push(`/${customerId}${section.route}`)
@@ -134,7 +133,6 @@ export default function Nav({ customerId }: NavProps) {
   }
 
   const handleItemClick = (sectionId: string, item: { id: string, scrollTo?: string, route?: string }) => {
-    console.log('Item clicked:', sectionId, item)
     if (item.route) {
       router.push(`/${customerId}${item.route}`)
       setIsOpen(false)
@@ -155,17 +153,12 @@ export default function Nav({ customerId }: NavProps) {
     }
   }
 
-  console.log('Nav state:', { isOpen, expandedSections, currentPage })
-
   return (
     <>
       {/* Menu Toggle Button */}
       <button
         className={styles.hamburgerButton}
-        onClick={() => {
-          console.log('Hamburger clicked, opening menu')
-          setIsOpen(true)
-        }}
+        onClick={() => setIsOpen(true)}
         aria-label="Open navigation menu"
       >
         <HamburgerMenuIcon width="24" height="24" />
@@ -175,10 +168,7 @@ export default function Nav({ customerId }: NavProps) {
       {isOpen && (
         <div 
           className={styles.mobileOverlay}
-          onClick={() => {
-            console.log('Overlay clicked, closing menu')
-            setIsOpen(false)
-          }}
+          onClick={() => setIsOpen(false)}
         />
       )}
 
@@ -198,10 +188,7 @@ export default function Nav({ customerId }: NavProps) {
               )}
               <button
                 className={styles.closeButton}
-                onClick={() => {
-                  console.log('Close button clicked')
-                  setIsOpen(false)
-                }}
+                onClick={() => setIsOpen(false)}
                 aria-label="Close navigation menu"
               >
                 <Cross1Icon width="20" height="20" />

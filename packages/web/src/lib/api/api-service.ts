@@ -759,11 +759,6 @@ export async function validateCredentials(
   firstName: string
   lastName: string
 } | null> {
-  console.log('🔑 [API Service] validateCredentials - Calling backend', {
-    url: `${BACKEND_URL}/api/auth/validate-credentials`,
-    email,
-  })
-
   try {
     const response = await serverFetch(
       `${BACKEND_URL}/api/auth/validate-credentials`,
@@ -775,26 +770,13 @@ export async function validateCredentials(
       }
     )
 
-    console.log('📡 [API Service] validateCredentials - Response received', {
-      status: response.status,
-      ok: response.ok,
-    })
-
     if (!response.ok) {
-      console.log('❌ [API Service] validateCredentials - Authentication failed')
       return null
     }
 
     const user = await response.json()
-    console.log('✅ [API Service] validateCredentials - User authenticated', {
-      customerId: user.customerId,
-      firstName: user.firstName,
-      lastName: user.lastName,
-    })
-
     return user
   } catch (error) {
-    console.error('💥 [API Service] validateCredentials - Error', error)
     logger.error({ module: 'api-service', error }, 'validateCredentials error')
     return null
   }
@@ -813,12 +795,6 @@ export async function googleSignIn(
   firstName: string
   lastName: string
 } | null> {
-  console.log('🔵 [API Service] googleSignIn - Calling backend', {
-    url: `${BACKEND_URL}/api/auth/oauth/google`,
-    email,
-    name,
-  })
-
   try {
     const response = await serverFetch(
       `${BACKEND_URL}/api/auth/oauth/google`,
@@ -830,28 +806,15 @@ export async function googleSignIn(
       }
     )
 
-    console.log('📡 [API Service] googleSignIn - Response received', {
-      status: response.status,
-      ok: response.ok,
-    })
-
     if (!response.ok) {
       const error = await response.json().catch(() => ({ message: 'Sign-in failed' }))
-      console.error('❌ [API Service] googleSignIn - Failed', error)
       logger.error({ module: 'api-service', error }, 'googleSignIn failed')
       return null
     }
 
     const userData = await response.json()
-    console.log('✅ [API Service] googleSignIn - User data received', {
-      customerId: userData.customerId,
-      firstName: userData.firstName,
-      lastName: userData.lastName,
-    })
-
     return userData
   } catch (error) {
-    console.error('💥 [API Service] googleSignIn - Error', error)
     logger.error({ module: 'api-service', error }, 'googleSignIn error')
     return null
   }
