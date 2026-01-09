@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { requireAuth } from '../middleware/middleware'
-import { logger } from '@money-mapper/shared'
+import { logger } from '@koboflow/shared'
 import {
   getBudgets,
   getActiveBudget,
@@ -12,7 +12,7 @@ import {
   upsertBudget,
   getBudget,
 } from '../db/helpers/budget-helpers'
-import type { CategoryBudget, BudgetPeriod } from '@money-mapper/shared'
+import type { CategoryBudget, BudgetPeriod } from '@koboflow/shared'
 import { connectDB } from '../db/mongo'
 
 export const budgetRoutes = Router()

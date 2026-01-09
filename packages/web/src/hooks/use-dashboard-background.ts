@@ -5,7 +5,7 @@ import { useEffect, useRef } from 'react'
 import {
   DASHBOARD_SLIDE_COLORS,
   DEFAULT_SLIDE_COLOR,
-} from '@money-mapper/shared'
+} from '@koboflow/shared'
 
 export function useDashboardBackground(accountId: string | null) {
   const lastColorRef = useRef<string | null>(null)

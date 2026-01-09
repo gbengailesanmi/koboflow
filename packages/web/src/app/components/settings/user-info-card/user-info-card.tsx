@@ -10,7 +10,7 @@ import {
   CalendarIcon,
   IdCardIcon,
 } from '@radix-ui/react-icons'
-import type { CustomerDetailsFromMono } from '@money-mapper/shared'
+import type { CustomerDetailsFromMono } from '@koboflow/shared'
 import styles from './user-info-card.module.css'
 
 type UserInfoField = {

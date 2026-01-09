@@ -1,5 +1,5 @@
 {
-  "name": "@money-mapper/backend",
+  "name": "@koboflow/backend",
   "version": "1.0.0",
   "private": true,
   "main": "./dist/server.js",
@@ -12,7 +12,7 @@
     "index:sessions": "ts-node src/db/indexes/session-indexer.ts"
   },
   "dependencies": {
-    "@money-mapper/shared": "*",
+    "@koboflow/shared": "*",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node-fetch": "^2.6.13",
     "bcrypt": "^6.0.0",

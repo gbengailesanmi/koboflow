@@ -3,7 +3,7 @@
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth/authOptions'
 import { revokeSession, revokeAllSessions, getActiveSessions } from '@/lib/api/api-service'
-import { logger } from '@money-mapper/shared'
+import { logger } from '@koboflow/shared'
 
 /**
  * Logout current session

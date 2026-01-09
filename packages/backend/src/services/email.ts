@@ -1,6 +1,6 @@
 import { Resend } from 'resend'
 import config from '../config'
-import { logger } from '@money-mapper/shared'
+import { logger } from '@koboflow/shared'
 
 const resend = new Resend(config.RESEND_API_KEY)
 
@@ -15,7 +15,7 @@ export async function sendVerificationEmail(
     const { data, error } = await resend.emails.send({
       from: config.FROM_EMAIL || '',
       to: email,
-      subject: 'Verify your Money Mapper account',
+      subject: 'Verify your Koboflow account',
       html: `
         <!DOCTYPE html>
         <html>
@@ -26,14 +26,14 @@ export async function sendVerificationEmail(
           </head>
           <body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
             <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-              <h1 style="color: white; margin: 0; font-size: 28px;">Welcome to Money Mapper! 🎉</h1>
+              <h1 style="color: white; margin: 0; font-size: 28px;">Welcome to Koboflow! 🎉</h1>
             </div>
             
             <div style="background: #f9fafb; padding: 40px 30px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
               <h2 style="color: #111827; margin-top: 0;">Hi ${name}! 👋</h2>
               
               <p style="font-size: 16px; color: #374151;">
-                Thank you for signing up! We're excited to have you on board. To get started with Money Mapper, 
+                Thank you for signing up! We're excited to have you on board. To get started with Koboflow, 
                 please verify your email address by clicking the button below.
               </p>
               
@@ -64,14 +64,14 @@ export async function sendVerificationEmail(
                   This verification link will expire in 24 hours.
                 </p>
                 <p style="font-size: 13px; color: #9ca3af; margin: 5px 0;">
-                  If you didn't create an account with Money Mapper, you can safely ignore this email.
+                  If you didn't create an account with Koboflow, you can safely ignore this email.
                 </p>
               </div>
             </div>
             
             <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
               <p style="font-size: 12px; color: #9ca3af;">
-                © ${new Date().getFullYear()} Money Mapper. All rights reserved.
+                © ${new Date().getFullYear()} Koboflow. All rights reserved.
               </p>
             </div>
           </body>

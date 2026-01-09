@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { Dialog, Button, Flex, Text, TextField, Select, IconButton } from '@radix-ui/themes'
 import { PlusIcon, TrashIcon, CheckIcon } from '@radix-ui/react-icons'
-import type { Budget } from '@money-mapper/shared'
+import type { Budget } from '@koboflow/shared'
 import styles from './budget-switcher.module.css'
 
 type BudgetSwitcherProps = {

@@ -1,4 +1,4 @@
-///Users/gbenga.ilesanmi/Github/PD/money-mapper/packages/backend/src/server.ts
+///Users/gbenga.ilesanmi/Github/PD/koboflow/packages/backend/src/server.ts
 import dotenv from 'dotenv'
 dotenv.config()
 
@@ -6,7 +6,7 @@ import config from './config'
 import express, { Express, Request, Response } from 'express'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
-import { logger } from '@money-mapper/shared'
+import { logger } from '@koboflow/shared'
 import { verifySignature } from './middleware/signature-verifier'
 import { etagMiddleware } from './middleware/etag'
 

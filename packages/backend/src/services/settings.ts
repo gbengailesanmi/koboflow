@@ -1,5 +1,5 @@
 import { connectDB } from '../db/mongo'
-import { UserSettings, DEFAULT_SETTINGS, logger } from '@money-mapper/shared'
+import { UserSettings, DEFAULT_SETTINGS, logger } from '@koboflow/shared'
 
 export async function createUserSettings(customerId: string): Promise<{ success: boolean; settingsId?: any; error?: any }> {
   try {

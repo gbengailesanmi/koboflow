@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useCallback, useEffect, useState, useRef } from 'react'
-import type { Account } from '@money-mapper/shared'
+import type { Account } from '@koboflow/shared'
 import useEmblaCarousel from 'embla-carousel-react'
 import { Box } from '@radix-ui/themes'
 import {

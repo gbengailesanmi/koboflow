@@ -10,7 +10,7 @@ import { MonthlySummary } from '../../components/dashboard/monthly-summary'
 import TransactionsDisplay from '@/app/components/transactions/transactions-display'
 import { useQueryStateNullable } from '@/hooks/use-query-state'
 import { useScrollRestoration } from '@/hooks/use-scroll-restoration'
-import type { Account, EnrichedTransaction } from '@money-mapper/shared'
+import type { Account, EnrichedTransaction } from '@koboflow/shared'
 import { useDashboardBackground } from '@/hooks/use-dashboard-background'
 
 interface DashboardClientProps {

@@ -6,8 +6,8 @@ import { sendVerificationEmail } from '../services/email'
 import { createUserSettings } from '../services/settings'
 import { initializeUserCategories } from '../db/helpers/spending-categories-helpers'
 import { requireAuth } from '../middleware/middleware'
-import { logger } from '@money-mapper/shared/utils'
-import { UpdateUserProfileSchema } from '@money-mapper/shared/schemas'
+import { logger } from '@koboflow/shared/utils'
+import { UpdateUserProfileSchema } from '@koboflow/shared/schemas'
 import { loginRateLimiter, oauthRateLimiter, apiRateLimiter } from '../utils/rate-limiter'
 
 export const authRoutes = Router()

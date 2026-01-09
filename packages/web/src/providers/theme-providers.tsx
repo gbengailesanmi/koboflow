@@ -10,7 +10,7 @@ export default function ThemeProviders({ children }: { children: React.ReactNode
       defaultTheme="system"
       enableSystem
       disableTransitionOnChange
-      storageKey="money-mapper-theme"
+      storageKey="koboflow-theme"
     >
       <Theme appearance="inherit">
         {children}

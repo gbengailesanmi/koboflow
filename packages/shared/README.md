@@ -1,15 +1,15 @@
-# @money-mapper/shared
+# @koboflow/shared
 
-Shared package containing TypeScript types, utilities, constants, and validation schemas used across the Money Mapper monorepo.
+Shared package containing TypeScript types, utilities, constants, and validation schemas used across the Koboflow monorepo.
 
 ## 📦 Installation
 
-This package is part of the Money Mapper monorepo and is used as a workspace dependency:
+This package is part of the Koboflow monorepo and is used as a workspace dependency:
 
 ```json
 {
   "dependencies": {
-    "@money-mapper/shared": "workspace:*"
+    "@koboflow/shared": "workspace:*"
   }
 }
 ```
@@ -36,13 +36,13 @@ import {
   SignupFormSchema,
   FormState,
   SessionPayload,
-} from '@money-mapper/shared/types'
+} from '@koboflow/shared/types'
 ```
 
 ### Utilities
 
 ```typescript
-import { formatCurrency, formatDate } from '@money-mapper/shared/utils'
+import { formatCurrency, formatDate } from '@koboflow/shared/utils'
 
 formatCurrency(1234.56, 'USD') // "$1,234.56"
 formatDate(new Date()) // "November 5, 2025"
@@ -51,7 +51,7 @@ formatDate(new Date()) // "November 5, 2025"
 ### Constants
 
 ```typescript
-import { API_BASE_URL, TRANSACTION_CATEGORIES, BUDGET_PERIODS } from '@money-mapper/shared/constants'
+import { API_BASE_URL, TRANSACTION_CATEGORIES, BUDGET_PERIODS } from '@koboflow/shared/constants'
 ```
 
 ## 🔧 Usage Examples
@@ -60,8 +60,8 @@ import { API_BASE_URL, TRANSACTION_CATEGORIES, BUDGET_PERIODS } from '@money-map
 
 ```typescript
 // pages/dashboard.tsx
-import { Account, Transaction } from '@money-mapper/shared/types'
-import { formatCurrency } from '@money-mapper/shared/utils'
+import { Account, Transaction } from '@koboflow/shared/types'
+import { formatCurrency } from '@koboflow/shared/utils'
 
 const Dashboard = () => {
   const account: Account = {
@@ -76,7 +76,7 @@ const Dashboard = () => {
 
 ```typescript
 // routes/transactions.ts
-import { Transaction } from '@money-mapper/shared/types'
+import { Transaction } from '@koboflow/shared/types'
 import { Router } from 'express'
 
 const router = Router()
@@ -91,8 +91,8 @@ router.get('/', async (req, res) => {
 
 ```typescript
 // screens/TransactionList.tsx
-import { Transaction } from '@money-mapper/shared/types'
-import { formatCurrency, formatDate } from '@money-mapper/shared/utils'
+import { Transaction } from '@koboflow/shared/types'
+import { formatCurrency, formatDate } from '@koboflow/shared/utils'
 
 const TransactionItem = ({ transaction }: { transaction: Transaction }) => {
   return (
@@ -200,4 +200,4 @@ yarn dev
 
 ## 📄 License
 
-Private - Part of Money Mapper monorepo
+Private - Part of Koboflow monorepo

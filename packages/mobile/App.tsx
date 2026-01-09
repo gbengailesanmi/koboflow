@@ -1,11 +1,11 @@
 import { StatusBar } from 'expo-status-bar'
 import { StyleSheet, Text, View } from 'react-native'
-import { Account, Transaction } from '@money-mapper/shared/types'
+// import { Account, Transaction } from '@koboflow/shared/types'
 
 export default function App() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Money Mapper Mobile</Text>
+      <Text style={styles.title}>Koboflow Mobile</Text>
       <Text style={styles.subtitle}>Coming Soon</Text>
       <StatusBar style="auto" />
     </View>

@@ -15,7 +15,7 @@ export default async function LandingPage() {
       <div className="max-w-md w-full mx-4">
         <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Money Mapper
+            Koboflow
           </h1>
 
           <p className="text-gray-600 mb-8">

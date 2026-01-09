@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { MixerVerticalIcon } from '@radix-ui/react-icons'
 import { Dialog, Flex, Text, ScrollArea, Box } from '@radix-ui/themes'
-import type { Account } from '@money-mapper/shared'
+import type { Account } from '@koboflow/shared'
 import { formatCurrency } from '@/app/components/analytics/utils/format-currency'
 import styles from './account-filter-menu.module.css'
 

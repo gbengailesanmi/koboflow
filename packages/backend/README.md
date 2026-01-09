@@ -1,6 +1,6 @@
 # Backend API Service
 
-Express.js API service for Money Mapper.
+Express.js API service for Koboflow.
 
 ## Setup
 

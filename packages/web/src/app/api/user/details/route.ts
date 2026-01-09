@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from '@/lib/api/get-server-session'
-import { logger } from '@money-mapper/shared'
+import { logger } from '@koboflow/shared'
 import { getCustomerDetails } from '@/lib/api/api-service'
 
 export async function GET(request: NextRequest) {

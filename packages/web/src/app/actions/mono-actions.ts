@@ -1,7 +1,7 @@
 'use server'
 
 import { actionFactory } from './factory.action'
-import { logger } from '@money-mapper/shared/utils'
+import { logger } from '@koboflow/shared/utils'
 import {
   exchangeMonoToken,
   importMonoAccount,

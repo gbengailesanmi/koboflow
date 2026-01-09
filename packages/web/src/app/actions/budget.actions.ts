@@ -8,7 +8,7 @@ import {
   updateBudgetById,
   setActiveBudget,
 } from '../../lib/api/api-service'
-import type { CategoryBudget, BudgetPeriod } from '@money-mapper/shared'
+import type { CategoryBudget, BudgetPeriod } from '@koboflow/shared'
 
 export async function budgetCreateAction(
   name: string,

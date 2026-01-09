@@ -1,5 +1,5 @@
-import type { MonoAccountIdentity } from '@money-mapper/shared'
-import { logger } from '@money-mapper/shared'
+import type { MonoAccountIdentity } from '@koboflow/shared'
+import { logger } from '@koboflow/shared'
 
 /**
  * Update customer details from Mono identity data in the users collection

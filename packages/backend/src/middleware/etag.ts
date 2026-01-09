@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import { makeETagFromData } from '../utils/etag'
-import { logger } from '@money-mapper/shared'
+import { logger } from '@koboflow/shared'
 
 export const etagMiddleware = (req: Request, res: Response, next: NextFunction) => {
   if (req.method !== 'GET') {

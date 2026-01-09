@@ -1,5 +1,5 @@
 import { createHash } from 'crypto'
-import { EnrichedTransaction, MonoTransaction, logger } from '@money-mapper/shared'
+import { EnrichedTransaction, MonoTransaction, logger } from '@koboflow/shared'
 import { transactionIndexer } from './indexes/transaction-indexer'
 
 function generateTransactionHash(txn: EnrichedTransaction): string {

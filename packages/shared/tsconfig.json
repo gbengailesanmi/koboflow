@@ -1,4 +1,4 @@
-///Users/gbenga.ilesanmi/Github/PD/money-mapper/packages/shared/tsconfig.json
+///Users/gbenga.ilesanmi/Github/PD/koboflow/packages/shared/tsconfig.json
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {

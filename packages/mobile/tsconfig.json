@@ -8,7 +8,7 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "paths": {
-      "@money-mapper/shared": ["../shared/src"]
+      "@koboflow/shared": ["../shared/src"]
     }
   },
   "include": ["src/**/*", "App.tsx"],

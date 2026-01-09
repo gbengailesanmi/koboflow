@@ -6,4 +6,4 @@ export type {
   CustomCategory, 
   CustomCategoryInput,
   UserCategories 
-} from '@money-mapper/shared'
+} from '@koboflow/shared'

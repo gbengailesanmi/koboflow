@@ -1,6 +1,6 @@
 # Web Frontend (Next.js)
 
-Next.js web application for Money Mapper.
+Next.js web application for Koboflow.
 
 ## Setup
 
@@ -42,6 +42,6 @@ src/
 
 ## TODO
 
-- [ ] Update imports to use @money-mapper/shared
+- [ ] Update imports to use @koboflow/shared
 - [ ] Configure API client to communicate with backend
 - [ ] Update authentication to work with backend API

@@ -3,7 +3,7 @@ import GoogleProvider from 'next-auth/providers/google'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { randomUUID } from 'crypto'
 import config from '@/config'
-import { logger } from '@money-mapper/shared'
+import { logger } from '@koboflow/shared'
 import { validateCredentials, googleSignIn, createSession } from '@/lib/api/api-service'
 
 

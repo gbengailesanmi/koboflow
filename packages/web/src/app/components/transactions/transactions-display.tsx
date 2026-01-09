@@ -1,6 +1,6 @@
 'use client'
 
-import type { EnrichedTransaction } from '@money-mapper/shared'
+import type { EnrichedTransaction } from '@koboflow/shared'
 import { Box, Card, Flex, Text, Dialog } from '@radix-ui/themes'
 import { Cross1Icon, DownloadIcon, UploadIcon } from '@radix-ui/react-icons'
 import styles from '@/app/components/transactions/transactions.module.css'

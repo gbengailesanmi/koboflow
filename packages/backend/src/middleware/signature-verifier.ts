@@ -116,8 +116,8 @@ export async function verifySignature(
 
     const decoded = jwt.verify(signature, KEY, {
       algorithms: ['HS256'],
-      audience: 'money-mapper-backend',
-      issuer: 'money-mapper-web',
+      audience: 'koboflow-backend',
+      issuer: 'koboflow-web',
     }) as InternalTokenPayload
 
     console.log('✅ [Signature Verifier] Token decoded successfully', {

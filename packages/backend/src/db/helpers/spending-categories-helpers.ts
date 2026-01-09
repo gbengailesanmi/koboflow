@@ -4,8 +4,8 @@ import {
   Category,
   CategoryInput,
   logger
-} from '@money-mapper/shared'
-import { DEFAULT_CATEGORIES } from '@money-mapper/shared'
+} from '@koboflow/shared'
+import { DEFAULT_CATEGORIES } from '@koboflow/shared'
 import { randomUUID } from 'crypto'
 
 const COLLECTION = 'spending_categories'

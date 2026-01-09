@@ -1,5 +1,5 @@
 import config from '../config'
-import { logger } from '@money-mapper/shared'
+import { logger } from '@koboflow/shared'
 
 export function normaliseTestAccountNumber(
   accountNumber: string,

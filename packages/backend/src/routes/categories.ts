@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { requireAuth } from '../middleware/middleware'
-import { logger } from '@money-mapper/shared'
+import { logger } from '@koboflow/shared'
 import {
   getCategories,
   getCustomCategories,

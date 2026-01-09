@@ -6,7 +6,7 @@ import {
   updateCustomCategory,
   deleteCustomCategory,
 } from '../../lib/api/api-service'
-import type { CustomCategory } from '@money-mapper/shared'
+import type { CustomCategory } from '@koboflow/shared'
 
 export async function categoryCreateAction(
   data: { name: string; keywords: string[]; color?: string }

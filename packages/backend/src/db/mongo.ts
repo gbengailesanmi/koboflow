@@ -1,6 +1,6 @@
 import { MongoClient, Db } from 'mongodb'
 import config from '../config'
-import { logger } from '@money-mapper/shared'
+import { logger } from '@koboflow/shared'
 
 const uri = config.MONGODB_URI
 const dbName = config.MONGO_DB_NAME

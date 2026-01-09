@@ -1,9 +1,9 @@
-///Users/gbenga.ilesanmi/Github/PD/money-mapper/packages/web/src/lib/server/api-service.ts
+///Users/gbenga.ilesanmi/Github/PD/koboflow/packages/web/src/lib/server/api-service.ts
 'server-only'
 
 import { cookies } from 'next/headers'
 import config from '../../config'
-import { logger } from '@money-mapper/shared'
+import { logger } from '@koboflow/shared'
 import { addApiSignature } from '../auth/signature-signer'
 import { createHash } from 'crypto'
 import type {
@@ -14,7 +14,7 @@ import type {
   CategoryBudget,
   BudgetPeriod,
   UserSettings,
-} from '@money-mapper/shared'
+} from '@koboflow/shared'
 
 export interface SessionUser {
   customerId: string

@@ -1,5 +1,5 @@
 import { connectDB } from '../mongo'
-import { logger } from '@money-mapper/shared'
+import { logger } from '@koboflow/shared'
 
 export async function createSettingsIndexes() {
   try {

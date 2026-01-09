@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import type { EnrichedTransaction, Account } from '@money-mapper/shared'
+import type { EnrichedTransaction, Account } from '@koboflow/shared'
 import { Dialog } from '@radix-ui/themes'
 import styles from './transactions.module.css'
 import TransactionMonthPills from '@/app/components/transactions/transaction-month-pills'

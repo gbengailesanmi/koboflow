@@ -1,4 +1,4 @@
-import type { Account } from '@money-mapper/shared'
+import type { Account } from '@koboflow/shared'
 import React from 'react'
 import styles from '@/app/components/transactions/transactions.module.css'
 import { DropdownMenu, Button, Grid } from '@radix-ui/themes'

@@ -1,6 +1,6 @@
 import { Dialog, Flex, Box, Text } from '@radix-ui/themes'
 import { Cross1Icon } from '@radix-ui/react-icons'
-import type { EnrichedTransaction } from '@money-mapper/shared'
+import type { EnrichedTransaction } from '@koboflow/shared'
 
 type Props = {
   transaction: EnrichedTransaction

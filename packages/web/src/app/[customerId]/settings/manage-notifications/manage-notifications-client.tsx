@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Box, Flex, Text, IconButton, Switch } from '@radix-ui/themes'
 import { Cross2Icon, BellIcon } from '@radix-ui/react-icons'
-import type { UserSettings } from '@money-mapper/shared'
+import type { UserSettings } from '@koboflow/shared'
 import { settingsUpdateAction } from '@/app/actions/settings.actions'
 import styles from './manage-notifications.module.css'
 

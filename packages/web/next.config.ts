@@ -2,7 +2,7 @@ import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   reactStrictMode: false,
-  transpilePackages: ['@money-mapper/shared'],
+  transpilePackages: ['@koboflow/shared'],
 }
 
 export default nextConfig

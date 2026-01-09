@@ -28,8 +28,8 @@ export function signApiRequest(options: SignRequestOptions = {}): string {
   console.log('🎲 [Signature Signer] Generated JTI', { jti })
 
   const tokenPayload: Record<string, any> = {
-    iss: 'money-mapper-web',
-    aud: 'money-mapper-backend',
+    iss: 'koboflow-web',
+    aud: 'koboflow-backend',
     iat: Math.floor(Date.now() / 1000),
     jti,
   }

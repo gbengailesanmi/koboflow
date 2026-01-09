@@ -1,5 +1,5 @@
 import { connectDB } from '../mongo'
-import type { Budget, CategoryBudget, BudgetPeriod } from '@money-mapper/shared'
+import type { Budget, CategoryBudget, BudgetPeriod } from '@koboflow/shared'
 import { ObjectId } from 'mongodb'
 
 export async function getBudgets(customerId: string): Promise<Budget[]> {

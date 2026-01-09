@@ -28,7 +28,7 @@ import {
   Link2Icon,
 } from '@radix-ui/react-icons'
 import styles from './settings.module.css'
-import type { UserSettings } from '@money-mapper/shared'
+import type { UserSettings } from '@koboflow/shared'
 
 type Theme = 'light' | 'dark' | 'system'
 

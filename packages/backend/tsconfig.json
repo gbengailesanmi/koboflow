@@ -16,12 +16,13 @@
     "types": ["node", "express"],
     "typeRoots": [
       "./src/types",
+      "../../node_modules/@types",
       "./node_modules/@types"
     ],
 
     "paths": {
-      "@money-mapper/shared": ["../shared/dist"],
-      "@money-mapper/shared/*": ["../shared/dist/*"]
+      "@koboflow/shared": ["../shared/dist"],
+      "@koboflow/shared/*": ["../shared/dist/*"]
     }
   },
   "include": ["src/**/*"],

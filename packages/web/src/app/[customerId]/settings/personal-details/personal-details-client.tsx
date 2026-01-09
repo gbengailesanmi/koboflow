@@ -5,7 +5,7 @@ import { useCallback, useEffect } from 'react'
 import { UserInfoCard } from '@/app/components/settings/user-info-card'
 import { usePageTitle } from '@/providers/header-footer-provider'
 import { staticSWR } from '@/lib/swr'
-import type { CustomerDetailsFromMono } from '@money-mapper/shared'
+import type { CustomerDetailsFromMono } from '@koboflow/shared'
 import styles from './personal-details.module.css'
 
 type PersonalDetailsClientProps = {

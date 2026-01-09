@@ -1,5 +1,5 @@
 import type { CustomCategory } from '@/types/custom-category'
-import { DEFAULT_CATEGORIES } from '@money-mapper/shared'
+import { DEFAULT_CATEGORIES } from '@koboflow/shared'
 
 const DEFAULT_CATEGORY_KEYS: Record<string, string> = {
   'Food & Groceries': 'food',

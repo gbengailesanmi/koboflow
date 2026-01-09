@@ -1,7 +1,7 @@
 'use server'
 
 import { revalidateTag } from 'next/cache'
-import { logger } from '@money-mapper/shared'
+import { logger } from '@koboflow/shared'
 
 type ActionOptions<T> = {
   actionName: string

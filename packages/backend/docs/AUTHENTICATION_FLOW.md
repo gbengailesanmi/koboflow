@@ -1,6 +1,6 @@
-# 🔐 Authentication & Session Flow - Money Mapper
+# 🔐 Authentication & Session Flow - Koboflow
 
-> **Complete guide to how authentication, sessions, and API communication work in Money Mapper**
+> **Complete guide to how authentication, sessions, and API communication work in Koboflow**
 
 Last Updated: November 16, 2025
 
@@ -1216,7 +1216,7 @@ MONGO_DB_NAME=money-mapper
 ALLOWED_ORIGINS=http://localhost:3000
 
 # Email (Resend)
-FROM_EMAIL=Money Mapper <noreply@moneymapper.com>
+FROM_EMAIL=Koboflow <noreply@koboflow.com>
 RESEND_API_KEY=re_xxxxx
 
 # Tink API

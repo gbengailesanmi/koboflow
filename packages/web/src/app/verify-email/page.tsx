@@ -1,4 +1,4 @@
-// /Users/gbenga.ilesanmi/Github/PD/money-mapper/packages/web/src/app/verify-email/page.tsx
+// /Users/gbenga.ilesanmi/Github/PD/koboflow/packages/web/src/app/verify-email/page.tsx
 'use client'
 
 export const dynamic = 'force-dynamic'

@@ -1,7 +1,7 @@
 import config from '../config'
 import { normaliseTestAccountNumber, normaliseAccountBVNToIdentity } from '../test-helpers/account-normalizer'
-import { logger } from '@money-mapper/shared'
-import { MonoTransaction, MonoAuthResponse, MonoAccountDetails, MonoAccountIdentity, MonoAccountBalance, MonoTransactionsResponse, MonoCreditWorthinessRequest, MonoStatementOptions, MonoEarnings, MonoAssets } from '@money-mapper/shared'
+import { logger } from '@koboflow/shared'
+import { MonoTransaction, MonoAuthResponse, MonoAccountDetails, MonoAccountIdentity, MonoAccountBalance, MonoTransactionsResponse, MonoCreditWorthinessRequest, MonoStatementOptions, MonoEarnings, MonoAssets } from '@koboflow/shared'
 
 const MONO_API_BASE = 'https://api.withmono.com/v2'
 

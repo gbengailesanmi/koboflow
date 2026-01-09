@@ -1,5 +1,5 @@
 {
-  "name": "@money-mapper/mobile",
+  "name": "@koboflow/mobile",
   "version": "1.0.0",
   "private": true,
   "main": "index.js",
@@ -12,7 +12,7 @@
     "clean": "rm -rf node_modules .expo"
   },
   "dependencies": {
-    "@money-mapper/shared": "*",
+    "@koboflow/shared": "*",
     "@react-navigation/native": "^6.1.9",
     "@react-navigation/native-stack": "^6.9.17",
     "expo": "~50.0.0",

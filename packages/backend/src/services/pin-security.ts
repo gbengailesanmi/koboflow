@@ -1,5 +1,5 @@
 import crypto from 'crypto'
-import { logger } from '@money-mapper/shared'
+import { logger } from '@koboflow/shared'
 
 const ALGORITHM = 'aes-256-gcm'
 const KEY_LENGTH = 32

@@ -20,7 +20,7 @@ import {
   Box,
 } from '@radix-ui/themes'
 import styles from './profile.module.css'
-import type { CustomerDetailsFromMono } from '@money-mapper/shared'
+import type { CustomerDetailsFromMono } from '@koboflow/shared'
 
 type ProfileClientProps = {
   customerId: string

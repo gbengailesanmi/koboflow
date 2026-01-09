@@ -1,6 +1,6 @@
 # Mobile App (React Native)
 
-React Native mobile application for Money Mapper using Expo.
+React Native mobile application for Koboflow using Expo.
 
 ## Setup
 

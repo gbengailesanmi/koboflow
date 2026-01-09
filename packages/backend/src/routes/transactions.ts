@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { requireAuth } from '../middleware/middleware'
 import { connectDB } from '../db/mongo'
-import { logger } from '@money-mapper/shared'
+import { logger } from '@koboflow/shared'
 
 export const transactionRoutes = Router()
 

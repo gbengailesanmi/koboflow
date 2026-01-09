@@ -60,7 +60,7 @@ export function usePageSelection<T>(
   selectionKey: string,
   initialValue: T
 ): [T, (value: T | ((val: T) => T)) => void] {
-  const storageKey = `money-mapper:${customerId}:${pageName}:${selectionKey}`
+  const storageKey = `koboflow:${customerId}:${pageName}:${selectionKey}`
   return useSessionStorage(storageKey, initialValue)
 }
 
@@ -74,7 +74,7 @@ export function clearAllAppSessionStorage(): void {
   try {
     const keys = Object.keys(window.sessionStorage)
     keys.forEach(key => {
-      if (key.startsWith('money-mapper:')) {
+      if (key.startsWith('koboflow:')) {
         window.sessionStorage.removeItem(key)
       }
     })
@@ -92,7 +92,7 @@ export function clearCustomerSessionStorage(customerId: string): void {
   
   try {
     const keys = Object.keys(window.sessionStorage)
-    const prefix = `money-mapper:${customerId}:`
+    const prefix = `koboflow:${customerId}:`
     keys.forEach(key => {
       if (key.startsWith(prefix)) {
         window.sessionStorage.removeItem(key)

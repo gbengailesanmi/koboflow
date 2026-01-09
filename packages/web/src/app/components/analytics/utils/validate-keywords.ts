@@ -1,5 +1,5 @@
 import type { CustomCategory } from '@/types/custom-category'
-import { DEFAULT_CATEGORIES } from '@money-mapper/shared'
+import { DEFAULT_CATEGORIES } from '@koboflow/shared'
 
 const DEFAULT_CATEGORY_KEYWORDS_MAP: Record<string, string> = 
   DEFAULT_CATEGORIES.reduce((acc, category) => {

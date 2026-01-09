@@ -1,11 +1,11 @@
-///Users/gbenga.ilesanmi/Github/PD/money-mapper/packages/web/src/app/[customerId]/analytics/analytics-client.tsx
+///Users/gbenga.ilesanmi/Github/PD/koboflow/packages/web/src/app/[customerId]/analytics/analytics-client.tsx
 'use client'
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Dialog } from '@radix-ui/themes'
-import type { Account, EnrichedTransaction } from '@money-mapper/shared'
-import type {  } from '@money-mapper/shared'
+import type { Account, EnrichedTransaction } from '@koboflow/shared'
+import type {  } from '@koboflow/shared'
 import type { CustomCategory } from '@/types/custom-category'
 import { categoryCreateAction, categoryDeleteAction, categoryUpdateAction } from '@/app/actions/category.actions'
 import { usePageTitle } from '@/providers/header-footer-provider'

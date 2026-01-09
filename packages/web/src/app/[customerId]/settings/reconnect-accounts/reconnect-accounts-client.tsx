@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Box, Flex, Text, IconButton, Button } from '@radix-ui/themes'
 import { Cross2Icon, Link2Icon, ReloadIcon } from '@radix-ui/react-icons'
-import type { Account } from '@money-mapper/shared'
+import type { Account } from '@koboflow/shared'
 import styles from './reconnect-accounts.module.css'
 
 type ReconnectAccountsClientProps = {

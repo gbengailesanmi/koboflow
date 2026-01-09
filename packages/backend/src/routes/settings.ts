@@ -3,7 +3,7 @@ import { requireAuth } from '../middleware/middleware'
 import { getUserSettings, updateUserSettings } from '../services/settings'
 import { encryptPIN, decryptPIN } from '../services/pin-security'
 import { connectDB } from '../db/mongo'
-import { logger } from '@money-mapper/shared'
+import { logger } from '@koboflow/shared'
 
 export const settingsRoutes = Router()
 

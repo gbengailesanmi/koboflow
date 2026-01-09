@@ -1,4 +1,4 @@
-// /Users/gbenga.ilesanmi/Github/PD/money-mapper/packages/web/src/app/api/auth/verify/route.ts
+// /Users/gbenga.ilesanmi/Github/PD/koboflow/packages/web/src/app/api/auth/verify/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import config from '@/config'
 

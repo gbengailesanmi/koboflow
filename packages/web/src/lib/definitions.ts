@@ -4,4 +4,4 @@ export {
   LoginFormSchema, 
   type SignupFormData, 
   type LoginFormData 
-} from '@money-mapper/shared'
+} from '@koboflow/shared'
