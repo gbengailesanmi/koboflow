@@ -1,23 +1,18 @@
-# 💰 Money Mapper
+# 💰 Koboflow
 
-A modern personal finance management application.
+Personal finance management for Nigerians. Connect your bank accounts, track spending, and manage budgets.
 
-## 🚀 Quick Start
+## Quick Start
 
 ```bash
 yarn
 yarn dev
 ```
 
-- Backend API: http://localhost:3001
-- Web app: http://localhost:3000
+- Backend: http://localhost:3001
+- Web: http://localhost:3000
 
-## 📦 Project Structure
+## Tech Stack
 
-```
-packages/
-├── backend/     # Express API server
-├── web/         # Next.js web app
-├── mobile/      # React Native mobile app
-└── shared/      # Shared types
-```
+Next.js 16 • React 19 • TypeScript • Express • MongoDB • Mono API • Tailwind • Docker
+
