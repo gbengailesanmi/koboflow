@@ -3,14 +3,9 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Dialog } from '@radix-ui/themes'
-import type { Account, EnrichedTransaction } from '@koboflow/shared'
-import type {  } from '@koboflow/shared'
-import type { CustomCategory } from '@/types/custom-category'
 import { categoryCreateAction, categoryDeleteAction, categoryUpdateAction } from '@/app/actions/category.actions'
 import { usePageTitle } from '@/providers/header-footer-provider'
 import { PageLayout } from '@/app/components/page-layout/page-layout'
-import AccountFilterMenu from '@/app/components/account-filter-menu/account-filter-menu'
 import { categorizeTransaction, getCategoryConfig } from '@/app/components/analytics/utils'
 import {
   PieChart,
@@ -26,11 +21,11 @@ import {
   StatsCards,
   CategoryBreakdown,
   DailySpendingComparison,
-  // CustomCategoriesManager
 } from '@/app/components/analytics'
 import { EmptyState } from '@/app/components/empty-state'
 import { useQueryStateNullable, useQueryState } from '@/hooks/use-query-state'
 import { useScrollRestoration } from '@/hooks/use-scroll-restoration'
+import { useAccounts, useTransactions, useCustomCategories, useBudget } from '@/hooks/use-data'
 import { 
   Grid, 
   Tabs,
@@ -42,22 +37,22 @@ import styles from './analytics.module.css'
 
 type AnalyticsClientProps = {
   customerId: string
-  accounts: Account[]
-  transactions: EnrichedTransaction[]
-  customCategories: CustomCategory[]
   currency: string
-  totalBudgetLimit: number
 }
 
 export default function AnalyticsClient({
   customerId,
-  accounts,
-  transactions,
-  customCategories,
   currency,
-  totalBudgetLimit
 }: AnalyticsClientProps) {
   const router = useRouter()
+  
+  const { data: accounts = [], isLoading: accountsLoading } = useAccounts()
+  const { data: transactions = [], isLoading: transactionsLoading } = useTransactions()
+  const { data: customCategories = [], isLoading: categoriesLoading } = useCustomCategories()
+  const { data: budgetData, isLoading: budgetLoading } = useBudget()
+  
+  const totalBudgetLimit = budgetData?.totalBudgetLimit || 0
+  const isLoading = accountsLoading || transactionsLoading || categoriesLoading || budgetLoading
   
   // URL state for account filter and settings
   const [selectedAccountId, setSelectedAccountId] = useQueryStateNullable('accountId')
@@ -476,6 +471,16 @@ export default function AnalyticsClient({
     handleUpdateCategory,
     handleDeleteCategory
   ])
+
+  if (isLoading) {
+    return (
+      <PageLayout>
+        <div className={styles.loadingContainer}>
+          <Text>Loading analytics...</Text>
+        </div>
+      </PageLayout>
+    )
+  }
 
   return (
     <PageLayout

@@ -5,7 +5,6 @@ import { cookies } from 'next/headers'
 import config from '../../config'
 import { logger } from '@koboflow/shared'
 import { addApiSignature } from '../auth/signature-signer'
-import { createHash } from 'crypto'
 import type {
   Account,
   EnrichedTransaction,
@@ -83,7 +82,6 @@ export async function serverFetch(
  * Parse JSON response with error handling
  */
 async function parseResponse<T>(response: Response): Promise<T> {
-  // Handle 304 Not Modified
   if (response.status === 304) {
     throw new Error('__NOT_MODIFIED__')
   }
@@ -92,7 +90,13 @@ async function parseResponse<T>(response: Response): Promise<T> {
     const errorData = await response.json().catch(() => ({
       message: `HTTP ${response.status}: ${response.statusText}`,
     }))
-    throw new Error(errorData.message || `Request failed: ${response.status}`)
+    
+    const error: any = new Error(errorData.message || `Request failed: ${response.status}`)
+    error.statusCode = response.status
+    error.statusText = response.statusText
+    error.response = errorData
+    
+    throw error
   }
   return response.json()
 }
@@ -119,12 +123,11 @@ export async function getAccounts(): Promise<Account[]> {
     lastAccounts = accounts
     return accounts
   } catch (error: any) {
-    // If 304 Not Modified, return cached data
     if (error.message === '__NOT_MODIFIED__' && lastAccounts) {
       return lastAccounts
     }
 
-    logger.error({ module: 'api-service', error }, 'getAccounts error')
+    logger.error({ module: 'api-service', err: error }, 'getAccounts error')
     return []
   }
 }
@@ -150,12 +153,11 @@ export async function getTransactions(): Promise<EnrichedTransaction[]> {
     lastTransactions = transactions
     return transactions
   } catch (error: any) {
-    // If 304 Not Modified, return cached data
     if (error.message === '__NOT_MODIFIED__' && lastTransactions) {
       return lastTransactions
     }
 
-    logger.error({ module: 'api-service', error }, 'getTransactions error')
+    logger.error({ module: 'api-service', err: error }, 'getTransactions error')
     return []
   }
 }
@@ -174,8 +176,8 @@ export async function getBudgets(): Promise<Budget[]> {
 
     const data = await parseResponse<{ success: boolean; budgets: Budget[] }>(response)
     return data.budgets || []
-  } catch (error) {
-    logger.error({ module: 'api-service', error }, 'getBudgets error')
+  } catch (error: any) {
+    logger.error({ module: 'api-service', err: error }, 'getBudgets error')
     return []
   }
 }
@@ -193,8 +195,8 @@ export async function getBudget(): Promise<Budget | null> {
 
     const data = await parseResponse<Budget>(response)
     return data
-  } catch (error) {
-    logger.error({ module: 'api-service', error }, 'getBudget error')
+  } catch (error: any) {
+    logger.error({ module: 'api-service', err: error }, 'getBudget error')
     return null
   }
 }
@@ -211,8 +213,8 @@ export async function getBudgetById(budgetId: string): Promise<Budget | null> {
 
     const data = await parseResponse<Budget>(response)
     return data
-  } catch (error) {
-    logger.error({ module: 'api-service', budgetId, error }, 'getBudgetById error')
+  } catch (error: any) {
+    logger.error({ module: 'api-service', budgetId, err: error }, 'getBudgetById error')
     return null
   }
 }
@@ -231,8 +233,8 @@ export async function getSettings(): Promise<Settings | null> {
 
     const data = await parseResponse<{ success: boolean; settings: Settings }>(response)
     return data.settings || null
-  } catch (error) {
-    logger.error({ module: 'api-service', error }, 'getSettings error')
+  } catch (error: any) {
+    logger.error({ module: 'api-service', err: error }, 'getSettings error')
     return null
   }
 }
@@ -251,8 +253,8 @@ export async function getCategories(): Promise<CustomCategory[]> {
 
     const data = await parseResponse<CustomCategory[]>(response)
     return data || []
-  } catch (error) {
-    logger.error({ module: 'api-service', error }, 'getCategories error')
+  } catch (error: any) {
+    logger.error({ module: 'api-service', err: error }, 'getCategories error')
     return []
   }
 }
@@ -266,8 +268,8 @@ export async function getCustomCategories(): Promise<CustomCategory[]> {
   try {
     const categories = await getCategories()
     return categories.filter(cat => !cat.isDefault)
-  } catch (error) {
-    logger.error({ module: 'api-service', error }, 'getCustomCategories error')
+  } catch (error: any) {
+    logger.error({ module: 'api-service', err: error }, 'getCustomCategories error')
     return []
   }
 }
@@ -307,6 +309,29 @@ export async function resendVerificationEmail(email: string): Promise<{
   return await response.json()
 }
 
+/**
+ * Create new user account (signup)
+ * Pure API call - no revalidation needed (creates new user)
+ */
+export async function signupUser(data: {
+  firstName: string
+  lastName: string
+  email: string
+  password: string
+  passwordConfirm: string
+}): Promise<{
+  success: boolean
+  requiresVerification?: boolean
+  message?: string
+}> {
+  const response = await serverFetch(`${BACKEND_URL}/api/auth/signup`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+    cache: 'no-store',
+  })
+
+  return await response.json()
+}
 
 /**
  * Create a new budget
@@ -620,7 +645,7 @@ export async function getUserByCustomerId(customerId: string): Promise<{
 
     return await response.json()
   } catch (error: any) {
-    logger.error({ module: 'api-service', customerId, error }, 'getUserByCustomerId error')
+    logger.error({ module: 'api-service', customerId, err: error }, 'getUserByCustomerId error')
     return {
       success: false,
       message: error.message || 'Failed to fetch user',
@@ -645,7 +670,7 @@ export async function exchangeMonoToken(code: string): Promise<{
 
     return await response.json()
   } catch (error: any) {
-    logger.error({ module: 'api-service', error }, 'exchangeMonoToken error')
+    logger.error({ module: 'api-service', err: error }, 'exchangeMonoToken error')
     return { success: false, message: error.message }
   }
 }
@@ -663,7 +688,7 @@ export async function importMonoAccount(accountId: string): Promise<{
     )
     return await response.json()
   } catch (error: any) {
-    logger.error({ module: 'api-service', accountId, error }, 'importMonoAccount error')
+    logger.error({ module: 'api-service', accountId, err: error }, 'importMonoAccount error')
     return { success: false, message: error.message }
   }
 }
@@ -690,63 +715,7 @@ export async function syncMonoTransactions(
     )
     return await response.json()
   } catch (error: any) {
-    logger.error({ module: 'api-service', accountId, error }, 'syncMonoTransactions error')
-    return { success: false, message: error.message }
-  }
-}
-
-export async function getMonoAccountIdentity(accountId: string): Promise<{
-  success: boolean
-  message?: string
-  data?: {
-    full_name: string
-    email: string
-    phone: string
-    gender: string
-    dob: string
-    bvn: string
-    marital_status: string
-    address_line1: string
-    address_line2: string
-  }
-}> {
-  try {
-    const response = await serverFetch(
-      `${BACKEND_URL}/api/mono/identity/${accountId}`,
-      { cache: 'no-store' }
-    )
-    return await response.json()
-  } catch (error: any) {
-    logger.error({ module: 'api-service', accountId, error }, 'getMonoAccountIdentity error')
-    return { success: false, message: error.message }
-  }
-}
-
-export async function getCustomerDetailsFromMono(): Promise<{
-  success: boolean
-  message?: string
-  customerDetailsFromMono?: {
-    full_name: string
-    bvn: string
-    phone: string
-    gender: string
-    dob: string
-    address_line1: string
-    address_line2?: string
-    marital_status: string
-    created_at: string
-    updated_at: string
-  } | null
-  customerDetailsLastUpdated?: Date | null
-}> {
-  try {
-    const response = await serverFetch(
-      `${BACKEND_URL}/api/customer-details`,
-      { next: { tags: ['customer-details'] } }
-    )
-    return await response.json()
-  } catch (error: any) {
-    logger.error({ module: 'api-service', error }, 'getCustomerDetailsFromMono error')
+    logger.error({ module: 'api-service', accountId, err: error }, 'syncMonoTransactions error')
     return { success: false, message: error.message }
   }
 }
@@ -776,8 +745,8 @@ export async function validateCredentials(
 
     const user = await response.json()
     return user
-  } catch (error) {
-    logger.error({ module: 'api-service', error }, 'validateCredentials error')
+  } catch (error: any) {
+    logger.error({ module: 'api-service', err: error }, 'validateCredentials error')
     return null
   }
 }
@@ -808,17 +777,27 @@ export async function googleSignIn(
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({ message: 'Sign-in failed' }))
-      logger.error({ module: 'api-service', error }, 'googleSignIn failed')
+      logger.error({ 
+        module: 'api-service',
+        error: {
+          message: error?.message,
+          statusCode: response?.status,
+          statusText: response?.statusText
+        }
+      }, 'googleSignIn failed')
       return null
     }
 
     const userData = await response.json()
     return userData
-  } catch (error) {
-    logger.error({ module: 'api-service', error }, 'googleSignIn error')
+  } catch (error: any) {
+    logger.error({ module: 'api-service', err: error }, 'googleSignIn error')
     return null
   }
 }
+
+// Cache for 304 responses
+let lastCustomerDetails: any = null
 
 /**
  * Get customer details (with masked BVN)
@@ -834,9 +813,15 @@ export async function getCustomerDetails(customerId: string): Promise<any> {
       }
     )
 
-    return await parseResponse(response)
-  } catch (error) {
-    logger.error({ module: 'api-service', customerId, error }, 'getCustomerDetails error')
+    const data = await parseResponse(response)
+    lastCustomerDetails = data
+    return data
+  } catch (error: any) {
+    if (error.message === '__NOT_MODIFIED__' && lastCustomerDetails) {
+      return lastCustomerDetails
+    }
+
+    logger.error({ module: 'api-service', customerId, err: error }, 'getCustomerDetails error')
     throw error
   }
 }
@@ -865,7 +850,7 @@ export async function createSession(
 
     return await response.json()
   } catch (error: any) {
-    logger.error({ module: 'api-service', error }, 'createSession error')
+    logger.error({ module: 'api-service', err: error }, 'createSession error')
     return { success: false, message: error.message }
   }
 }
@@ -888,7 +873,7 @@ export async function validateSession(
 
     return await response.json()
   } catch (error: any) {
-    logger.error({ module: 'api-service', error }, 'validateSession error')
+    logger.error({ module: 'api-service', err: error }, 'validateSession error')
     return { valid: false, message: error.message }
   }
 }
@@ -908,7 +893,7 @@ export async function revokeSession(sessionId: string): Promise<{ success: boole
 
     return await response.json()
   } catch (error: any) {
-    logger.error({ module: 'api-service', error }, 'revokeSession error')
+    logger.error({ module: 'api-service', err: error }, 'revokeSession error')
     return { success: false, message: error.message }
   }
 }
@@ -925,7 +910,7 @@ export async function revokeAllSessions(): Promise<{ success: boolean; count?: n
 
     return await response.json()
   } catch (error: any) {
-    logger.error({ module: 'api-service', error }, 'revokeAllSessions error')
+    logger.error({ module: 'api-service', err: error }, 'revokeAllSessions error')
     return { success: false, message: error.message }
   }
 }
@@ -951,7 +936,7 @@ export async function getActiveSessions(): Promise<{
 
     return await response.json()
   } catch (error: any) {
-    logger.error({ module: 'api-service', error }, 'getActiveSessions error')
+    logger.error({ module: 'api-service', err: error }, 'getActiveSessions error')
     return { success: false, message: error.message }
   }
 }

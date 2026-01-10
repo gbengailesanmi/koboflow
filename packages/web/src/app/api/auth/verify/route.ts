@@ -1,8 +1,6 @@
 // /Users/gbenga.ilesanmi/Github/PD/koboflow/packages/web/src/app/api/auth/verify/route.ts
 import { NextRequest, NextResponse } from 'next/server'
-import config from '@/config'
-
-const BACKEND_URL = config.NEXT_PUBLIC_BACKEND_URL
+import { verifyEmail } from '@/lib/api/api-service'
 
 export async function GET(request: NextRequest) {
   const token = request.nextUrl.searchParams.get('token')
@@ -12,15 +10,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const response = await fetch(`${BACKEND_URL}/api/auth/verify-email`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ token }),
-    })
-
-    const data = await response.json()
+    const data = await verifyEmail(token)
 
     if (data.success) {
       return NextResponse.redirect(new URL('/verify-email?verified=true', request.url))

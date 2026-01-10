@@ -1,5 +1,4 @@
 import { redirect } from 'next/navigation'
-import { getAccounts, getTransactions, getCustomCategories, getBudget } from '@/lib/api/api-service'
 import AnalyticsClient from './analytics-client'
 import { getServerSession } from '@/lib/api/get-server-session'
 
@@ -12,13 +11,7 @@ type PageProps = {
 export default async function AnalyticsPage({ params }: PageProps) {
   const { customerId } = await params
 
-  const [session, accounts, transactions, customCategories, budgetRes] = await Promise.all([
-    getServerSession(),
-    getAccounts(),
-    getTransactions(),
-    getCustomCategories(),
-    getBudget(),
-  ])
+  const session = await getServerSession()
 
   if (!session || session.user.customerId !== customerId) {
     redirect('/login')
@@ -27,11 +20,7 @@ export default async function AnalyticsPage({ params }: PageProps) {
   return (
     <AnalyticsClient
       customerId={customerId}
-      accounts={accounts}
-      transactions={transactions}
-      customCategories={customCategories || []}
       currency="NGN"
-      totalBudgetLimit={budgetRes?.totalBudgetLimit || 0}
     />
   )
 }

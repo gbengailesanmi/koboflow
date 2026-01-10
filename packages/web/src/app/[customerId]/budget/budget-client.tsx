@@ -7,6 +7,7 @@ import { usePageTitle } from '@/providers/header-footer-provider'
 import { PageLayout } from '@/app/components/page-layout/page-layout'
 import { BudgetSwitcher } from '@/app/components/budget/budget-switcher'
 import { useScrollRestoration } from '@/hooks/use-scroll-restoration'
+import { useTransactions, useCustomCategories, useBudgets } from '@/hooks/use-data'
 import type { EnrichedTransaction } from '@koboflow/shared'
 import type { CustomCategory } from '@/types/custom-category'
 import type { Budget, BudgetPeriod, BudgetPeriodType } from '@koboflow/shared'
@@ -35,30 +36,46 @@ type BudgetData = {
 
 type BudgetClientProps = {
   customerId: string
-  allBudgets: Budget[]
-  initialBudget: BudgetData
-  transactions: EnrichedTransaction[]
-  customCategories: CustomCategory[]
   currency: string
 }
 
 export default function BudgetClient({
   customerId,
-  allBudgets,
-  initialBudget,
-  transactions,
-  customCategories,
   currency
 }: BudgetClientProps) {
   const router = useRouter()
   const { setPageTitle } = usePageTitle()
 
+  const { data: transactions = [], isLoading: transactionsLoading } = useTransactions()
+  const { data: customCategories = [], isLoading: categoriesLoading } = useCustomCategories()
+  const { data: allBudgets = [], isLoading: budgetsLoading } = useBudgets()
+  
+  const isLoading = transactionsLoading || categoriesLoading || budgetsLoading
+
   useEffect(() => {
     setPageTitle('Budget', 'Set spending limits and track your progress')
   }, [])
 
-  // Restore scroll position when navigating back
   useScrollRestoration()
+
+  const activeBudget = allBudgets.find(b => b.isActive) || allBudgets[0] || null
+  
+  const initialBudget: BudgetData = useMemo(() => {
+    if (activeBudget) {
+      return {
+        _id: activeBudget._id,
+        name: activeBudget.name,
+        totalBudgetLimit: activeBudget.totalBudgetLimit,
+        period: activeBudget.period || { type: 'current-month' as const },
+        categories: activeBudget.categories || []
+      }
+    }
+    return {
+      totalBudgetLimit: 0,
+      period: { type: 'current-month' as const },
+      categories: []
+    }
+  }, [activeBudget])
 
   const budgetData = initialBudget
   const [isSaving, setIsSaving] = useState(false)
@@ -883,6 +900,16 @@ export default function BudgetClient({
       )}
     </>
   )
+
+  if (isLoading) {
+    return (
+      <PageLayout>
+        <div className={styles.loadingContainer}>
+          <Text>Loading budget...</Text>
+        </div>
+      </PageLayout>
+    )
+  }
 
   return (
     <Dialog.Root open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>

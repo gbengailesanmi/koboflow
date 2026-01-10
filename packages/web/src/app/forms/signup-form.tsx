@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { signIn } from 'next-auth/react'
+import { userSignupAction } from '@/app/actions/user.actions'
 
 export default function SignupForm() {
   const router = useRouter()
@@ -43,25 +44,14 @@ export default function SignupForm() {
     }
 
     try {
-      // ✅ BACKEND SIGNUP ONLY
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/signup`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        }
-      )
+      const result = await userSignupAction(payload)
 
-      const data = await res.json()
-
-      if (!res.ok) {
-        setError(data?.message || 'Signup failed')
+      if (!result.success) {
+        setError(result.message || 'Signup failed')
         setPending(false)
         return
       }
 
-      // ✅ DO NOT AUTO-LOGIN
       router.push('/verify-email')
     } catch (err: any) {
       setError(err.message || 'Signup failed')

@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { getServerSession } from '@/lib/api/get-server-session'
+import { getTransactions } from '@/lib/api/api-service'
 import { logger } from '@koboflow/shared'
-import { getCustomerDetails } from '@/lib/api/api-service'
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   const startTime = Date.now()
   
   try {
@@ -11,9 +11,8 @@ export async function GET(request: NextRequest) {
 
     if (!session?.user?.customerId) {
       logger.warn({ 
-        module: 'api-user-details',
-        duration: Date.now() - startTime,
-        session: session ? 'exists-no-customerId' : 'missing'
+        module: 'api-transactions',
+        duration: Date.now() - startTime
       }, 'Unauthorized - No session or customerId')
       
       return NextResponse.json(
@@ -22,22 +21,22 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const data = await getCustomerDetails(session.user.customerId)
+    const transactions = await getTransactions()
     
     logger.info({ 
-      module: 'api-user-details',
+      module: 'api-transactions',
       customerId: session.user.customerId,
       duration: Date.now() - startTime,
-      cached: data === undefined ? false : true
-    }, 'User details fetched successfully')
+      count: transactions.length
+    }, 'Transactions fetched successfully')
     
-    return NextResponse.json(data)
+    return NextResponse.json(transactions)
   } catch (error: any) {
     logger.error({ 
-      module: 'api-user-details', 
+      module: 'api-transactions', 
       err: error,
       duration: Date.now() - startTime
-    }, 'Failed to fetch user details')
+    }, 'Failed to fetch transactions')
     
     return NextResponse.json(
       { error: error.message || 'Internal server error' },

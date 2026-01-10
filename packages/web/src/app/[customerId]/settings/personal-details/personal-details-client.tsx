@@ -4,7 +4,7 @@ import useSWR from 'swr'
 import { useCallback, useEffect } from 'react'
 import { UserInfoCard } from '@/app/components/settings/user-info-card'
 import { usePageTitle } from '@/providers/header-footer-provider'
-import { staticSWR } from '@/lib/swr'
+import { cachedSWR } from '@/lib/swr'
 import type { CustomerDetailsFromMono } from '@koboflow/shared'
 import styles from './personal-details.module.css'
 
@@ -21,12 +21,22 @@ export default function PersonalDetailsClient({
     setPageTitle('Personal Details', 'Your personal information from bank verification')
   }, [])
 
-  const { data, error, isLoading } = useSWR<{ customerDetailsFromMono: CustomerDetailsFromMono }>(
+  const { data, error, isLoading, isValidating } = useSWR<{ customerDetailsFromMono: CustomerDetailsFromMono }>(
     '/api/user/details',
-    staticSWR
+    cachedSWR
   )
 
   const customerDetails = data?.customerDetailsFromMono
+
+  useEffect(() => {
+    if (data && !isValidating && !isLoading) {
+      console.log('✅ Fresh data loaded')
+    } else if (data && isValidating) {
+      console.log('🔄 Using cached data, fetching fresh data in background...')
+    } else if (isLoading) {
+      console.log('⏳ Loading data for first time...')
+    }
+  }, [data, isLoading, isValidating])
 
   const renderContent = () => {
     if (isLoading) {

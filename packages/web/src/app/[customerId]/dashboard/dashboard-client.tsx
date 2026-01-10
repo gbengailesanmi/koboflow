@@ -10,24 +10,21 @@ import { MonthlySummary } from '../../components/dashboard/monthly-summary'
 import TransactionsDisplay from '@/app/components/transactions/transactions-display'
 import { useQueryStateNullable } from '@/hooks/use-query-state'
 import { useScrollRestoration } from '@/hooks/use-scroll-restoration'
-import type { Account, EnrichedTransaction } from '@koboflow/shared'
 import { useDashboardBackground } from '@/hooks/use-dashboard-background'
+import { useAccounts, useTransactions } from '@/hooks/use-data'
 
 interface DashboardClientProps {
   customerId: string
-  accounts: Account[]
-  transactions: EnrichedTransaction[]
 }
 
-export default function DashboardClient({
-  customerId,
-  accounts,
-  transactions,
-}: DashboardClientProps) {
+export default function DashboardClient({ customerId }: DashboardClientProps) {
   const router = useRouter()
   const [hasNavigated, setHasNavigated] = useState(false)
   const [currentMonth, setCurrentMonth] = useState('')
   const [selectedAccountId, setSelectedAccountId] = useQueryStateNullable('accountId')
+  
+  const { data: accounts = [], isLoading: accountsLoading } = useAccounts()
+  const { data: transactions = [], isLoading: transactionsLoading } = useTransactions()
   
   useDashboardBackground(selectedAccountId)
   useScrollRestoration()
@@ -58,6 +55,8 @@ export default function DashboardClient({
     [filteredTransactions]
   )
 
+  const isLoading = accountsLoading || transactionsLoading
+
   return (
     <main className={`${styles.main} page-main`} data-dashboard>
       <Grid className={styles.accountsGrid}>
@@ -74,11 +73,15 @@ export default function DashboardClient({
         variant='default'
       >
         <>
-          {limitedTransactions.length < 1 ?
-          <p>No transactions yet</p> :
-          <div className={styles.transactionsListWrapper}>
-            <TransactionsDisplay transactions={limitedTransactions} />
-          </div>}
+          {isLoading ? (
+            <p>Loading...</p>
+          ) : limitedTransactions.length < 1 ? (
+            <p>No transactions yet</p>
+          ) : (
+            <div className={styles.transactionsListWrapper}>
+              <TransactionsDisplay transactions={limitedTransactions} />
+            </div>
+          )}
 
           <div
             className={`${styles.seeAll} cursor-pointer`}

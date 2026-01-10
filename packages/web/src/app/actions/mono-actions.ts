@@ -6,8 +6,6 @@ import {
   exchangeMonoToken,
   importMonoAccount,
   syncMonoTransactions,
-  getMonoAccountIdentity,
-  getCustomerDetailsFromMono,
 } from '@/lib/api/api-service'
 
 /**
@@ -70,25 +68,5 @@ export async function monoProcessConnectionAction(code: string) {
         message: 'Account linked successfully',
       }
     },
-  })
-}
-
-/**
- * Mono: Fetch account identity
- */
-export async function monoFetchAccountIdentityAction(accountId: string) {
-  return actionFactory({
-    actionName: 'mono.fetchAccountIdentity',
-    handler: () => getMonoAccountIdentity(accountId),
-  })
-}
-
-/**
- * Mono: Fetch customer details
- */
-export async function monoFetchCustomerDetailsAction() {
-  return actionFactory({
-    actionName: 'mono.fetchCustomerDetails',
-    handler: () => getCustomerDetailsFromMono(),
   })
 }

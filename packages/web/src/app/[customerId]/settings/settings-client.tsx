@@ -29,6 +29,7 @@ import {
 } from '@radix-ui/react-icons'
 import styles from './settings.module.css'
 import type { UserSettings } from '@koboflow/shared'
+import ActiveSessions from './active-sessions'
 
 type Theme = 'light' | 'dark' | 'system'
 
@@ -42,6 +43,7 @@ type ClickableSettingItem = SettingItemBase & {
   toggle?: never
   checked?: never
   onChange?: never
+  component?: never
   onClick: () => void
 }
 
@@ -49,10 +51,19 @@ type ToggleSettingItem = SettingItemBase & {
   toggle: true
   checked: boolean
   onChange: (checked: boolean) => void | Promise<void>
+  component?: never
   onClick?: never
 }
 
-type SettingItem = ClickableSettingItem | ToggleSettingItem
+type ComponentSettingItem = SettingItemBase & {
+  component: React.ReactNode
+  toggle?: never
+  checked?: never
+  onChange?: never
+  onClick?: never
+}
+
+type SettingItem = ClickableSettingItem | ToggleSettingItem | ComponentSettingItem
 
 type SettingsClientProps = {
   customerId: string
@@ -173,6 +184,12 @@ export default function SettingsClient({
           description: 'Enable biometric authentication',
           onClick: () => alert('Face ID functionality coming soon'),
         },
+        {
+          icon: <LockClosedIcon />,
+          label: 'Active Sessions',
+          description: 'Manage your logged-in devices',
+          component: <ActiveSessions />,
+        },
       ],
     },
     {
@@ -245,10 +262,22 @@ export default function SettingsClient({
               <Box className={styles.settingsCard}>
                 {section.items.map((item, itemIndex) => {
                   const isToggleItem = 'toggle' in item && item.toggle === true
+                  const isComponentItem = 'component' in item && item.component
                   
                   return (
                     <div key={itemIndex}>
-                      {isToggleItem ? (
+                      {isComponentItem ? (
+                        <Flex direction="column" gap="2" p="3">
+                          <Flex align="center" gap="3">
+                            <div className={styles.settingIcon}>{item.icon}</div>
+                            <Flex direction="column" gap="1">
+                              <Text size="3" weight="medium">{item.label}</Text>
+                              <Text size="2" color="gray">{item.description}</Text>
+                            </Flex>
+                          </Flex>
+                          {'component' in item && item.component}
+                        </Flex>
+                      ) : isToggleItem ? (
                         <Flex
                           justify="between"
                           align="center"
