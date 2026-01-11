@@ -9,13 +9,6 @@
 }
 
 .bottomSection {
-  @apply w-full rounded-2xl transition-all duration-300 ease-out flex-shrink-0;
-  background: var(--card-bg);
-  box-shadow: var(--card-shadow);
-  backdrop-filter: blur(10px);
+  @apply w-full rounded-2xl shrink-0;
   min-height: 200px;
-}
-
-.bottomSection:hover {
-  box-shadow: var(--card-shadow-hover);
 }

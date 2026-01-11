@@ -43,7 +43,7 @@ export default function SummaryCard({
           {subtitle && <div className={styles.subtitle}>{subtitle}</div>}
         </div>
         {vsContent && (
-          <div className={styles.bottomSection}>
+          <div className={styles.vsSection}>
             <div className={styles.vsAmount}>
               <TriangleDownIcon width={15} height={15} className={iconColor} />
               {vsContent.amount}

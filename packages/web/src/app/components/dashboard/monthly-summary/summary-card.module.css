@@ -1,25 +1,15 @@
 @reference "../../../globals.css";
 
 .card {
-  @apply rounded-2xl p-5 flex flex-col justify-between p-3 transition-all duration-300 ease-out;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
+  @apply rounded-2xl p-5 flex flex-col justify-between;
+  background: color-mix(in srgb, var(--dashboard-bottom-blend) 95%, white);
+  border: 0.2px solid transparent;
   aspect-ratio: 1;
   min-height: 120px;
 }
 
 .card:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-.card.clickable {
-  @apply cursor-pointer;
-}
-
-.card.clickable:hover {
-  @apply shadow-lg;
+  border: 0.2px solid var(--summary-card-border-color);
 }
 
 .content {
@@ -30,7 +20,7 @@
   @apply flex flex-col items-center gap-1;
 }
 
-.bottomSection {
+.vsSection {
   @apply flex flex-col items-stretch justify-center;
 }
 

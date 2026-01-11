@@ -12,6 +12,7 @@ import { useQueryStateNullable } from '@/hooks/use-query-state'
 import { useScrollRestoration } from '@/hooks/use-scroll-restoration'
 import { useDashboardBackground } from '@/hooks/use-dashboard-background'
 import { useAccounts, useTransactions } from '@/hooks/use-data'
+import { calculateMonthlySummary } from '@/helpers/monthly-summary.helper'
 
 interface DashboardClientProps {
   customerId: string
@@ -53,6 +54,11 @@ export default function DashboardClient({ customerId }: DashboardClientProps) {
   const limitedTransactions = useMemo(() => 
     filteredTransactions.slice(0, 5),
     [filteredTransactions]
+  )
+
+  const monthlySummary = useMemo(() => 
+    calculateMonthlySummary(transactions, selectedAccountId),
+    [transactions, selectedAccountId]
   )
 
   const isLoading = accountsLoading || transactionsLoading
@@ -99,10 +105,11 @@ export default function DashboardClient({ customerId }: DashboardClientProps) {
         variant='summary'
       >
         <MonthlySummary
-          totalSpend={0}
-          upcomingBills={[]}
-          totalReceived={0}
-          creditScore={0}
+          totalSpend={monthlySummary.totalSpend}
+          upcomingBills={monthlySummary.upcomingBills}
+          totalReceived={monthlySummary.totalReceived}
+          creditScore={monthlySummary.creditScore}
+          lastMonthSpend={monthlySummary.lastMonthSpend}
         />
       </Card>
 
