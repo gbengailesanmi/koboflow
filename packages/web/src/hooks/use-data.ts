@@ -24,19 +24,37 @@ interface ActiveSessionsResponse {
 }
 
 export function useAccounts() {
-  return useSWR<Account[]>(
+  const result = useSWR<Account[]>(
     '/api/accounts',
     fetcher,
     cachedSWR
   )
+  
+  console.log('[useAccounts] Hook result:', {
+    data: result.data ? `${result.data.length} accounts` : 'undefined',
+    isLoading: result.isLoading,
+    isValidating: result.isValidating,
+    error: result.error?.message
+  })
+  
+  return result
 }
 
 export function useTransactions() {
-  return useSWR<EnrichedTransaction[]>(
+  const result = useSWR<EnrichedTransaction[]>(
     '/api/transactions',
     fetcher,
     cachedSWR
   )
+  
+  console.log('[useTransactions] Hook result:', {
+    data: result.data ? `${result.data.length} transactions` : 'undefined',
+    isLoading: result.isLoading,
+    isValidating: result.isValidating,
+    error: result.error?.message
+  })
+  
+  return result
 }
 
 export function useCustomCategories() {

@@ -56,7 +56,7 @@ app.use(
 // -----------------------------------------------------------------------------
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-app.use(cookieParser()) // 👈 THIS WAS THE MISSING RUNTIME PIECE
+app.use(cookieParser())
 
 // -----------------------------------------------------------------------------
 // Request logging

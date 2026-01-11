@@ -89,17 +89,34 @@ async function parseResponse<T>(response: Response): Promise<T> {
  */
 export async function getAccounts(): Promise<Account[]> {
   try {
+    console.log('[getAccounts] Starting fetch from backend:', `${BACKEND_URL}/api/accounts`)
+    
     const response = await serverFetch(`${BACKEND_URL}/api/accounts`, {
       next: { tags: ['accounts'] },
     })
 
+    console.log('[getAccounts] Response status:', response.status, response.statusText)
+
     const data = await parseResponse<{ status: string; message: string; timestamp: string; data: any[] }>(response)
+    console.log('[getAccounts] Parsed data:', {
+      status: data.status,
+      dataIsArray: Array.isArray(data.data),
+      dataLength: data.data?.length,
+      firstItem: data.data?.[0]
+    })
+
     const accounts = Array.isArray(data.data)
       ? data.data.map((item: any) => item.account)
       : []
     
+    console.log('[getAccounts] Mapped accounts:', accounts.length, 'accounts')
     return accounts
   } catch (error: any) {
+    console.error('[getAccounts] ERROR:', {
+      message: error.message,
+      statusCode: error.statusCode,
+      response: error.response
+    })
     logger.error({ module: 'api-service', err: error }, 'getAccounts error')
     return []
   }
@@ -112,15 +129,31 @@ export async function getAccounts(): Promise<Account[]> {
  */
 export async function getTransactions(): Promise<EnrichedTransaction[]> {
   try {
+    console.log('[getTransactions] Starting fetch from backend:', `${BACKEND_URL}/api/transactions`)
+    
     const response = await serverFetch(`${BACKEND_URL}/api/transactions`, {
       next: { tags: ['transactions'] },
     })
 
+    console.log('[getTransactions] Response status:', response.status, response.statusText)
+
     const data = await parseResponse<{ status: string; message: string; timestamp: string; data: EnrichedTransaction[] }>(response)
+    console.log('[getTransactions] Parsed data:', {
+      status: data.status,
+      dataIsArray: Array.isArray(data.data),
+      dataLength: data.data?.length
+    })
+
     const transactions = data.data || []
     
+    console.log('[getTransactions] Final transactions:', transactions.length, 'transactions')
     return transactions
   } catch (error: any) {
+    console.error('[getTransactions] ERROR:', {
+      message: error.message,
+      statusCode: error.statusCode,
+      response: error.response
+    })
     logger.error({ module: 'api-service', err: error }, 'getTransactions error')
     return []
   }
@@ -134,13 +167,30 @@ export async function getTransactions(): Promise<EnrichedTransaction[]> {
  */
 export async function getBudgets(): Promise<Budget[]> {
   try {
+    console.log('[getBudgets] Starting fetch from backend:', `${BACKEND_URL}/api/budget/all`)
+    
     const response = await serverFetch(`${BACKEND_URL}/api/budget/all`, {
       next: { tags: ['budgets'] },
     })
 
+    console.log('[getBudgets] Response status:', response.status, response.statusText)
+
     const data = await parseResponse<{ success: boolean; budgets: Budget[] }>(response)
-    return data.budgets || []
+    console.log('[getBudgets] Parsed data:', {
+      success: data.success,
+      budgetsIsArray: Array.isArray(data.budgets),
+      budgetsLength: data.budgets?.length
+    })
+
+    const budgets = data.budgets || []
+    console.log('[getBudgets] Final budgets:', budgets.length, 'budgets')
+    return budgets
   } catch (error: any) {
+    console.error('[getBudgets] ERROR:', {
+      message: error.message,
+      statusCode: error.statusCode,
+      response: error.response
+    })
     logger.error({ module: 'api-service', err: error }, 'getBudgets error')
     return []
   }
