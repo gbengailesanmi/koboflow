@@ -14,6 +14,7 @@ export async function userSignupAction(data: {
   return actionFactory({
     actionName: 'user.signup',
     handler: () => signupUser(data),
+    requireAuth: false,
   })
 }
 
