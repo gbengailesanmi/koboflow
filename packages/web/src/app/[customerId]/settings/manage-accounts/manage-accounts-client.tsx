@@ -24,9 +24,7 @@ export default function ManageAccountsClient({
   const [deletingAccountId, setDeletingAccountId] = useState<string | null>(null)
 
   const { openMonoWidget, isLoading } = useMonoConnect({
-    onSuccess: () => {
-      router.refresh()
-    },
+    onSuccess: () => {},
     onError: (error) => {
       alert(error)
     },
@@ -46,7 +44,6 @@ export default function ManageAccountsClient({
     try {
       // TODO: Implement delete account action
       alert('Delete account functionality coming soon')
-      router.refresh()
     } catch (error) {
       alert('Failed to delete account')
     } finally {

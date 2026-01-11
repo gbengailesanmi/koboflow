@@ -4,7 +4,6 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth/authOptions'
 import { revokeSession, revokeAllSessions } from '@/lib/api/api-service'
 import { logger } from '@koboflow/shared'
-import { revalidatePath } from 'next/cache'
 
 /**
  * Logout current session
@@ -22,7 +21,6 @@ export async function logoutAction() {
     
     if (!sessionId) {
       logger.warn({ module: 'session-actions' }, 'No sessionId in session - skipping revocation')
-      // Still return success so logout can proceed client-side
       return { success: true }
     }
 
@@ -52,13 +50,12 @@ export async function revokeSessionAction(sessionId: string) {
     const session = await getServerSession(authOptions)
     
     if (!session?.user) {
-      return { success: false, error: 'Not authenticated' }
+      return { success: false, error: 'Not authenticated', __actionName: 'session.revoke' }
     }
 
     const result = await revokeSession(sessionId)
     
     if (result.success) {
-      revalidatePath('/[customerId]/settings/active-sessions', 'page')
       logger.info({ 
         module: 'session-actions', 
         customerId: session.user.customerId,
@@ -66,10 +63,13 @@ export async function revokeSessionAction(sessionId: string) {
       }, 'Session revoked')
     }
 
-    return result
+    return {
+      ...result,
+      __actionName: 'session.revoke',
+    }
   } catch (error) {
     logger.error({ module: 'session-actions', error, sessionId }, 'Revoke session error')
-    return { success: false, error: 'Failed to revoke session' }
+    return { success: false, error: 'Failed to revoke session', __actionName: 'session.revoke' }
   }
 }
 
@@ -82,13 +82,12 @@ export async function logoutAllDevicesAction() {
     const session = await getServerSession(authOptions)
     
     if (!session?.user) {
-      return { success: false, error: 'Not authenticated' }
+      return { success: false, error: 'Not authenticated', __actionName: 'session.logoutAll' }
     }
 
     const result = await revokeAllSessions()
     
     if (result.success) {
-      revalidatePath('/[customerId]/settings/active-sessions', 'page')
       logger.info({ 
         module: 'session-actions', 
         customerId: session.user.customerId,
@@ -96,9 +95,12 @@ export async function logoutAllDevicesAction() {
       }, 'All sessions revoked')
     }
 
-    return result
+    return {
+      ...result,
+      __actionName: 'session.logoutAll',
+    }
   } catch (error) {
     logger.error({ module: 'session-actions', error }, 'Logout all devices error')
-    return { success: false, error: 'Failed to logout all devices' }
+    return { success: false, error: 'Failed to logout all devices', __actionName: 'session.logoutAll' }
   }
 }

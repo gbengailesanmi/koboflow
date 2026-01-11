@@ -10,11 +10,16 @@ import type { CustomCategory } from '@koboflow/shared'
 
 export async function categoryCreateAction(
   data: { name: string; keywords: string[]; color?: string }
-): Promise<CustomCategory | null> {
+) {
   return actionFactory({
     actionName: 'category.create',
-    handler: () => createCustomCategory(data),
-    revalidatePaths: ['/[customerId]/settings'],
+    handler: async () => {
+      const category = await createCustomCategory(data)
+      return {
+        success: !!category,
+        data: category,
+      }
+    },
   })
 }
 
@@ -24,16 +29,20 @@ export async function categoryUpdateAction(
 ) {
   return actionFactory({
     actionName: 'category.update',
-    handler: () => updateCustomCategory(categoryId, updates),
-    revalidatePaths: ['/[customerId]/settings'],
+    handler: async () => {
+      const result = await updateCustomCategory(categoryId, updates)
+      return result
+    },
   })
 }
 
 export async function categoryDeleteAction(categoryId: string) {
   return actionFactory({
     actionName: 'category.delete',
-    handler: () => deleteCustomCategory(categoryId),
-    revalidatePaths: ['/[customerId]/settings'],
+    handler: async () => {
+      const result = await deleteCustomCategory(categoryId)
+      return result
+    },
   })
 }
   

@@ -26,7 +26,6 @@ export default function ReconnectAccountsClient({
     try {
       // TODO: Implement reconnect account action
       alert('Reconnect account functionality coming soon')
-      router.refresh()
     } catch (error) {
       alert('Failed to reconnect account')
     } finally {
@@ -46,7 +45,6 @@ export default function ReconnectAccountsClient({
     try {
       // TODO: Implement reconnect all accounts action
       alert('Reconnect all accounts functionality coming soon')
-      router.refresh()
     } catch (error) {
       alert('Failed to reconnect accounts')
     } finally {

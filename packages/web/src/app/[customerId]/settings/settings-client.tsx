@@ -8,6 +8,7 @@ import { settingsUpdateAction } from '@/app/actions/settings.actions'
 import { securityChangePINAction, securityChangePasswordAction } from '@/app/actions/security.actions'
 import { logoutAction } from '@/app/actions/session.actions'
 import { deleteUserAction } from '@/app/actions/user.actions'
+import { runAction } from '@/lib/actions/run-action'
 import { usePageTitle } from '@/providers/header-footer-provider'
 import { 
   Box,
@@ -101,7 +102,7 @@ export default function SettingsClient({
     setNextTheme(newTheme)
     
     try {
-      await settingsUpdateAction({
+      await runAction(settingsUpdateAction, {
         appearance: { theme: newTheme }
       } as Partial<UserSettings>)
     } catch (error) {
@@ -123,7 +124,7 @@ export default function SettingsClient({
 
     if (!confirmed) return
 
-    const result = await deleteUserAction()
+    const result = await runAction(deleteUserAction)
 
     if (result.success) {
       await signOut({ callbackUrl: '/login' })

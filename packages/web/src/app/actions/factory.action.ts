@@ -1,6 +1,6 @@
 'use server'
 
-import { revalidateTag, revalidatePath } from 'next/cache'
+import { revalidateTag } from 'next/cache'
 import { logger } from '@koboflow/shared'
 import { getServerSession } from '@/lib/api/get-server-session'
 
@@ -8,7 +8,6 @@ type ActionOptions<T> = {
   actionName: string
   handler: () => Promise<T>
   revalidate?: string[]
-  revalidatePaths?: string[]
   requireAuth?: boolean
 }
 
@@ -16,10 +15,11 @@ export async function actionFactory<T>({
   actionName,
   handler,
   revalidate = [],
-  revalidatePaths = [],
   requireAuth = true,
 }: ActionOptions<T>): Promise<T> {
   try {
+    let customerId: string | undefined
+
     if (requireAuth) {
       const session = await getServerSession()
       
@@ -30,6 +30,7 @@ export async function actionFactory<T>({
           message: 'Unauthorized',
         } as T
       }
+      customerId = session.user.customerId
     }
 
     const result: any = await handler()
@@ -38,15 +39,14 @@ export async function actionFactory<T>({
       revalidate.forEach(tag =>
         revalidateTag(tag, 'default')
       )
-      
-      revalidatePaths.forEach(path => {
-        revalidatePath(path, 'page')
-        logger.info({ actionName, path }, 'Revalidated path')
-      })
     }
 
     logger.info(`[ACTION: ${actionName}]`, result)
-    return result
+    
+    return {
+      ...result,
+      __actionName: actionName,
+    } as T
   } catch (error: any) {
     logger.error(`[ACTION: ${actionName}]`, error)
     return {

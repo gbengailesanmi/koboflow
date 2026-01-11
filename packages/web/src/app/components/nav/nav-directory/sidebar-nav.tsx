@@ -6,6 +6,7 @@ import { useTheme } from 'next-themes'
 import { ChevronRightIcon, HamburgerMenuIcon, Cross1Icon } from '@radix-ui/react-icons'
 import { Switch } from '@radix-ui/themes'
 import { settingsUpdateAction } from '@/app/actions/settings.actions'
+import { runAction } from '@/lib/actions/run-action'
 import type { UserSettings } from '@koboflow/shared'
 import styles from './sidebar-nav.module.css'
 
@@ -108,7 +109,7 @@ export default function Nav({ customerId }: NavProps) {
     setTheme(newTheme)
     
     try {
-      await settingsUpdateAction({
+      await runAction(settingsUpdateAction, {
         appearance: { theme: newTheme }
       } as Partial<UserSettings>)
     } catch (error) {

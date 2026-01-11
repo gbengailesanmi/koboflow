@@ -17,7 +17,6 @@ export async function securityChangePasswordAction(
     actionName: 'security.changePassword',
     handler: () =>
       changeUserPassword(currentPassword, newPassword, confirmPassword),
-    revalidatePaths: ['/[customerId]/settings'],
   })
 }
 
@@ -29,7 +28,6 @@ export async function securityChangePINAction(
   return actionFactory({
     actionName: 'security.changePIN',
     handler: () => changeUserPIN(oldPin, newPin, password),
-    revalidatePaths: ['/[customerId]/settings'],
   })
 }
 
@@ -37,7 +35,6 @@ export async function securitySetPINAction(pin: string, password: string) {
   return actionFactory({
     actionName: 'security.setPIN',
     handler: () => setUserPIN(pin, password),
-    revalidatePaths: ['/[customerId]/settings'],
   })
 }
 

@@ -6,6 +6,7 @@ import { Box, Flex, Text, IconButton, Switch } from '@radix-ui/themes'
 import { Cross2Icon, BellIcon } from '@radix-ui/react-icons'
 import type { UserSettings } from '@koboflow/shared'
 import { settingsUpdateAction } from '@/app/actions/settings.actions'
+import { runAction } from '@/lib/actions/run-action'
 import styles from './manage-notifications.module.css'
 
 type ManageNotificationsClientProps = {
@@ -58,15 +59,13 @@ export default function ManageNotificationsClient({
         },
       }
 
-      const result = await settingsUpdateAction(updates)
+      const result = await runAction(settingsUpdateAction, updates)
 
       if (!result.success) {
-        // Revert on failure
         setter(!value)
         alert(result.message || 'Failed to update notification settings')
       }
     } catch (error) {
-      // Revert on error
       setter(!value)
       alert('Failed to update notification settings')
     }

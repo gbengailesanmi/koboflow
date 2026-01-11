@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { userUpdateProfileAction } from '@/app/actions/user.actions'
+import { runAction } from '@/lib/actions/run-action'
 import { usePageTitle } from '@/providers/header-footer-provider'
 import { UserInfoCard } from '@/app/components/settings/user-info-card'
 import { 
@@ -64,19 +65,13 @@ export default function ProfileClient({
     setSavingProfile(true)
 
     try {
-      const result = await userUpdateProfileAction(customerId, {
+      await runAction(userUpdateProfileAction, customerId, {
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
         email: formData.email.trim(),
       })
 
-      if (!result.success) {
-        return
-      }
-
       setIsEditing(false)
-      
-      router.refresh()
 
     } catch (err: any) {
       // Error handled

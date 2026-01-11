@@ -30,18 +30,19 @@ export async function userUpdateProfileAction(
   return actionFactory({
     actionName: 'user.updateProfile',
     handler: () => updateUserProfile(customerId, updates),
-    revalidatePaths: updates.totalBudgetLimit !== undefined
-      ? ['/[customerId]/settings', '/[customerId]/budget']
-      : ['/[customerId]/settings'],
   })
 }
 
 
 export async function deleteUserAction() {
-  await logoutAllDevicesAction()
-  
-  return actionFactory({
+  const result = await actionFactory({
     actionName: 'delete.user',
     handler: () => deleteAccount(),
   })
+  
+  if (result.success) {
+    await logoutAllDevicesAction()
+  }
+  
+  return result
 }

@@ -3,6 +3,7 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { budgetUpdateAction, budgetCreateAction, budgetSetActiveAction, budgetDeleteAction } from '@/app/actions/budget.actions'
+import { runAction } from '@/lib/actions/run-action'
 import { usePageTitle } from '@/providers/header-footer-provider'
 import { PageLayout } from '@/app/components/page-layout/page-layout'
 import { BudgetSwitcher } from '@/app/components/budget/budget-switcher'
@@ -112,62 +113,49 @@ export default function BudgetClient({
 
     try {
       setIsSaving(true)
-      const result = await budgetUpdateAction(budgetData._id, {
+      await runAction(budgetUpdateAction, budgetData._id, {
         name: updates.name,
         totalBudgetLimit: updates.totalBudgetLimit,
         categories: updates.categories,
         period: updates.period
       })
-      
-      if (result.success) {
-        router.refresh()
-      }
     } catch (error) {
       // Error handled
     } finally {
       setIsSaving(false)
     }
-  }, [budgetData._id, router])
+  }, [budgetData._id])
 
   const handleSwitchBudget = useCallback(async (budgetId: string) => {
     try {
-      const result = await budgetSetActiveAction(budgetId)
-      if (result.success) {
-        router.refresh()
-      }
+      await runAction(budgetSetActiveAction, budgetId)
     } catch (error) {
       // Error handled
     }
-  }, [router])
+  }, [])
 
   const handleCreateBudget = useCallback(async (name: string) => {
     try {
-      const result = await budgetCreateAction(
+      await runAction(
+        budgetCreateAction,
         name,
-        0, // Default budget limit
-        [], // Empty categories
-        { type: 'current-month' }, // Default period
-        false // Don't set as active yet
+        0,
+        [],
+        { type: 'current-month' },
+        false
       )
-      
-      if (result.success) {
-        router.refresh()
-      }
     } catch (error) {
       // Error handled
     }
-  }, [router])
+  }, [])
 
   const handleDeleteBudget = useCallback(async (budgetId: string) => {
     try {
-      const result = await budgetDeleteAction(budgetId)
-      if (result.success) {
-        router.refresh()
-      }
+      await runAction(budgetDeleteAction, budgetId)
     } catch (error) {
       // Error handled
     }
-  }, [router])
+  }, [])
 
   const processedTransactions = useMemo(() => {
     return transactions.map((transaction) => {

@@ -21,7 +21,6 @@ export async function budgetCreateAction(
     actionName: 'budget.create',
     handler: () =>
       createNewBudget(name, totalBudgetLimit, categories, period, setAsActive),
-    revalidatePaths: ['/[customerId]/budget'],
   })
 }
 
@@ -37,7 +36,6 @@ export async function budgetUpdateAction(
   return actionFactory({
     actionName: 'budget.update',
     handler: () => updateBudgetById(budgetId, updates),
-    revalidatePaths: ['/[customerId]/budget'],
   })
 }
 
@@ -51,7 +49,6 @@ export async function budgetPatchAction(
   return actionFactory({
     actionName: 'budget.patch',
     handler: () => patchBudget(updates),
-    revalidatePaths: ['/[customerId]/budget'],
   })
 }
 
@@ -59,7 +56,6 @@ export async function budgetSetActiveAction(budgetId: string) {
   return actionFactory({
     actionName: 'budget.setActive',
     handler: () => setActiveBudget(budgetId),
-    revalidatePaths: ['/[customerId]/budget'],
   })
 }
 
@@ -67,6 +63,5 @@ export async function budgetDeleteAction(budgetId: string) {
   return actionFactory({
     actionName: 'budget.delete',
     handler: () => deleteBudgetById(budgetId),
-    revalidatePaths: ['/[customerId]/budget'],
   })
 }

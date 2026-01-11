@@ -4,6 +4,7 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { categoryCreateAction, categoryDeleteAction, categoryUpdateAction } from '@/app/actions/category.actions'
+import { runAction } from '@/lib/actions/run-action'
 import { usePageTitle } from '@/providers/header-footer-provider'
 import { PageLayout } from '@/app/components/page-layout/page-layout'
 import { categorizeTransaction, getCategoryConfig } from '@/app/components/analytics/utils'
@@ -74,38 +75,31 @@ export default function AnalyticsClient({
       const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316']
       const randomColor = colors[Math.floor(Math.random() * colors.length)]
       
-      await categoryCreateAction({ 
+      await runAction(categoryCreateAction, { 
         name, 
         keywords, 
         color: randomColor 
       })
-      
-      router.refresh()
     } catch (error) {
       // Error handled
     }
-  }, [router])
+  }, [])
 
   const handleDeleteCategory = useCallback(async (id: string) => {
     try {
-      await categoryDeleteAction(id)
-      router.refresh()
+      await runAction(categoryDeleteAction, id)
     } catch (error) {
       // Error handled
     }
-  }, [router])
+  }, [])
 
   const handleUpdateCategory = useCallback(async (id: string, updates: { name?: string; keywords?: string[]; color?: string }) => {
     try {
-      const result = await categoryUpdateAction(id, updates)
-      
-      if (result.success) {
-        router.refresh()
-      }
+      await runAction(categoryUpdateAction, id, updates)
     } catch (error) {
       // Error handled
     }
-  }, [router])
+  }, [])
 
   const handleNextChart = useCallback(() => {
     setCurrentChartIndex((prev) => (prev + 1) % 4) // Cycle through 0, 1, 2, 3

@@ -2,7 +2,7 @@
 
 import { useActiveSessions } from '@/hooks/use-data'
 import { revokeSessionAction, logoutAllDevicesAction } from '@/app/actions/session.actions'
-import { mutate } from 'swr'
+import { runAction } from '@/lib/actions/run-action'
 import { Box, Text, Flex, Button } from '@radix-ui/themes'
 import { LaptopIcon, MobileIcon, Cross2Icon } from '@radix-ui/react-icons'
 import { useState } from 'react'
@@ -51,11 +51,7 @@ export default function ActiveSessions() {
   const handleLogoutSession = async (sessionId: string) => {
     setLoadingSessionId(sessionId)
     
-    const result = await revokeSessionAction(sessionId)
-    
-    if (result.success) {
-      await mutate('/api/sessions/active')
-    }
+    await runAction(revokeSessionAction, sessionId)
     
     setLoadingSessionId(null)
   }
@@ -69,11 +65,7 @@ export default function ActiveSessions() {
 
     setIsLogoutAllLoading(true)
     
-    const result = await logoutAllDevicesAction()
-    
-    if (result.success) {
-      await mutate('/api/sessions/active')
-    }
+    await runAction(logoutAllDevicesAction)
     
     setIsLogoutAllLoading(false)
   }
@@ -87,6 +79,7 @@ export default function ActiveSessions() {
   }
 
   if (error || !data?.success) {
+    console.log('fvdfdf', error)
     return (
       <Box className={styles.settingsCard} p="4">
         <Text size="2" color="red">Failed to load sessions</Text>

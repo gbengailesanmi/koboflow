@@ -27,6 +27,8 @@ export type Settings = UserSettings
 
 const BACKEND_URL = config.NEXT_PUBLIC_BACKEND_URL
 
+// ETag cache (server-side only, resets on deploy)
+const etagCache = new Map<string, string>()
 
 export async function serverFetch(
   url: string,
@@ -43,8 +45,14 @@ export async function serverFetch(
   const path = urlObj.pathname
 
   const headers: Record<string, string> = {
-    ...(options.headers as Record<string, string> || {}),
     Cookie: cookieHeader,
+    ...(options.headers as Record<string, string> || {}),
+  }
+
+  // Send If-None-Match if we have cached ETag
+  const etag = etagCache.get(url)
+  if (etag) {
+    headers['If-None-Match'] = etag
   }
 
   const signedHeaders = addApiSignature({
@@ -54,11 +62,22 @@ export async function serverFetch(
     body: options.body,
   })
 
+  const requestHeaders: Record<string, string> = { ...signedHeaders }
+  if (options.body && typeof options.body === 'string') {
+    requestHeaders['Content-Type'] = 'application/json'
+  }
+
   const response = await fetch(url, {
     ...options,
-    headers: signedHeaders,
+    headers: requestHeaders,
     cache: options.cache ?? 'no-store',
   })
+
+  // Store new ETag for next request
+  const newETag = response.headers.get('ETag')
+  if (newETag) {
+    etagCache.set(url, newETag)
+  }
 
   return response
 }
@@ -67,6 +86,10 @@ export async function serverFetch(
  * Parse JSON response with error handling
  */
 async function parseResponse<T>(response: Response): Promise<T> {
+  if (response.status === 304) {
+    throw new Error('__NOT_MODIFIED__')
+  }
+
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({
       message: `HTTP ${response.status}: ${response.statusText}`,
@@ -81,6 +104,9 @@ async function parseResponse<T>(response: Response): Promise<T> {
   }
   return response.json()
 }
+
+// Cache for 304 responses
+let lastAccounts: Account[] | null = null
 
 /**
  * Get all accounts for current user
@@ -98,12 +124,19 @@ export async function getAccounts(): Promise<Account[]> {
       ? data.data.map((item: any) => item.account)
       : []
     
+    lastAccounts = accounts
     return accounts
   } catch (error: any) {
+    if (error.message === '__NOT_MODIFIED__' && lastAccounts) {
+      return lastAccounts
+    }
     logger.error({ module: 'api-service', err: error }, 'getAccounts error')
     return []
   }
 }
+
+// Cache for 304 responses
+let lastTransactions: EnrichedTransaction[] | null = null
 
 /**
  * Get all transactions for current user
@@ -119,8 +152,12 @@ export async function getTransactions(): Promise<EnrichedTransaction[]> {
     const data = await parseResponse<{ status: string; message: string; timestamp: string; data: EnrichedTransaction[] }>(response)
     const transactions = data.data || []
     
+    lastTransactions = transactions
     return transactions
   } catch (error: any) {
+    if (error.message === '__NOT_MODIFIED__' && lastTransactions) {
+      return lastTransactions
+    }
     logger.error({ module: 'api-service', err: error }, 'getTransactions error')
     return []
   }
@@ -760,6 +797,9 @@ export async function googleSignIn(
   }
 }
 
+// Cache for 304 responses
+let lastCustomerDetails: any = null
+
 /**
  * Get customer details (with masked BVN)
  * Used by user details API route
@@ -775,8 +815,12 @@ export async function getCustomerDetails(customerId: string): Promise<any> {
     )
 
     const data = await parseResponse(response)
+    lastCustomerDetails = data
     return data
   } catch (error: any) {
+    if (error.message === '__NOT_MODIFIED__' && lastCustomerDetails) {
+      return lastCustomerDetails
+    }
     logger.error({ module: 'api-service', customerId, err: error }, 'getCustomerDetails error')
     throw error
   }
