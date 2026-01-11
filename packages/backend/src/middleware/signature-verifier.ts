@@ -64,8 +64,9 @@ export async function verifySignature(
   res: Response,
   next: NextFunction
 ): Promise<void> {
-  // Use originalUrl to get the full path including mount points
-  // Parse to remove query string if present
+  if (req.method === 'GET') {
+    return next()
+  }
   const fullPath = req.originalUrl.split('?')[0]
   
   console.log('🔍 [Signature Verifier] Request received', {
