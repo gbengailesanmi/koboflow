@@ -4,7 +4,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth/authOptions'
 import { revokeSession, revokeAllSessions } from '@/lib/api/api-service'
 import { logger } from '@koboflow/shared'
-import { revalidateTag } from 'next/cache'
+import { revalidatePath } from 'next/cache'
 
 /**
  * Logout current session
@@ -58,7 +58,7 @@ export async function revokeSessionAction(sessionId: string) {
     const result = await revokeSession(sessionId)
     
     if (result.success) {
-      revalidateTag('sessions', 'default')
+      revalidatePath('/[customerId]/settings/active-sessions', 'page')
       logger.info({ 
         module: 'session-actions', 
         customerId: session.user.customerId,
@@ -88,7 +88,7 @@ export async function logoutAllDevicesAction() {
     const result = await revokeAllSessions()
     
     if (result.success) {
-      revalidateTag('sessions', 'default')
+      revalidatePath('/[customerId]/settings/active-sessions', 'page')
       logger.info({ 
         module: 'session-actions', 
         customerId: session.user.customerId,

@@ -10,6 +10,6 @@ export async function settingsUpdateAction(
   return actionFactory({
     actionName: 'settings.update',
     handler: () => updateSettings(settings),
-    revalidate: ['settings', 'session'],
+    revalidatePaths: ['/[customerId]/settings'],
   })
 }

@@ -14,7 +14,7 @@ export async function categoryCreateAction(
   return actionFactory({
     actionName: 'category.create',
     handler: () => createCustomCategory(data),
-    revalidate: ['categories'],
+    revalidatePaths: ['/[customerId]/settings'],
   })
 }
 
@@ -25,7 +25,7 @@ export async function categoryUpdateAction(
   return actionFactory({
     actionName: 'category.update',
     handler: () => updateCustomCategory(categoryId, updates),
-    revalidate: ['categories'],
+    revalidatePaths: ['/[customerId]/settings'],
   })
 }
 
@@ -33,7 +33,7 @@ export async function categoryDeleteAction(categoryId: string) {
   return actionFactory({
     actionName: 'category.delete',
     handler: () => deleteCustomCategory(categoryId),
-    revalidate: ['categories'],
+    revalidatePaths: ['/[customerId]/settings'],
   })
 }
   

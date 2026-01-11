@@ -14,7 +14,7 @@ import {
 export async function monoProcessConnectionAction(code: string) {
   return actionFactory({
     actionName: 'mono.processConnection',
-    revalidate: ['accounts', 'transactions', 'customer-details'],
+    revalidatePaths: ['/[customerId]/dashboard', '/[customerId]/transactions'],
     handler: async () => {
       const tokenResult = await exchangeMonoToken(code)
 

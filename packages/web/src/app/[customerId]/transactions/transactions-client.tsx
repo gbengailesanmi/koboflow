@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useMemo, useRef, useEffect } from 'react'
+import React, { useMemo, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import type { EnrichedTransaction, Account } from '@koboflow/shared'
 import { Dialog } from '@radix-ui/themes'
@@ -25,7 +25,6 @@ export default function TransactionsClient({
 }: TransactionsClientProps) {
   const router = useRouter()
 
-  // URL state for transaction selection, filters, and search
   const [selectedTransactionId, setSelectedTransactionId] = useQueryStateNullable('txnId')
   const [filterAccountId, setFilterAccountId] = useQueryState('accountId', '')
   const [searchQuery, setSearchQuery] = useQueryState('search', '')

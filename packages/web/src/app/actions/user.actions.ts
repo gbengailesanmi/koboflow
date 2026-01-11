@@ -30,21 +30,18 @@ export async function userUpdateProfileAction(
   return actionFactory({
     actionName: 'user.updateProfile',
     handler: () => updateUserProfile(customerId, updates),
-    revalidate:
-      updates.totalBudgetLimit !== undefined
-        ? ['session', 'budget', 'budgets']
-        : ['session'],
+    revalidatePaths: updates.totalBudgetLimit !== undefined
+      ? ['/[customerId]/settings', '/[customerId]/budget']
+      : ['/[customerId]/settings'],
   })
 }
 
 
 export async function deleteUserAction() {
-  // ✅ Revoke all sessions before account deletion
   await logoutAllDevicesAction()
   
   return actionFactory({
     actionName: 'delete.user',
     handler: () => deleteAccount(),
-    revalidate: [],
   })
 }
