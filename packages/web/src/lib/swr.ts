@@ -57,7 +57,7 @@ export const defaultSWR: SWRConfiguration = {
 export const cachedSWR: SWRConfiguration = {
   ...defaultSWR,
   revalidateIfStale: true,
-  revalidateOnMount: false,
+  revalidateOnMount: undefined,
   revalidateOnFocus: true,
   dedupingInterval: 5000,
   focusThrottleInterval: 60000,
