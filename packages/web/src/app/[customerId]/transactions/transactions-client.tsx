@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useMemo, useRef, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import type { EnrichedTransaction, Account } from '@koboflow/shared'
 import { Dialog } from '@radix-ui/themes'
 import styles from './transactions.module.css'
@@ -15,15 +14,7 @@ import { runAction } from '@/lib/actions/run-action'
 import { monoSyncTransactionsAction } from '@/app/actions/mono-actions'
 import { useAccounts, useTransactions } from '@/hooks/use-data'
 
-interface TransactionsClientProps {
-  customerId: string
-}
-
-export default function TransactionsClient({
-  customerId,
-}: TransactionsClientProps) {
-  const router = useRouter()
-
+export default function TransactionsClient() {
   const { data: accounts = [], isLoading: accountsLoading } = useAccounts()
   const { data: transactions = [], isLoading: transactionsLoading } = useTransactions()
 
@@ -112,7 +103,7 @@ export default function TransactionsClient({
       }}
     >
       <div className={`${styles.PageGrid}`}>
-          <div id="filters" className={styles.Filters}>
+          <div id='filters' className={styles.Filters}>
             <TransactionsFilters
               accounts={accounts}
               filterAccountId={filterAccountId}
@@ -129,7 +120,7 @@ export default function TransactionsClient({
             setSelectedMonth={setSelectedMonth}
           />
 
-          <div id="transaction-body" ref={transactionsWrapperRef} className={styles.TransactionsWrapper}>
+          <div id='transaction-body' ref={transactionsWrapperRef} className={styles.TransactionsWrapper}>
             {filteredTransactions.map(transaction => {
               return (
                 <div key={transaction.id} ref={(el) => { transactionRefs.current[transaction.id] = el }}>

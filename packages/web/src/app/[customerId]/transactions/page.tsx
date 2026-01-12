@@ -15,5 +15,5 @@ export default async function TransactionsPage({ params }: TransactionsPageProps
     redirect('/login')
   }
 
-  return <TransactionsClient customerId={customerId} />
+  return <TransactionsClient />
 }
