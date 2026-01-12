@@ -13,6 +13,7 @@ export const ACTION_CACHE_MAP: Record<string, string[]> = {
 
   // Mono Actions
   'mono.processConnection': ['/api/accounts', '/api/transactions'],
+  'mono.syncTransactions': ['/api/transactions'],
 
   // User Actions
   'user.signup': [],

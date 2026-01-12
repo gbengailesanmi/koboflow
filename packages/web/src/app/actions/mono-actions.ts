@@ -69,3 +69,43 @@ export async function monoProcessConnectionAction(code: string) {
     },
   })
 }
+
+export async function monoSyncTransactionsAction(
+  accountId: string,
+  options?: { start?: string; end?: string }
+) {
+  return actionFactory({
+    actionName: 'mono.syncTransactions',
+    handler: async () => {
+      logger.info({ module: 'mono-action', accountId, options }, 'Syncing transactions')
+
+      const result = await syncMonoTransactions(accountId, options)
+
+      if (!result.success) {
+        logger.error(
+          { module: 'mono-action', accountId, message: result.message },
+          'Transaction sync failed'
+        )
+        return {
+          success: false,
+          message: result.message || 'Failed to sync transactions',
+        }
+      }
+
+      logger.info(
+        {
+          module: 'mono-action',
+          accountId,
+          transactionsCount: result.transactionsCount,
+        },
+        'Transactions synced successfully'
+      )
+
+      return {
+        success: true,
+        transactionsCount: result.transactionsCount || 0,
+        message: `${result.transactionsCount || 0} transactions synced`,
+      }
+    },
+  })
+}

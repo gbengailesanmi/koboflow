@@ -11,6 +11,8 @@ import TransactionsDisplay from '@/app/components/transactions/transactions-disp
 import TransactionsFilters from '@/app/components/transactions/transactions-filters'
 import { useQueryState, useQueryStateNullable } from '@/hooks/use-query-state'
 import { useScrollRestoration } from '@/hooks/use-scroll-restoration'
+import { runAction } from '@/lib/actions/run-action'
+import { monoSyncTransactionsAction } from '@/app/actions/mono-actions'
 
 interface TransactionsClientProps {
   customerId: string
@@ -30,12 +32,36 @@ export default function TransactionsClient({
   const [searchQuery, setSearchQuery] = useQueryState('search', '')
   const [selectedMonth, setSelectedMonth] = useQueryStateNullable('month')
   
-  // Restore scroll position when navigating back
   useScrollRestoration()
   
   const selectedTransaction = selectedTransactionId 
     ? transactions.find(txn => txn.id === selectedTransactionId) || null
     : null
+
+  const handleRefresh = async () => {
+    const accountToSync = filterAccountId || accounts[0]?.id
+    
+    if (!accountToSync) {
+      console.error('No account available to sync')
+      return
+    }
+
+    const accountTransactions = transactions.filter(txn => txn.accountId === accountToSync)
+    
+    if (accountTransactions.length > 0) {
+      const sortedTransactions = [...accountTransactions].sort((a, b) => 
+        new Date(b.date).getTime() - new Date(a.date).getTime()
+      )
+      const mostRecentDate = new Date(sortedTransactions[0].date)
+      const startDate = mostRecentDate.toISOString().split('T')[0]
+      
+      await runAction(monoSyncTransactionsAction, accountToSync, {
+        start: startDate
+      })
+    } else {
+      await runAction(monoSyncTransactionsAction, accountToSync)
+    }
+  }
 
   const months = useMemo(() => {
     const monthSet = new Set<string>()
@@ -101,6 +127,7 @@ export default function TransactionsClient({
               setFilterAccountId={setFilterAccountId}
               searchTerm={searchQuery}
               setSearchTerm={setSearchQuery}
+              onRefresh={handleRefresh}
             />
           </div>
 

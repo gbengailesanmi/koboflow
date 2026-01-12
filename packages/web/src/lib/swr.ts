@@ -63,6 +63,20 @@ export const cachedSWR: SWRConfiguration = {
   focusThrottleInterval: 60000,
 }
 
+export const transactionsSWR: SWRConfiguration = {
+  fetcher,
+  use: [swrLogger],
+  revalidateOnMount: undefined,
+  revalidateOnFocus: false,
+  revalidateOnReconnect: true,
+  revalidateIfStale: true,
+  dedupingInterval: 120_000,
+  keepPreviousData: true,
+  refreshInterval: 300_000,
+  refreshWhenHidden: false,
+  refreshWhenOffline: false,
+}
+
 export const staticSWR: SWRConfiguration = {
   ...defaultSWR,
   revalidateOnReconnect: false,

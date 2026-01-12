@@ -22,7 +22,7 @@ export default function TransactionsDisplay({ transactions, narrationPopup = fal
     >
       <div className={styles.transactionsWrapper}>
         {transactions.map(transaction => {
-          const isDebit = Number(transaction.amount) < 0
+          const isDebit = transaction.type === 'debit'
           const Icon = isDebit ? UploadIcon : DownloadIcon
           const iconClass = `${styles.transactionIcon} ${isDebit ? styles.debitIcon : styles.creditIcon}`
 

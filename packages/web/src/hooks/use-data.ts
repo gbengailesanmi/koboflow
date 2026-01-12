@@ -1,7 +1,7 @@
 'use client'
 
 import useSWR from 'swr'
-import { cachedSWR, fetcher } from '@/lib/swr'
+import { cachedSWR, fetcher, transactionsSWR } from '@/lib/swr'
 import type { Account, EnrichedTransaction, CustomCategory, Budget } from '@koboflow/shared'
 
 interface BudgetResponse {
@@ -35,7 +35,7 @@ export function useTransactions() {
   return useSWR<EnrichedTransaction[]>(
     '/api/transactions',
     fetcher,
-    cachedSWR
+    transactionsSWR
   )
 }
 

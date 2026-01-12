@@ -1,8 +1,8 @@
 import type { Account } from '@koboflow/shared'
-import React from 'react'
+import React, { useState } from 'react'
 import styles from '@/app/components/transactions/transactions.module.css'
 import { DropdownMenu, Button, Grid } from '@radix-ui/themes'
-import { MagnifyingGlassIcon, ChevronDownIcon } from '@radix-ui/react-icons'
+import { MagnifyingGlassIcon, ChevronDownIcon, ReloadIcon } from '@radix-ui/react-icons'
 
 type TransactionsFiltersProps = {
   accounts: Account[]
@@ -10,6 +10,7 @@ type TransactionsFiltersProps = {
   setFilterAccountId: (id: string) => void
   searchTerm: string
   setSearchTerm: (term: string) => void
+  onRefresh?: () => Promise<void>
 }
 
 export default function TransactionsFilters({
@@ -18,9 +19,23 @@ export default function TransactionsFilters({
   setFilterAccountId,
   searchTerm,
   setSearchTerm,
+  onRefresh,
 }: TransactionsFiltersProps) {
+  const [isRefreshing, setIsRefreshing] = useState(false)
+
+  const handleRefresh = async () => {
+    if (!onRefresh || isRefreshing) return
+    
+    setIsRefreshing(true)
+    try {
+      await onRefresh()
+    } finally {
+      setIsRefreshing(false)
+    }
+  }
+
   return (
-    <Grid rows='1' columns='2' className={styles.GridWrapper}>
+    <Grid rows='1' columns='3' className={styles.GridWrapper}>
       <div className={styles.AccountsFilter}>
         <DropdownMenu.Root>
           <DropdownMenu.Trigger>
@@ -59,6 +74,20 @@ export default function TransactionsFilters({
           className={styles.SearchInput}
         />
       </div>
+
+      {onRefresh && (
+        <div className={styles.RefreshButtonWrapper}>
+          <Button
+            variant="soft"
+            color="gray"
+            radius="full"
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+          >
+            <ReloadIcon width="16" height="16" className={isRefreshing ? styles.spinning : ''} />
+          </Button>
+        </div>
+      )}
 
       </Grid>
   )

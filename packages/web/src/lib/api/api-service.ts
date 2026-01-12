@@ -145,7 +145,7 @@ let lastTransactions: EnrichedTransaction[] | null = null
  */
 export async function getTransactions(): Promise<EnrichedTransaction[]> {
   try {
-    const response = await serverFetch(`${BACKEND_URL}/api/transactions`, {
+    const response = await serverFetch(`${BACKEND_URL}/api/transactions?paginate=false`, {
       next: { tags: ['transactions'] },
     })
 
