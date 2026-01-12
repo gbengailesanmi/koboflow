@@ -36,6 +36,7 @@ export type MonoAccountResponse = {
   }
 }
 
+// Enriched Account stored in DB
 export type Account = MonoAccount & {
   customerId: string
   monoCustomerId?: string

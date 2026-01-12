@@ -52,17 +52,14 @@ async function insertTransactions(
     type: txn.type,
     balance: txn.balance,
     date: txn.date,
-
-
     category: txn.category ?? 'uncategorised',
-
     customerId,
     accountId,
     accountNumber: account.account_number,
     bankCode: account.institution.bank_code,
   }))
 
-
+  //add hash to each transaction
   const records: EnrichedTransaction[] = enrichedTransactions.map(txn => ({
     ...txn,
     hash: generateTransactionHash(txn),

@@ -40,14 +40,6 @@ export const MonoTransactionsResponseSchema = z.object({
   meta: MonoTransactionMetaSchema,
 })
 
-export const TransactionsResponseSchema = z.object({
-  status: z.string(),
-  message: z.string(),
-  timestamp: z.string(),
-  data: z.array(EnrichedTransactionSchema),
-  meta: MonoTransactionMetaSchema,
-})
-
 export const CreateTransactionSchema = EnrichedTransactionSchema.omit({ hash: true })
 
 export const UpdateTransactionSchema = EnrichedTransactionSchema.partial().required({ id: true })
