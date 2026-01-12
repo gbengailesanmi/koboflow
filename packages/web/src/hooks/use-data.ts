@@ -1,7 +1,7 @@
 'use client'
 
 import useSWR from 'swr'
-import { cachedSWR, fetcher, transactionsSWR } from '@/lib/swr'
+import { accountsSWR, actionDrivenSWR, activeSessionsSWR, fetcher, transactionsSWR } from '@/lib/swr'
 import type { Account, EnrichedTransaction, CustomCategory, Budget } from '@koboflow/shared'
 
 interface BudgetResponse {
@@ -27,7 +27,7 @@ export function useAccounts() {
   return useSWR<Account[]>(
     '/api/accounts',
     fetcher,
-    cachedSWR
+    accountsSWR
   )
 }
 
@@ -43,7 +43,7 @@ export function useCustomCategories() {
   return useSWR<CustomCategory[]>(
     '/api/categories/custom',
     fetcher,
-    cachedSWR
+    actionDrivenSWR
   )
 }
 
@@ -51,7 +51,7 @@ export function useBudgets() {
   return useSWR<Budget[]>(
     '/api/budget',
     fetcher,
-    cachedSWR
+    actionDrivenSWR
   )
 }
 
@@ -59,7 +59,7 @@ export function useBudget() {
   return useSWR<BudgetResponse>(
     '/api/budget/current',
     fetcher,
-    cachedSWR
+    actionDrivenSWR
   )
 }
 
@@ -67,6 +67,6 @@ export function useActiveSessions() {
   return useSWR<ActiveSessionsResponse>(
     '/api/sessions/active',
     fetcher,
-    cachedSWR
+    activeSessionsSWR
   )
 }

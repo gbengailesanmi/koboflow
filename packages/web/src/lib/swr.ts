@@ -48,15 +48,13 @@ export const swrLogger = (useSWRNext: any) => {
 export const defaultSWR: SWRConfiguration = {
   fetcher,
   use: [swrLogger],
-  revalidateOnFocus: false,
   revalidateOnReconnect: true,
-  dedupingInterval: 2000,
   keepPreviousData: true,
+  revalidateIfStale: true
 }
 
 export const cachedSWR: SWRConfiguration = {
   ...defaultSWR,
-  revalidateIfStale: true,
   revalidateOnMount: undefined,
   revalidateOnFocus: true,
   dedupingInterval: 5000,
@@ -64,27 +62,30 @@ export const cachedSWR: SWRConfiguration = {
 }
 
 export const transactionsSWR: SWRConfiguration = {
-  fetcher,
-  use: [swrLogger],
+  ...defaultSWR,
   revalidateOnMount: undefined,
-  revalidateOnFocus: false,
-  revalidateOnReconnect: true,
-  revalidateIfStale: true,
-  dedupingInterval: 120_000,
-  keepPreviousData: true,
+  revalidateOnFocus: true,
+  focusThrottleInterval: 60_000,
+  dedupingInterval: 10_000,
   refreshInterval: 300_000,
+
   refreshWhenHidden: false,
-  refreshWhenOffline: false,
+  refreshWhenOffline: false
 }
 
-export const staticSWR: SWRConfiguration = {
-  ...defaultSWR,
+export const accountsSWR: SWRConfiguration = {
+  ...cachedSWR,
+  revalidateOnFocus: false,
   revalidateOnReconnect: false,
-  revalidateIfStale: false,
+  refreshInterval: 0,
 }
 
-export const dynamicSWR: SWRConfiguration = {
-  ...defaultSWR,
-  refreshInterval: 10000,
-  revalidateOnReconnect: true,
+export const actionDrivenSWR: SWRConfiguration = {
+  ...cachedSWR,
+  refreshInterval: 0,
+}
+
+export const activeSessionsSWR: SWRConfiguration = {
+  ...cachedSWR,
+  refreshInterval: 15 * 60 * 1000,
 }
