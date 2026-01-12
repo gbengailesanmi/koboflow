@@ -11,7 +11,7 @@ import { verifySignature } from './middleware/signature-verifier'
 import { etagMiddleware } from './middleware/etag'
 
 // routes
-import { authRoutes } from './routes/auth'
+import { authRoutes } from './services/auth'
 import { budgetRoutes } from './routes/budget'
 import { transactionRoutes } from './routes/transactions'
 import { accountRoutes } from './routes/accounts'

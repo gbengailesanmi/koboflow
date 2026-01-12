@@ -146,11 +146,15 @@ monoRoutes.post('/sync-transactions/:accountId', requireAuth, async (req, res) =
 
     const monoTransactions = await fetchAllTransactions(accountId, options)
 
-    if (!monoTransactions.length) {
-      return res.json({ success: true, transactionsCount: 0 })
+    if (monoTransactions.length > 0) {
+      await bulkInsertTransactions(monoTransactions, customerId!, accountId, connectDB)
     }
 
-    await bulkInsertTransactions(monoTransactions, customerId!, accountId, connectDB)
+    const db = await connectDB()
+    await db.collection('accounts').updateOne(
+      { id: accountId, customerId },
+      { $set: { lastRefreshed: new Date() } }
+    )
 
     res.json({
       success: true,

@@ -41,7 +41,6 @@ async function insertAccounts(accounts: any[], customerId: string, connectDB: an
             name: record.name,
             currency: record.currency,
             type: record.type,
-            // Keep new Mono session info
             monoCustomerId: record.monoCustomerId,
           },
           $setOnInsert: {

@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { requireAuth } from '../middleware/middleware'
 import { connectDB } from '../db/mongo'
-import { logger } from '@koboflow/shared'
+import { logger, EnrichedTransaction } from '@koboflow/shared'
 
 export const transactionRoutes = Router()
 
@@ -25,7 +25,7 @@ transactionRoutes.get('/', requireAuth, async (req, res) => {
     }
     
     const db = await connectDB()
-    const txnCollection = db.collection('transactions')
+    const txnCollection = db.collection<EnrichedTransaction>('transactions')
 
     const {
       start,
@@ -84,21 +84,6 @@ transactionRoutes.get('/', requireAuth, async (req, res) => {
         .toArray()
     }
 
-    const data = transactions.map((txn: any) => ({
-      id: txn.id,
-      narration: txn.narration,
-      amount: txn.amount,
-      type: txn.type,
-      balance: txn.balance,
-      date: txn.date,
-      category: txn.category,
-      accountId: txn.accountId,
-      customerId: txn.customerId,
-      accountNumber: txn.accountNumber,
-      bankCode: txn.bankCode,
-      hash: txn.hash,
-    }))
-
     const totalPages = shouldPaginate ? Math.ceil(total / limitNum) : 1
     const hasNext = shouldPaginate && pageNum < totalPages
     const hasPrevious = shouldPaginate && pageNum > 1
@@ -122,7 +107,7 @@ transactionRoutes.get('/', requireAuth, async (req, res) => {
       status: 'successful',
       message: 'Transaction retrieved successfully',
       timestamp: new Date().toISOString(),
-      data,
+      data: transactions,
       meta: {
         total,
         page: pageNum,

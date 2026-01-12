@@ -13,19 +13,19 @@ import { useQueryState, useQueryStateNullable } from '@/hooks/use-query-state'
 import { useScrollRestoration } from '@/hooks/use-scroll-restoration'
 import { runAction } from '@/lib/actions/run-action'
 import { monoSyncTransactionsAction } from '@/app/actions/mono-actions'
+import { useAccounts, useTransactions } from '@/hooks/use-data'
 
 interface TransactionsClientProps {
   customerId: string
-  accounts: Account[]
-  transactions: EnrichedTransaction[]
 }
 
 export default function TransactionsClient({
   customerId,
-  accounts,
-  transactions,
 }: TransactionsClientProps) {
   const router = useRouter()
+
+  const { data: accounts = [], isLoading: accountsLoading } = useAccounts()
+  const { data: transactions = [], isLoading: transactionsLoading } = useTransactions()
 
   const [selectedTransactionId, setSelectedTransactionId] = useQueryStateNullable('txnId')
   const [filterAccountId, setFilterAccountId] = useQueryState('accountId', '')
@@ -39,27 +39,19 @@ export default function TransactionsClient({
     : null
 
   const handleRefresh = async () => {
-    const accountToSync = filterAccountId || accounts[0]?.id
-    
-    if (!accountToSync) {
-      console.error('No account available to sync')
-      return
-    }
+    if (accounts.length === 0) return
 
-    const accountTransactions = transactions.filter(txn => txn.accountId === accountToSync)
-    
-    if (accountTransactions.length > 0) {
-      const sortedTransactions = [...accountTransactions].sort((a, b) => 
-        new Date(b.date).getTime() - new Date(a.date).getTime()
-      )
-      const mostRecentDate = new Date(sortedTransactions[0].date)
-      const startDate = mostRecentDate.toISOString().split('T')[0]
+    for (const account of accounts) {
+      const accountTransactions = transactions.filter(txn => txn.accountId === account.id)
       
-      await runAction(monoSyncTransactionsAction, accountToSync, {
-        start: startDate
-      })
-    } else {
-      await runAction(monoSyncTransactionsAction, accountToSync)
+      const options = accountTransactions.length > 0 && account.lastRefreshed
+        ? { 
+            start: new Date(account.lastRefreshed).toISOString(),
+            end: new Date().toISOString()
+          }
+        : undefined
+      
+      await runAction(monoSyncTransactionsAction, account.id, options)
     }
   }
 

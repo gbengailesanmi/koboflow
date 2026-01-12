@@ -120,9 +120,7 @@ export async function getAccounts(): Promise<Account[]> {
     })
 
     const data = await parseResponse<{ status: string; message: string; timestamp: string; data: any[] }>(response)
-    const accounts = Array.isArray(data.data)
-      ? data.data.map((item: any) => item.account)
-      : []
+    const accounts = Array.isArray(data.data) ? data.data : []
     
     lastAccounts = accounts
     return accounts
