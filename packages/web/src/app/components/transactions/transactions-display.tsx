@@ -20,7 +20,7 @@ export default function TransactionsDisplay({ transactions, narrationPopup = fal
         if (!open) setSelectedTransaction(null)
       }}
     >
-      <div className={styles.transactionsWrapper}>
+      <div className={styles.transactionsDisplayWrapper}>
         {transactions.map(transaction => {
           const isDebit = transaction.type === 'debit'
           const Icon = isDebit ? UploadIcon : DownloadIcon

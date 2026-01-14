@@ -35,7 +35,7 @@ export default function TransactionsFilters({
   }
 
   return (
-    <Grid rows='1' columns='3' className={styles.GridWrapper}>
+    <Grid rows='1' columns='3' className={styles.transactionsFiltersWrapper}>
       <div className={styles.AccountsFilter}>
         <DropdownMenu.Root>
           <DropdownMenu.Trigger>

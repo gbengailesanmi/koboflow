@@ -46,7 +46,7 @@ export default function MonthlySummary({
 
   return (
     <div className={styles.summaryContainer}>
-      <div className={styles.cardsGrid}>
+      <div className={styles.summaryGrid}>
         <SummaryCard
           title="Total Spend"
           value={`£${totalSpend.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}

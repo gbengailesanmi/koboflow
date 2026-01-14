@@ -38,14 +38,14 @@ export default function SummaryCard({
     >
       <div className={styles.content}>
         <div className={styles.topSection}>
-          <p className={styles.title}>{title}</p>
+          <h4 className={styles.title}>{title}</h4>
           <p className={styles.value}>{value}</p>
           {subtitle && <div className={styles.subtitle}>{subtitle}</div>}
         </div>
         {vsContent && (
           <div className={styles.vsSection}>
             <div className={styles.vsAmount}>
-              <TriangleDownIcon width={15} height={15} className={iconColor} />
+              <TriangleDownIcon width={20} height={20} className={iconColor} />
               {vsContent.amount}
             </div>
             <div className={styles.vsLastMonth}>vs {vsContent.lastMonth}</div>

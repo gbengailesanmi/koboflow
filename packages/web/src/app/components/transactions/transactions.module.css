@@ -1,30 +1,30 @@
 @reference "../../globals.css";
 
-.GridWrapper {
-  @apply w-full gap-1 justify-between flex items-center;
+.transactionsFiltersWrapper {
+  @apply w-full gap-1 justify-between flex items-center px-2;
 }
 .AccountsFilter {
-  @apply p-1 flex-shrink-0 max-w-[16rem] w-full;
+  @apply p-1 shrink-0 max-w-[16rem] w-full;
 }
 
 .SearchInput {
-  @apply border-0 outline-0 bg-transparent text-white flex-grow min-w-0;
+  @apply border-0 outline-0 bg-transparent text-white grow min-w-0;
 }
 
 .SearchInputWrapper {
-  @apply p-1 flex flex-row items-center gap-3 bg-gray-600 rounded-2xl flex-grow min-w-0;
+  @apply p-1 flex flex-row items-center gap-3 bg-gray-600 rounded-2xl grow min-w-0;
 }
 
 .MagnifyIconWrapper {
-  @apply flex-shrink-0;
+  @apply shrink-0;
 }
 
 .DropdownIconWrapper {
-  @apply flex-shrink-0;
+  @apply shrink-0;
 }
 
-.transactionsWrapper {
-  @apply w-full h-[100%] flex flex-col;
+.transactionsDisplayWrapper {
+  @apply w-full h-full flex flex-col;
 }
 
 .item {
@@ -66,8 +66,8 @@
   color: var(--green-11);
 }
 
-.MonthsScrollArea {
-  @apply mt-2 sticky overflow-x-auto whitespace-nowrap mb-4;
+.monthsScrollDiv {
+  @apply pt-2 overflow-x-auto whitespace-nowrap px-2;
 }
 
 .MonthButtonSelected {

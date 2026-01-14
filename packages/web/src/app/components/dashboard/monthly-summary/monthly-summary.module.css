@@ -4,11 +4,15 @@
   @apply flex flex-col gap-4 mx-3;
 }
 
-.cardsGrid {
+.summaryGrid {
   @apply grid grid-cols-2 gap-4 lg:grid-cols-4;
 }
 
 .bottomSection {
-  @apply w-full rounded-2xl shrink-0;
-  min-height: 200px;
+  @apply w-full rounded-2xl shrink-0 min-h-40 border-transparent border-[0.2px];
+  background: color-mix(in srgb, var(--dashboard-bottom-blend) 95%, rgb(103, 102, 102));
+}
+
+.bottomSection:hover {
+  border: 0.2px solid var(--summary-card-border-color);
 }

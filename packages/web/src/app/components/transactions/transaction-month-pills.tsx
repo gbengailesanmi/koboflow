@@ -17,7 +17,7 @@ export default function TransactionMonthPills({
   return (
     <ScrollArea
       type="auto"
-      className={styles.MonthsScrollArea}
+      className={styles.monthsScrollDiv}
     >
       {months.map(month => {
         const isSelected = month === selectedMonth

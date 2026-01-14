@@ -1,11 +1,8 @@
 @reference "../../../globals.css";
 
 .card {
-  @apply rounded-2xl p-5 flex flex-col justify-between;
-  background: color-mix(in srgb, var(--dashboard-bottom-blend) 95%, white);
-  border: 0.2px solid transparent;
-  aspect-ratio: 1;
-  min-height: 120px;
+  @apply rounded-2xl p-5 flex flex-col min-h-30 justify-between aspect-square border-transparent border-[0.2px];
+  background: color-mix(in srgb, var(--dashboard-bottom-blend) 95%, rgb(103, 102, 102));
 }
 
 .card:hover {
