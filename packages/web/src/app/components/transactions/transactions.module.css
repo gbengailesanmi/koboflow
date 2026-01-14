@@ -68,16 +68,22 @@
 
 .monthsScrollDiv {
   @apply pt-2 overflow-x-auto whitespace-nowrap px-2;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
-.MonthButtonSelected {
-  @apply inline-block cursor-pointer select-none rounded-lg ml-4 mr-4 px-6 py-1 bg-[rgba(74,85,101,1)];
-}
+.monthButton {
+  @apply inline-block cursor-pointer select-none rounded-lg transition-all duration-300 ease-in-out;
 
-.MonthButtonUnselected {
-  @apply inline-block cursor-pointer select-none rounded-lg ml-1 mr-1 px-2 py-0 md:py-1 bg-[rgba(33,34,37,1)];
-}
+  &.selected {
+    @apply mx-2 px-6 py-1 bg-[rgba(74,85,101,1)];
+  }
 
-.MonthButtonUnselected:hover {
-  @apply bg-[#562828];
+  &.unselected {
+    @apply mx-0.5 px-2 py-0 md:py-1 bg-[rgba(33,34,37,1)];
+  }
 }

@@ -15,10 +15,7 @@ export default function TransactionMonthPills({
   const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
   return (
-    <ScrollArea
-      type="auto"
-      className={styles.monthsScrollDiv}
-    >
+    <div className={styles.monthsScrollDiv}>
       {months.map(month => {
         const isSelected = month === selectedMonth
         let displayMonth = month
@@ -36,13 +33,13 @@ export default function TransactionMonthPills({
             key={month}
             data-month={month}
             onClick={() => setSelectedMonth(isSelected ? null : month)}
-            className={isSelected ? styles.MonthButtonSelected : styles.MonthButtonUnselected}
+            className={`${styles.monthButton} ${isSelected ? styles.selected : styles.unselected}`}
             type="button"
           >
             <span className='text-xs md:text-sm'>{displayMonth}</span>
           </button>
         )
       })}
-    </ScrollArea>
+    </div>
   )
 }

@@ -102,7 +102,7 @@ export default function TransactionsClient() {
         if (!open) setSelectedTransactionId(null) 
       }}
     >
-      <div className={`${styles.PageGrid}`}>
+      <div className={`${styles.PageGrid} page-main`}>
           <div id='filters' className={styles.Filters}>
             <TransactionsFilters
               accounts={accounts}
