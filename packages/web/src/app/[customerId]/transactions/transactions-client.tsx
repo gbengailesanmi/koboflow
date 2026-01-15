@@ -13,6 +13,7 @@ import { useScrollRestoration } from '@/hooks/use-scroll-restoration'
 import { runAction } from '@/lib/actions/run-action'
 import { monoSyncTransactionsAction } from '@/app/actions/mono-actions'
 import { useAccounts, useTransactions } from '@/hooks/use-data'
+import { extractMonthsFromTransactions, groupTransactionsByMonth } from '@/helpers/transactions.helpers'
 
 export default function TransactionsClient() {
   const { data: accounts = [], isLoading: accountsLoading } = useAccounts()
@@ -20,8 +21,14 @@ export default function TransactionsClient() {
 
   const [selectedTransactionId, setSelectedTransactionId] = useQueryStateNullable('txnId')
   const [filterAccountId, setFilterAccountId] = useQueryState('accountId', '')
+  const [filterTypeRaw, setFilterTypeRaw] = useQueryState('type', 'all')
+  const [dateFrom, setDateFrom] = useQueryState('from', '')
+  const [dateTo, setDateTo] = useQueryState('to', '')
   const [searchQuery, setSearchQuery] = useQueryState('search', '')
   const [selectedMonth, setSelectedMonth] = useQueryStateNullable('month')
+  
+  const filterType = (filterTypeRaw === 'debit' || filterTypeRaw === 'credit' ? filterTypeRaw : 'all') as 'all' | 'debit' | 'credit'
+  const setFilterType = (type: 'all' | 'debit' | 'credit') => setFilterTypeRaw(type)
   
   useScrollRestoration()
   
@@ -46,33 +53,29 @@ export default function TransactionsClient() {
     }
   }
 
-  const months = useMemo(() => {
-    const monthSet = new Set<string>()
-    transactions.forEach(txn => {
-      const newDate = new Date(txn.date)
-      const newMonth = newDate.toISOString().slice(0, 7)
-      monthSet.add(newMonth)
-    })
-    return Array.from(monthSet).sort((a, b) => b.localeCompare(a))
-  }, [transactions])
+  const months = useMemo(() => extractMonthsFromTransactions(transactions), [transactions])
 
   const filteredTransactions = useMemo(() => {
     return transactions.filter(txn => {
       const matchesAccount = !filterAccountId || txn.accountId === filterAccountId
       const matchesSearch = txn.narration.toLowerCase().includes(searchQuery.toLowerCase())
-      return matchesAccount && matchesSearch
+      const matchesType = filterType === 'all' || txn.type === filterType
+      
+      let matchesDateRange = true
+      if (dateFrom || dateTo) {
+        const txnDate = new Date(txn.date)
+        if (dateFrom && txnDate < new Date(dateFrom)) matchesDateRange = false
+        if (dateTo && txnDate > new Date(dateTo)) matchesDateRange = false
+      }
+      
+      return matchesAccount && matchesSearch && matchesType && matchesDateRange
     })
-  }, [filterAccountId, searchQuery, transactions])
+  }, [filterAccountId, searchQuery, filterType, dateFrom, dateTo, transactions])
 
-  const transactionsByMonth = useMemo(() => {
-    const map = new Map<string, string[]>()
-    filteredTransactions.forEach(txn => {
-      const month = new Date(txn.date).toISOString().slice(0, 7)
-      if (!map.has(month)) map.set(month, [])
-      map.get(month)!.push(txn.id)
-    })
-    return map
-  }, [filteredTransactions])
+  const transactionsByMonth = useMemo(() => 
+    groupTransactionsByMonth(filteredTransactions),
+    [filteredTransactions]
+  )
 
   const transactionRefs = useRef<Record<string, HTMLDivElement | null>>({})
   const transactionsWrapperRef = useRef<HTMLDivElement>(null)
@@ -108,6 +111,12 @@ export default function TransactionsClient() {
               accounts={accounts}
               filterAccountId={filterAccountId}
               setFilterAccountId={setFilterAccountId}
+              filterType={filterType}
+              setFilterType={setFilterType}
+              dateFrom={dateFrom}
+              setDateFrom={setDateFrom}
+              dateTo={dateTo}
+              setDateTo={setDateTo}
               searchTerm={searchQuery}
               setSearchTerm={setSearchQuery}
               onRefresh={handleRefresh}

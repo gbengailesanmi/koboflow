@@ -14,6 +14,9 @@ body {
 
 .radix-themes {
   --default-font-family: var(--font-open-sans);
+  
+  --debit-icon: var(--red-11);
+  --credit-icon: var(--green-11);
 }
 
 /* Reusable layout */

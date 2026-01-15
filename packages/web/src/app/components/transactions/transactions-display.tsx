@@ -5,6 +5,13 @@ import { Box, Card, Flex, Text, Dialog } from '@radix-ui/themes'
 import { Cross1Icon, DownloadIcon, UploadIcon } from '@radix-ui/react-icons'
 import styles from '@/app/components/transactions/transactions.module.css'
 import { useState } from 'react'
+import { 
+  isDebitTransaction, 
+  getTransactionTypeLabel, 
+  formatDateToISO, 
+  formatCurrency,
+  formatDateToLocale 
+} from '@/helpers/transactions.helpers'
 
 type TransactionColumnProps = {
   transactions: EnrichedTransaction[]
@@ -20,11 +27,10 @@ export default function TransactionsDisplay({ transactions, narrationPopup = fal
         if (!open) setSelectedTransaction(null)
       }}
     >
-      <div className={styles.transactionsDisplayWrapper}>
+      <main className={styles.body}>
         {transactions.map(transaction => {
-          const isDebit = transaction.type === 'debit'
+          const isDebit = isDebitTransaction(transaction.type)
           const Icon = isDebit ? UploadIcon : DownloadIcon
-          const iconClass = `${styles.transactionIcon} ${isDebit ? styles.debitIcon : styles.creditIcon}`
 
           return (
             <div key={transaction.id}>
@@ -32,20 +38,20 @@ export default function TransactionsDisplay({ transactions, narrationPopup = fal
                 <Box className={styles.item}>
                   <Card>
                     <Flex gap='3' align='center'>
-                      <Icon className={iconClass} />
+                      <Icon className={isDebit ? styles.debit : styles.credit} />
                       <div className={styles.text}>
                         <Text as='div' size='1'>
                           <span>
-                            {isDebit ? 'Debit' : 'Credit'}<br />
+                            {getTransactionTypeLabel(transaction.type)}<br />
                             <p className={styles.narration}>{transaction.narration}</p>
-                            {new Date(transaction.date).toISOString().slice(0, 10)}
+                            {formatDateToISO(transaction.date)}
                           </span>
                         </Text>
                       </div>
 
                       <div className={styles.amount}>
-                        <Text as='div' className='text-sm'>
-                          {Number(transaction.amount).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        <Text as='div'>
+                          {formatCurrency(transaction.amount)}
                         </Text>
                       </div>
                     </Flex>
@@ -55,7 +61,7 @@ export default function TransactionsDisplay({ transactions, narrationPopup = fal
             </div>
           )
         })}
-      </div>
+      </main>
 
       {narrationPopup && selectedTransaction && (
         <Dialog.Content>
@@ -68,7 +74,7 @@ export default function TransactionsDisplay({ transactions, narrationPopup = fal
           <Box>
             <Text><strong>Amount:</strong> {selectedTransaction.amount}</Text><br />
             <Text><strong>Narration:</strong> {selectedTransaction.narration}</Text><br />
-            <Text><strong>Date:</strong> {new Date(selectedTransaction.date).toLocaleString()}</Text>
+            <Text><strong>Date:</strong> {formatDateToLocale(selectedTransaction.date)}</Text>
           </Box>
         </Dialog.Content>
       )}

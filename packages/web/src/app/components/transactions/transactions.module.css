@@ -1,34 +1,55 @@
 @reference "../../globals.css";
 
-.transactionsFiltersWrapper {
-  @apply w-full gap-1 justify-between flex items-center px-2;
-}
-.AccountsFilter {
-  @apply p-1 shrink-0 max-w-[16rem] w-full;
+.filters {
+  @apply w-full flex items-center justify-between gap-1 px-2 max-w-[100vw] overflow-x-hidden;
 }
 
-.SearchInput {
-  @apply border-0 outline-0 bg-transparent text-white grow min-w-0;
+.filters .accounts {
+  @apply h-full max-w-[16rem] shrink-0;
 }
 
-.SearchInputWrapper {
-  @apply p-1 flex flex-row items-center gap-3 bg-gray-600 rounded-2xl grow min-w-0;
+.filters .dateRange {
+  @apply flex items-center gap-2;
+
+  input {
+    @apply px-3 py-1 rounded-lg outline-0 text-sm;
+    background: var(--search-bg);
+    color: var(--search-input);
+  }
+
+  svg {
+    @apply w-4 h-4;
+  }
 }
 
-.MagnifyIconWrapper {
-  @apply shrink-0;
+.filters .search {
+  @apply h-full grow rounded-3xl outline-0;
+  background: var(--search-bg);
+
+  input {
+    @apply outline-0 w-full;
+    color: var(--search-input);
+  }
 }
 
-.DropdownIconWrapper {
-  @apply shrink-0;
-}
-
-.transactionsDisplayWrapper {
+.body {
   @apply w-full h-full flex flex-col;
 }
 
 .item {
-  @apply mb-2 cursor-pointer;
+  @apply cursor-pointer;
+
+  svg {
+    @apply w-4 h-4;
+
+    &.debit {
+      color: var(--debit-icon);
+    }
+
+    &.credit {
+      color: var(--credit-icon);
+    }
+  }
 }
 
 .text {
@@ -40,50 +61,27 @@
 }
 
 .amount {
-  @apply flex items-center justify-end flex-1;
+  @apply flex flex-1 items-center justify-end text-xs font-normal;
 }
 
-.debit {
-  @apply font-thin text-sm;
-  color: var(--red-11);
-}
-
-.credit {
-  @apply font-thin text-sm;
-  color: var(--green-11);
-}
-
-.transactionIcon {
-  width: 22px;
-  height: 22px;
-}
-
-.debitIcon {
-  color: var(--red-11);
-}
-
-.creditIcon {
-  color: var(--green-11);
-}
-
-.monthsScrollDiv {
-  @apply pt-2 overflow-x-auto whitespace-nowrap px-2;
+.scrollDiv {
+  @apply px-2 pt-2 overflow-x-auto whitespace-nowrap;
   scrollbar-width: none;
   -ms-overflow-style: none;
 
   &::-webkit-scrollbar {
     display: none;
   }
-}
 
-.monthButton {
-  @apply inline-block cursor-pointer select-none rounded-lg transition-all duration-300 ease-in-out;
+  button {
+    @apply inline-block cursor-pointer select-none rounded-lg transition-all duration-300 ease-in-out;
 
-  &.selected {
-    @apply mx-2 px-6 py-1 bg-[rgba(74,85,101,1)];
-  }
+    &.selected {
+      @apply mx-2 px-6 py-1 bg-[rgba(74,85,101,1)];
+    }
 
-  &.unselected {
-    @apply mx-0.5 px-2 py-0 md:py-1 bg-[rgba(33,34,37,1)];
+    &.unselected {
+      @apply mx-0.5 px-2 py-0 md:py-1 bg-[rgba(33,34,37,1)];
+    }
   }
 }
