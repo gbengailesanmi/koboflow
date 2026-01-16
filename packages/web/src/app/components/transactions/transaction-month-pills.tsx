@@ -1,17 +1,16 @@
+import { useQueryState } from 'nuqs'
 import styles from '@/app/components/transactions/transactions.module.css'
 import { formatMonthDisplay } from '@/helpers/transactions.helpers'
 
 type TransactionMonthPillsProps = {
   months: string[]
-  selectedMonth: string | null
-  setSelectedMonth: (month: string | null) => void,
 }
 
 export default function TransactionMonthPills({
   months,
-  selectedMonth,
-  setSelectedMonth,
 }: TransactionMonthPillsProps) {
+  const [selectedMonth, setSelectedMonth] = useQueryState('month')
+  
   return (
     <div className={styles.scrollDiv}>
       {months.map(month => {

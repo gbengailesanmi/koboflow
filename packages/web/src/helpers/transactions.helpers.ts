@@ -65,3 +65,36 @@ export function isDebitTransaction(transactionType: string): boolean {
 export function getTransactionTypeLabel(transactionType: string): string {
   return isDebitTransaction(transactionType) ? 'Debit' : 'Credit'
 }
+
+// URL Query Parameter Helpers
+export function clearQueryParams(
+  searchParams: URLSearchParams,
+  router: { push: (url: string, options?: { scroll: boolean }) => void },
+  ...paramsToClear: string[]
+) {
+  const params = new URLSearchParams(searchParams.toString())
+  paramsToClear.forEach(param => params.delete(param))
+  const queryString = params.toString()
+  const url = queryString ? `?${queryString}` : window.location.pathname
+  router.push(url, { scroll: false })
+}
+
+export function setQueryParam(
+  searchParams: URLSearchParams,
+  router: { push: (url: string, options?: { scroll: boolean }) => void },
+  key: string,
+  value: string,
+  defaultValue: string = ''
+) {
+  const params = new URLSearchParams(searchParams.toString())
+  
+  if (value === defaultValue || value === '') {
+    params.delete(key)
+  } else {
+    params.set(key, value)
+  }
+  
+  const queryString = params.toString()
+  const url = queryString ? `?${queryString}` : window.location.pathname
+  router.push(url, { scroll: false })
+}

@@ -1,40 +1,32 @@
 import type { Account } from '@koboflow/shared'
 import React, { useState } from 'react'
+import { useQueryStates, parseAsString } from 'nuqs'
 import styles from '@/app/components/transactions/transactions.module.css'
-import { DropdownMenu, Button, Grid } from '@radix-ui/themes'
+import { DropdownMenu, Button } from '@radix-ui/themes'
 import { MagnifyingGlassIcon, ChevronDownIcon, ReloadIcon, ArrowRightIcon } from '@radix-ui/react-icons'
 import { formatAccountBalance } from '@/helpers/transactions.helpers'
 
 type TransactionsFiltersProps = {
   accounts: Account[]
-  filterAccountId: string
-  setFilterAccountId: (id: string) => void
-  filterType: 'all' | 'debit' | 'credit'
-  setFilterType: (type: 'all' | 'debit' | 'credit') => void
-  dateFrom: string
-  setDateFrom: (date: string) => void
-  dateTo: string
-  setDateTo: (date: string) => void
-  searchTerm: string
-  setSearchTerm: (term: string) => void
   onRefresh?: () => Promise<void>
 }
 
 export default function TransactionsFilters({
   accounts,
-  filterAccountId,
-  setFilterAccountId,
-  filterType,
-  setFilterType,
-  dateFrom,
-  setDateFrom,
-  dateTo,
-  setDateTo,
-  searchTerm,
-  setSearchTerm,
   onRefresh,
 }: TransactionsFiltersProps) {
   const [isRefreshing, setIsRefreshing] = useState(false)
+  
+  const [filters, setFilters] = useQueryStates({
+    accountId: parseAsString.withDefault(''),
+    type: parseAsString.withDefault('all'),
+    from: parseAsString.withDefault(''),
+    to: parseAsString.withDefault(''),
+    search: parseAsString.withDefault(''),
+  })
+
+  const { accountId, type, from, to, search } = filters
+  const filterType = (type === 'debit' || type === 'credit' ? type : 'all') as 'all' | 'debit' | 'credit'
 
   const handleRefresh = async () => {
     if (!onRefresh || isRefreshing) return
@@ -64,17 +56,17 @@ export default function TransactionsFilters({
               <DropdownMenu.SubTrigger>Accounts</DropdownMenu.SubTrigger>
               <DropdownMenu.SubContent>
                 <DropdownMenu.Item 
-                  onSelect={() => setFilterAccountId('')}
-                  disabled={filterAccountId === ''}
+                  onSelect={() => setFilters({ accountId: '' })}
+                  disabled={accountId === ''}
                 >
-                  All accounts {filterAccountId === '' && '✓'}
+                  All accounts {accountId === '' && '✓'}
                 </DropdownMenu.Item>
                 {accounts.map(account => (
                   <DropdownMenu.Item
                     key={account.id}
-                    onSelect={() => setFilterAccountId(filterAccountId === account.id ? '' : account.id)}
+                    onSelect={() => setFilters({ accountId: accountId === account.id ? '' : account.id })}
                   >
-                    {formatAccountBalance(account.name, account.balance)} {filterAccountId === account.id && '✓'}
+                    {formatAccountBalance(account.name, account.balance)} {accountId === account.id && '✓'}
                   </DropdownMenu.Item>
                 ))}
               </DropdownMenu.SubContent>
@@ -87,18 +79,18 @@ export default function TransactionsFilters({
               <DropdownMenu.SubTrigger>Type</DropdownMenu.SubTrigger>
               <DropdownMenu.SubContent>
                 <DropdownMenu.Item 
-                  onSelect={() => setFilterType('all')}
+                  onSelect={() => setFilters({ type: 'all' })}
                   disabled={filterType === 'all'}
                 >
                   All {filterType === 'all' && '✓'}
                 </DropdownMenu.Item>
                 <DropdownMenu.Item 
-                  onSelect={() => setFilterType(filterType === 'debit' ? 'all' : 'debit')}
+                  onSelect={() => setFilters({ type: filterType === 'debit' ? 'all' : 'debit' })}
                 >
                   Debit {filterType === 'debit' && '✓'}
                 </DropdownMenu.Item>
                 <DropdownMenu.Item 
-                  onSelect={() => setFilterType(filterType === 'credit' ? 'all' : 'credit')}
+                  onSelect={() => setFilters({ type: filterType === 'credit' ? 'all' : 'credit' })}
                 >
                   Credit {filterType === 'credit' && '✓'}
                 </DropdownMenu.Item>
@@ -114,15 +106,15 @@ export default function TransactionsFilters({
                 <div className={styles.dateRange}>
                   <input
                     type='date'
-                    value={dateFrom}
-                    onChange={e => setDateFrom(e.target.value)}
+                    value={from}
+                    onChange={e => setFilters({ from: e.target.value })}
                     placeholder='d'
                   />
                   <ArrowRightIcon />
                   <input
                     type='date'
-                    value={dateTo}
-                    onChange={e => setDateTo(e.target.value)}
+                    value={to}
+                    onChange={e => setFilters({ to: e.target.value })}
                     placeholder=''
                   />
                 </div>
@@ -139,8 +131,8 @@ export default function TransactionsFilters({
           id='search'
           type='search'
           placeholder='Search'
-          value={searchTerm}
-          onChange={e => setSearchTerm(e.target.value)}
+          value={search}
+          onChange={e => setFilters({ search: e.target.value })}
         />
       </Button>
 

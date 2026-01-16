@@ -3,14 +3,16 @@
 import React, { useMemo, useRef, useEffect } from 'react'
 import type { EnrichedTransaction, Account } from '@koboflow/shared'
 import { Dialog } from '@radix-ui/themes'
+import { useQueryState, useQueryStates, parseAsString } from 'nuqs'
 import styles from './transactions.module.css'
 import { PageLayout } from '@/app/components/page-layout/page-layout'
 import { useHeaderFooterContext } from '@/providers/header-footer-provider'
 import TransactionMonthPills from '@/app/components/transactions/transaction-month-pills'
+import TransactionFilterPills from '@/app/components/transactions/transaction-filter-pills'
 import TransactionDetailsDialog from '@/app/components/transactions/transaction-details-dialog'
 import TransactionsDisplay from '@/app/components/transactions/transactions-display'
 import TransactionsFilters from '@/app/components/transactions/transactions-filters'
-import { useQueryState, useQueryStateNullable } from '@/hooks/use-query-state'
+import { useQueryStateNullable } from '@/hooks/use-query-state'
 import { useScrollRestoration } from '@/hooks/use-scroll-restoration'
 import { runAction } from '@/lib/actions/run-action'
 import { monoSyncTransactionsAction } from '@/app/actions/mono-actions'
@@ -22,16 +24,20 @@ export default function TransactionsClient() {
   const { data: transactions = [], isLoading: transactionsLoading } = useTransactions()
   const { scrollContainerRef } = useHeaderFooterContext()
 
+  // Using nuqs for all filter state
+  const [selectedMonth] = useQueryState('month')
   const [selectedTransactionId, setSelectedTransactionId] = useQueryStateNullable('txnId')
-  const [filterAccountId, setFilterAccountId] = useQueryState('accountId', '')
-  const [filterTypeRaw, setFilterTypeRaw] = useQueryState('type', 'all')
-  const [dateFrom, setDateFrom] = useQueryState('from', '')
-  const [dateTo, setDateTo] = useQueryState('to', '')
-  const [searchQuery, setSearchQuery] = useQueryState('search', '')
-  const [selectedMonth, setSelectedMonth] = useQueryStateNullable('month')
   
-  const filterType = (filterTypeRaw === 'debit' || filterTypeRaw === 'credit' ? filterTypeRaw : 'all') as 'all' | 'debit' | 'credit'
-  const setFilterType = (type: 'all' | 'debit' | 'credit') => setFilterTypeRaw(type)
+  const [filters] = useQueryStates({
+    accountId: parseAsString.withDefault(''),
+    type: parseAsString.withDefault('all'),
+    from: parseAsString.withDefault(''),
+    to: parseAsString.withDefault(''),
+    search: parseAsString.withDefault(''),
+  })
+
+  const { accountId: filterAccountId, type, from: dateFrom, to: dateTo, search: searchQuery } = filters
+  const filterType = (type === 'debit' || type === 'credit' ? type : 'all') as 'all' | 'debit' | 'credit'
   
   useScrollRestoration()
   
@@ -115,24 +121,16 @@ export default function TransactionsClient() {
             <div id='filters' className={styles.Filters}>
               <TransactionsFilters
                 accounts={accounts}
-                filterAccountId={filterAccountId}
-                setFilterAccountId={setFilterAccountId}
-                filterType={filterType}
-                setFilterType={setFilterType}
-                dateFrom={dateFrom}
-                setDateFrom={setDateFrom}
-                dateTo={dateTo}
-                setDateTo={setDateTo}
-                searchTerm={searchQuery}
-                setSearchTerm={setSearchQuery}
                 onRefresh={handleRefresh}
               />
             </div>
 
             <TransactionMonthPills
               months={months}
-              selectedMonth={selectedMonth}
-              setSelectedMonth={setSelectedMonth}
+            />
+
+            <TransactionFilterPills
+              accounts={accounts}
             />
           </>
         }
