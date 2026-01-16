@@ -37,7 +37,7 @@
 }
 
 .item {
-  @apply cursor-pointer;
+  @apply cursor-pointer mb-2;
 
   svg {
     @apply w-4 h-4;

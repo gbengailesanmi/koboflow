@@ -13,5 +13,5 @@
 }
 
 .default {
-  @apply max-h-[35dvh] flex flex-col md:px-2;
+  @apply max-h-[30dvh] flex flex-col md:px-2;
 }
