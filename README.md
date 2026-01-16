@@ -1,6 +1,8 @@
 # 💰 Koboflow
 
-Personal finance management for Nigerians. Connect your bank accounts, track spending, and manage budgets.
+Personal Project: Personal finance management App (TS fullstack).
+
+WIP
 
 ## Quick Start
 
