@@ -40,9 +40,6 @@ app.use(
   })
 )
 
-// -----------------------------------------------------------------------------
-// Webhook raw body (Mono) — MUST come BEFORE express.json
-// -----------------------------------------------------------------------------
 app.use(
   '/api/mono/webhook',
   express.json({
@@ -52,16 +49,10 @@ app.use(
   })
 )
 
-// -----------------------------------------------------------------------------
-// Body + cookie parsing (ORDER MATTERS)
-// -----------------------------------------------------------------------------
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 
-// -----------------------------------------------------------------------------
-// Request logging
-// -----------------------------------------------------------------------------
 app.use((req: Request, res: Response, next) => {
   const start = Date.now()
   res.on('finish', () => {
@@ -73,9 +64,6 @@ app.use((req: Request, res: Response, next) => {
   next()
 })
 
-// -----------------------------------------------------------------------------
-// ETag middleware - Apply to all GET requests
-// -----------------------------------------------------------------------------
 app.use(etagMiddleware)
 
 

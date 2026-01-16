@@ -1,42 +1,37 @@
-# Backend API Service
+# Koboflow Backend
 
-Express.js API service for Koboflow.
+Express.js API server. Handles authentication, transactions, budgets, and integrates with Mono for bank data.
 
-## Setup
+## Stack
+
+- Express.js
+- TypeScript
+- MongoDB
+- Mono API
+
+## Getting Started
 
 ```bash
-# Install dependencies
-yarn install
-
-# Set up environment variables
-cp .env.example .env
-
-# Run in development
+yarn
 yarn dev
-
-# Build for production
-yarn build
-
-# Run production
-yarn start
 ```
 
-## API Endpoints
+Server runs on [http://localhost:3001](http://localhost:3001)
 
-- `POST /api/auth/login` - User login
-- `POST /api/auth/signup` - User signup
-- `POST /api/auth/logout` - User logout
-- `GET /api/budget` - Get user budget
-- `POST /api/budget` - Create/update budget
-- `GET /api/transactions` - Get transactions
-- `GET /api/settings` - Get user settings
-- `POST /api/settings` - Update user settings
+## Environment Variables
 
-## TODO
-
-- [ ] Migrate API routes from Next.js app
-- [ ] Set up database connections
-- [ ] Implement authentication middleware
-- [ ] Add request validation
-- [ ] Set up logging
-- [ ] Add comprehensive error handling
+```env
+API_KEY
+NODE_ENV
+NEXTAUTH_SECRET
+MONO_SECRET_KEY
+MONO_PUBLIC_KEY
+FROM_EMAIL
+FRONTEND_URL
+RESEND_API_KEY
+ALLOWED_ORIGINS
+MONGO_DB_NAME
+MONGODB_URI
+NODE_ENV
+BACKEND_PORT
+```
