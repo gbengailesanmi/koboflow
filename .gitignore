@@ -47,5 +47,3 @@ backup_*/
 # Turbo
 .turbo/
 **/.turbo/
-
-.vscode
