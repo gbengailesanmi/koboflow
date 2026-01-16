@@ -2,13 +2,13 @@
 
 import React, { useMemo, useState, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useQueryState, parseAsString } from 'nuqs'
 import { Grid } from '@radix-ui/themes'
 import styles from './dashboard.module.css'
 import AccountsCarousel from '../../components/dashboard/accounts-carousel'
 import Card from '../../components/dashboard/card/card'
 import { MonthlySummary } from '../../components/dashboard/monthly-summary'
 import TransactionsDisplay from '@/app/components/transactions/transactions-display'
-import { useQueryStateNullable } from '@/hooks/use-query-state'
 import { useScrollRestoration } from '@/hooks/use-scroll-restoration'
 import { useDashboardBackground } from '@/hooks/use-dashboard-background'
 import { useAccounts, useTransactions } from '@/hooks/use-data'
@@ -22,7 +22,7 @@ export default function DashboardClient({ customerId }: DashboardClientProps) {
   const router = useRouter()
   const [hasNavigated, setHasNavigated] = useState(false)
   const [currentMonth, setCurrentMonth] = useState('')
-  const [selectedAccountId, setSelectedAccountId] = useQueryStateNullable('accountId')
+  const [selectedAccountId, setSelectedAccountId] = useQueryState('accountId', parseAsString.withDefault('').withOptions({ history: 'push', shallow: false }))
   
   const { data: accounts = [], isLoading: accountsLoading } = useAccounts()
   const { data: transactions = [], isLoading: transactionsLoading } = useTransactions()

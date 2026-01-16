@@ -12,7 +12,6 @@ import { loginRateLimiter, oauthRateLimiter, apiRateLimiter } from '../utils/rat
 
 export const authRoutes = Router()
 
-// ------------------------------------- SIGN UP ------------------------------------- //
 // Used ONLY by credentials signup (NextAuth will handle login)
 authRoutes.post('/signup', loginRateLimiter, async (req, res) => {
   try {
@@ -81,7 +80,6 @@ authRoutes.post('/signup', loginRateLimiter, async (req, res) => {
   }
 })
 
-// ----------------------------------- VERIFY EMAIL ----------------------------------- //
 authRoutes.post('/verify-email', apiRateLimiter, async (req, res) => {
   const { token } = req.body
   if (!token) {
@@ -109,7 +107,6 @@ authRoutes.post('/verify-email', apiRateLimiter, async (req, res) => {
   return res.json({ success: true })
 })
 
-// ----------------------------- RESEND VERIFICATION EMAIL ----------------------------- //
 authRoutes.post('/resend-verification', loginRateLimiter, async (req, res) => {
   const { email } = req.body
   if (!email) {
@@ -141,7 +138,6 @@ authRoutes.post('/resend-verification', loginRateLimiter, async (req, res) => {
   return res.json({ success: true })
 })
 
-// ----------------------------------- GET USER ----------------------------------- //
 authRoutes.get('/me', requireAuth, async (req, res) => {
   const db = await connectDB()
   const user = await db.collection('users').findOne({
@@ -161,7 +157,6 @@ authRoutes.get('/me', requireAuth, async (req, res) => {
   })
 })
 
-// ----------------------------------- UPDATE USER ----------------------------------- //
 authRoutes.patch('/me', requireAuth, async (req, res) => {
   try {
     // Validate input using Zod schema
@@ -209,7 +204,6 @@ authRoutes.patch('/me', requireAuth, async (req, res) => {
   }
 })
 
-// ----------------------------------- UPDATE USER BY CUSTOMER ID ----------------------------------- //
 authRoutes.patch('/user/:customerId', requireAuth, async (req, res) => {
   try {
     const { customerId } = req.params
@@ -264,7 +258,6 @@ authRoutes.patch('/user/:customerId', requireAuth, async (req, res) => {
   }
 })
 
-// ----------------------------- VALIDATE CREDENTIALS (FOR NEXTAUTH) ----------------------------- //
 // Public endpoint - no auth required (this IS the auth)
 authRoutes.post('/validate-credentials', loginRateLimiter, async (req, res) => {
   console.log('🔐 [Backend] /validate-credentials - Request received')
@@ -329,7 +322,6 @@ authRoutes.post('/validate-credentials', loginRateLimiter, async (req, res) => {
   }
 })
 
-// ----------------------------- GET OR CREATE GOOGLE USER (FOR NEXTAUTH) ----------------------------- //
 // Public endpoint - no auth required (this IS the auth)
 authRoutes.post('/oauth/google', oauthRateLimiter, async (req, res) => {
   console.log('🔵 [Backend] /oauth/google - Request received')
@@ -422,7 +414,6 @@ authRoutes.post('/oauth/google', oauthRateLimiter, async (req, res) => {
   }
 })
 
-// ----------------------------- GET CUSTOMER DETAILS (FOR USER DETAILS API) ----------------------------- //
 // Protected endpoint - requires authentication
 authRoutes.get('/customer-details/:customerId', requireAuth, async (req, res) => {
   try {
@@ -468,7 +459,6 @@ authRoutes.get('/customer-details/:customerId', requireAuth, async (req, res) =>
   }
 })
 
-// ----------------------------------- SESSION MANAGEMENT ----------------------------------- //
 authRoutes.post('/session/create', apiRateLimiter, async (req, res) => {
   try {
     const { sessionId, customerId, expiresAt } = req.body

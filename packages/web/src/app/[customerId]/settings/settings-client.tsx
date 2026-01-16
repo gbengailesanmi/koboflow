@@ -100,7 +100,6 @@ export default function SettingsClient({
         appearance: { theme: newTheme }
       } as Partial<UserSettings>)
     } catch (error) {
-      // Error handled
     }
   }
 

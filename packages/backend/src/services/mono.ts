@@ -254,13 +254,6 @@ export async function fetchStatementInsights(accountId: string): Promise<any> {
   return response.data
 }
 
-// export async function syncAccount(accountId: string): Promise<{ status: string }> {
-//   const response = await monoFetch<{ data: { status: string } }>(
-//     `/accounts/${accountId}/sync`,
-//     { method: 'POST' }
-//   )
-//   return response.data
-// }
 
 export function formatAccountForStorage(
   response: MonoAccountDetails,
@@ -346,6 +339,5 @@ export async function waitForTransactionsReady(
 }
 
 
-// Re-export test helper for convenience
 export { normaliseTestAccountNumber } from '../test-helpers/account-normalizer'
 

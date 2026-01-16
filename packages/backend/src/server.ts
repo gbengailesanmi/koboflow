@@ -1,4 +1,3 @@
-///Users/gbenga.ilesanmi/Github/PD/koboflow/packages/backend/src/server.ts
 import dotenv from 'dotenv'
 dotenv.config()
 
@@ -10,7 +9,6 @@ import { logger } from '@koboflow/shared'
 import { verifySignature } from './middleware/signature-verifier'
 import { etagMiddleware } from './middleware/etag'
 
-// routes
 import { authRoutes } from './services/auth'
 import { budgetRoutes } from './routes/budget'
 import { transactionRoutes } from './routes/transactions'
@@ -21,11 +19,8 @@ import { monoRoutes } from './routes/mono'
 
 const app: Express = express()
 const BACKEND_PORT = config.BACKEND_PORT
-app.set('trust proxy', 1) // Trust first proxy
+app.set('trust proxy', 1)
 
-// -----------------------------------------------------------------------------
-// CORS — MUST allow credentials
-// -----------------------------------------------------------------------------
 const allowedOrigins =
   config.ALLOWED_ORIGINS?.split(',').map(o => o.trim()) ?? [
     'http://localhost:3000',
@@ -67,14 +62,11 @@ app.use((req: Request, res: Response, next) => {
 app.use(etagMiddleware)
 
 
-// -----------------------------------------------------------------------------
 // Health
-// -----------------------------------------------------------------------------
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() })
 })
 
-// -----------------------------------------------------------------------------
 app.use('/api', verifySignature)
 app.use('/api/auth', authRoutes)
 app.use('/api/mono', monoRoutes)
@@ -84,9 +76,7 @@ app.use('/api/accounts', accountRoutes)
 app.use('/api/settings', settingsRoutes)
 app.use('/api/categories', categoryRoutes)
 
-// -----------------------------------------------------------------------------
 // Error handler
-// -----------------------------------------------------------------------------
 app.use((err: any, _req: Request, res: Response, _next: any) => {
   logger.error({ module: 'server', err }, 'Server error occurred')
   res.status(500).json({
@@ -95,9 +85,7 @@ app.use((err: any, _req: Request, res: Response, _next: any) => {
   })
 })
 
-// -----------------------------------------------------------------------------
 // Boot
-// -----------------------------------------------------------------------------
 app.listen(BACKEND_PORT, () => {
   logger.info({ module: '[server]', port: BACKEND_PORT }, 'Server started')
 })

@@ -1,4 +1,3 @@
-/// packages/backend/src/middleware/middleware.ts
 import type { Request, Response, NextFunction } from 'express'
 import { getToken } from 'next-auth/jwt'
 import { logger } from '@koboflow/shared'

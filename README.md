@@ -16,5 +16,5 @@ yarn dev
 
 ## Tech Stack
 
-Next.js 16 • React 19 • TypeScript • Express • MongoDB • Mono API • Tailwind • Docker
+Next.js 16 • React 19 • TypeScript • Nuqs • Express • MongoDB • Mono API • Tailwind • Docker
 

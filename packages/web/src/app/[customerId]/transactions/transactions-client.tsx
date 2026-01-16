@@ -12,7 +12,6 @@ import TransactionFilterPills from '@/app/components/transactions/transaction-fi
 import TransactionDetailsDialog from '@/app/components/transactions/transaction-details-dialog'
 import TransactionsDisplay from '@/app/components/transactions/transactions-display'
 import TransactionsFilters from '@/app/components/transactions/transactions-filters'
-import { useQueryStateNullable } from '@/hooks/use-query-state'
 import { useScrollRestoration } from '@/hooks/use-scroll-restoration'
 import { runAction } from '@/lib/actions/run-action'
 import { monoSyncTransactionsAction } from '@/app/actions/mono-actions'
@@ -24,9 +23,8 @@ export default function TransactionsClient() {
   const { data: transactions = [], isLoading: transactionsLoading } = useTransactions()
   const { scrollContainerRef } = useHeaderFooterContext()
 
-  // Using nuqs for all filter state
   const [selectedMonth] = useQueryState('month')
-  const [selectedTransactionId, setSelectedTransactionId] = useQueryStateNullable('txnId')
+  const [selectedTransactionId, setSelectedTransactionId] = useQueryState('txnId', parseAsString.withDefault(''))
   
   const [filters] = useQueryStates({
     accountId: parseAsString.withDefault(''),
@@ -152,7 +150,7 @@ export default function TransactionsClient() {
       {selectedTransaction && (
         <TransactionDetailsDialog
           transaction={selectedTransaction}
-          onClose={() => setSelectedTransactionId(null)}
+          onClose={() => setSelectedTransactionId('')}
         />
       )}
     </Dialog.Root>

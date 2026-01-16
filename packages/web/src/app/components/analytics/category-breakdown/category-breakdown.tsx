@@ -104,7 +104,6 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({
     try {
       await onDeleteCategory(id)
     } catch (error) {
-      // Error handled
     } finally {
       setLoading(false)
     }

@@ -21,8 +21,8 @@ import styles from './dashboard.module.css'
 
 type AccountsCarouselProps = {
   accounts: Account[]
-  selectedAccount: string | null
-  setSelectedAccount: (id: string | null) => void
+  selectedAccount: string
+  setSelectedAccount: (id: string) => void
   onNavigate?: () => void
 }
 
@@ -86,7 +86,7 @@ export default function AccountsCarousel({
       const index = emblaApi.selectedScrollSnap()
 
       const nextAccountId =
-        index === 0 ? null : accounts[index - 1]?.id ?? null
+        index === 0 ? '' : accounts[index - 1]?.id ?? ''
 
       if (nextAccountId !== selectedAccount) {
         setSelectedAccount(nextAccountId)

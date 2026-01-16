@@ -114,7 +114,6 @@ export default function BudgetClient({
         period: updates.period
       })
     } catch (error) {
-      // Error handled
     } finally {
       setIsSaving(false)
     }
@@ -124,7 +123,6 @@ export default function BudgetClient({
     try {
       await runAction(budgetSetActiveAction, budgetId)
     } catch (error) {
-      // Error handled
     }
   }, [])
 
@@ -139,7 +137,6 @@ export default function BudgetClient({
         false
       )
     } catch (error) {
-      // Error handled
     }
   }, [])
 
@@ -147,7 +144,6 @@ export default function BudgetClient({
     try {
       await runAction(budgetDeleteAction, budgetId)
     } catch (error) {
-      // Error handled
     }
   }, [])
 

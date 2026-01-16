@@ -41,7 +41,6 @@ export function useSessionStorage<T>(
           window.sessionStorage.setItem(key, JSON.stringify(valueToStore))
         }
       } catch (error) {
-        // Error handled silently
       }
     },
     [key, storedValue]
@@ -79,7 +78,6 @@ export function clearAllAppSessionStorage(): void {
       }
     })
   } catch (error) {
-    // Error handled silently
   }
 }
 
@@ -99,6 +97,5 @@ export function clearCustomerSessionStorage(customerId: string): void {
       }
     })
   } catch (error) {
-    // Error handled silently
   }
 }

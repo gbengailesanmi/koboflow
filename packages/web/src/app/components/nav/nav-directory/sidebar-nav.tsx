@@ -113,7 +113,6 @@ export default function Nav({ customerId }: NavProps) {
         appearance: { theme: newTheme }
       } as Partial<UserSettings>)
     } catch (error) {
-      // Error handled
     }
   }
 

@@ -1,8 +1,8 @@
-///Users/gbenga.ilesanmi/Github/PD/koboflow/packages/web/src/app/[customerId]/analytics/analytics-client.tsx
 'use client'
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { useQueryStates, parseAsString } from 'nuqs'
 import { categoryCreateAction, categoryDeleteAction, categoryUpdateAction } from '@/app/actions/category.actions'
 import { runAction } from '@/lib/actions/run-action'
 import { PageLayout } from '@/app/components/page-layout/page-layout'
@@ -23,7 +23,6 @@ import {
   DailySpendingComparison,
 } from '@/app/components/analytics'
 import { EmptyState } from '@/app/components/empty-state'
-import { useQueryStateNullable, useQueryState } from '@/hooks/use-query-state'
 import { useScrollRestoration } from '@/hooks/use-scroll-restoration'
 import { useAccounts, useTransactions, useCustomCategories, useBudget } from '@/hooks/use-data'
 import { 
@@ -54,15 +53,18 @@ export default function AnalyticsClient({
   const totalBudgetLimit = budgetData?.totalBudgetLimit || 0
   const isLoading = accountsLoading || transactionsLoading || categoriesLoading || budgetLoading
   
-  // URL state for account filter and settings
-  const [selectedAccountId, setSelectedAccountId] = useQueryStateNullable('accountId')
-  const [timePeriod, setTimePeriod] = useQueryState('period', 'month')
+  const [filters, setFilters] = useQueryStates({
+    accountId: parseAsString.withDefault(''),
+    period: parseAsString.withDefault('month'),
+  })
   
-  // Local UI state
+  const selectedAccountId = filters.accountId || null
+  const timePeriod = filters.period
+  const setTimePeriod = (period: string) => setFilters({ period })
+  
   const [showAccountFilter, setShowAccountFilter] = useState(false)
   const [currentChartIndex, setCurrentChartIndex] = useState(0)
   
-  // Restore scroll position when navigating back
   useScrollRestoration()
   
   const effectiveAccountId = selectedAccountId || 'all'
@@ -80,7 +82,6 @@ export default function AnalyticsClient({
         color: randomColor 
       })
     } catch (error) {
-      // Error handled
     }
   }, [])
 
@@ -88,7 +89,6 @@ export default function AnalyticsClient({
     try {
       await runAction(categoryDeleteAction, id)
     } catch (error) {
-      // Error handled
     }
   }, [])
 
@@ -96,16 +96,15 @@ export default function AnalyticsClient({
     try {
       await runAction(categoryUpdateAction, id, updates)
     } catch (error) {
-      // Error handled
     }
   }, [])
 
   const handleNextChart = useCallback(() => {
-    setCurrentChartIndex((prev) => (prev + 1) % 4) // Cycle through 0, 1, 2, 3
+    setCurrentChartIndex((prev) => (prev + 1) % 4)
   }, [])
 
   const handlePrevChart = useCallback(() => {
-    setCurrentChartIndex((prev) => (prev - 1 + 4) % 4) // Cycle through 0, 1, 2, 3
+    setCurrentChartIndex((prev) => (prev - 1 + 4) % 4)
   }, [])
 
   const processedTransactions = useMemo(() => {

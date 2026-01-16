@@ -1,4 +1,3 @@
-// src/routes/mono.ts
 import { Router } from 'express'
 import { requireAuth } from '../middleware/middleware'
 import {
@@ -18,9 +17,6 @@ import { logger } from '@koboflow/shared/utils'
 
 export const monoRoutes = Router()
 
-/* -------------------------------------------------------------------------- */
-/* AUTH */
-/* -------------------------------------------------------------------------- */
 
 monoRoutes.post('/auth', requireAuth, async (req, res) => {
   try {
@@ -45,9 +41,6 @@ monoRoutes.post('/auth', requireAuth, async (req, res) => {
   }
 })
 
-/* -------------------------------------------------------------------------- */
-/* ACCOUNT DETAILS */
-/* -------------------------------------------------------------------------- */
 
 monoRoutes.get('/details/:accountId', requireAuth, async (req, res) => {
   try {
@@ -85,9 +78,6 @@ monoRoutes.get('/identity/:accountId', requireAuth, async (req, res) => {
   }
 })
 
-/* -------------------------------------------------------------------------- */
-/* IMPORT ACCOUNT */
-/* -------------------------------------------------------------------------- */
 
 monoRoutes.post('/import/:accountId', requireAuth, async (req, res) => {
   const customerId = req.user?.customerId
@@ -130,9 +120,6 @@ monoRoutes.post('/import/:accountId', requireAuth, async (req, res) => {
   }
 })
 
-/* -------------------------------------------------------------------------- */
-/* SYNC TRANSACTIONS */
-/* -------------------------------------------------------------------------- */
 
 monoRoutes.post('/sync-transactions/:accountId', requireAuth, async (req, res) => {
   try {

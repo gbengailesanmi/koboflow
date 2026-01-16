@@ -1,4 +1,3 @@
-// packages/web/src/app/layout.tsx
 import Providers from './providers'
 import { Open_Sans } from 'next/font/google'
 

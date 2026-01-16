@@ -17,7 +17,6 @@ import { connectDB } from '../db/mongo'
 
 export const budgetRoutes = Router()
 
-// ---------------------------------- GET ALL ---------------------------------- //
 budgetRoutes.get('/all', requireAuth, async (req, res) => {
   try {
     const customerId = req.user!.customerId
@@ -29,7 +28,6 @@ budgetRoutes.get('/all', requireAuth, async (req, res) => {
   }
 })
 
-// ---------------------------------- GET ACTIVE ---------------------------------- //
 budgetRoutes.get('/', requireAuth, async (req, res) => {
   try {
     const customerId = req.user!.customerId
@@ -52,7 +50,6 @@ budgetRoutes.get('/', requireAuth, async (req, res) => {
   }
 })
 
-// ---------------------------------- GET BY ID ---------------------------------- //
 budgetRoutes.get('/:budgetId', requireAuth, async (req, res) => {
   try {
     const { budgetId } = req.params
@@ -71,7 +68,6 @@ budgetRoutes.get('/:budgetId', requireAuth, async (req, res) => {
   }
 })
 
-// ---------------------------------- CREATE ---------------------------------- //
 budgetRoutes.post('/create', requireAuth, async (req, res) => {
   try {
     const customerId = req.user!.customerId
@@ -116,7 +112,6 @@ budgetRoutes.post('/create', requireAuth, async (req, res) => {
   }
 })
 
-// ---------------------------------- UPDATE ---------------------------------- //
 budgetRoutes.put('/:budgetId', requireAuth, async (req, res) => {
   try {
     const { budgetId } = req.params
@@ -148,7 +143,6 @@ budgetRoutes.put('/:budgetId', requireAuth, async (req, res) => {
   }
 })
 
-// ---------------------------------- ACTIVATE ---------------------------------- //
 budgetRoutes.post('/:budgetId/activate', requireAuth, async (req, res) => {
   try {
     const { budgetId } = req.params
@@ -160,7 +154,6 @@ budgetRoutes.post('/:budgetId/activate', requireAuth, async (req, res) => {
   }
 })
 
-// ---------------------------------- DELETE ---------------------------------- //
 budgetRoutes.delete('/:budgetId', requireAuth, async (req, res) => {
   try {
     const { budgetId } = req.params
@@ -172,7 +165,6 @@ budgetRoutes.delete('/:budgetId', requireAuth, async (req, res) => {
   }
 })
 
-// ---------------------------------- UPSERT (PATCH) ---------------------------------- //
 budgetRoutes.patch('/', requireAuth, async (req, res) => {
   try {
     const customerId = req.user!.customerId
