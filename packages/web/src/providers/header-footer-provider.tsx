@@ -1,50 +1,46 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useRef } from 'react'
 import Header from '@/app/components/header/header'
 import Footer from '@/app/components/footer/footer'
 
-type PageTitleContextType = {
-  title?: string
-  subtitle?: string
-  setPageTitle: (title?: string, subtitle?: string) => void
+type HeaderFooterContextType = {
+  scrollContainerRef: React.RefObject<HTMLElement | null>
+  setScrollContainer: (element: HTMLElement | null) => void
 }
 
-export const PageTitleContext = createContext<PageTitleContextType | undefined>(undefined)
+export const HeaderFooterContext = createContext<HeaderFooterContextType | undefined>(undefined)
 
-export function usePageTitle() {
-  const context = useContext(PageTitleContext)
+export function useHeaderFooterContext() {
+  const context = useContext(HeaderFooterContext)
   if (!context) {
-    throw new Error('usePageTitle must be used within HeaderFooterProvider')
+    throw new Error('useHeaderFooterContext must be used within HeaderFooterProvider')
   }
   return context
 }
 
 export default function HeaderFooterProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const [title, setTitle] = useState<string | undefined>()
-  const [subtitle, setSubtitle] = useState<string | undefined>()
+  const scrollContainerRef = useRef<HTMLElement | null>(null)
 
-  const setPageTitle = (newTitle?: string, newSubtitle?: string) => {
-    setTitle(newTitle)
-    setSubtitle(newSubtitle)
+  const setScrollContainer = (element: HTMLElement | null) => {
+    scrollContainerRef.current = element
   }
 
   const isDashboard = pathname?.includes('/dashboard') || pathname?.split('/').length === 2
-
   const noLayoutPages = ['/login', '/signin', '/verify-email']
   const shouldHideLayout = noLayoutPages.some(page => pathname?.startsWith(page))
 
   return (
-    <PageTitleContext.Provider value={{ title, subtitle, setPageTitle }}>
+    <HeaderFooterContext.Provider value={{ scrollContainerRef, setScrollContainer }}>
       <>
-        {!shouldHideLayout && (
-          <Header variant={isDashboard ? 'dashboard' : 'default'} title={title} subtitle={subtitle} />
+        {!shouldHideLayout && isDashboard && (
+          <Header variant="dashboard" />
         )}
         {children}
-        {!shouldHideLayout && <Footer />}
+        {!shouldHideLayout && <Footer scrollContainerRef={scrollContainerRef} />}
       </>
-    </PageTitleContext.Provider>
+    </HeaderFooterContext.Provider>
   )
 }

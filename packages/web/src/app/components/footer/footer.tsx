@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import styles from './Footer.module.css'
 import Link from 'next/link'
 import { useParams, usePathname } from 'next/navigation'
@@ -15,9 +15,11 @@ export default function Footer({ scrollContainerRef }: FooterProps) {
   const pathname = usePathname()
   const customerId = params.customerId as string
   const [isVisible, setIsVisible] = useState(true)
-  const [lastScrollY, setLastScrollY] = useState(0)
+  const lastScrollYRef = useRef(0)
 
   useEffect(() => {
+    const scrollElement = scrollContainerRef?.current || window
+    
     const handleScroll = () => {
       const currentScrollY = scrollContainerRef?.current 
         ? scrollContainerRef.current.scrollTop 
@@ -25,16 +27,14 @@ export default function Footer({ scrollContainerRef }: FooterProps) {
 
       if (currentScrollY < 10) {
         setIsVisible(true)
-      } else if (currentScrollY > lastScrollY) {
+      } else if (currentScrollY > lastScrollYRef.current) {
         setIsVisible(false)
-      } else if (currentScrollY < lastScrollY) {
+      } else if (currentScrollY < lastScrollYRef.current) {
         setIsVisible(true)
       }
 
-      setLastScrollY(currentScrollY)
+      lastScrollYRef.current = currentScrollY
     }
-
-    const scrollElement = scrollContainerRef?.current || window
 
     if (scrollElement) {
       scrollElement.addEventListener('scroll', handleScroll, { passive: true })
@@ -45,7 +45,7 @@ export default function Footer({ scrollContainerRef }: FooterProps) {
         scrollElement.removeEventListener('scroll', handleScroll)
       }
     }
-  }, [lastScrollY, scrollContainerRef])
+  }, [scrollContainerRef?.current])
 
   return (
     <div 

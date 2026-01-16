@@ -3,7 +3,6 @@
 import useSWR from 'swr'
 import { useCallback, useEffect } from 'react'
 import { UserInfoCard } from '@/app/components/settings/user-info-card'
-import { usePageTitle } from '@/providers/header-footer-provider'
 import { cachedSWR } from '@/lib/swr'
 import type { CustomerDetailsFromMono } from '@koboflow/shared'
 import styles from './personal-details.module.css'
@@ -15,12 +14,6 @@ type PersonalDetailsClientProps = {
 export default function PersonalDetailsClient({
   customerId,
 }: PersonalDetailsClientProps) {
-  const { setPageTitle } = usePageTitle()
-
-  useEffect(() => {
-    setPageTitle('Personal Details', 'Your personal information from bank verification')
-  }, [])
-
   const { data, error, isLoading, isValidating } = useSWR<{ customerDetailsFromMono: CustomerDetailsFromMono }>(
     '/api/user/details',
     cachedSWR

@@ -4,7 +4,6 @@ import React, { useState, useMemo, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { budgetUpdateAction, budgetCreateAction, budgetSetActiveAction, budgetDeleteAction } from '@/app/actions/budget.actions'
 import { runAction } from '@/lib/actions/run-action'
-import { usePageTitle } from '@/providers/header-footer-provider'
 import { PageLayout } from '@/app/components/page-layout/page-layout'
 import { BudgetSwitcher } from '@/app/components/budget/budget-switcher'
 import { useScrollRestoration } from '@/hooks/use-scroll-restoration'
@@ -45,17 +44,12 @@ export default function BudgetClient({
   currency
 }: BudgetClientProps) {
   const router = useRouter()
-  const { setPageTitle } = usePageTitle()
 
   const { data: transactions = [], isLoading: transactionsLoading } = useTransactions()
   const { data: customCategories = [], isLoading: categoriesLoading } = useCustomCategories()
   const { data: allBudgets = [], isLoading: budgetsLoading } = useBudgets()
   
   const isLoading = transactionsLoading || categoriesLoading || budgetsLoading
-
-  useEffect(() => {
-    setPageTitle('Budget', 'Set spending limits and track your progress')
-  }, [])
 
   useScrollRestoration()
 
@@ -891,7 +885,7 @@ export default function BudgetClient({
 
   if (isLoading) {
     return (
-      <PageLayout>
+      <PageLayout title="Budget" subtitle="Set spending limits and track your progress">
         <div className={styles.loadingContainer}>
           <Text>Loading budget...</Text>
         </div>
@@ -902,6 +896,8 @@ export default function BudgetClient({
   return (
     <Dialog.Root open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
       <PageLayout
+        title="Budget"
+        subtitle="Set spending limits and track your progress"
         stickySection={renderStickyContent()}
       >
         {renderBodyContent()}

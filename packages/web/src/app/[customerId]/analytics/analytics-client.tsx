@@ -5,7 +5,6 @@ import React, { useState, useMemo, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { categoryCreateAction, categoryDeleteAction, categoryUpdateAction } from '@/app/actions/category.actions'
 import { runAction } from '@/lib/actions/run-action'
-import { usePageTitle } from '@/providers/header-footer-provider'
 import { PageLayout } from '@/app/components/page-layout/page-layout'
 import { categorizeTransaction, getCategoryConfig } from '@/app/components/analytics/utils'
 import {
@@ -267,13 +266,6 @@ export default function AnalyticsClient({
     }
   }, [processedTransactions])
 
-  const handleOptionsClick = useCallback(() => setShowAccountFilter(true), [])
-
-  const { setPageTitle } = usePageTitle()
-
-  useEffect(() => {
-    setPageTitle('Insights', 'Look into your spending patterns and trends')
-  }, [])
 
   const renderStickyContent = useCallback(() => (
     <>
@@ -468,7 +460,7 @@ export default function AnalyticsClient({
 
   if (isLoading) {
     return (
-      <PageLayout>
+      <PageLayout title="Insights" subtitle="Look into your spending patterns and trends">
         <div className={styles.loadingContainer}>
           <Text>Loading analytics...</Text>
         </div>
@@ -478,6 +470,8 @@ export default function AnalyticsClient({
 
   return (
     <PageLayout
+      title="Insights"
+      subtitle="Look into your spending patterns and trends"
       stickySection={renderStickyContent()}
     >
       {renderBodyContent()}

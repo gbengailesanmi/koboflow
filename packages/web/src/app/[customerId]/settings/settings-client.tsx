@@ -9,7 +9,6 @@ import { securityChangePINAction, securityChangePasswordAction } from '@/app/act
 import { logoutAction } from '@/app/actions/session.actions'
 import { deleteUserAction } from '@/app/actions/user.actions'
 import { runAction } from '@/lib/actions/run-action'
-import { usePageTitle } from '@/providers/header-footer-provider'
 import { 
   Box,
   Button, 
@@ -82,12 +81,7 @@ export default function SettingsClient({
   initialSettings
 }: SettingsClientProps) {
   const router = useRouter()
-  const { setPageTitle } = usePageTitle()
   const { theme: currentTheme, setTheme: setNextTheme, resolvedTheme } = useTheme()
-
-  useEffect(() => {
-    setPageTitle('Settings', 'Manage your account preferences')
-  }, [])
 
   const [isDarkMode, setIsDarkMode] = useState(false)
   const userName = `${firstName} ${lastName}` || ''

@@ -4,6 +4,8 @@ import React, { useMemo, useRef, useEffect } from 'react'
 import type { EnrichedTransaction, Account } from '@koboflow/shared'
 import { Dialog } from '@radix-ui/themes'
 import styles from './transactions.module.css'
+import { PageLayout } from '@/app/components/page-layout/page-layout'
+import { useHeaderFooterContext } from '@/providers/header-footer-provider'
 import TransactionMonthPills from '@/app/components/transactions/transaction-month-pills'
 import TransactionDetailsDialog from '@/app/components/transactions/transaction-details-dialog'
 import TransactionsDisplay from '@/app/components/transactions/transactions-display'
@@ -18,6 +20,7 @@ import { extractMonthsFromTransactions, groupTransactionsByMonth } from '@/helpe
 export default function TransactionsClient() {
   const { data: accounts = [], isLoading: accountsLoading } = useAccounts()
   const { data: transactions = [], isLoading: transactionsLoading } = useTransactions()
+  const { scrollContainerRef } = useHeaderFooterContext()
 
   const [selectedTransactionId, setSelectedTransactionId] = useQueryStateNullable('txnId')
   const [filterAccountId, setFilterAccountId] = useQueryState('accountId', '')
@@ -78,25 +81,24 @@ export default function TransactionsClient() {
   )
 
   const transactionRefs = useRef<Record<string, HTMLDivElement | null>>({})
-  const transactionsWrapperRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (!selectedMonth || !transactionsWrapperRef.current) return
+    if (!selectedMonth || !scrollContainerRef.current) return
     const txnsInMonth = transactionsByMonth.get(selectedMonth)
 
     if (!txnsInMonth || txnsInMonth.length === 0) return
     const lastTxnId = txnsInMonth[txnsInMonth.length - 1]
     const lastTxnEl = transactionRefs.current[lastTxnId]
 
-    if (lastTxnEl && transactionsWrapperRef.current) {
-      const containerTop = transactionsWrapperRef.current.getBoundingClientRect().top
+    if (lastTxnEl && scrollContainerRef.current) {
+      const containerTop = scrollContainerRef.current.getBoundingClientRect().top
       const elementTop = lastTxnEl.getBoundingClientRect().top
-      const scrollTop = transactionsWrapperRef.current.scrollTop
+      const scrollTop = scrollContainerRef.current.scrollTop
       const offset = elementTop - containerTop + scrollTop
 
-      transactionsWrapperRef.current.scrollTo({ top: offset, behavior: 'smooth' })
+      scrollContainerRef.current.scrollTo({ top: offset, behavior: 'smooth' })
     }
-  }, [selectedMonth, transactionsByMonth])
+  }, [selectedMonth, transactionsByMonth, scrollContainerRef])
 
   return (
     <Dialog.Root 
@@ -105,50 +107,56 @@ export default function TransactionsClient() {
         if (!open) setSelectedTransactionId(null) 
       }}
     >
-      <div className={`${styles.PageGrid} page-main`}>
-          <div id='filters' className={styles.Filters}>
-            <TransactionsFilters
-              accounts={accounts}
-              filterAccountId={filterAccountId}
-              setFilterAccountId={setFilterAccountId}
-              filterType={filterType}
-              setFilterType={setFilterType}
-              dateFrom={dateFrom}
-              setDateFrom={setDateFrom}
-              dateTo={dateTo}
-              setDateTo={setDateTo}
-              searchTerm={searchQuery}
-              setSearchTerm={setSearchQuery}
-              onRefresh={handleRefresh}
+      <PageLayout
+        title="Transactions"
+        subtitle="View and manage all your transactions"
+        stickySection={
+          <>
+            <div id='filters' className={styles.Filters}>
+              <TransactionsFilters
+                accounts={accounts}
+                filterAccountId={filterAccountId}
+                setFilterAccountId={setFilterAccountId}
+                filterType={filterType}
+                setFilterType={setFilterType}
+                dateFrom={dateFrom}
+                setDateFrom={setDateFrom}
+                dateTo={dateTo}
+                setDateTo={setDateTo}
+                searchTerm={searchQuery}
+                setSearchTerm={setSearchQuery}
+                onRefresh={handleRefresh}
+              />
+            </div>
+
+            <TransactionMonthPills
+              months={months}
+              selectedMonth={selectedMonth}
+              setSelectedMonth={setSelectedMonth}
             />
-          </div>
-
-          <TransactionMonthPills
-            months={months}
-            selectedMonth={selectedMonth}
-            setSelectedMonth={setSelectedMonth}
-          />
-
-          <div id='transaction-body' ref={transactionsWrapperRef} className={styles.TransactionsWrapper}>
-            {filteredTransactions.map(transaction => {
-              return (
-                <div key={transaction.id} ref={(el) => { transactionRefs.current[transaction.id] = el }}>
-                  <TransactionsDisplay
-                    transactions={[transaction]}
-                    narrationPopup
-                  />
-                </div>
-              )
-            })}
-          </div>
+          </>
+        }
+      >
+        <div className={styles.TransactionsWrapper}>
+          {filteredTransactions.map(transaction => {
+            return (
+              <div key={transaction.id} ref={(el) => { transactionRefs.current[transaction.id] = el }}>
+                <TransactionsDisplay
+                  transactions={[transaction]}
+                  narrationPopup
+                />
+              </div>
+            )
+          })}
         </div>
+      </PageLayout>
 
-        {selectedTransaction && (
-          <TransactionDetailsDialog
-            transaction={selectedTransaction}
-            onClose={() => setSelectedTransactionId(null)}
-          />
-        )}
-      </Dialog.Root>
+      {selectedTransaction && (
+        <TransactionDetailsDialog
+          transaction={selectedTransaction}
+          onClose={() => setSelectedTransactionId(null)}
+        />
+      )}
+    </Dialog.Root>
   )
 }
