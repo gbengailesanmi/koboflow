@@ -1,18 +1,21 @@
-import type { Account } from '@koboflow/shared'
+import type { Account, EnrichedTransaction } from '@koboflow/shared'
 import React, { useState } from 'react'
 import { useQueryStates, parseAsString } from 'nuqs'
 import styles from '@/app/components/transactions/transactions.module.css'
 import { DropdownMenu, Button } from '@radix-ui/themes'
-import { MagnifyingGlassIcon, ChevronDownIcon, SymbolIcon, ArrowRightIcon } from '@radix-ui/react-icons'
+import { MagnifyingGlassIcon, ChevronDownIcon, SymbolIcon, ArrowRightIcon, DownloadIcon } from '@radix-ui/react-icons'
 import { formatAccountBalance } from '@/helpers/transactions.helpers'
+import { downloadTransactionsAsCSV, printTransactions } from '@/utils/download-transactions'
 
 type TransactionsFiltersProps = {
   accounts: Account[]
+  transactions?: EnrichedTransaction[]
   onRefresh?: () => Promise<void>
 }
 
 export default function TransactionsFilters({
   accounts,
+  transactions = [],
   onRefresh,
 }: TransactionsFiltersProps) {
   const [isRefreshing, setIsRefreshing] = useState(false)
@@ -59,14 +62,15 @@ export default function TransactionsFilters({
                   onSelect={() => setFilters({ accountId: '' })}
                   disabled={accountId === ''}
                 >
-                  All accounts {accountId === '' && '✓'}
+                  All accounts
                 </DropdownMenu.Item>
                 {accounts.map(account => (
                   <DropdownMenu.Item
                     key={account.id}
                     onSelect={() => setFilters({ accountId: accountId === account.id ? '' : account.id })}
+                    disabled={accountId === account.id}
                   >
-                    {formatAccountBalance(account.name, account.balance)} {accountId === account.id && '✓'}
+                    {formatAccountBalance(account.name, account.balance)}
                   </DropdownMenu.Item>
                 ))}
               </DropdownMenu.SubContent>
@@ -82,17 +86,19 @@ export default function TransactionsFilters({
                   onSelect={() => setFilters({ type: 'all' })}
                   disabled={filterType === 'all'}
                 >
-                  All {filterType === 'all' && '✓'}
+                  All
                 </DropdownMenu.Item>
                 <DropdownMenu.Item 
                   onSelect={() => setFilters({ type: filterType === 'debit' ? 'all' : 'debit' })}
+                  disabled={filterType === 'debit'}
                 >
-                  Debit {filterType === 'debit' && '✓'}
+                  Debit
                 </DropdownMenu.Item>
                 <DropdownMenu.Item 
                   onSelect={() => setFilters({ type: filterType === 'credit' ? 'all' : 'credit' })}
+                  disabled={filterType === 'credit'}
                 >
-                  Credit {filterType === 'credit' && '✓'}
+                  Credit
                 </DropdownMenu.Item>
               </DropdownMenu.SubContent>
             </DropdownMenu.Sub>
@@ -146,6 +152,37 @@ export default function TransactionsFilters({
           >
             <SymbolIcon width='16' height='16' className={isRefreshing ? 'animate-spin' : ''} />
           </Button>
+        </div>
+      )}
+
+      {/* Download/Print Button */}
+      {transactions.length > 0 && (
+        <div>
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger>
+              <Button className={styles.refresh}>
+                <DownloadIcon width='16' height='16' />
+              </Button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content>
+              <DropdownMenu.Item onSelect={() => downloadTransactionsAsCSV(transactions)}>
+                Download as CSV
+              </DropdownMenu.Item>
+              <DropdownMenu.Item onSelect={() => {
+                const selectedAccount = accounts.find(acc => acc.id === accountId)
+                printTransactions(transactions, {
+                  accountId,
+                  accountName: selectedAccount?.name,
+                  type: filterType,
+                  from,
+                  to,
+                  search
+                })
+              }}>
+                Print
+              </DropdownMenu.Item>
+            </DropdownMenu.Content>
+          </DropdownMenu.Root>
         </div>
       )}
     </div>

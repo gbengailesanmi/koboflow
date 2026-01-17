@@ -36,7 +36,7 @@ export default function TransactionsDisplay({ transactions, narrationPopup = fal
             <div key={transaction.id}>
               <Dialog.Trigger onClick={() => narrationPopup && setSelectedTransaction(transaction)}>
                 <Box className={styles.item}>
-                  <Card>
+                  <Card variant='ghost' className={styles.transactionCard}>
                     <Flex gap='3' align='center'>
                       <Icon className={isDebit ? styles.debit : styles.credit} />
                       <div className={styles.text}>

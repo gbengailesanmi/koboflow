@@ -119,6 +119,7 @@ export default function TransactionsClient() {
             <div id='filters' className={styles.Filters}>
               <TransactionsFilters
                 accounts={accounts}
+                transactions={filteredTransactions}
                 onRefresh={handleRefresh}
               />
             </div>

@@ -3,6 +3,7 @@
 import React, { ReactNode, useEffect } from 'react'
 import styles from './page-layout.module.css'
 import Header from '@/app/components/header/header'
+import { Separator } from '@radix-ui/themes'
 import { useHeaderFooterContext } from '@/providers/header-footer-provider'
 
 type PageLayoutProps = {
@@ -38,12 +39,12 @@ export function PageLayout({
   return (
     <div className={className}>
       <Header variant={headerVariant} title={title} subtitle={subtitle} />
-      
       <div className={styles.container}>
         <div className={styles.contentContainer}>
           {stickySection && (
             <div className={styles.stickySection}>
               {stickySection}
+              <Separator my='3' size='4' mx='auto' className='max-w-[85%]' />
             </div>
           )}
           <main ref={mainRef} className='page-main'>

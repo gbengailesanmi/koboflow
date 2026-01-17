@@ -6,7 +6,7 @@
   background:
     linear-gradient(
       to bottom,
-      color-mix(in srgb, var(--dashboard-bg-color) 85%, rgb(78, 77, 77)) 0%,
+      color-mix(in srgb, var(--dashboard-bg-color) 85%, white) 0%,
       
       var(--dashboard-bg-color) 12%,
       var(--via-color) var(--via-stop),

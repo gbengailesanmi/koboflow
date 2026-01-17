@@ -6,6 +6,7 @@
   @apply min-h-screen;
   height: 100vh;
   overflow-y: auto;
+  background-color: var(--page-bg-color);
 }
 
 /* Header Section */

@@ -16,12 +16,20 @@
   --bottom-via-stop: 90%;
 
   --summary-card-border-color: #d4d6d6;
-  --search-bg: #ffffff;
-  --filter-bg: #ffffff;
-  --filter-pill-bg: #ffffff;
+  --cta-bg: #fff;
+  --page-bg-color: #c5d9e018;
+  --page-header-bg: linear-gradient(
+    to bottom,
+    #fff 0%,
+    var(--page-bg-color) 100%
+  );
 
   --filter-pill-border: #040708;
   --search-border: #040708;
+
+  --shadow:
+    0 1px 6px rgba(0, 0, 0, 0.15),
+    0 8px 24px rgba(0, 0, 0, 0.021);
 
   --filter-pill: #ffffff;
   --filter-pill__selected: #57585b;
