@@ -1,7 +1,8 @@
 @reference "../../globals.css";
 
 .filters {
-  @apply w-full flex items-center justify-between gap-1 px-2 max-w-[100vw] overflow-x-hidden;
+  @apply w-full flex items-center gap-1 px-2 max-w-[100vw] overflow-x-hidden;
+  color: var(--search-bg);
 }
 
 .filters .accounts {
@@ -12,7 +13,7 @@
   @apply flex items-center gap-2;
 
   input {
-    @apply px-3 py-1 rounded-lg outline-0 text-sm;
+    @apply px-3 py-1 rounded-full outline-0 text-sm;
     background: var(--search-bg);
     color: var(--search-input);
   }
@@ -21,15 +22,27 @@
     @apply w-4 h-4;
   }
 }
+.filters .filter {
+  @apply rounded-full border font-light;
+  color: var(--accent-color);
+  background-color: var(--filter-bg);
+}
 
 .filters .search {
-  @apply h-full grow rounded-3xl outline-0;
+  @apply h-full grow rounded-full border;
   background: var(--search-bg);
+  border-color: var(--search-border);
 
   input {
-    @apply outline-0 w-full;
-    color: var(--search-input);
+    @apply outline-0 w-full font-light;
+    color: var(--accent-color);
   }
+}
+
+
+.filters .refresh {
+  @apply bg-transparent border-0;
+  color: var(--accent-color);
 }
 
 .body {
@@ -65,7 +78,7 @@
 }
 
 .scrollDiv {
-  @apply px-2 pt-2 overflow-x-auto whitespace-nowrap;
+  @apply px-2 pt-2 overflow-x-auto whitespace-nowrap flex gap-2;
   scrollbar-width: none;
   -ms-overflow-style: none;
 
@@ -74,17 +87,16 @@
   }
 
   button {
-    @apply inline-flex h-7 items-center cursor-pointer border select-none rounded-full text-xs font-light transition-all duration-500 ease-in-out;
-    background-color: var(--filter-pills);
-    border-color: var(--filter-pills-border);
-    color: var(--regular-text-color);
+    @apply inline-flex h-5 items-center cursor-pointer border select-none rounded-full text-xs font-light transition-all duration-500 ease-in-out;
+    background-color: var(--filter-pill-bg);
+    border-color: var(--filter-pill-border);
 
     &.selected {
-      @apply mx-2 px-6 py-1;
+      @apply px-7 py-1;
     }
 
     &.unselected {
-      @apply mx-0.5 px-3 py-1;
+      @apply px-3 py-1;
     }
 
     span {
@@ -104,10 +116,7 @@
 }
 
 .filterPill {
-  @apply inline-flex h-7 gap-1.5 px-3 py-1 items-center border cursor-pointer select-none rounded-full text-xs font-light;
-  background-color: var(--filter-pills);
-  border-color: var(--filter-pills-border);
-  color: var(--regular-text-color);
+  @apply inline-flex h-7 gap-1.5 px-3 py-1 items-center border-0 cursor-pointer bg-transparent select-none rounded-full text-xs font-light;
 
   span {
     @apply whitespace-nowrap;

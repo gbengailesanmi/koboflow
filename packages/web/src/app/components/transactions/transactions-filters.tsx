@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { useQueryStates, parseAsString } from 'nuqs'
 import styles from '@/app/components/transactions/transactions.module.css'
 import { DropdownMenu, Button } from '@radix-ui/themes'
-import { MagnifyingGlassIcon, ChevronDownIcon, ReloadIcon, ArrowRightIcon } from '@radix-ui/react-icons'
+import { MagnifyingGlassIcon, ChevronDownIcon, SymbolIcon, ArrowRightIcon } from '@radix-ui/react-icons'
 import { formatAccountBalance } from '@/helpers/transactions.helpers'
 
 type TransactionsFiltersProps = {
@@ -45,7 +45,7 @@ export default function TransactionsFilters({
       <div className={styles.accounts}>
         <DropdownMenu.Root>
           <DropdownMenu.Trigger>
-            <Button variant='soft' color='gray' radius='full'>
+            <Button className={styles.filter}>
               Filters
               <ChevronDownIcon width='18' height='18' />
             </Button>
@@ -130,7 +130,7 @@ export default function TransactionsFilters({
         <input
           id='search'
           type='search'
-          placeholder='Search'
+          placeholder='Search...'
           value={search}
           onChange={e => setFilters({ search: e.target.value })}
         />
@@ -140,13 +140,11 @@ export default function TransactionsFilters({
       {onRefresh && (
         <div>
           <Button
-            variant='soft'
-            color='gray'
-            radius='full'
+            className={styles.refresh}
             onClick={handleRefresh}
             disabled={isRefreshing}
           >
-            <ReloadIcon width='16' height='16' className={isRefreshing ? 'animate-spin' : ''} />
+            <SymbolIcon width='16' height='16' className={isRefreshing ? 'animate-spin' : ''} />
           </Button>
         </div>
       )}

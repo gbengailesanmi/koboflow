@@ -16,12 +16,17 @@
   --bottom-via-stop: 90%;
 
   --summary-card-border-color: #d4d6d6;
-  --search-input: #686767;
-  --search-bg: #f5f5f5;
-  --filter-pills: #ffffff;
-  --filter-pills-border: #0f191d;
+  --search-bg: #ffffff;
+  --filter-bg: #ffffff;
+  --filter-pill-bg: #ffffff;
+
+  --filter-pill-border: #040708;
+  --search-border: #040708;
+
+  --filter-pill: #ffffff;
+  --filter-pill__selected: #57585b;
   --regular-text-color: #040708;
-  --accent-color: #152a30;
+  --accent-color: #040708;
 
 
 
