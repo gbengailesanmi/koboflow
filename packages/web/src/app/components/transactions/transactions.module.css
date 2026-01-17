@@ -71,10 +71,9 @@
 }
 
 .transactionCard {
+  @apply rounded-xl m-1.5;
   background-color: var(--card-bg);
-  border-radius: 12px;
   box-shadow: var(--shadow);
-  margin: 5px;
 }
 
 .text {
@@ -118,10 +117,9 @@
 }
 
 .filterPillsContainer {
-  @apply p-2 flex flex-wrap gap-2;
+  @apply p-2 flex flex-wrap gap-2 h-2;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  height: 2rem;
 
   &::-webkit-scrollbar {
     @apply hidden;

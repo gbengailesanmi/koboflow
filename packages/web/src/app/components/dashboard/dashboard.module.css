@@ -21,7 +21,7 @@
 }
 
 .embla__slide {
-  @apply flex-[0_0_100%] min-w-[200px] flex flex-col items-center justify-center rounded;
+  @apply flex-[0_0_100%] min-w-50 flex flex-col items-center justify-center rounded;
 }
 
 .embla {

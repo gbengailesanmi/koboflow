@@ -23,9 +23,9 @@
   --filter-pill-border: #f7fbfc;
   --search-border: #f7fbfc;
   
---shadow:
-  0 1px 6px rgba(157, 157, 157, 0.15),
-  0 8px 24px rgba(157, 157, 157, 0.021);
+  --shadow:
+    0 1px 6px rgba(157, 157, 157, 0.15),
+    0 8px 24px rgba(157, 157, 157, 0.021);
   
   --filter-pill__selected: #131414;
   --regular-text-color: #cdd7da;
