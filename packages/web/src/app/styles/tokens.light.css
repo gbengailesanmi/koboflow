@@ -1,4 +1,5 @@
 :root {
+  /* Dashboard */
   --dashboard-bg-color: hsl(0, 0%, 99%);
   --via-color: color-mix(
     in srgb,
@@ -15,7 +16,15 @@
   );
   --bottom-via-stop: 90%;
 
-  --summary-card-border-color: #d4d6d6;
+  --summary-card-bg: var(--card-bg);
+  --summary-card-pcnt: 5%;
+  --summary-card-shadow: var(--shadow);
+
+  --dashboard-transaction-card-bg: var(--card-bg);
+  --dashboard-transaction-card-pcnt: 5%;
+  --dashboard-transaction-card-shadow: var(--shadow);
+
+  /* Pages */
   --cta-bg: #fff;
   --page-bg-color: #c5d9e018;
   --page-header-bg: linear-gradient(

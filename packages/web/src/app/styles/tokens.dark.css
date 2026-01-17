@@ -11,7 +11,14 @@
 
 
 
-  --summary-card-border-color: #3a3b3b;
+  --summary-card-bg: #edf2f2;
+  --summary-card-pcnt: 95%;
+  --summary-card-shadow: 0;
+
+  --dashboard-transaction-card-bg: #edf2f2;
+  --dashboard-transaction-card-pcnt: 95%;
+  --dashboard-transaction-card-shadow: 0;
+
   --cta-bg: #130f0f;
   --page-bg-color: #1b1e20e0;
   --page-header-bg: linear-gradient(

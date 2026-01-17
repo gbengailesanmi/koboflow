@@ -140,7 +140,7 @@ export default function TransactionsClient() {
               <div key={transaction.id} ref={(el) => { transactionRefs.current[transaction.id] = el }}>
                 <TransactionsDisplay
                   transactions={[transaction]}
-                  narrationPopup
+                  className={styles.transactionCard}
                 />
               </div>
             )

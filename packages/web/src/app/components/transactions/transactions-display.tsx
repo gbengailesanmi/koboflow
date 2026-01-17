@@ -15,10 +15,11 @@ import {
 
 type TransactionColumnProps = {
   transactions: EnrichedTransaction[]
-  narrationPopup?: boolean
+  isDashboard?: boolean
+  className?: string
 }
 
-export default function TransactionsDisplay({ transactions, narrationPopup = false }: TransactionColumnProps) {
+export default function TransactionsDisplay({ transactions, isDashboard = false, className }: TransactionColumnProps) {
   const [selectedTransaction, setSelectedTransaction] = useState<EnrichedTransaction | null>(null)
 
   return (
@@ -34,9 +35,9 @@ export default function TransactionsDisplay({ transactions, narrationPopup = fal
 
           return (
             <div key={transaction.id}>
-              <Dialog.Trigger onClick={() => narrationPopup && setSelectedTransaction(transaction)}>
+              <Dialog.Trigger onClick={() => isDashboard && setSelectedTransaction(transaction)}>
                 <Box className={styles.item}>
-                  <Card variant='ghost' className={styles.transactionCard}>
+                  <Card variant='ghost' className={className}>
                     <Flex gap='3' align='center'>
                       <Icon className={isDebit ? styles.debit : styles.credit} />
                       <div className={styles.text}>
@@ -63,7 +64,7 @@ export default function TransactionsDisplay({ transactions, narrationPopup = fal
         })}
       </main>
 
-      {narrationPopup && selectedTransaction && (
+      {isDashboard && selectedTransaction && (
         <Dialog.Content>
           <Flex gap='3' justify='between' style={{ marginBottom: '0.5rem' }}>
             <Dialog.Title>Transaction Details</Dialog.Title>

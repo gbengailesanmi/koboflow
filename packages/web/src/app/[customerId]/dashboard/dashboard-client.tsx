@@ -84,8 +84,11 @@ export default function DashboardClient({ customerId }: DashboardClientProps) {
           ) : limitedTransactions.length < 1 ? (
             <p>No transactions yet</p>
           ) : (
-            <div className={styles.transactionsListWrapper}>
-              <TransactionsDisplay transactions={limitedTransactions} />
+            <div className={styles.limitedTransactionsWrapper}>
+              <TransactionsDisplay transactions={limitedTransactions} 
+              isDashboard
+              className={styles.limitedTransactions} 
+            />
             </div>
           )}
 

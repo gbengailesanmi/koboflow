@@ -70,12 +70,6 @@
   }
 }
 
-.transactionCard {
-  @apply rounded-xl m-1.5;
-  background-color: var(--card-bg);
-  box-shadow: var(--shadow);
-}
-
 .text {
   @apply flex flex-col truncate font-thin;
 }
