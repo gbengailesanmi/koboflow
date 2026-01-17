@@ -75,7 +75,7 @@ export default function DashboardClient({ customerId }: DashboardClientProps) {
       </Grid>
 
       <Card
-        title="Transactions"
+        title='Transactions'
         variant='default'
       >
         <>
@@ -85,16 +85,16 @@ export default function DashboardClient({ customerId }: DashboardClientProps) {
             <p>No transactions yet</p>
           ) : (
             <div className={styles.limitedTransactionsWrapper}>
-              <TransactionsDisplay transactions={limitedTransactions} 
-              isDashboard
-              className={styles.limitedTransactions} 
-            />
+              <TransactionsDisplay 
+                transactions={limitedTransactions} 
+                variant='dashboard'
+              />
             </div>
           )}
 
           <div
             className={`${styles.seeAll} cursor-pointer`}
-            role="button"
+            role='button'
             onClick={handleSeeAllClick}
           >
             See all transactions

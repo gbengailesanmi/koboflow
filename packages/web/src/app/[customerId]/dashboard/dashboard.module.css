@@ -26,12 +26,6 @@
   @apply overflow-auto flex-1 m-2 mt-0;
 }
 
-.limitedTransactions {
-  @apply rounded-xl m-1.5;
-  background: color-mix(in srgb, var(--dashboard-bottom-blend) var(--dashboard-transaction-card-pcnt), var(--dashboard-transaction-card-bg));
-  box-shadow: var(--dashboard-transaction-card-shadow);
-}
-
 .seeAll {
   @apply text-sm font-thin justify-center items-center flex p-1 cursor-pointer shrink-0;
 }

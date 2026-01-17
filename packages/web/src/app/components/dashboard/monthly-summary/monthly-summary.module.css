@@ -9,6 +9,7 @@
 }
 
 .bottomSection {
-  @apply w-full rounded-2xl shrink-0 min-h-40 border-transparent border-[0.2px];
-  background: color-mix(in srgb, var(--dashboard-bottom-blend) 95%, rgb(103, 102, 102));
+  @apply w-full rounded-xl m-1.5 shrink-0 min-h-40 border-0;
+  background: color-mix(in srgb, var(--dashboard-bottom-blend) var(--dashboard-transaction-card-pcnt), var(--dashboard-transaction-card-bg));
+  box-shadow: var(--dashboard-transaction-card-shadow);
 }

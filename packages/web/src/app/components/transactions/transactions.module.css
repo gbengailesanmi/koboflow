@@ -82,6 +82,18 @@
   @apply flex flex-1 items-center justify-end text-xs font-normal;
 }
 
+.cardDashboard {
+  @apply rounded-xl m-1.5;
+  background: color-mix(in srgb, var(--dashboard-bottom-blend) var(--dashboard-transaction-card-pcnt), var(--dashboard-transaction-card-bg));
+  box-shadow: var(--dashboard-transaction-card-shadow);
+}
+
+.cardTransactions {
+  @apply rounded-xl m-1.5;
+  background-color: var(--card-bg);
+  box-shadow: var(--shadow);
+}
+
 .scrollDiv {
   @apply p-2 overflow-x-auto whitespace-nowrap flex gap-2;
   scrollbar-width: none;

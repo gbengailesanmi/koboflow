@@ -13,12 +13,6 @@
   padding-bottom: 5rem;
 }
 
-.transactionCard {
-  @apply rounded-xl m-1.5;
-  background-color: var(--card-bg);
-  box-shadow: var(--shadow);
-}
-
 .DebitText {
   color: rgb(244, 121, 121);
 }

@@ -112,8 +112,8 @@ export default function TransactionsClient() {
       }}
     >
       <PageLayout
-        title="Transactions"
-        subtitle="View and manage all your transactions"
+        title='Transactions'
+        subtitle='View and manage all your transactions'
         stickySection={
           <>
             <div id='filters' className={styles.Filters}>
@@ -140,7 +140,7 @@ export default function TransactionsClient() {
               <div key={transaction.id} ref={(el) => { transactionRefs.current[transaction.id] = el }}>
                 <TransactionsDisplay
                   transactions={[transaction]}
-                  className={styles.transactionCard}
+                  variant='transactions'
                 />
               </div>
             )

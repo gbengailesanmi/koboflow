@@ -48,25 +48,25 @@ export default function MonthlySummary({
     <div className={styles.summaryContainer}>
       <div className={styles.summaryGrid}>
         <SummaryCard
-          title="Total Spend"
+          title='Total Spend'
           value={`£${totalSpend.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
           vsContent={vsContent}
         />
 
         <SummaryCard
-          title="Upcoming Bills"
+          title='Upcoming Bills'
           value={upcomingBills.length.toString()}
           onClick={() => setShowBillsPopup(true)}
           clickable
         />
 
         <SummaryCard
-          title="Total Received"
+          title='Total Received'
           value={`£${totalReceived.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
         />
 
         <SummaryCard
-          title="Credit Score"
+          title='Credit Score'
           value={creditScore.toString()}
         />
       </div>
