@@ -70,46 +70,44 @@
   -ms-overflow-style: none;
 
   &::-webkit-scrollbar {
-    display: none;
+    @apply hidden;
   }
 
   button {
-    @apply inline-block cursor-pointer select-none rounded-lg transition-all duration-300 ease-in-out;
+    @apply inline-flex h-7 items-center cursor-pointer border select-none rounded-full text-xs font-light transition-all duration-500 ease-in-out;
+    background-color: var(--filter-pills);
+    border-color: var(--filter-pills-border);
+    color: var(--regular-text-color);
 
     &.selected {
-      @apply mx-2 px-6 py-1 bg-[rgba(74,85,101,1)];
+      @apply mx-2 px-6 py-1;
     }
 
     &.unselected {
-      @apply mx-0.5 px-2 py-0 md:py-1 bg-[rgba(33,34,37,1)];
+      @apply mx-0.5 px-3 py-1;
+    }
+
+    span {
+      @apply whitespace-nowrap;
     }
   }
 }
 
 .filterPillsContainer {
-  @apply px-2 pb-2 flex flex-wrap gap-2 overflow-x-auto;
+  @apply p-2 flex flex-wrap gap-2;
   scrollbar-width: none;
   -ms-overflow-style: none;
 
   &::-webkit-scrollbar {
-    display: none;
+    @apply hidden;
   }
 }
 
 .filterPill {
-  @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium cursor-pointer select-none transition-all duration-200 ease-in-out;
-  background: rgba(59, 130, 246, 0.15);
-  color: rgba(96, 165, 250, 1);
-  border: 1px solid rgba(59, 130, 246, 0.3);
-
-  &:hover {
-    background: rgba(59, 130, 246, 0.25);
-    border-color: rgba(59, 130, 246, 0.5);
-  }
-
-  &:active {
-    transform: scale(0.95);
-  }
+  @apply inline-flex h-7 gap-1.5 px-3 py-1 items-center border cursor-pointer select-none rounded-full text-xs font-light;
+  background-color: var(--filter-pills);
+  border-color: var(--filter-pills-border);
+  color: var(--regular-text-color);
 
   span {
     @apply whitespace-nowrap;
@@ -117,10 +115,5 @@
 }
 
 .filterPillIcon {
-  @apply w-3 h-3 flex-shrink-0;
-  transition: transform 0.15s ease-in-out;
-
-  .filterPill:hover & {
-    transform: scale(1.2);
-  }
+  @apply w-3 h-3 shrink-0;
 }
