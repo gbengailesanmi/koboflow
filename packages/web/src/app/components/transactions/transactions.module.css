@@ -106,16 +106,16 @@
   }
 
   button {
-    @apply inline-flex h-5 items-center cursor-pointer border-0 select-none rounded-lg text-xs font-thin transition-all duration-700 ease-in-out;
+    @apply inline-flex h-5 items-center cursor-pointer border-0 select-none rounded-lg text-xs transition-all duration-700 ease-in-out;
     background-color: var(--cta-bg);
     box-shadow: var(--shadow);
 
     &.selected {
-      @apply px-5 py-1 scale-3d;
+      @apply px-5 py-1 font-medium scale-3d;
     }
 
     &.unselected {
-      @apply px-3 py-1;
+      @apply px-3 font-thin py-1;
     }
 
     span {
