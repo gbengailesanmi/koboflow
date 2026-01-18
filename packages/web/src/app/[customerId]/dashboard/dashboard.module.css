@@ -2,6 +2,7 @@
 
 .main {
   @apply flex flex-col gap-4 min-h-screen overflow-y-visible;
+  color: var(--accent-color);
 
   background:
     linear-gradient(

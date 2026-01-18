@@ -1,9 +1,9 @@
 @reference "../../globals.css";
 
 .dashboardHeaderWrapper {
-  @apply fixed left-0 top-0 w-full h-[3rem] flex lg:gap-70 items-center p-3 justify-between z-50 backdrop-blur-xs transition-transform duration-300 ease-in-out;
+  @apply fixed left-0 top-0 w-full h-12 flex lg:gap-70 items-center p-3 justify-between z-50 backdrop-blur-xs transition-transform duration-300 ease-in-out;
 
-  background: transparent;
+  background: rgba(255, 255, 255, 0.1);
 
   -webkit-mask-image: linear-gradient(
     to bottom,
@@ -22,7 +22,8 @@
 }
 
 .headerWrapper {
-  @apply relative left-0 top-0 w-full h-[3rem] flex lg:gap-70 items-center p-3 justify-between z-50;
+  @apply relative left-0 top-0 w-full h-12 flex lg:gap-70 items-center p-3 justify-between z-50;
+  background: rgba(255, 255, 255, 0.1)
 }
 
 .hamburgerWrapper {

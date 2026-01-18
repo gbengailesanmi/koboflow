@@ -26,6 +26,8 @@
 
   /* Pages */
   --cta-bg: #fff;
+  --search-bar-bg: #efefef;
+  
   --page-bg-color: #c5d9e018;
   --page-header-bg: linear-gradient(
     to bottom,

@@ -1,4 +1,5 @@
 .dark {
+  /* Dashboard */
   --dashboard-bg-color: hsl(0, 30%, 40%);
   --via-color: color-mix(
     in srgb,
@@ -9,8 +10,6 @@
   --dashboard-bottom-bg-color: #000;
   --bottom-via-stop: 90%;
 
-
-
   --summary-card-bg: #edf2f2;
   --summary-card-pcnt: 95%;
   --summary-card-shadow: 0;
@@ -19,24 +18,27 @@
   --dashboard-transaction-card-pcnt: 95%;
   --dashboard-transaction-card-shadow: 0;
 
-  --cta-bg: #130f0f;
-  --page-bg-color: #1b1e20e0;
+  /* Pages */
+  --cta-bg: #57565641;
+  --search-bar-bg: #57565643;
+
+  --page-bg-color: #141617;
+
   --page-header-bg: linear-gradient(
     to bottom,
     #2a2a2a 0%,
     var(--page-bg-color) 100%
   );
 
-  --filter-pill-border: #f7fbfc;
+  --filter-pill-border: #f7fbfc;   /* transactions filter pills */
+
   --search-border: #f7fbfc;
   
-  --shadow:
-    0 1px 6px rgba(157, 157, 157, 0.15),
-    0 8px 24px rgba(157, 157, 157, 0.021);
+  --shadow: 0;
   
   --filter-pill__selected: #131414;
   --regular-text-color: #cdd7da;
-  --accent-color: #f7fbfc;
+  --accent-color: #f4f2efc7;
 
 
 

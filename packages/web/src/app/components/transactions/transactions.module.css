@@ -31,7 +31,7 @@
 
 .filters .search {
   @apply h-full grow rounded-full border-0 ml-3;
-  background: var(--cta-bg);
+  background: var(--search-bar-bg);
 
   input {
     @apply outline-0 w-full font-light;
@@ -90,12 +90,14 @@
 
 .cardTransactions {
   @apply rounded-xl m-1.5;
-  background-color: var(--card-bg);
+  background-color: var(--cta-bg);
   box-shadow: var(--shadow);
+  color: var(--accent-color);
 }
 
 .scrollDiv {
   @apply p-2 overflow-x-auto whitespace-nowrap flex gap-2;
+  color: var(--accent-color);
   scrollbar-width: none;
   -ms-overflow-style: none;
 
@@ -123,23 +125,28 @@
 }
 
 .filterPillsContainer {
-  @apply p-2 flex flex-wrap gap-2 h-2;
+  @apply p-1 overflow-x-auto whitespace-nowrap;
+  color: var(--accent-color);
   scrollbar-width: none;
   -ms-overflow-style: none;
 
   &::-webkit-scrollbar {
     @apply hidden;
   }
-}
 
-.filterPill {
-  @apply inline-flex h-7 gap-1.5 px-3 py-1 items-center border-0 cursor-pointer bg-transparent select-none rounded-full text-xs font-thin;
+  .pill {
+    @apply inline-flex gap-1.5 px-3 items-center border-0 cursor-pointer bg-transparent select-none rounded-full text-xs font-thin;
 
-  span {
-    @apply whitespace-nowrap;
+    span {
+      @apply whitespace-nowrap;
+    }
+  }
+
+  .icon {
+    @apply w-4 h-4 shrink-0;
   }
 }
 
-.filterPillIcon {
-  @apply w-4 h-4 shrink-0;
+:global(.rt-DropdownMenuContent) {
+  color: var(--accent-color);
 }
