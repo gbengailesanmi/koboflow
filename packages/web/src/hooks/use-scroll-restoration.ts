@@ -3,20 +3,6 @@
 import { useEffect, useRef } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 
-/**
- * Hook to restore scroll position for a specific route
- * Saves scroll position to sessionStorage when navigating away
- * Restores it when coming back (e.g., via back button)
- * 
- * Storage key format: "scroll:{pathname}?{searchParams}"
- * This ensures each unique URL path + params has its own scroll position
- * 
- * @example
- * // In your page component:
- * useScrollRestoration()
- * 
- * // Now scrolling is automatically saved/restored for this route
- */
 export function useScrollRestoration() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
