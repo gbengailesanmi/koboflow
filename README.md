@@ -8,7 +8,7 @@ This is my BYBS (side) Project where I explore modern fullstack development prac
 
 Koboflow is a comprehensive personal finance management application designed to help users track spending, manage budgets, and gain insights into their financial habits. 
 
-It features real-time transaction syncing with [Mono](https://mono.co) (a Nigeria-based financial aggregation service), interactive dashboards with dynamic colour-coded accounts, and intelligent budget tracking. The app emphasizes monorepo-style architecture with a shared TypeScript codebase across the web, mobile (proposed - with React), and backend, ensuring type safety and consistency.
+It features real-time transaction syncing with [Mono](https://mono.co) (a Nigeria-based financial aggregation service), interactive dashboards with dynamic colour-coded accounts, and intelligent budget tracking. The app emphasizes monorepo-style architecture with a shared TypeScript codebase across the web, mobile (proposed - with React Native), and backend, ensuring type safety and consistency.
 
 Through this project, I'm experimenting with advanced React patterns, state management with Nuqs, containerization with Docker, and building scalable fullstack systems.
 
